@@ -1,0 +1,99 @@
+.modal {
+  background: var(--night);
+  color: var(--night-ink);
+}
+.layout {
+  min-height: 100%;
+  display: flex;
+  gap: min(4vw, 40px);
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  cursor: pointer;
+  padding: 0 min(3vw, 24px) 12px;
+}
+.photo {
+  width: min(52vw, 70vh);
+  height: min(52vw, 70vh);
+  border-radius: 24px;
+}
+.details {
+  flex: 1 1 320px;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.kick {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.name {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: #fff;
+}
+.desc {
+  margin-top: 6px;
+  font-size: 15px;
+  color: #aeb7be;
+  line-height: 1.45;
+}
+.out {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--danger);
+  color: #fff;
+}
+.label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--night-dim);
+  margin-bottom: 4px;
+}
+.value {
+  font-size: 17px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.muted {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--night-dim);
+}
+.allergens {
+  font-size: 17px;
+  font-weight: 600;
+  color: #f0a99f;
+}
+.choice {
+  font-size: 14px;
+  color: #c9d1d7;
+  line-height: 1.5;
+}
+.choice b {
+  color: var(--night-ink);
+}
+.hint {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--s500);
+}
+@media (max-width: 900px) {
+  .photo {
+    width: min(70vw, 42vh);
+    height: min(70vw, 42vh);
+  }
+}

@@ -1,0 +1,19 @@
+.photo {
+  display: block;
+  flex-shrink: 0;
+  object-fit: cover;
+  object-position: center;
+  background: var(--limestone);
+}
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aeb7be;
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.06);
+}
+.dark {
+  background: var(--night-3);
+  color: var(--s500);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}

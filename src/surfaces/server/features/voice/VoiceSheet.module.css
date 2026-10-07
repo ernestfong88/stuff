@@ -1,0 +1,240 @@
+.sheet {
+  max-width: 920px;
+  background: var(--paper);
+}
+.titleRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.titleRow button {
+  font-family: var(--font-sans);
+}
+.subRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.faces {
+  display: inline-flex;
+}
+.face + .face {
+  margin-left: -8px;
+}
+.face {
+  box-shadow: 0 0 0 2px var(--paper);
+}
+.none {
+  padding: 18px 0 8px;
+  font-size: 15px;
+  color: var(--s400);
+  text-align: center;
+}
+.intro {
+  font-size: 15px;
+  color: var(--s500);
+  line-height: 1.5;
+  max-width: 760px;
+}
+.micWrap {
+  display: flex;
+  justify-content: center;
+  margin: 22px 0 12px;
+}
+.mic {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1f6fa8, var(--ocean-700));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 34px -10px rgba(20, 87, 133, 0.7);
+  transition:
+    background var(--med),
+    box-shadow var(--med);
+}
+.micOn {
+  background: var(--danger);
+  box-shadow:
+    0 0 0 14px rgba(178, 59, 46, 0.16),
+    0 0 0 28px rgba(178, 59, 46, 0.07);
+}
+.micHint {
+  text-align: center;
+  font-size: 14px;
+  color: var(--s400);
+  margin-bottom: 10px;
+}
+.micHintOn {
+  font-weight: 800;
+  color: var(--danger);
+}
+.live {
+  max-width: 720px;
+  margin: 0 auto 14px;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--s700);
+  text-align: center;
+}
+.center {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.typeBox {
+  margin: 14px 0 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.typeBox textarea {
+  font-size: 15px;
+  min-height: 90px;
+}
+.typeActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.notice {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--clay-600);
+}
+.cap {
+  margin: 16px 0 8px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.examples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.example {
+  text-align: left;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  padding: 12px 15px;
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.09);
+}
+.example:hover {
+  box-shadow: inset 0 0 0 1.5px var(--ocean);
+}
+.exampleLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+  margin-bottom: 4px;
+}
+.exampleText {
+  display: block;
+  font-size: 15px;
+  color: var(--s700);
+  line-height: 1.45;
+}
+.said {
+  font-size: 15px;
+  color: var(--s700);
+  line-height: 1.55;
+  font-style: italic;
+  padding: 12px 15px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.09);
+}
+.countRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.countHint {
+  font-size: 13px;
+  color: var(--s400);
+}
+.rows {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: var(--r-2xl);
+  padding: 13px 15px;
+  box-shadow: var(--ring);
+}
+.undone {
+  opacity: 0.5;
+}
+.undone .rowText {
+  text-decoration: line-through;
+}
+.rowBody {
+  flex: 1;
+  min-width: 0;
+}
+.rowHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.kind {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.rowName {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--s700);
+}
+.rowText {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.about {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--s700);
+}
+.how {
+  color: var(--s400);
+}
+.rowStatus {
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--s400);
+}
+.footer {
+  display: flex;
+  gap: 10px;
+}
+.discard {
+  flex: 1;
+}
+.done {
+  flex: 2;
+}

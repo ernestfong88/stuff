@@ -1,0 +1,102 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 14px;
+}
+.dates {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.field {
+  flex: 1 1 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--s500);
+}
+.date {
+  height: 38px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+  color: var(--ink);
+}
+.date:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1.5px var(--ocean),
+    var(--focus);
+}
+.error {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--danger);
+}
+.note {
+  font-size: 12px;
+  color: var(--s400);
+}
+.empty {
+  font-size: 13px;
+  color: var(--s400);
+  padding-bottom: 14px;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-top: 1px solid var(--hair);
+}
+.itemBody {
+  flex: 1;
+  min-width: 0;
+}
+.message {
+  font-size: 14px;
+  line-height: 1.45;
+}
+.range {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--s400);
+}
+.acks {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--s500);
+  line-height: 1.45;
+}
+.acksYes {
+  font-weight: 700;
+  color: var(--flora);
+}
+.acksNone {
+  font-weight: 700;
+  color: var(--s400);
+}
+.waiting {
+  color: var(--s400);
+}

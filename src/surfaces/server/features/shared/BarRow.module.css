@@ -1,0 +1,57 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 26px;
+}
+.label {
+  width: 150px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--s500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mine {
+  font-weight: 800;
+  color: var(--ink);
+}
+.track {
+  flex: 1;
+  min-width: 40px;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--limestone);
+  overflow: hidden;
+}
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+}
+.value {
+  width: 44px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.detail {
+  width: 100px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 12px;
+  color: var(--s400);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 700px) {
+  .label {
+    width: 110px;
+  }
+  .detail {
+    display: none;
+  }
+}

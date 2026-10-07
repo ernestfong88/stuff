@@ -1,0 +1,119 @@
+.wrap {
+  max-width: 860px;
+}
+.intro {
+  font-size: 13px;
+  color: var(--s500);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.card {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-1);
+  padding: 16px 18px;
+}
+.kick {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--plum);
+}
+.head {
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+.section {
+  margin-top: 14px;
+}
+.cap {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+  margin-bottom: 6px;
+}
+.line,
+.dish {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 13.5px;
+  color: var(--s700);
+  padding: 4px 0;
+  line-height: 1.4;
+}
+.lineText {
+  flex: 1;
+  min-width: 0;
+}
+.lineText b {
+  color: var(--ink);
+}
+.quote {
+  color: var(--s500);
+}
+.lineEnd {
+  flex-shrink: 0;
+  color: var(--s400);
+  font-weight: 600;
+}
+.pos {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--flora);
+}
+.neg {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--danger);
+}
+.toggle {
+  margin-top: 12px;
+  min-height: 40px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ocean);
+}
+.comments {
+  margin-top: 4px;
+}
+.comment {
+  padding: 8px 0;
+  border-top: 1px solid var(--hair);
+}
+.commentHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.commentWho {
+  font-size: 13px;
+  font-weight: 600;
+}
+.commentMeta {
+  font-size: 12px;
+  color: var(--s400);
+}
+.commentText {
+  margin-top: 3px;
+  font-size: 13.5px;
+  color: var(--s700);
+  line-height: 1.4;
+}
+.foot {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--s400);
+}
+.empty {
+  font-size: 13.5px;
+  color: var(--s400);
+}

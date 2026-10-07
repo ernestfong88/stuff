@@ -1,0 +1,90 @@
+.modal {
+  background: var(--paper);
+  max-height: 88vh;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.task {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 66px;
+  padding: 12px 14px;
+  border-radius: var(--r-xl);
+  text-align: left;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.1);
+}
+.done {
+  background: var(--flora-100);
+  box-shadow: none;
+}
+.box {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: inset 0 0 0 2px rgba(20, 35, 48, 0.3);
+}
+.done .box {
+  background: var(--flora);
+  box-shadow: none;
+}
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.name {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.done .name {
+  color: #3e5a2e;
+}
+.note {
+  font-size: 13px;
+  color: var(--s500);
+  line-height: 1.35;
+}
+.meta {
+  margin-top: 1px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--s400);
+}
+.done .meta {
+  color: var(--flora);
+}
+.undo {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--s500);
+  flex-shrink: 0;
+}
+.empty {
+  padding: 24px 8px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--s500);
+  line-height: 1.45;
+}
+.foot {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--s500);
+}
