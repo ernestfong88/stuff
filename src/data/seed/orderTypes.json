@@ -1,0 +1,30 @@
+[
+ {
+  "id": "dinein",
+  "label": "Dine In"
+ },
+ {
+  "id": "pickup",
+  "label": "Pick up"
+ },
+ {
+  "id": "delivery",
+  "label": "Delivery Fee $8"
+ },
+ {
+  "id": "assoc",
+  "label": "Associate Meal"
+ },
+ {
+  "id": "sick",
+  "label": "Delivery — Sick (No charge)"
+ },
+ {
+  "id": "nocharge",
+  "label": "No Charge"
+ },
+ {
+  "id": "hospice",
+  "label": "Hospice"
+ }
+]

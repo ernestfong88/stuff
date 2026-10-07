@@ -1,0 +1,2362 @@
+[
+ {
+  "id": "o1",
+  "tableId": "t_sq3",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -600028
+  },
+  "drinksAt": {
+   "$t": -390028
+  },
+  "diners": [
+   {
+    "id": "s11",
+    "kind": "resident",
+    "refId": "r4",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li11",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 1,
+      "firedAt": {
+       "$t": -480028
+      }
+     },
+     {
+      "id": "li12",
+      "itemId": "d_chicken",
+      "mods": {
+       "Prep": "Grilled",
+       "Prepared": [
+        "Chopped"
+       ]
+      },
+      "note": "Sauce on the side",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -480028
+      }
+     },
+     {
+      "id": "li12_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -480028
+      },
+      "autoSide": true,
+      "parentId": "li12"
+     },
+     {
+      "id": "li12_s1",
+      "itemId": "d_peas",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -480028
+      },
+      "autoSide": true,
+      "parentId": "li12"
+     }
+    ]
+   },
+   {
+    "id": "s12",
+    "kind": "resident",
+    "refId": "r4",
+    "isGuest": true,
+    "guestName": "Amy Delgado",
+    "guestRel": "Daughter",
+    "seat": 2,
+    "items": [
+     {
+      "id": "li13",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 1,
+      "firedAt": {
+       "$t": -480028
+      }
+     },
+     {
+      "id": "li14",
+      "itemId": "d_shells",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -480028
+      }
+     },
+     {
+      "id": "li14_s0",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -480028
+      },
+      "autoSide": true,
+      "parentId": "li14"
+     },
+     {
+      "id": "li14_s1",
+      "itemId": "d_knot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -480028
+      },
+      "autoSide": true,
+      "parentId": "li14"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o2",
+  "queueType": "delivery",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "4:30 AM",
+  "openedAt": {
+   "$t": -420028
+  },
+  "deliveryFeeId": "df1",
+  "sickTray": {
+   "rid": "r8",
+   "n": 2,
+   "by": "Adriana",
+   "at": {
+    "$t": -3600028
+   }
+  },
+  "diners": [
+   {
+    "id": "s21",
+    "kind": "resident",
+    "refId": "r8",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li21",
+      "itemId": "d_catch",
+      "mods": {
+       "Prep": "Broiled",
+       "Prepared": [
+        "Sauce on the Side"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -360028
+      }
+     },
+     {
+      "id": "li21_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -360028
+      },
+      "autoSide": true,
+      "parentId": "li21"
+     },
+     {
+      "id": "li21_s1",
+      "itemId": "d_broccoli",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -360028
+      },
+      "autoSide": true,
+      "parentId": "li21"
+     },
+     {
+      "id": "li22",
+      "itemId": "d_icecream",
+      "mods": {
+       "Style": "No Sugar Added"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 3,
+      "firedAt": {
+       "$t": -360028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o3",
+  "tableId": "t_sq1",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -1020028
+  },
+  "drinksAt": {
+   "$t": -780028
+  },
+  "diners": [
+   {
+    "id": "s31",
+    "kind": "resident",
+    "refId": "r1",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li31",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Bowl"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 1,
+      "firedAt": {
+       "$t": -900028
+      },
+      "clearedAt": {
+       "$t": -540028
+      }
+     },
+     {
+      "id": "li32",
+      "itemId": "d_peach",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -840028
+      }
+     },
+     {
+      "id": "li32_s0",
+      "itemId": "d_mashed",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -840028
+      },
+      "autoSide": true,
+      "parentId": "li32"
+     },
+     {
+      "id": "li32_s1",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -840028
+      },
+      "autoSide": true,
+      "parentId": "li32"
+     }
+    ]
+   },
+   {
+    "id": "s32",
+    "kind": "resident",
+    "refId": "r1b",
+    "isGuest": false,
+    "seat": 2,
+    "items": [
+     {
+      "id": "li33",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 1,
+      "firedAt": {
+       "$t": -900028
+      },
+      "clearedAt": {
+       "$t": -540028
+      }
+     },
+     {
+      "id": "li34",
+      "itemId": "d_catch",
+      "mods": {
+       "Prep": "Grilled"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 2,
+      "firedAt": {
+       "$t": -840028
+      }
+     },
+     {
+      "id": "li34_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -840028
+      },
+      "autoSide": true,
+      "parentId": "li34"
+     },
+     {
+      "id": "li34_s1",
+      "itemId": "d_broccoli",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -840028
+      },
+      "autoSide": true,
+      "parentId": "li34"
+     }
+    ]
+   },
+   {
+    "id": "s33",
+    "kind": "resident",
+    "refId": "r1",
+    "isGuest": true,
+    "guestName": "David Martin",
+    "guestRel": "Son",
+    "seat": 3,
+    "items": [
+     {
+      "id": "li35",
+      "itemId": "d_burger",
+      "mods": {
+       "Temp": "Medium Rare",
+       "Cheese": "Cheddar"
+      },
+      "note": "Sent back, wants it pinker",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -240028
+      },
+      "rush": true
+     },
+     {
+      "id": "li35_s0",
+      "itemId": "d_fries",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -240028
+      },
+      "autoSide": true,
+      "parentId": "li35"
+     }
+    ]
+   },
+   {
+    "id": "s34",
+    "kind": "resident",
+    "refId": "r1",
+    "isGuest": true,
+    "guestName": "Susan Reyes",
+    "guestRel": "Daughter",
+    "seat": 4,
+    "items": [
+     {
+      "id": "li36",
+      "itemId": "d_swsalad",
+      "mods": {
+       "Dressing": "Balsamic Vinaigrette"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -840028
+      }
+     }
+    ]
+   },
+   {
+    "id": "s35",
+    "kind": "resident",
+    "refId": "r1",
+    "isGuest": true,
+    "guestName": "Tyler Martin",
+    "guestRel": "Grandson",
+    "seat": 5,
+    "items": [
+     {
+      "id": "li37",
+      "itemId": "d_pbj",
+      "mods": {
+       "Bread": "White"
+      },
+      "note": "Crusts off",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -840028
+      }
+     },
+     {
+      "id": "li37_s0",
+      "itemId": "d_fruit",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -840028
+      },
+      "autoSide": true,
+      "parentId": "li37"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o4",
+  "tableId": "t_sq2",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -2400028
+  },
+  "drinksAt": {
+   "$t": -2190028
+  },
+  "checkIns": [
+   {
+    "course": 2,
+    "at": {
+     "$t": -360028
+    },
+    "by": "AA"
+   }
+  ],
+  "noDessert": true,
+  "diners": [
+   {
+    "id": "s41",
+    "kind": "resident",
+    "refId": "r7",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li41",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 1,
+      "firedAt": {
+       "$t": -2160028
+      },
+      "clearedAt": {
+       "$t": -1680028
+      }
+     },
+     {
+      "id": "li42",
+      "itemId": "d_chicken",
+      "mods": {
+       "Prep": "Grilled",
+       "Prepared": [
+        "Pureed"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 2,
+      "firedAt": {
+       "$t": -1620028
+      },
+      "clearedAt": {
+       "$t": -900028
+      }
+     },
+     {
+      "id": "li42_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -1620028
+      },
+      "clearedAt": {
+       "$t": -900028
+      },
+      "autoSide": true,
+      "parentId": "li42"
+     },
+     {
+      "id": "li42_s1",
+      "itemId": "d_peas",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -1620028
+      },
+      "clearedAt": {
+       "$t": -900028
+      },
+      "autoSide": true,
+      "parentId": "li42"
+     }
+    ]
+   },
+   {
+    "id": "s42",
+    "kind": "resident",
+    "refId": "r7",
+    "isGuest": true,
+    "guestName": "Joe Dellacroce",
+    "guestRel": "Son",
+    "seat": 2,
+    "items": [
+     {
+      "id": "li43",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Bowl"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 1,
+      "firedAt": {
+       "$t": -2160028
+      },
+      "clearedAt": {
+       "$t": -1680028
+      }
+     },
+     {
+      "id": "li44",
+      "itemId": "cv_cab",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 1,
+      "firedAt": {
+       "$t": -2160028
+      },
+      "clearedAt": {
+       "$t": -2040028
+      }
+     },
+     {
+      "id": "li45",
+      "itemId": "d_burger",
+      "mods": {
+       "Temp": "Medium",
+       "Cheese": "Swiss"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 2,
+      "firedAt": {
+       "$t": -1620028
+      },
+      "clearedAt": {
+       "$t": -900028
+      }
+     },
+     {
+      "id": "li45_s0",
+      "itemId": "d_fries",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -1620028
+      },
+      "clearedAt": {
+       "$t": -900028
+      },
+      "autoSide": true,
+      "parentId": "li45"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o5",
+  "tableId": "t_sq5",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -1920028
+  },
+  "drinksAt": {
+   "$t": -1740028
+  },
+  "diners": [
+   {
+    "id": "s51",
+    "kind": "resident",
+    "refId": "r10",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li51",
+      "itemId": "d_sidesalad",
+      "mods": {
+       "Dressing": "Balsamic Vinaigrette",
+       "Salad": [
+        "No Croutons"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 1,
+      "firedAt": {
+       "$t": -1680028
+      },
+      "clearedAt": {
+       "$t": -1200028
+      }
+     },
+     {
+      "id": "li52",
+      "itemId": "d_burger",
+      "mods": {
+       "Temp": "Medium",
+       "Cheese": "Swiss",
+       "Burgers": [
+        "Gluten-Free Bun"
+       ]
+      },
+      "note": "No flour on anything",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 2,
+      "firedAt": {
+       "$t": -1140028
+      },
+      "clearedAt": {
+       "$t": -480028
+      }
+     },
+     {
+      "id": "li52_s0",
+      "itemId": "d_fries",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -1140028
+      },
+      "clearedAt": {
+       "$t": -480028
+      },
+      "autoSide": true,
+      "parentId": "li52"
+     },
+     {
+      "id": "li53",
+      "itemId": "d_sfjello",
+      "mods": {},
+      "note": "Birthday, candle please",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "course": 3
+     }
+    ]
+   },
+   {
+    "id": "s52",
+    "kind": "resident",
+    "refId": "r10",
+    "isGuest": true,
+    "guestName": "Carol Sanderson",
+    "guestRel": "Sister",
+    "seat": 2,
+    "items": [
+     {
+      "id": "li54",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 1,
+      "firedAt": {
+       "$t": -1680028
+      },
+      "clearedAt": {
+       "$t": -1200028
+      }
+     },
+     {
+      "id": "li55",
+      "itemId": "d_chicken",
+      "mods": {
+       "Prep": "Lemon Pepper"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 2,
+      "firedAt": {
+       "$t": -1140028
+      },
+      "clearedAt": {
+       "$t": -480028
+      }
+     },
+     {
+      "id": "li55_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -1140028
+      },
+      "clearedAt": {
+       "$t": -480028
+      },
+      "autoSide": true,
+      "parentId": "li55"
+     },
+     {
+      "id": "li55_s1",
+      "itemId": "d_peas",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -1140028
+      },
+      "clearedAt": {
+       "$t": -480028
+      },
+      "autoSide": true,
+      "parentId": "li55"
+     },
+     {
+      "id": "li56",
+      "itemId": "d_trifle",
+      "mods": {},
+      "note": "No whipped cream",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "course": 3,
+      "toGo": true
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o6",
+  "tableId": "t_sq8",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -3120028
+  },
+  "drinksAt": {
+   "$t": -2760028
+  },
+  "diners": [
+   {
+    "id": "s61",
+    "kind": "resident",
+    "refId": "r2",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li61",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 1,
+      "firedAt": {
+       "$t": -2820028
+      },
+      "clearedAt": {
+       "$t": -2400028
+      }
+     },
+     {
+      "id": "li62",
+      "itemId": "d_sidesalad",
+      "mods": {
+       "Dressing": "Italian"
+      },
+      "note": "Dressing on the side",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 1,
+      "firedAt": {
+       "$t": -2820028
+      },
+      "clearedAt": {
+       "$t": -2400028
+      }
+     },
+     {
+      "id": "li63",
+      "itemId": "d_icecream",
+      "mods": {
+       "Style": "Fat-Free"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "course": 3,
+      "firedAt": {
+       "$t": -1440028
+      },
+      "clearedAt": {
+       "$t": -1080028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o7",
+  "tableId": "t_sq9",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -540028
+  },
+  "drinksAt": {
+   "$t": -210028
+  },
+  "diners": [
+   {
+    "id": "s71",
+    "kind": "resident",
+    "refId": "r3",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li71",
+      "itemId": "d_burger",
+      "mods": {
+       "Temp": "Well Done",
+       "Cheese": "American"
+      },
+      "note": "Lettuce wrap, no bun. Diabetic",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -420028
+      }
+     },
+     {
+      "id": "li71_s0",
+      "itemId": "d_fries",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -420028
+      },
+      "autoSide": true,
+      "parentId": "li71"
+     }
+    ]
+   },
+   {
+    "id": "s72",
+    "kind": "resident",
+    "refId": "r3",
+    "isGuest": true,
+    "guestName": "Karen Beaumont",
+    "guestRel": "Daughter",
+    "seat": 2,
+    "items": [
+     {
+      "id": "li72",
+      "itemId": "d_chicken",
+      "mods": {
+       "Prep": "Grilled"
+      },
+      "note": "Changed to the catch",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -420028
+      },
+      "cancelled": true
+     },
+     {
+      "id": "li72_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -420028
+      },
+      "cancelled": true,
+      "autoSide": true,
+      "parentId": "li72"
+     },
+     {
+      "id": "li72_s1",
+      "itemId": "d_peas",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -420028
+      },
+      "cancelled": true,
+      "autoSide": true,
+      "parentId": "li72"
+     },
+     {
+      "id": "li73",
+      "itemId": "d_catch",
+      "mods": {
+       "Prep": "Blackened",
+       "Prepared": [
+        "Sauce on the Side"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -300028
+      }
+     },
+     {
+      "id": "li73_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -300028
+      },
+      "autoSide": true,
+      "parentId": "li73"
+     },
+     {
+      "id": "li73_s1",
+      "itemId": "d_broccoli",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -300028
+      },
+      "autoSide": true,
+      "parentId": "li73"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o8",
+  "tableId": "t_eg5",
+  "room": "sequoia",
+  "server": "MG",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -480028
+  },
+  "drinksAt": {
+   "$t": -300028
+  },
+  "diners": [
+   {
+    "id": "s81",
+    "kind": "resident",
+    "refId": "r5",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li81",
+      "itemId": "d_shells",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -360028
+      }
+     },
+     {
+      "id": "li81_s0",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -360028
+      },
+      "autoSide": true,
+      "parentId": "li81"
+     },
+     {
+      "id": "li81_s1",
+      "itemId": "d_knot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -360028
+      },
+      "autoSide": true,
+      "parentId": "li81"
+     },
+     {
+      "id": "li82",
+      "itemId": "d_trifle",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "course": 3
+     }
+    ]
+   },
+   {
+    "id": "s82",
+    "kind": "resident",
+    "refId": "r5",
+    "isGuest": true,
+    "guestName": "Maria Dellacroce",
+    "guestRel": "Niece",
+    "seat": 2,
+    "items": [
+     {
+      "id": "li83",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Bowl"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 1,
+      "firedAt": {
+       "$t": -360028
+      }
+     },
+     {
+      "id": "li84",
+      "itemId": "d_orange",
+      "mods": {
+       "Rice": "Fried Rice"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -360028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o9",
+  "tableId": "t_eg7",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -720028
+  },
+  "drinksAt": {
+   "$t": -540028
+  },
+  "diners": [
+   {
+    "id": "s91",
+    "kind": "resident",
+    "refId": "r13",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li91",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Bowl"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 1,
+      "firedAt": {
+       "$t": -600028
+      }
+     },
+     {
+      "id": "li92",
+      "itemId": "d_peach",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -180028
+      }
+     },
+     {
+      "id": "li92_s0",
+      "itemId": "d_mashed",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -180028
+      },
+      "autoSide": true,
+      "parentId": "li92"
+     },
+     {
+      "id": "li92_s1",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -180028
+      },
+      "autoSide": true,
+      "parentId": "li92"
+     }
+    ]
+   },
+   {
+    "id": "s92",
+    "kind": "resident",
+    "refId": "r13",
+    "isGuest": true,
+    "guestName": "Joyce Bellamy",
+    "guestRel": "Sister",
+    "seat": 2,
+    "items": [
+     {
+      "id": "li93",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 1,
+      "firedAt": {
+       "$t": -600028
+      }
+     },
+     {
+      "id": "li94",
+      "itemId": "d_catch",
+      "mods": {
+       "Prep": "Pan-Seared"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -180028
+      }
+     },
+     {
+      "id": "li94_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -180028
+      },
+      "autoSide": true,
+      "parentId": "li94"
+     },
+     {
+      "id": "li94_s1",
+      "itemId": "d_broccoli",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -180028
+      },
+      "autoSide": true,
+      "parentId": "li94"
+     }
+    ]
+   },
+   {
+    "id": "s93",
+    "kind": "resident",
+    "refId": "r13",
+    "isGuest": true,
+    "guestName": "Ron Hale",
+    "guestRel": "Friend",
+    "seat": 3,
+    "items": [
+     {
+      "id": "li95",
+      "itemId": "d_sidesalad",
+      "mods": {
+       "Dressing": "Ranch",
+       "Salad": [
+        "No Red Onion"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 1,
+      "firedAt": {
+       "$t": -600028
+      }
+     },
+     {
+      "id": "li96",
+      "itemId": "d_krab",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -180028
+      }
+     },
+     {
+      "id": "li96_s0",
+      "itemId": "d_coleslaw",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -180028
+      },
+      "autoSide": true,
+      "parentId": "li96"
+     }
+    ]
+   },
+   {
+    "id": "s94",
+    "kind": "resident",
+    "refId": "r13",
+    "isGuest": true,
+    "guestName": "Pat Hale",
+    "guestRel": "Friend",
+    "seat": 4,
+    "items": [
+     {
+      "id": "li97",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 1,
+      "firedAt": {
+       "$t": -600028
+      }
+     },
+     {
+      "id": "li98",
+      "itemId": "d_spag",
+      "mods": {},
+      "note": "Extra sauce",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -180028
+      }
+     },
+     {
+      "id": "li98_s0",
+      "itemId": "d_sidesalad",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -180028
+      },
+      "autoSide": true,
+      "parentId": "li98"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o10",
+  "queueType": "pickup",
+  "assoc": true,
+  "assocName": "Diego Ramos",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "4:30 AM",
+  "openedAt": {
+   "$t": -300028
+  },
+  "diners": [
+   {
+    "id": "s101",
+    "kind": "associate",
+    "refId": "a1",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li101",
+      "itemId": "d_peach",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -240028
+      }
+     },
+     {
+      "id": "li101_s0",
+      "itemId": "d_mashed",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -240028
+      },
+      "autoSide": true,
+      "parentId": "li101"
+     },
+     {
+      "id": "li101_s1",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -240028
+      },
+      "autoSide": true,
+      "parentId": "li101"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o11",
+  "tableId": "t_sq10",
+  "room": "sequoia",
+  "server": "MG",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -180028
+  },
+  "diners": [
+   {
+    "id": "s111",
+    "kind": "resident",
+    "refId": "r6",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li112",
+      "itemId": "d_catch",
+      "mods": {
+       "Prep": "Grilled"
+      },
+      "note": "No butter, dairy",
+      "sent": false,
+      "kitchenState": null
+     },
+     {
+      "id": "li112_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": false,
+      "kitchenState": null,
+      "autoSide": true,
+      "parentId": "li112"
+     },
+     {
+      "id": "li112_s1",
+      "itemId": "d_broccoli",
+      "mods": {},
+      "note": "",
+      "sent": false,
+      "kitchenState": null,
+      "autoSide": true,
+      "parentId": "li112"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o12",
+  "tableId": "t_sq13",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -180028
+  },
+  "diners": [
+   {
+    "id": "s121",
+    "kind": "resident",
+    "refId": "r15",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li121",
+      "itemId": "d_swsalad",
+      "mods": {
+       "Dressing": "Chipotle Ranch"
+      },
+      "note": "No cheese",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -60028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o13",
+  "tableId": "t_b2",
+  "room": "bistro",
+  "server": "RJ",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -1080028
+  },
+  "diners": [
+   {
+    "id": "s131",
+    "kind": "resident",
+    "refId": "r12",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li131",
+      "itemId": "d_burger",
+      "mods": {
+       "Temp": "Medium Well",
+       "Cheese": "Pepper Jack"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 2,
+      "firedAt": {
+       "$t": -540028
+      }
+     },
+     {
+      "id": "li131_s0",
+      "itemId": "d_fries",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -540028
+      },
+      "autoSide": true,
+      "parentId": "li131"
+     }
+    ]
+   },
+   {
+    "id": "s132",
+    "kind": "resident",
+    "refId": "r12",
+    "isGuest": true,
+    "guestName": "Evelyn Kessler",
+    "guestRel": "Sister",
+    "seat": 2,
+    "items": [
+     {
+      "id": "li132",
+      "itemId": "d_spag",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 2,
+      "firedAt": {
+       "$t": -900028
+      }
+     },
+     {
+      "id": "li132_s0",
+      "itemId": "d_sidesalad",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -900028
+      },
+      "autoSide": true,
+      "parentId": "li132"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "o14",
+  "tableId": "t_sq15",
+  "room": "sequoia",
+  "server": "MG",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -780028
+  },
+  "diners": [
+   {
+    "id": "s141",
+    "kind": "resident",
+    "refId": "r19",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "li141",
+      "itemId": "d_shells",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "course": 2,
+      "firedAt": {
+       "$t": -600028
+      }
+     },
+     {
+      "id": "li141_s0",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -600028
+      },
+      "autoSide": true,
+      "parentId": "li141"
+     },
+     {
+      "id": "li141_s1",
+      "itemId": "d_knot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -600028
+      },
+      "autoSide": true,
+      "parentId": "li141"
+     },
+     {
+      "id": "li142",
+      "itemId": "d_sfcheese",
+      "mods": {},
+      "note": "Boxed to take home",
+      "sent": true,
+      "kitchenState": "cooking",
+      "course": 3,
+      "firedAt": {
+       "$t": -60028
+      },
+      "toGo": true
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "pq1",
+  "queueType": "pickup",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "4:00 AM",
+  "openedAt": {
+   "$t": -2658608
+  },
+  "diners": [
+   {
+    "id": "pq1s0",
+    "kind": "resident",
+    "refId": "r18",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pq1i00",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -2178608
+      }
+     },
+     {
+      "id": "pq1i01",
+      "itemId": "d_chicken",
+      "mods": {
+       "Prep": "Grilled"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -2178608
+      }
+     },
+     {
+      "id": "pq1i01_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -2178608
+      },
+      "autoSide": true,
+      "parentId": "pq1i01"
+     },
+     {
+      "id": "pq1i01_s1",
+      "itemId": "d_peas",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -2178608
+      },
+      "autoSide": true,
+      "parentId": "pq1i01"
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -2178608
+  },
+  "readyStampAt": {
+   "$t": -660000
+  },
+  "notified": true,
+  "notifiedAt": {
+   "$t": -540000
+  }
+ },
+ {
+  "id": "pq2",
+  "queueType": "delivery",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "4:15 AM",
+  "openedAt": {
+   "$t": -1758608
+  },
+  "diners": [
+   {
+    "id": "pq2s0",
+    "kind": "resident",
+    "refId": "r14",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pq2i00",
+      "itemId": "d_spag",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -1278608
+      }
+     },
+     {
+      "id": "pq2i00_s0",
+      "itemId": "d_sidesalad",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -1278608
+      },
+      "autoSide": true,
+      "parentId": "pq2i00"
+     },
+     {
+      "id": "pq2i01",
+      "itemId": "d_icecream",
+      "mods": {
+       "Style": "Regular"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -1278608
+      }
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -1278608
+  },
+  "deliveryFeeId": "df1",
+  "readyStampAt": {
+   "$t": -120000
+  }
+ },
+ {
+  "id": "pq3",
+  "queueType": "delivery",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "4:15 AM",
+  "openedAt": {
+   "$t": -1758608
+  },
+  "diners": [
+   {
+    "id": "pq3s0",
+    "kind": "resident",
+    "refId": "r17",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pq3i00",
+      "itemId": "d_catch",
+      "mods": {
+       "Prep": "Broiled",
+       "Prepared": [
+        "Low Sodium",
+        "Soft Cooked"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -1278608
+      }
+     },
+     {
+      "id": "pq3i00_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -1278608
+      },
+      "autoSide": true,
+      "parentId": "pq3i00"
+     },
+     {
+      "id": "pq3i00_s1",
+      "itemId": "d_broccoli",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready",
+      "firedAt": {
+       "$t": -1278608
+      },
+      "autoSide": true,
+      "parentId": "pq3i00"
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -1278608
+  },
+  "deliveryFeeId": "df1",
+  "readyStampAt": {
+   "$t": -300000
+  },
+  "notified": true,
+  "notifiedAt": {
+   "$t": -180000
+  }
+ },
+ {
+  "id": "pq4",
+  "queueType": "pickup",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "4:30 AM",
+  "openedAt": {
+   "$t": -858608
+  },
+  "diners": [
+   {
+    "id": "pq4s0",
+    "kind": "resident",
+    "refId": "r9",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pq4i00",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -378608
+      }
+     },
+     {
+      "id": "pq4i01",
+      "itemId": "d_peach",
+      "mods": {
+       "Prepared": [
+        "Cut Up"
+       ]
+      },
+      "note": "Cut into bites, please",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -378608
+      }
+     },
+     {
+      "id": "pq4i01_s0",
+      "itemId": "d_mashed",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -378608
+      },
+      "autoSide": true,
+      "parentId": "pq4i01"
+     },
+     {
+      "id": "pq4i01_s1",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cooking",
+      "firedAt": {
+       "$t": -378608
+      },
+      "autoSide": true,
+      "parentId": "pq4i01"
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -378608
+  }
+ },
+ {
+  "id": "pq5",
+  "queueType": "delivery",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "5:00 AM",
+  "openedAt": {
+   "$t": -1320000
+  },
+  "diners": [
+   {
+    "id": "pq5s0",
+    "kind": "resident",
+    "refId": "r11",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pq5i00",
+      "itemId": "d_burger",
+      "mods": {
+       "Temp": "Medium Well",
+       "Cheese": "Cheddar"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled"
+     },
+     {
+      "id": "pq5i00_s0",
+      "itemId": "d_fries",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "autoSide": true,
+      "parentId": "pq5i00"
+     },
+     {
+      "id": "pq5i01",
+      "itemId": "d_trifle",
+      "mods": {},
+      "note": "No whipped cream",
+      "sent": true,
+      "kitchenState": "scheduled"
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -1080000
+  },
+  "fireAtTs": {
+   "$t": 1421392
+  },
+  "deliveryFeeId": "df1"
+ },
+ {
+  "id": "pq6",
+  "queueType": "pickup",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "5:15 AM",
+  "openedAt": {
+   "$t": -1620000
+  },
+  "diners": [
+   {
+    "id": "pq6s0",
+    "kind": "resident",
+    "refId": "r20",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pq6i00",
+      "itemId": "d_shells",
+      "mods": {},
+      "note": "",
+      "sent": false,
+      "kitchenState": null
+     },
+     {
+      "id": "pq6i00_s0",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": false,
+      "kitchenState": null,
+      "autoSide": true,
+      "parentId": "pq6i00"
+     },
+     {
+      "id": "pq6i00_s1",
+      "itemId": "d_knot",
+      "mods": {},
+      "note": "",
+      "sent": false,
+      "kitchenState": null,
+      "autoSide": true,
+      "parentId": "pq6i00"
+     },
+     {
+      "id": "pq6i01",
+      "itemId": "d_sidesalad",
+      "mods": {
+       "Dressing": "Italian"
+      },
+      "note": "Dressing on the side",
+      "sent": false,
+      "kitchenState": null
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "pqc1",
+  "queueType": "pickup",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "5:00 PM",
+  "openedAt": {
+   "$t": -12179999
+  },
+  "diners": [
+   {
+    "id": "pqc1s0",
+    "kind": "resident",
+    "refId": "r16",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pqc1i00",
+      "itemId": "d_chicken",
+      "mods": {
+       "Prep": "Grilled"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled"
+     },
+     {
+      "id": "pqc1i00_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "autoSide": true,
+      "parentId": "pqc1i00"
+     },
+     {
+      "id": "pqc1i00_s1",
+      "itemId": "d_peas",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "autoSide": true,
+      "parentId": "pqc1i00"
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -11939999
+  },
+  "fireAtTs": {
+   "$t": 44621392
+  }
+ },
+ {
+  "id": "pqc2",
+  "queueType": "pickup",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "5:00 PM",
+  "openedAt": {
+   "$t": -12179999
+  },
+  "diners": [
+   {
+    "id": "pqc2s0",
+    "kind": "resident",
+    "refId": "r21",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pqc2i00",
+      "itemId": "d_shells",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled"
+     },
+     {
+      "id": "pqc2i00_s0",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "autoSide": true,
+      "parentId": "pqc2i00"
+     },
+     {
+      "id": "pqc2i00_s1",
+      "itemId": "d_knot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "autoSide": true,
+      "parentId": "pqc2i00"
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -11939999
+  },
+  "fireAtTs": {
+   "$t": 44621392
+  }
+ },
+ {
+  "id": "pqc3",
+  "queueType": "delivery",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "5:00 PM",
+  "openedAt": {
+   "$t": -12179999
+  },
+  "diners": [
+   {
+    "id": "pqc3s0",
+    "kind": "resident",
+    "refId": "r2",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pqc3i00",
+      "itemId": "d_spag",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled"
+     },
+     {
+      "id": "pqc3i00_s0",
+      "itemId": "d_sidesalad",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "autoSide": true,
+      "parentId": "pqc3i00"
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -11939999
+  },
+  "fireAtTs": {
+   "$t": 44621392
+  },
+  "deliveryFeeId": "df1"
+ },
+ {
+  "id": "pqc4",
+  "queueType": "pickup",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "5:30 PM",
+  "openedAt": {
+   "$t": -12659999
+  },
+  "diners": [
+   {
+    "id": "pqc4s0",
+    "kind": "resident",
+    "refId": "r12",
+    "isGuest": false,
+    "seat": 1,
+    "items": [
+     {
+      "id": "pqc4i00",
+      "itemId": "d_peach",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled"
+     },
+     {
+      "id": "pqc4i00_s0",
+      "itemId": "d_mashed",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "autoSide": true,
+      "parentId": "pqc4i00"
+     },
+     {
+      "id": "pqc4i00_s1",
+      "itemId": "d_greenbeans",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "scheduled",
+      "autoSide": true,
+      "parentId": "pqc4i00"
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -12419999
+  },
+  "fireAtTs": {
+   "$t": 46421392
+  }
+ }
+]

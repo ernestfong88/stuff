@@ -1,0 +1,148 @@
+{
+ "l_cbsoup": {
+  "g_qty": 24
+ },
+ "d_cbsoup": {
+  "g_qty": 24
+ },
+ "b_omelet": {
+  "g_omelet": 24,
+  "g_cheese": 18
+ },
+ "l_omelet": {
+  "g_omelet": 24,
+  "g_cheese": 18
+ },
+ "d_omelet": {
+  "g_omelet": 24,
+  "g_cheese": 18
+ },
+ "b_eggs": {
+  "g_eggs": 24
+ },
+ "b_cereal": {
+  "g_cereal": 24
+ },
+ "b_hamsteak": {
+  "g_eggs": 24
+ },
+ "b_loaded": {
+  "g_eggs": 24
+ },
+ "l_deli": {
+  "g_delibread": 24,
+  "g_delimeat": 18,
+  "g_cheese": 12,
+  "g_deli": 6
+ },
+ "d_deli": {
+  "g_delibread": 24,
+  "g_delimeat": 18,
+  "g_cheese": 12,
+  "g_deli": 6
+ },
+ "l_pizza": {
+  "g_pizzacrust": 24,
+  "g_pizzasauce": 18,
+  "g_pizza": 12,
+  "g_cheese": 6
+ },
+ "d_pizza": {
+  "g_pizzacrust": 24,
+  "g_pizzasauce": 18,
+  "g_pizza": 12,
+  "g_cheese": 6
+ },
+ "l_byosalad": {
+  "g_saladbase": 24,
+  "g_salad": 18,
+  "g_dress": 12
+ },
+ "d_byosalad": {
+  "g_saladbase": 24,
+  "g_salad": 18,
+  "g_dress": 12
+ },
+ "l_catch": {
+  "g_catch": 24
+ },
+ "d_catch": {
+  "g_catch": 24
+ },
+ "l_burger": {
+  "g_temp": 24,
+  "g_burger": 18,
+  "g_cheese": 12
+ },
+ "d_burger": {
+  "g_temp": 24,
+  "g_burger": 18,
+  "g_cheese": 12
+ },
+ "l_orange": {
+  "g_chxbowl": 24
+ },
+ "d_orange": {
+  "g_chxbowl": 24
+ },
+ "l_salmonburger": {
+  "g_burger": 24
+ },
+ "d_salmonburger": {
+  "g_burger": 24
+ },
+ "l_swsalad": {
+  "g_dress": 24
+ },
+ "d_swsalad": {
+  "g_dress": 24
+ },
+ "l_bbqsalad": {
+  "g_dress": 24
+ },
+ "b_bagel": {
+  "g_bread": 24
+ },
+ "b_pastry": {
+  "g_bkpastry": 24
+ },
+ "l_bakedpot": {
+  "g_potato": 24
+ },
+ "d_bakedpot": {
+  "g_potato": 24
+ },
+ "l_yam": {
+  "g_potato": 24
+ },
+ "d_yam": {
+  "g_potato": 24
+ },
+ "l_sidesalad": {
+  "g_dress": 24
+ },
+ "d_sidesalad": {
+  "g_dress": 24
+ },
+ "b_toast": {
+  "g_bread": 24
+ },
+ "l_toast": {
+  "g_bread": 24
+ },
+ "d_toast": {
+  "g_bread": 24
+ },
+ "l_icecream": {
+  "g_icecream": 24
+ },
+ "d_icecream": {
+  "g_icecream": 24
+ },
+ "l_housewine": {
+  "g_wine": 24
+ },
+ "d_housewine": {
+  "g_wine": 24
+ }
+}

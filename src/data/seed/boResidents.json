@@ -1,0 +1,108 @@
+[
+ {
+  "id": "r1",
+  "name": "Marty Martin",
+  "apt": "153",
+  "level": "IL",
+  "planId": "pl1",
+  "startDay": 1,
+  "coupleStartDay": 1,
+  "spouseId": "r1b",
+  "prefs": "Always orders the soup",
+  "kitchenNotes": "Cut sandwich in quarters",
+  "diet": [],
+  "allergies": []
+ },
+ {
+  "id": "r1b",
+  "name": "Cathie Martin",
+  "apt": "153",
+  "level": "IL",
+  "planId": "pl1",
+  "startDay": 1,
+  "coupleStartDay": 1,
+  "spouseId": "r1",
+  "prefs": "Tea with lemon",
+  "kitchenNotes": "",
+  "diet": [],
+  "allergies": []
+ },
+ {
+  "id": "r2",
+  "name": "Eleanor Whitfield",
+  "apt": "208",
+  "level": "IL",
+  "planId": "pl1",
+  "startDay": 15,
+  "coupleStartDay": null,
+  "spouseId": null,
+  "prefs": "Tea, no sugar. Fish on Fridays.",
+  "kitchenNotes": "",
+  "diet": [
+   "Low Sodium"
+  ],
+  "allergies": []
+ },
+ {
+  "id": "r3",
+  "name": "Tom Beaumont",
+  "apt": "114",
+  "level": "AL",
+  "planId": "pl1",
+  "startDay": 1,
+  "coupleStartDay": null,
+  "spouseId": null,
+  "prefs": "Watches sugar — sugar-free desserts",
+  "kitchenNotes": "Diabetic-friendly swaps OK",
+  "diet": [
+   "Diabetic"
+  ],
+  "allergies": []
+ },
+ {
+  "id": "r4",
+  "name": "Rose Delgado",
+  "apt": "312",
+  "level": "IL",
+  "planId": "pl2",
+  "startDay": 1,
+  "coupleStartDay": null,
+  "spouseId": null,
+  "prefs": "Former chef — particular about cooking",
+  "kitchenNotes": "",
+  "diet": [],
+  "allergies": [
+   "Shellfish"
+  ]
+ },
+ {
+  "id": "r7",
+  "name": "Frank Dellacroce",
+  "apt": "145",
+  "level": "AL",
+  "planId": "pl3",
+  "startDay": 1,
+  "coupleStartDay": null,
+  "spouseId": null,
+  "prefs": "Steak well done. Black coffee.",
+  "kitchenNotes": "",
+  "diet": [],
+  "allergies": []
+ },
+ {
+  "id": "r6",
+  "name": "Walter Griggs",
+  "apt": "221",
+  "level": "AL",
+  "planId": "pl1",
+  "startDay": 8,
+  "coupleStartDay": null,
+  "spouseId": null,
+  "prefs": "",
+  "kitchenNotes": "NO peanut products — severe",
+  "diet": [],
+  "allergies": [
+   "Peanuts"
+  ]
+ }
+]

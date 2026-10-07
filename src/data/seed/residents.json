@@ -1,0 +1,390 @@
+[
+ {
+  "id": "r1",
+  "name": "Marty Martin",
+  "apt": "153",
+  "level": "IL",
+  "photo": "MM",
+  "diet": [],
+  "allergies": [],
+  "spouse": "r1b",
+  "fav": "Always orders the soup",
+  "plan": "monthly30",
+  "consumed": 18,
+  "contacts": [
+   {
+    "name": "David Martin",
+    "rel": "Son"
+   },
+   {
+    "name": "Susan Reyes",
+    "rel": "Daughter"
+   },
+   {
+    "name": "Tyler Martin",
+    "rel": "Grandson"
+   }
+  ]
+ },
+ {
+  "id": "r1b",
+  "name": "Cathie Martin",
+  "apt": "153",
+  "level": "IL",
+  "photo": "CM",
+  "diet": [],
+  "allergies": [],
+  "spouse": "r1",
+  "fav": "Tea with lemon",
+  "plan": "monthly30",
+  "consumed": 17,
+  "contacts": [
+   {
+    "name": "David Martin",
+    "rel": "Son"
+   },
+   {
+    "name": "Susan Reyes",
+    "rel": "Daughter"
+   }
+  ]
+ },
+ {
+  "id": "r2",
+  "name": "Eleanor Whitfield",
+  "apt": "208",
+  "level": "IL",
+  "photo": "EW",
+  "diet": [
+   "No Salt Added"
+  ],
+  "allergies": [],
+  "fav": "Tea, no sugar. Fish on Fridays.",
+  "plan": "monthly30",
+  "consumed": 22,
+  "contacts": [
+   {
+    "name": "Paul Whitfield",
+    "rel": "Son"
+   }
+  ]
+ },
+ {
+  "id": "r3",
+  "name": "Tom Beaumont",
+  "apt": "308",
+  "level": "AL",
+  "photo": "TB",
+  "diet": [
+   "Diabetic"
+  ],
+  "allergies": [],
+  "fav": "Watches sugar — sometimes a sugar-free option",
+  "plan": "monthly30",
+  "consumed": 28,
+  "contacts": [
+   {
+    "name": "Karen Beaumont",
+    "rel": "Daughter"
+   },
+   {
+    "name": "Jeff Beaumont",
+    "rel": "Son"
+   }
+  ]
+ },
+ {
+  "id": "r4",
+  "name": "Rose Delgado",
+  "apt": "412",
+  "level": "AL",
+  "photo": "RD",
+  "diet": [
+   "Mechanical Altered"
+  ],
+  "foodPrep": "Chopped",
+  "allergies": [
+   "MUSSELS, OR CLAMS"
+  ],
+  "fav": "Former chef — particular about how things are cooked",
+  "plan": "daily2",
+  "consumed": 1,
+  "contacts": [
+   {
+    "name": "Amy Delgado",
+    "rel": "Daughter"
+   }
+  ]
+ },
+ {
+  "id": "r5",
+  "name": "Walter Okonkwo",
+  "apt": "117",
+  "level": "AL",
+  "photo": "WO",
+  "diet": [],
+  "allergies": [
+   "No fruits with seeds — strawberries, kiwi, berries (abdominal pain)"
+  ],
+  "fav": "Coffee, black, before anything else",
+  "plan": "alacarte",
+  "consumed": 0
+ },
+ {
+  "id": "r6",
+  "name": "Joan Petrovic",
+  "apt": "224",
+  "level": "IL",
+  "photo": "JP",
+  "diet": [
+   "No Dairy, Avoid Soy (Sensitivity)"
+  ],
+  "allergies": [],
+  "fav": "No meat. Loves a good salad.",
+  "plan": "monthly30",
+  "consumed": 12
+ },
+ {
+  "id": "r7",
+  "name": "Frank Dellacroce",
+  "apt": "331",
+  "level": "AL",
+  "photo": "FD",
+  "diet": [
+   "Pureed",
+   "Nectar-thick liquids"
+  ],
+  "allergies": [],
+  "fav": "Burger, well done. Black coffee.",
+  "plan": "monthly30",
+  "consumed": 14,
+  "contacts": [
+   {
+    "name": "Maria Dellacroce",
+    "rel": "Niece"
+   }
+  ]
+ },
+ {
+  "id": "r8",
+  "name": "Mildred Vanholder",
+  "apt": "405",
+  "level": "AL",
+  "photo": "MV",
+  "diet": [
+   "Gluten-Friendly"
+  ],
+  "allergies": [
+   "Gluten allergy"
+  ],
+  "fav": "Small portions. Warm, not hot.",
+  "plan": "daily2",
+  "consumed": 0
+ },
+ {
+  "id": "r9",
+  "name": "Harold Yeung",
+  "apt": "142",
+  "level": "IL",
+  "photo": "HY",
+  "diet": [],
+  "allergies": [],
+  "fav": "Green tea. Light eater.",
+  "plan": "alacarte",
+  "consumed": 0
+ },
+ {
+  "id": "r10",
+  "name": "Beatrice Sanderson",
+  "apt": "316",
+  "level": "AL",
+  "photo": "BS",
+  "diet": [
+   "Gluten-free"
+  ],
+  "allergies": [
+   "Gluten"
+  ],
+  "fav": "Gluten-free everything. Decaf after 2pm.",
+  "plan": "monthly30",
+  "consumed": 19
+ },
+ {
+  "id": "r11",
+  "name": "Keith Petersen",
+  "apt": "221",
+  "level": "IL",
+  "photo": "KP",
+  "diet": [],
+  "allergies": [],
+  "fav": "Iced tea, no lemon. The salmon burger whenever it is on, and first to try a new special.",
+  "plan": "monthly30",
+  "consumed": 11,
+  "contacts": [
+   {
+    "name": "Jenna Petersen",
+    "rel": "Daughter"
+   },
+   {
+    "name": "Erik Petersen",
+    "rel": "Son"
+   }
+  ]
+ },
+ {
+  "id": "r12",
+  "name": "Dorothy Kessler",
+  "apt": "219",
+  "level": "IL",
+  "photo": "DK",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r13",
+  "name": "Arthur Bellamy",
+  "apt": "334",
+  "level": "IL",
+  "photo": "AB",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r14",
+  "name": "Lillian Osei",
+  "apt": "128",
+  "level": "AL",
+  "photo": "LO",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r15",
+  "name": "George Tanaka",
+  "apt": "407",
+  "level": "IL",
+  "photo": "GT",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r16",
+  "name": "Margaret Flynn",
+  "apt": "245",
+  "level": "IL",
+  "photo": "MF",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r17",
+  "name": "Samuel Ortiz",
+  "apt": "312",
+  "level": "AL",
+  "photo": "SO",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r18",
+  "name": "Helen Whitaker",
+  "apt": "131",
+  "level": "IL",
+  "photo": "HW",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r19",
+  "name": "Vincent Moreau",
+  "apt": "226",
+  "level": "IL",
+  "photo": "VM",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r20",
+  "name": "Ruth Abernathy",
+  "apt": "118",
+  "level": "IL",
+  "photo": "RA",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r21",
+  "name": "Charles Whitman",
+  "apt": "342",
+  "level": "IL",
+  "photo": "CW",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 9,
+  "contacts": []
+ },
+ {
+  "id": "r22",
+  "name": "Dorothy Hale",
+  "apt": "12B",
+  "level": "IL",
+  "photo": "DH",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 6,
+  "contacts": []
+ },
+ {
+  "id": "r23",
+  "name": "George Lindqvist",
+  "apt": "A-204",
+  "level": "IL",
+  "photo": "GL",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 11,
+  "contacts": []
+ },
+ {
+  "id": "r24",
+  "name": "Nora Pruitt",
+  "apt": "B110",
+  "level": "IL",
+  "photo": "NP",
+  "diet": [],
+  "allergies": [],
+  "plan": "monthly30",
+  "consumed": 4,
+  "contacts": []
+ }
+]

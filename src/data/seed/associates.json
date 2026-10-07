@@ -1,0 +1,20 @@
+[
+ {
+  "id": "a1",
+  "name": "Diego Ramos",
+  "photo": "DR",
+  "dept": "Maintenance"
+ },
+ {
+  "id": "a2",
+  "name": "Priya Nair",
+  "photo": "PN",
+  "dept": "Life Enrichment"
+ },
+ {
+  "id": "a3",
+  "name": "Sam Carter",
+  "photo": "SC",
+  "dept": "Care"
+ }
+]

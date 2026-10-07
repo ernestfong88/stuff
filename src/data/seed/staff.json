@@ -1,0 +1,23 @@
+[
+ {
+  "id": "AA",
+  "pin": "2468",
+  "name": "Adriana Alvarado",
+  "initials": "AA",
+  "role": "Dining Server"
+ },
+ {
+  "id": "RJ",
+  "pin": "1357",
+  "name": "Ricardo Juarez",
+  "initials": "RJ",
+  "role": "Dining Server"
+ },
+ {
+  "id": "MC",
+  "pin": "1122",
+  "name": "Maria Chen",
+  "initials": "MC",
+  "role": "Hospitality"
+ }
+]

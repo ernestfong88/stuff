@@ -1,0 +1,14 @@
+[
+ {
+  "id": "Breakfast",
+  "time": "7–9 AM"
+ },
+ {
+  "id": "Lunch",
+  "time": "11:30–1:30"
+ },
+ {
+  "id": "Dinner",
+  "time": "5–7 PM"
+ }
+]

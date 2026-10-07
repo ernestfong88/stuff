@@ -1,0 +1,1979 @@
+[
+ {
+  "id": "ph1",
+  "queueType": "delivery",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Lunch",
+  "readyAt": "12:15 AM",
+  "openedAt": {
+   "$t": -16278608
+  },
+  "diners": [
+   {
+    "id": "ph1s0",
+    "kind": "resident",
+    "refId": "r5",
+    "isGuest": false,
+    "seat": 1,
+    "chargeDrop": "apt",
+    "items": [
+     {
+      "id": "ph1i00",
+      "itemId": "l_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -15798608
+      }
+     },
+     {
+      "id": "ph1i01",
+      "itemId": "l_deli",
+      "mods": {
+       "Bread": "Rye"
+      },
+      "note": "Turkey and Swiss",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -15798608
+      }
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -15798608
+  },
+  "deliveryFeeId": "df1",
+  "readyStampAt": {
+   "$t": -15378608
+  },
+  "notified": true,
+  "notifiedAt": {
+   "$t": -15198608
+  },
+  "deliveredAt": {
+   "$t": -14658608
+  },
+  "closedAt": {
+   "$t": -14658608
+  },
+  "closedBy": "RJ"
+ },
+ {
+  "id": "ph2",
+  "queueType": "pickup",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Lunch",
+  "readyAt": "12:15 AM",
+  "openedAt": {
+   "$t": -16278608
+  },
+  "diners": [
+   {
+    "id": "ph2s0",
+    "kind": "resident",
+    "refId": "r12",
+    "isGuest": false,
+    "seat": 1,
+    "chargeDrop": "apt",
+    "items": [
+     {
+      "id": "ph2i00",
+      "itemId": "l_burger",
+      "mods": {
+       "Temp": "Medium Well",
+       "Cheese": "American"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -15798608
+      }
+     },
+     {
+      "id": "ph2i00_s0",
+      "itemId": "l_fries",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -15798608
+      },
+      "autoSide": true,
+      "parentId": "ph2i00"
+     },
+     {
+      "id": "ph2i01",
+      "itemId": "l_fries",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -15798608
+      }
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -15798608
+  },
+  "readyStampAt": {
+   "$t": -14298608
+  },
+  "notified": true,
+  "notifiedAt": {
+   "$t": -14118608
+  },
+  "deliveredAt": {
+   "$t": -13758608
+  },
+  "closedAt": {
+   "$t": -13758608
+  },
+  "closedBy": "RJ"
+ },
+ {
+  "id": "ph3",
+  "queueType": "delivery",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Lunch",
+  "readyAt": "12:30 AM",
+  "openedAt": {
+   "$t": -15378608
+  },
+  "diners": [
+   {
+    "id": "ph3s0",
+    "kind": "resident",
+    "refId": "r6",
+    "isGuest": false,
+    "seat": 1,
+    "chargeDrop": "apt",
+    "items": [
+     {
+      "id": "ph3i00",
+      "itemId": "l_swsalad",
+      "mods": {
+       "Dressing": "Balsamic Vinaigrette"
+      },
+      "note": "No cheddar, dairy",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -14898608
+      }
+     },
+     {
+      "id": "ph3i01",
+      "itemId": "l_fruit",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -14898608
+      }
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -14898608
+  },
+  "deliveryFeeId": "df1",
+  "readyStampAt": {
+   "$t": -14478608
+  },
+  "notified": true,
+  "notifiedAt": {
+   "$t": -14298608
+  },
+  "deliveredAt": {
+   "$t": -13758608
+  },
+  "closedAt": {
+   "$t": -13758608
+  },
+  "closedBy": "RJ"
+ },
+ {
+  "id": "ph4",
+  "queueType": "pickup",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Lunch",
+  "readyAt": "1:00 AM",
+  "openedAt": {
+   "$t": -13578608
+  },
+  "diners": [
+   {
+    "id": "ph4s0",
+    "kind": "resident",
+    "refId": "r9",
+    "isGuest": false,
+    "seat": 1,
+    "chargeDrop": "apt",
+    "items": [
+     {
+      "id": "ph4i00",
+      "itemId": "l_quesa",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -13098608
+      }
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -13098608
+  },
+  "readyStampAt": {
+   "$t": -12558608
+  },
+  "notified": true,
+  "notifiedAt": {
+   "$t": -12378608
+  },
+  "deliveredAt": {
+   "$t": -12018608
+  },
+  "closedAt": {
+   "$t": -12018608
+  },
+  "closedBy": "RJ"
+ },
+ {
+  "id": "ph5",
+  "queueType": "delivery",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "readyAt": "3:00 AM",
+  "openedAt": {
+   "$t": -6378608
+  },
+  "diners": [
+   {
+    "id": "ph5s0",
+    "kind": "resident",
+    "refId": "r21",
+    "isGuest": false,
+    "seat": 1,
+    "chargeDrop": "apt",
+    "items": [
+     {
+      "id": "ph5i00",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -5898608
+      }
+     },
+     {
+      "id": "ph5i01",
+      "itemId": "d_chicken",
+      "mods": {
+       "Prep": "Lemon Pepper"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -5898608
+      }
+     },
+     {
+      "id": "ph5i01_s0",
+      "itemId": "d_bakedpot",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -5898608
+      },
+      "autoSide": true,
+      "parentId": "ph5i01"
+     },
+     {
+      "id": "ph5i01_s1",
+      "itemId": "d_peas",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -5898608
+      },
+      "autoSide": true,
+      "parentId": "ph5i01"
+     }
+    ]
+   }
+  ],
+  "sentAt": {
+   "$t": -5898608
+  },
+  "deliveryFeeId": "df1",
+  "readyStampAt": {
+   "$t": -4818608
+  },
+  "notified": true,
+  "notifiedAt": {
+   "$t": -4638608
+  },
+  "deliveredAt": {
+   "$t": -4098608
+  },
+  "closedAt": {
+   "$t": -4098608
+  },
+  "closedBy": "RJ"
+ },
+ {
+  "id": "tn_a1",
+  "tableId": "t_sq7",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -9000028
+  },
+  "sentAt": {
+   "$t": -8760028
+  },
+  "closedAt": {
+   "$t": -6270028
+  },
+  "closedBy": "AA",
+  "drinksAt": {
+   "$t": -8820028
+  },
+  "checkIns": [
+   {
+    "course": 2,
+    "at": {
+     "$t": -7380028
+    },
+    "by": "AA"
+   }
+  ],
+  "diners": [
+   {
+    "id": "tn_a1s0",
+    "kind": "resident",
+    "refId": "r1",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_a1l00",
+      "itemId": "d_sidesalad",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 1,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -8760028
+      },
+      "readyAtMs": {
+       "$t": -8520028
+      },
+      "clearedAt": {
+       "$t": -8430028
+      }
+     },
+     {
+      "id": "tn_a1l01",
+      "itemId": "d_shells",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -8430028
+      },
+      "readyAtMs": {
+       "$t": -7830028
+      },
+      "clearedAt": {
+       "$t": -7740028
+      }
+     },
+     {
+      "id": "tn_a1l02",
+      "itemId": "d_trifle",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 3,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7320028
+      },
+      "readyAtMs": {
+       "$t": -6900028
+      },
+      "clearedAt": {
+       "$t": -6810028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_a1s1",
+    "kind": "resident",
+    "refId": "r1b",
+    "isGuest": false,
+    "seat": 2,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_a1l10",
+      "itemId": "d_cbsoup",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 1,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -8760028
+      },
+      "readyAtMs": {
+       "$t": -8520028
+      },
+      "clearedAt": {
+       "$t": -8430028
+      }
+     },
+     {
+      "id": "tn_a1l11",
+      "itemId": "d_catch",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -8430028
+      },
+      "readyAtMs": {
+       "$t": -7830028
+      },
+      "clearedAt": {
+       "$t": -7740028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "tn_a2",
+  "tableId": "t_sq14",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -7920028
+  },
+  "sentAt": {
+   "$t": -7620028
+  },
+  "closedAt": {
+   "$t": -5010028
+  },
+  "closedBy": "AA",
+  "hostSeated": true,
+  "greetedAt": {
+   "$t": -7830028
+  },
+  "drinksAt": {
+   "$t": -7650028
+  },
+  "checkIns": [
+   {
+    "course": 2,
+    "at": {
+     "$t": -6180028
+    },
+    "by": "AA"
+   }
+  ],
+  "diners": [
+   {
+    "id": "tn_a2s0",
+    "kind": "resident",
+    "refId": "r3",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_a2l00",
+      "itemId": "d_cbsoup",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 1,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7620028
+      },
+      "readyAtMs": {
+       "$t": -7380028
+      },
+      "clearedAt": {
+       "$t": -7290028
+      }
+     },
+     {
+      "id": "tn_a2l01",
+      "itemId": "d_chicken",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7290028
+      },
+      "readyAtMs": {
+       "$t": -6630028
+      },
+      "clearedAt": {
+       "$t": -6540028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_a2s1",
+    "kind": "resident",
+    "refId": "r6",
+    "isGuest": false,
+    "seat": 2,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_a2l10",
+      "itemId": "d_spag",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7290028
+      },
+      "readyAtMs": {
+       "$t": -6630028
+      },
+      "clearedAt": {
+       "$t": -6540028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_a2s2",
+    "kind": "resident",
+    "refId": "r2",
+    "isGuest": false,
+    "seat": 3,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_a2l20",
+      "itemId": "d_sidesalad",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 1,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7620028
+      },
+      "readyAtMs": {
+       "$t": -7380028
+      },
+      "clearedAt": {
+       "$t": -7290028
+      }
+     },
+     {
+      "id": "tn_a2l21",
+      "itemId": "d_peach",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7290028
+      },
+      "readyAtMs": {
+       "$t": -6630028
+      },
+      "clearedAt": {
+       "$t": -6540028
+      }
+     },
+     {
+      "id": "tn_a2l22",
+      "itemId": "d_icecream",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 3,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -6120028
+      },
+      "readyAtMs": {
+       "$t": -5640028
+      },
+      "clearedAt": {
+       "$t": -5550028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "tn_a3",
+  "tableId": "t_sq16",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -6600028
+  },
+  "sentAt": {
+   "$t": -6390028
+  },
+  "closedAt": {
+   "$t": -4998028
+  },
+  "closedBy": "AA",
+  "drinksAt": {
+   "$t": -6510028
+  },
+  "checkIns": [
+   {
+    "course": 2,
+    "at": {
+     "$t": -5298028
+    },
+    "by": "AA"
+   }
+  ],
+  "noDessert": true,
+  "diners": [
+   {
+    "id": "tn_a3s0",
+    "kind": "resident",
+    "refId": "r9",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_a3l00",
+      "itemId": "d_catch",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -6390028
+      },
+      "readyAtMs": {
+       "$t": -5730028
+      },
+      "clearedAt": {
+       "$t": -5658028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_a3s1",
+    "kind": "resident",
+    "refId": "r11",
+    "isGuest": false,
+    "seat": 2,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_a3l10",
+      "itemId": "d_burger",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -6390028
+      },
+      "readyAtMs": {
+       "$t": -5730028
+      },
+      "clearedAt": {
+       "$t": -5658028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "tn_a4",
+  "tableId": "t_b1",
+  "room": "bistro",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -5160028
+  },
+  "sentAt": {
+   "$t": -4920028
+  },
+  "closedAt": {
+   "$t": -2580028
+  },
+  "closedBy": "AA",
+  "drinksAt": {
+   "$t": -5010028
+  },
+  "checkIns": [
+   {
+    "course": 2,
+    "at": {
+     "$t": -3600028
+    },
+    "by": "AA"
+   }
+  ],
+  "diners": [
+   {
+    "id": "tn_a4s0",
+    "kind": "resident",
+    "refId": "r7",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_a4l00",
+      "itemId": "d_cbsoup",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 1,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -4920028
+      },
+      "readyAtMs": {
+       "$t": -4680028
+      },
+      "clearedAt": {
+       "$t": -4620028
+      }
+     },
+     {
+      "id": "tn_a4l01",
+      "itemId": "d_catch",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -4620028
+      },
+      "readyAtMs": {
+       "$t": -4020028
+      },
+      "clearedAt": {
+       "$t": -3960028
+      }
+     },
+     {
+      "id": "tn_a4l02",
+      "itemId": "d_trifle",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 3,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -3540028
+      },
+      "readyAtMs": {
+       "$t": -3180028
+      },
+      "clearedAt": {
+       "$t": -3120028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "tn_r1",
+  "tableId": "t_eg6",
+  "room": "bistro",
+  "server": "RJ",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -8400028
+  },
+  "sentAt": {
+   "$t": -7770028
+  },
+  "closedAt": {
+   "$t": -4410028
+  },
+  "closedBy": "RJ",
+  "hostSeated": true,
+  "greetedAt": {
+   "$t": -8250028
+  },
+  "drinksAt": {
+   "$t": -7860028
+  },
+  "checkIns": [
+   {
+    "course": 2,
+    "at": {
+     "$t": -5820028
+    },
+    "by": "RJ"
+   }
+  ],
+  "diners": [
+   {
+    "id": "tn_r1s0",
+    "kind": "resident",
+    "refId": "r5",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_r1l00",
+      "itemId": "d_cbsoup",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 1,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7770028
+      },
+      "readyAtMs": {
+       "$t": -7500028
+      },
+      "clearedAt": {
+       "$t": -7230028
+      }
+     },
+     {
+      "id": "tn_r1l01",
+      "itemId": "d_peach",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7230028
+      },
+      "readyAtMs": {
+       "$t": -6450028
+      },
+      "clearedAt": {
+       "$t": -6180028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_r1s1",
+    "kind": "resident",
+    "refId": "r4",
+    "isGuest": false,
+    "seat": 2,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_r1l10",
+      "itemId": "d_catch",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7230028
+      },
+      "readyAtMs": {
+       "$t": -6450028
+      },
+      "clearedAt": {
+       "$t": -6180028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_r1s2",
+    "kind": "resident",
+    "refId": "r3",
+    "isGuest": false,
+    "seat": 3,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_r1l20",
+      "itemId": "d_shells",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7230028
+      },
+      "readyAtMs": {
+       "$t": -6450028
+      },
+      "clearedAt": {
+       "$t": -6180028
+      }
+     },
+     {
+      "id": "tn_r1l21",
+      "itemId": "d_icecream",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 3,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -5760028
+      },
+      "readyAtMs": {
+       "$t": -5220028
+      },
+      "clearedAt": {
+       "$t": -4950028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "tn_r2",
+  "tableId": "t_eg11",
+  "room": "bistro",
+  "server": "RJ",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -7080028
+  },
+  "sentAt": {
+   "$t": -6510028
+  },
+  "closedAt": {
+   "$t": -5370028
+  },
+  "closedBy": "RJ",
+  "drinksAt": {
+   "$t": -6750028
+  },
+  "checkIns": [],
+  "diners": [
+   {
+    "id": "tn_r2s0",
+    "kind": "resident",
+    "refId": "r8",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_r2l00",
+      "itemId": "d_sidesalad",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 1,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -6510028
+      },
+      "readyAtMs": {
+       "$t": -6390028
+      },
+      "clearedAt": {
+       "$t": -6210028
+      }
+     },
+     {
+      "id": "tn_r2l01",
+      "itemId": "d_chicken",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -6210028
+      },
+      "readyAtMs": {
+       "$t": -5850028
+      },
+      "clearedAt": {
+       "$t": -5670028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_r2s1",
+    "kind": "resident",
+    "refId": "r10",
+    "isGuest": false,
+    "seat": 2,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_r2l10",
+      "itemId": "d_catch",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -6210028
+      },
+      "readyAtMs": {
+       "$t": -5850028
+      },
+      "clearedAt": {
+       "$t": -5670028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "tn_r3",
+  "tableId": "t_eg12",
+  "room": "bistro",
+  "server": "RJ",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -5760028
+  },
+  "sentAt": {
+   "$t": -5250028
+  },
+  "closedAt": {
+   "$t": -2910028
+  },
+  "closedBy": "RJ",
+  "drinksAt": {
+   "$t": -5520028
+  },
+  "checkIns": [
+   {
+    "course": 2,
+    "at": {
+     "$t": -4110028
+    },
+    "by": "RJ"
+   }
+  ],
+  "diners": [
+   {
+    "id": "tn_r3s0",
+    "kind": "resident",
+    "refId": "r6",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_r3l00",
+      "itemId": "d_spag",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -5250028
+      },
+      "readyAtMs": {
+       "$t": -4650028
+      },
+      "clearedAt": {
+       "$t": -4470028
+      }
+     },
+     {
+      "id": "tn_r3l01",
+      "itemId": "d_icecream",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 3,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -4050028
+      },
+      "readyAtMs": {
+       "$t": -3630028
+      },
+      "clearedAt": {
+       "$t": -3450028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_r3s1",
+    "kind": "resident",
+    "refId": "r5",
+    "isGuest": false,
+    "seat": 2,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_r3l10",
+      "itemId": "d_catch",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -5250028
+      },
+      "readyAtMs": {
+       "$t": -4650028
+      },
+      "clearedAt": {
+       "$t": -4470028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "tn_m1",
+  "tableId": "t_b2",
+  "room": "bistro",
+  "server": "MG",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -7680028
+  },
+  "sentAt": {
+   "$t": -7380028
+  },
+  "closedAt": {
+   "$t": -5664028
+  },
+  "closedBy": "MG",
+  "hostSeated": true,
+  "greetedAt": {
+   "$t": -7620028
+  },
+  "drinksAt": {
+   "$t": -7440028
+  },
+  "checkIns": [
+   {
+    "course": 2,
+    "at": {
+     "$t": -5964028
+    },
+    "by": "MG"
+   }
+  ],
+  "noDessert": true,
+  "diners": [
+   {
+    "id": "tn_m1s0",
+    "kind": "resident",
+    "refId": "r9",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_m1l00",
+      "itemId": "d_sidesalad",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 1,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7380028
+      },
+      "readyAtMs": {
+       "$t": -7140028
+      },
+      "clearedAt": {
+       "$t": -7032028
+      }
+     },
+     {
+      "id": "tn_m1l01",
+      "itemId": "d_shells",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7032028
+      },
+      "readyAtMs": {
+       "$t": -6432028
+      },
+      "clearedAt": {
+       "$t": -6324028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_m1s1",
+    "kind": "resident",
+    "refId": "r4",
+    "isGuest": false,
+    "seat": 2,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_m1l10",
+      "itemId": "d_cbsoup",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 1,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7380028
+      },
+      "readyAtMs": {
+       "$t": -7140028
+      },
+      "clearedAt": {
+       "$t": -7032028
+      }
+     },
+     {
+      "id": "tn_m1l11",
+      "itemId": "d_chicken",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7032028
+      },
+      "readyAtMs": {
+       "$t": -6432028
+      },
+      "clearedAt": {
+       "$t": -6324028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_m1s2",
+    "kind": "resident",
+    "refId": "r3",
+    "isGuest": false,
+    "seat": 3,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_m1l20",
+      "itemId": "d_catch",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -7032028
+      },
+      "readyAtMs": {
+       "$t": -6432028
+      },
+      "clearedAt": {
+       "$t": -6324028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "tn_m2",
+  "tableId": "t_b3",
+  "room": "bistro",
+  "server": "MG",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -6240028
+  },
+  "sentAt": {
+   "$t": -5970028
+  },
+  "closedAt": {
+   "$t": -3732028
+  },
+  "closedBy": "MG",
+  "drinksAt": {
+   "$t": -6030028
+  },
+  "checkIns": [
+   {
+    "course": 2,
+    "at": {
+     "$t": -4896028
+    },
+    "by": "MG"
+   }
+  ],
+  "diners": [
+   {
+    "id": "tn_m2s0",
+    "kind": "resident",
+    "refId": "r7",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_m2l00",
+      "itemId": "d_burger",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -5970028
+      },
+      "readyAtMs": {
+       "$t": -5340028
+      },
+      "clearedAt": {
+       "$t": -5256028
+      }
+     },
+     {
+      "id": "tn_m2l01",
+      "itemId": "d_trifle",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 3,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -4836028
+      },
+      "readyAtMs": {
+       "$t": -4356028
+      },
+      "clearedAt": {
+       "$t": -4272028
+      }
+     }
+    ]
+   },
+   {
+    "id": "tn_m2s1",
+    "kind": "resident",
+    "refId": "r2",
+    "isGuest": false,
+    "seat": 2,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "tn_m2l10",
+      "itemId": "d_peach",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "course": 2,
+      "kitchenState": "cleared",
+      "firedAt": {
+       "$t": -5970028
+      },
+      "readyAtMs": {
+       "$t": -5340028
+      },
+      "clearedAt": {
+       "$t": -5256028
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h1",
+  "tableId": "t_sq2",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Breakfast",
+  "openedAt": {
+   "$t": -9000027
+  },
+  "closedAt": {
+   "$t": -8280027
+  },
+  "closedBy": "AA",
+  "diners": [
+   {
+    "id": "hs1",
+    "kind": "resident",
+    "refId": "r1",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "h3pt3cjs",
+      "itemId": "b_omelet",
+      "mods": {
+       "Omelet Toppings": [
+        "Diced Ham",
+        "Onions"
+       ],
+       "Cheese": [
+        "Cheddar"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "h9vgh71g",
+      "itemId": "b_coffee",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   },
+   {
+    "id": "hs2",
+    "kind": "resident",
+    "refId": "r1b",
+    "isGuest": false,
+    "seat": 2,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "h9pe1bzj",
+      "itemId": "b_oatmeal",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "hozbeanq",
+      "itemId": "b_hottea",
+      "mods": {
+       "Type": "Green"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h2",
+  "tableId": "t_sq3",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Breakfast",
+  "openedAt": {
+   "$t": -93600027
+  },
+  "closedAt": {
+   "$t": -93000027
+  },
+  "closedBy": "RJ",
+  "diners": [
+   {
+    "id": "hs3",
+    "kind": "resident",
+    "refId": "r1",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "h3glliki",
+      "itemId": "b_omelet",
+      "mods": {
+       "Omelet Toppings": [
+        "Diced Ham",
+        "Onions"
+       ],
+       "Cheese": [
+        "Cheddar"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "hb0kv9ta",
+      "itemId": "b_coffee",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h3",
+  "tableId": "t_sq10",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Breakfast",
+  "openedAt": {
+   "$t": -180600027
+  },
+  "closedAt": {
+   "$t": -180060027
+  },
+  "closedBy": "AA",
+  "diners": [
+   {
+    "id": "hs4",
+    "kind": "resident",
+    "refId": "r1",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "hd0f8prp",
+      "itemId": "b_omelet",
+      "mods": {
+       "Omelet Toppings": [
+        "Diced Ham",
+        "Onions"
+       ],
+       "Cheese": [
+        "Cheddar"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "hp9yquj1",
+      "itemId": "b_coffee",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "hfua64f6",
+      "itemId": "b_fruit",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h4",
+  "tableId": "t_sq9",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Lunch",
+  "openedAt": {
+   "$t": -90000027
+  },
+  "closedAt": {
+   "$t": -89520027
+  },
+  "closedBy": "AA",
+  "diners": [
+   {
+    "id": "hs5",
+    "kind": "resident",
+    "refId": "r2",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "heuhkeqo",
+      "itemId": "l_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "h9800kak",
+      "itemId": "l_sidesalad",
+      "mods": {
+       "Dressing": "Italian"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "hcnls9cz",
+      "itemId": "l_hottea",
+      "mods": {
+       "Type": "Black"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h5",
+  "tableId": "t_sq8",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Lunch",
+  "openedAt": {
+   "$t": -263400027
+  },
+  "closedAt": {
+   "$t": -262800027
+  },
+  "closedBy": "RJ",
+  "diners": [
+   {
+    "id": "hs6",
+    "kind": "resident",
+    "refId": "r2",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "hc61eyf7",
+      "itemId": "l_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "h9kadbbp",
+      "itemId": "l_hottea",
+      "mods": {
+       "Type": "Black"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h6",
+  "tableId": "t_del1",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -98400027
+  },
+  "closedAt": {
+   "$t": -97680027
+  },
+  "closedBy": "AA",
+  "deliveryFeeId": "df1",
+  "diners": [
+   {
+    "id": "hs7",
+    "kind": "resident",
+    "refId": "r4",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "Delivery Fee $3",
+    "chargeDrop": "apt",
+    "chargeAmt": 3,
+    "items": [
+     {
+      "id": "hkf1hxml",
+      "itemId": "d_chicken",
+      "mods": {
+       "Prep": "Grilled",
+       "Prepared": [
+        "Chopped"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "h9woaod8",
+      "itemId": "d_cbsoup",
+      "mods": {
+       "Size": "Cup"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h7",
+  "tableId": "t_sq15",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -185400027
+  },
+  "closedAt": {
+   "$t": -184560027
+  },
+  "closedBy": "RJ",
+  "diners": [
+   {
+    "id": "hs8",
+    "kind": "resident",
+    "refId": "r3",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": "apt",
+    "chargeAmt": 2,
+    "items": [
+     {
+      "id": "hpb7nmgv",
+      "itemId": "d_catch",
+      "mods": {
+       "Prep": "Broiled"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "htdmh6so",
+      "itemId": "d_housewine",
+      "mods": {
+       "Wines": [
+        "Chardonnay"
+       ]
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h8",
+  "tableId": "t_sq1",
+  "room": "sequoia",
+  "server": "AA",
+  "meal": "Lunch",
+  "openedAt": {
+   "$t": -91200027
+  },
+  "closedAt": {
+   "$t": -90600027
+  },
+  "closedBy": "AA",
+  "diners": [
+   {
+    "id": "hs9",
+    "kind": "resident",
+    "refId": "r5",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "À la carte",
+    "chargeDrop": "card",
+    "chargeAmt": 17,
+    "items": [
+     {
+      "id": "hzfze9jq",
+      "itemId": "l_catch",
+      "mods": {
+       "Prep": "Grilled"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "hz9p5ish",
+      "itemId": "l_icedtea",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h9",
+  "tableId": "t_sq7",
+  "room": "sequoia",
+  "server": "RJ",
+  "meal": "Dinner",
+  "openedAt": {
+   "$t": -99600027
+  },
+  "closedAt": {
+   "$t": -98700027
+  },
+  "closedBy": "RJ",
+  "diners": [
+   {
+    "id": "hs10",
+    "kind": "resident",
+    "refId": "r7",
+    "isGuest": false,
+    "seat": 1,
+    "mealPlanText": "1 Meal Count",
+    "chargeDrop": null,
+    "items": [
+     {
+      "id": "hnorig29",
+      "itemId": "d_burger",
+      "mods": {
+       "Temp": "Well Done",
+       "Cheese": "American"
+      },
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     },
+     {
+      "id": "hz0alxwb",
+      "itemId": "d_coffee",
+      "mods": {},
+      "note": "",
+      "sent": true,
+      "kitchenState": "ready"
+     }
+    ]
+   }
+  ]
+ }
+]

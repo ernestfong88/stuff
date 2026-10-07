@@ -1,0 +1,10 @@
+[
+ {
+  "id": "apt",
+  "label": "Apartment Charge"
+ },
+ {
+  "id": "card",
+  "label": "Credit Card · Square terminal"
+ }
+]
