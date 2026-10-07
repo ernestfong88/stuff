@@ -17,6 +17,7 @@ import type {
   ModGroup,
   Order,
   Resident,
+  ResidentNote,
   Room,
   StaffMember,
 } from '../domain/types';
@@ -46,6 +47,9 @@ import historyJson from './seed/history.json';
 import assocMealsJson from './seed/assocMeals.json';
 import broadcastsJson from './seed/broadcasts.json';
 import boResidentsJson from './seed/boResidents.json';
+import modifierRulesJson from './seed/modifierRules.json';
+import residentNotesJson from './seed/residentNotes.json';
+import pickupPromisesJson from './seed/pickupPromises.json';
 
 export const COMMUNITY_NAME = 'Valencia Terrace';
 
@@ -117,3 +121,49 @@ export const seedOrders = (): Order[] => revive(ordersJson as unknown as Order[]
 export const seedHistory = (): Order[] => revive(historyJson as unknown as Order[]);
 export const seedAssocMeals = (): AssocMeal[] => revive(assocMealsJson as unknown as AssocMeal[]);
 export const seedBroadcasts = (): Broadcast[] => revive(broadcastsJson as unknown as Broadcast[]);
+
+// ─── Modifier ordering rules ─────────────────────────────────────────────
+
+export interface ModifierRule {
+  required: boolean;
+  min: number;
+  /** 0 = no limit. */
+  max: number;
+  /** Picks included before the per-pick charge starts; null when not set (counts as 0). */
+  included: number | null;
+  /** Charge per pick past the included ones. */
+  extra: number;
+  ask: string;
+  label: string;
+}
+
+export interface RuledModifierGroup {
+  name: string;
+  options: Array<{ name: string; price?: number }>;
+  rule: ModifierRule;
+}
+
+/**
+ * Modifier groups that carry ordering rules (required, pick limits, priced
+ * options), and which items they are pinned to. Extracted from the
+ * prototype's pinned modifier groups with their default rules.
+ */
+export const modifierRules = modifierRulesJson as {
+  groups: Record<string, RuledModifierGroup>;
+  items: Record<string, string[]>;
+};
+
+// ─── Resident notes ──────────────────────────────────────────────────────
+
+/** Notes servers added about residents earlier today, newest added first. */
+export const seedResidentNotes = (): ResidentNote[] => revive(residentNotesJson as unknown as ResidentNote[]);
+
+// ─── Pick up / delivery promised times ───────────────────────────────────
+
+/**
+ * Minutes from "now" to each seeded pick up / delivery promise. The seed's
+ * readyAt labels ("4:15 PM") were written on the wall clock when they were
+ * extracted, so the dining store re-derives them from these offsets on the
+ * demo clock (see seedDiningState).
+ */
+export const pickupPromiseOffsets = pickupPromisesJson as Record<string, number>;

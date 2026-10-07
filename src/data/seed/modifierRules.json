@@ -1,0 +1,545 @@
+{
+ "groups": {
+  "g_omelet": {
+   "name": "Omelet Toppings",
+   "options": [
+    {
+     "name": "Diced Ham"
+    },
+    {
+     "name": "Crumbled Bacon"
+    },
+    {
+     "name": "Crumbled Sausage"
+    },
+    {
+     "name": "Diced Turkey"
+    },
+    {
+     "name": "Onions"
+    },
+    {
+     "name": "Green Peppers"
+    },
+    {
+     "name": "Mushrooms"
+    },
+    {
+     "name": "Tomatoes"
+    },
+    {
+     "name": "Spinach"
+    },
+    {
+     "name": "Jalapenos"
+    },
+    {
+     "name": "Avocado"
+    },
+    {
+     "name": "Salsa"
+    }
+   ],
+   "rule": {
+    "required": false,
+    "min": 0,
+    "max": 4,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your fillings",
+    "label": "Fillings"
+   }
+  },
+  "g_cheese": {
+   "name": "Cheese",
+   "options": [
+    {
+     "name": "American"
+    },
+    {
+     "name": "Cheddar"
+    },
+    {
+     "name": "Swiss"
+    },
+    {
+     "name": "Pepper Jack"
+    },
+    {
+     "name": "Provolone"
+    },
+    {
+     "name": "Mozzarella"
+    },
+    {
+     "name": "Feta"
+    },
+    {
+     "name": "Blue Cheese Crumbles"
+    },
+    {
+     "name": "Parmesan"
+    },
+    {
+     "name": "Dairy-Free Cheese",
+     "price": 1
+    }
+   ],
+   "rule": {
+    "required": false,
+    "min": 0,
+    "max": 2,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your cheese",
+    "label": "Cheese"
+   }
+  },
+  "g_bread": {
+   "name": "Breads",
+   "options": [
+    {
+     "name": "White"
+    },
+    {
+     "name": "Wheat"
+    },
+    {
+     "name": "Rye"
+    },
+    {
+     "name": "Sourdough"
+    },
+    {
+     "name": "Multigrain"
+    },
+    {
+     "name": "Gluten-Free Bread",
+     "price": 1.5
+    },
+    {
+     "name": "Croissant"
+    },
+    {
+     "name": "Plain Bagel"
+    },
+    {
+     "name": "Everything Bagel"
+    },
+    {
+     "name": "Cinnamon Raisin Bagel"
+    },
+    {
+     "name": "Flour Tortilla"
+    }
+   ],
+   "rule": {
+    "required": false,
+    "min": 0,
+    "max": 1,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your bread",
+    "label": "Bread"
+   }
+  },
+  "g_dress": {
+   "name": "Dressing",
+   "options": [
+    {
+     "name": "Ranch"
+    },
+    {
+     "name": "Blue Cheese"
+    },
+    {
+     "name": "Thousand Island"
+    },
+    {
+     "name": "Italian"
+    },
+    {
+     "name": "Fat-Free Italian"
+    },
+    {
+     "name": "Balsamic Vinaigrette"
+    },
+    {
+     "name": "Raspberry Vinaigrette"
+    },
+    {
+     "name": "Caesar"
+    },
+    {
+     "name": "Honey Mustard"
+    },
+    {
+     "name": "Chipotle Ranch"
+    },
+    {
+     "name": "BBQ Ranch"
+    },
+    {
+     "name": "Oil & Vinegar"
+    }
+   ],
+   "rule": {
+    "required": true,
+    "min": 1,
+    "max": 1,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your dressing",
+    "label": "Dressing"
+   }
+  },
+  "g_delibread": {
+   "name": "Sandwich Bread",
+   "options": [
+    {
+     "name": "White"
+    },
+    {
+     "name": "Wheat"
+    },
+    {
+     "name": "Rye"
+    },
+    {
+     "name": "Sourdough"
+    },
+    {
+     "name": "Multigrain"
+    },
+    {
+     "name": "Gluten-Free Bread",
+     "price": 1.5
+    },
+    {
+     "name": "Croissant"
+    }
+   ],
+   "rule": {
+    "required": true,
+    "min": 1,
+    "max": 1,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your bread",
+    "label": "Bread"
+   }
+  },
+  "g_delimeat": {
+   "name": "Deli Meat",
+   "options": [
+    {
+     "name": "Turkey"
+    },
+    {
+     "name": "Ham"
+    },
+    {
+     "name": "Roast Beef"
+    },
+    {
+     "name": "Pastrami"
+    },
+    {
+     "name": "Chicken Salad"
+    },
+    {
+     "name": "Tuna Salad"
+    },
+    {
+     "name": "Egg Salad"
+    },
+    {
+     "name": "Hummus & Veggies"
+    }
+   ],
+   "rule": {
+    "required": true,
+    "min": 1,
+    "max": 1,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your meat or salad",
+    "label": "Filling"
+   }
+  },
+  "g_pizzacrust": {
+   "name": "Pizza Crust",
+   "options": [
+    {
+     "name": "Regular Crust"
+    },
+    {
+     "name": "Thin Crust"
+    },
+    {
+     "name": "Gluten-Free Crust",
+     "price": 2
+    }
+   ],
+   "rule": {
+    "required": true,
+    "min": 1,
+    "max": 1,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your crust",
+    "label": "Crust"
+   }
+  },
+  "g_pizzasauce": {
+   "name": "Pizza Sauce",
+   "options": [
+    {
+     "name": "Marinara Base"
+    },
+    {
+     "name": "White Garlic Base"
+    },
+    {
+     "name": "BBQ Base"
+    }
+   ],
+   "rule": {
+    "required": true,
+    "min": 1,
+    "max": 1,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your sauce",
+    "label": "Sauce"
+   }
+  },
+  "g_pizza": {
+   "name": "Pizza Toppings",
+   "options": [
+    {
+     "name": "Pepperoni"
+    },
+    {
+     "name": "Italian Sausage"
+    },
+    {
+     "name": "Canadian Bacon"
+    },
+    {
+     "name": "Mushrooms"
+    },
+    {
+     "name": "Black Olives"
+    },
+    {
+     "name": "Green Peppers"
+    },
+    {
+     "name": "Onions"
+    },
+    {
+     "name": "Pineapple"
+    },
+    {
+     "name": "Spinach"
+    },
+    {
+     "name": "Fresh Basil"
+    }
+   ],
+   "rule": {
+    "required": false,
+    "min": 0,
+    "max": 4,
+    "included": 3,
+    "extra": 1,
+    "ask": "Choose your toppings",
+    "label": "Toppings"
+   }
+  },
+  "g_saladbase": {
+   "name": "Salad Greens",
+   "options": [
+    {
+     "name": "Romaine"
+    },
+    {
+     "name": "Spring Mix"
+    },
+    {
+     "name": "Iceberg"
+    },
+    {
+     "name": "Baby Spinach"
+    }
+   ],
+   "rule": {
+    "required": true,
+    "min": 1,
+    "max": 1,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your greens",
+    "label": "Greens"
+   }
+  },
+  "g_salad": {
+   "name": "Salad",
+   "options": [
+    {
+     "name": "Cherry Tomatoes"
+    },
+    {
+     "name": "Cucumbers"
+    },
+    {
+     "name": "Shredded Carrots"
+    },
+    {
+     "name": "Red Onion"
+    },
+    {
+     "name": "Croutons"
+    },
+    {
+     "name": "Hard-Boiled Egg"
+    },
+    {
+     "name": "Sunflower Seeds"
+    },
+    {
+     "name": "Dried Cranberries"
+    },
+    {
+     "name": "Black Beans"
+    },
+    {
+     "name": "Corn"
+    },
+    {
+     "name": "Tortilla Strips"
+    }
+   ],
+   "rule": {
+    "required": false,
+    "min": 0,
+    "max": 5,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your toppings",
+    "label": "Toppings"
+   }
+  },
+  "g_temp": {
+   "name": "Meat Temp",
+   "options": [
+    {
+     "name": "Rare"
+    },
+    {
+     "name": "Medium Rare"
+    },
+    {
+     "name": "Medium"
+    },
+    {
+     "name": "Medium Well"
+    },
+    {
+     "name": "Well Done"
+    }
+   ],
+   "rule": {
+    "required": false,
+    "min": 0,
+    "max": 1,
+    "included": null,
+    "extra": 0,
+    "ask": "How would you like it cooked?",
+    "label": "Cooked"
+   }
+  }
+ },
+ "items": {
+  "b_omelet": [
+   "g_omelet",
+   "g_cheese"
+  ],
+  "b_bagel": [
+   "g_bread"
+  ],
+  "b_toast": [
+   "g_bread"
+  ],
+  "l_bbqsalad": [
+   "g_dress"
+  ],
+  "l_deli": [
+   "g_delibread",
+   "g_delimeat",
+   "g_cheese"
+  ],
+  "l_omelet": [
+   "g_omelet",
+   "g_cheese"
+  ],
+  "l_pizza": [
+   "g_pizzacrust",
+   "g_pizzasauce",
+   "g_pizza",
+   "g_cheese"
+  ],
+  "l_byosalad": [
+   "g_saladbase",
+   "g_salad",
+   "g_dress"
+  ],
+  "l_burger": [
+   "g_temp",
+   "g_cheese"
+  ],
+  "l_swsalad": [
+   "g_dress"
+  ],
+  "l_sidesalad": [
+   "g_dress"
+  ],
+  "l_toast": [
+   "g_bread"
+  ],
+  "d_deli": [
+   "g_delibread",
+   "g_delimeat",
+   "g_cheese"
+  ],
+  "d_omelet": [
+   "g_omelet",
+   "g_cheese"
+  ],
+  "d_pizza": [
+   "g_pizzacrust",
+   "g_pizzasauce",
+   "g_pizza",
+   "g_cheese"
+  ],
+  "d_byosalad": [
+   "g_saladbase",
+   "g_salad",
+   "g_dress"
+  ],
+  "d_burger": [
+   "g_temp",
+   "g_cheese"
+  ],
+  "d_swsalad": [
+   "g_dress"
+  ],
+  "d_sidesalad": [
+   "g_dress"
+  ],
+  "d_toast": [
+   "g_bread"
+  ]
+ }
+}
