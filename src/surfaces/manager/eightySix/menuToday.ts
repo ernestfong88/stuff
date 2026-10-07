@@ -1,9 +1,10 @@
 /** Today's menu for the 86 list. */
 import { menu } from '../../../data';
+import { TODAY_MENU_DAY } from '../../server/order/menu/menuCatalog';
 import type { MealName, MenuItem } from '../../../domain/types';
 
-/** Day of the menu cycle being served; items with day 0 are on every day. */
-export const MENU_CYCLE_DAY = 15;
+/** Day of the menu cycle being served (the server tablet's); items with day 0 are on every day. */
+export const MENU_CYCLE_DAY = TODAY_MENU_DAY;
 
 /** __kMealNow: the meal the clock is in. */
 export function mealByHour(hour: number): MealName {
