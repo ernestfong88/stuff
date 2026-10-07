@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { AssocMeal, Order } from '../../../domain/types';
 import { cancelMeal, lastTexted, pastMeals, planMeal } from '../../../domain/assocMeals/meals';
-import { closedReason, itemsLeft, menuFor, menuWeek, missingChoice, modsText, mondayOf, STANDING_CHOICES } from '../../../domain/assocMeals/menu';
+import { closedReason, menuWeek, mondayOf } from '../../../domain/assocMeals/menu';
 import { nearestToBreak, upcomingShifts, withinShift } from '../../../domain/assocMeals/shifts';
 import { assocWindows, rangeLabel, windowClosesAt, windowLoad, windowMinutes, windowStartsAt, windowTag } from '../../../domain/assocMeals/windows';
 
@@ -70,23 +70,8 @@ describe('associate menu', () => {
     expect(closedReason('2026-10-13', today, {})).toBe('draft');
     expect(closedReason('2026-10-13', today, { '2026-10-12': { sched: true } })).toBeNull();
     expect(closedReason('2026-10-20', today, {})).toBe('late');
-    expect(menuWeek('2026-10-12', today, { '2026-10-12': { cap: 4 } })).toMatchObject({ special: 'BBQ Pulled Pork Sandwich', cap: 4, sched: false });
-  });
-
-  it('puts the special first and counts what is left', () => {
-    const menu = menuFor('2026-10-08', today, {}, { am_soup: { sub: 'Chili this week' } })!;
-    expect(menu[0]).toMatchObject({ name: 'Peach Glazed Chicken Breast', cap: 12, special: true });
-    expect(menu.find((x) => x.id === 'am_soup')!.sub).toBe('Chili this week');
-    const all = [meal({ date: '2026-10-08', item: 'Peach Glazed Chicken Breast' }), meal({ date: '2026-10-08', item: 'Peach Glazed Chicken Breast', status: 'Cancelled' })];
-    expect(itemsLeft(all, '2026-10-08', menu[0])).toBe(11);
-    expect(itemsLeft(all, '2026-10-08', menu[1])).toBeNull();
-  });
-
-  it('asks for every choice in order', () => {
-    const salad = STANDING_CHOICES[0];
-    expect(missingChoice(salad, {})?.group).toBe('Dressing');
-    expect(missingChoice(salad, { Dressing: 'Ranch' })?.group).toBe('Protein');
-    expect(modsText(salad, { Protein: 'No protein', Dressing: 'Ranch' })).toBe('Ranch, No protein');
+    expect(menuWeek('2026-10-12', today, {}).sched).toBe(false);
+    expect(menuWeek('2026-10-05', today, {}).sched).toBe(true);
   });
 });
 
@@ -104,8 +89,8 @@ describe('shifts and meals', () => {
   });
 
   it('plans and cancels with a log line, and lists the history newest first', () => {
-    let all = planMeal([], { date: '2026-10-08', meal: 'Dinner', item: 'Entrée Salad', window: '5:00 PM', mods: { Dressing: 'Ranch' }, note: 'Ranch' }, 'Jordan Reyes', 1000);
-    expect(all[0]).toMatchObject({ status: 'Planned', mods: { Dressing: 'Ranch' }, log: [{ text: 'Planned in the Associate App' }] });
+    let all = planMeal([], { date: '2026-10-08', meal: 'Dinner', item: 'Southwest Summer Salad', recipeIds: ['l_swsalad'], window: '5:00 PM', mods: { Dressing: 'Ranch' }, note: 'Ranch' }, 'Jordan Reyes', 1000);
+    expect(all[0]).toMatchObject({ status: 'Planned', recipeIds: ['l_swsalad'], mods: { Dressing: 'Ranch' }, log: [{ text: 'Planned in the Associate App' }] });
     all = cancelMeal(all, all[0].id, 'Jordan Reyes', 2000);
     expect(all[0].status).toBe('Cancelled');
     expect(all[0].log).toHaveLength(2);

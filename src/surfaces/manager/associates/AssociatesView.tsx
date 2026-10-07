@@ -9,22 +9,19 @@ import { useMe } from '../../../shell/session';
 import { useDining } from '../../../store/dining';
 import { useShared } from '../../../lib/sharedStore';
 import { serviceConfig } from '../../../store/serviceConfig';
+import { itemsLeft, modsText } from '../../../domain/assocMeals/menu';
+import { assocItemByName, assocMenuForDay, useAssocMenuSettings } from '../../../store/assocMenu';
 import { Button, EmptyState, cx, useNow } from '../../../ui';
 import { AssocOrderForm, type AssocFormValue } from './AssocOrderForm';
 import {
-  ASSOC_VENUE,
+  assocVenueName,
   CUTOFF_MIN,
-  STANDING_MENU,
-  assocMenu,
   assocTextsOn,
   assocWindows,
-  choicesText,
   compareOrders,
-  countOf,
   isLive,
   isNoc,
   mealOfWindow,
-  menuItem,
   orderLog,
   rangeLabel,
   readyAtOf,
@@ -52,7 +49,8 @@ export function AssociatesView() {
   const day = all.filter((o) => o.date === date);
   const live = day.filter(isLive);
   const windows = assocWindows(all, date);
-  const menu = assocMenu(date) ?? STANDING_MENU;
+  const menuSettings = useAssocMenuSettings();
+  const menu = assocMenuForDay(date, menuSettings);
   const textsOn = assocTextsOn();
 
   const stamp = (o: AssocMeal, text: string): AssocMeal => ({
@@ -63,8 +61,8 @@ export function AssociatesView() {
 
   const save = (v: AssocFormValue, over: boolean) => {
     if (!form) return;
-    const item = menuItem(date, v.item);
-    const note = choicesText(item, v.mods);
+    const item = assocItemByName(date, mealOfWindow(v.window), v.item, menuSettings);
+    const note = modsText(item, v.mods);
     if (form.mode === 'add') {
       const order: AssocMeal = {
         id: uid('am'),
@@ -73,6 +71,7 @@ export function AssociatesView() {
         window: v.window,
         associate: v.associate.trim(),
         item: v.item,
+        recipeIds: item?.recipeIds,
         status: 'Planned',
         note,
         mods: v.mods,
@@ -90,7 +89,7 @@ export function AssociatesView() {
         setAssocOrders((list) =>
           list.map((x) =>
             x.id === o.id
-              ? stamp({ ...x, item: v.item, window: v.window, meal: mealOfWindow(v.window), note, mods: v.mods }, `Changed by ${me.name}: ${changes.join(', ')}${over ? why(v.reason) : ''}`)
+              ? stamp({ ...x, item: v.item, recipeIds: item?.recipeIds, window: v.window, meal: mealOfWindow(v.window), note, mods: v.mods }, `Changed by ${me.name}: ${changes.join(', ')}${over ? why(v.reason) : ''}`)
               : x,
           ),
         );
@@ -113,14 +112,14 @@ export function AssociatesView() {
       <div className={s.head}>
         <h2 className={s.title}>Associate meals today</h2>
         <span className={s.meta}>
-          {plural(live.length, 'meal')} · {live.filter((o) => o.status === 'Picked up').length} picked up · pickup at {ASSOC_VENUE}
+          {plural(live.length, 'meal')} · {live.filter((o) => o.status === 'Picked up').length} picked up · pickup at {assocVenueName()}
         </span>
         <span className={s.caps}>
           {specials.map((m) => {
-            const c = countOf(all, date, m.name);
+            const c = (m.cap ?? 0) - (itemsLeft(all, date, m) ?? 0);
             return (
               <span key={m.id}>
-                {m.name} <b className={cx(c >= (m.cap ?? 0) ? s.red : s.green)}>{`${c}/${m.cap}`}</b>
+                {m.id === 'am_special_lunch' ? 'Lunch' : 'Dinner'}: {m.name} <b className={cx(c >= (m.cap ?? 0) ? s.red : s.green)}>{`${c}/${m.cap}`}</b>
               </span>
             );
           })}

@@ -7,6 +7,7 @@
  */
 import { useState } from 'react';
 import { Check, CheckCheck, Plus, Printer, X } from 'lucide-react';
+import { specialPeriodOf, type AssocMealKind } from '../../../domain/assocMeals/menu';
 import { uid } from '../../../lib/id';
 import { useDining } from '../../../store/dining';
 import {
@@ -65,7 +66,13 @@ export default function Page(_props: BoPageProps) {
   const weekTotal = days.reduce((n, d) => n + d.rows.length, 0);
   const weekDone = days.reduce((n, d) => n + confirmedIn(d), 0);
   const preordered = (row: ProductionRow) =>
-    assocOrders.filter((a) => a.date === day.iso && !/cancel/i.test(a.status || '') && a.item.toLowerCase() === row.name.toLowerCase()).length;
+    assocOrders.filter(
+      (a) =>
+        a.date === day.iso &&
+        !/cancel/i.test(a.status || '') &&
+        specialPeriodOf(a.meal as AssocMealKind) === row.meal &&
+        (row.recipeId && a.recipeIds ? a.recipeIds.includes(row.recipeId) : a.item.toLowerCase() === row.name.toLowerCase()),
+    ).length;
   const pickWeek = (w: number) => {
     setWeek(w);
     setOffset(w * WEEK);

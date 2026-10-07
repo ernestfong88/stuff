@@ -1,8 +1,7 @@
 /**
  * Associate meal settings, kept with the other service settings so Back
  * Office edits reach every phone at once:
- *   am.weeks    week menus (see menu.ts)
- *   am.fixed    this week's descriptions of the standing choices
+ *   am.days, am.std, am.weeks   the menu (see src/store/assocMenu.ts)
  *   am.venue    the venue that serves associate meals (one per community)
  *   am.cut      ordering closes this many minutes before a range starts
  *   win.grid    pick up ranges per venue (Back Office: Pick Up Windows)
@@ -16,7 +15,6 @@ import type { WindowCap, WindowGrid } from './windows';
 
 export interface AssocSettings {
   weeks: Record<string, Partial<MenuWeek>>;
-  fixed: Record<string, { sub?: string }>;
   venue: string;
   cutoffMin: number;
   nocBy: number;
@@ -33,7 +31,6 @@ const numberOr = (v: unknown, fallback: number) => (v == null || v === '' || Num
 
 export function useAssocSettings(): AssocSettings {
   const weeks = useSetting<Record<string, Partial<MenuWeek>> | undefined>('am.weeks');
-  const fixed = useSetting<Record<string, { sub?: string }> | undefined>('am.fixed');
   const venueSetting = useSetting<string | undefined>('am.venue');
   const cut = useSetting<unknown>('am.cut');
   const nocBy = useSetting<unknown>('win.nocBy');
@@ -42,7 +39,6 @@ export function useAssocSettings(): AssocSettings {
   const venue = venueSetting && rooms[venueSetting] ? venueSetting : DEFAULT_ASSOC_VENUE;
   return {
     weeks: weeks ?? {},
-    fixed: fixed ?? {},
     venue,
     cutoffMin: numberOr(cut, DEFAULT_CUTOFF_MIN),
     nocBy: numberOr(nocBy, DEFAULT_NOC_BY),

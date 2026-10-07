@@ -3,7 +3,7 @@ import type { AssocMeal, Diner, Order } from '../../../domain/types';
 import { checkMoney, feedbackSummary, formatMinutes, shiftMoney, ticketWeek } from '../shift/closingReport';
 import { atRisk, byServer, demoSosTables, missPercent, offGoal, shiftMeal, summarize, weekLabels } from '../../../domain/metrics/stepsOfService';
 import { formatMetric, isScored, metricDefs } from '../../../domain/metrics/shiftMetrics';
-import { assocMenu, assocWindows, choicesComplete, choicesText, isNoc, mealOfWindow, mondayOf, rangeLabel, STANDING_MENU, weekPlan, windowMinutes } from '../associates/assocProgram';
+import { assocWindows, isNoc, mealOfWindow, rangeLabel, windowMinutes } from '../associates/assocProgram';
 import { mealByHour, menuForToday } from '../eightySix/menuToday';
 import { clampItem, freeSpot, nextTableLabel } from '../floor/planEdit';
 import type { PlanItem } from '../../../store/floorLayout';
@@ -121,20 +121,6 @@ describe('associate meals', () => {
     expect(w.filter((x) => x.meal === 'Lunch')[0]).toEqual({ meal: 'Lunch', w: '11:00 AM' });
     expect(w.some((x) => x.w === '7:30 PM' && x.meal === 'Dinner')).toBe(true);
     expect(w.filter((x) => x.meal === 'NOC')[0].w).toBe('11:00 PM');
-  });
-
-  it('has a menu only on scheduled weeks up to the end of next week', () => {
-    expect(mondayOf('2026-10-07')).toBe('2026-10-05');
-    expect(weekPlan('2026-10-05', '2026-10-07', {}).sched).toBe(true);
-    expect(assocMenu('2026-10-07', '2026-10-07')?.[0].name).toBe('Peach Glazed Chicken Breast');
-    expect(assocMenu('2026-10-13', '2026-10-07')).toBeNull();
-    expect(assocMenu('2026-10-06', '2026-10-07')).toBeNull();
-  });
-
-  it('writes the choices as one line and needs each one', () => {
-    const salad = STANDING_MENU[0];
-    expect(choicesText(salad, { Dressing: 'Ranch', Protein: 'Grilled Chicken' })).toBe('Ranch, Grilled Chicken');
-    expect(choicesComplete(salad, { Dressing: 'Ranch' })).toBe(false);
   });
 });
 

@@ -164,3 +164,11 @@
   font-weight: 600;
   line-height: 1.45;
 }
+
+.optionAllergens {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--danger);
+}

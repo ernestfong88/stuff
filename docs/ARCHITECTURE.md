@@ -46,7 +46,8 @@ src/
   store/                 shared state: the dining store (orders, history,
                          associate meals) and cross-surface stores: dining
                          config, service settings, venue settings, menu edits,
-                         86 list, notices, notes, resident stories and prefs,
+                         associate menu, recipes, 86 list, notices, notes,
+                         resident stories and prefs,
                          side work, trivia, production plan, floor layout,
                          text outbox, PINs
   lib/                   clock, storage, sharedStore, format, id

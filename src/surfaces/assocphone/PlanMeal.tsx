@@ -4,7 +4,8 @@ import { rooms } from '../../data';
 import type { AssocMeal, Order } from '../../domain/types';
 import { Button, Chip, cx, useNow } from '../../ui';
 import type { NewMeal } from '../../domain/assocMeals/meals';
-import { CLOSED_TEXT, closedReason, itemsLeft, menuFor, missingChoice, modsText } from '../../domain/assocMeals/menu';
+import { CLOSED_TEXT, closedReason, itemsLeft, missingChoice, modsText } from '../../domain/assocMeals/menu';
+import { assocMenuFor, useAssocMenuSettings } from '../../store/assocMenu';
 import type { AssocSettings } from '../../domain/assocMeals/settings';
 import { openWindows } from '../../domain/assocMeals/planning';
 import { dayName, nearestToBreak, shiftMeals, type Shift } from '../../domain/assocMeals/shifts';
@@ -40,7 +41,8 @@ export function PlanMeal({ shift, anyTime, todayIso, settings, meals, orders, on
   const [itemId, setItemId] = useState<string | null>(null);
   const [picked, setPicked] = useState<Record<string, string>>({});
 
-  const menu = menuFor(shift.date, todayIso, settings.weeks, settings.fixed);
+  const menuSettings = useAssocMenuSettings();
+  const menu = assocMenuFor(shift.date, meal, todayIso, menuSettings);
   const cap = windowCap(settings.caps, settings.venue);
   const open = openWindows(shift, meal, anyTime, settings, meals, nowMs);
   const loadOf = (w: string) => windowLoad(cap, settings.venue, w, shift.date, orders, meals);
@@ -57,12 +59,17 @@ export function PlanMeal({ shift, anyTime, todayIso, settings, meals, orders, on
 
   const place = () => {
     if (!ready || !item || !pickup) return;
-    onPlan({ date: shift.date, meal, item: item.name, window: pickup, mods: picked, note: modsText(item, picked) });
+    onPlan({ date: shift.date, meal, item: item.name, recipeIds: item.recipeIds, window: pickup, mods: picked, note: modsText(item, picked) });
   };
 
   const switchMeal = (m: AssocMealName) => {
     setMeal(m);
     setPickup(null);
+    // Lunch and dinner have different specials, so a special picked for one isn't kept for the other.
+    if (itemId === 'am_special') {
+      setItemId(null);
+      setPicked({});
+    }
   };
 
   const closed = closedReason(shift.date, todayIso, settings.weeks);
@@ -113,6 +120,7 @@ export function PlanMeal({ shift, anyTime, todayIso, settings, meals, orders, on
                       <span className={s.optionText}>
                         <span className={s.optionName}>{x.name}</span>
                         <span className={s.optionSub}>{x.sub}</span>
+                        {x.allergens.length > 0 && <span className={s.optionAllergens}>Contains: {x.allergens.join(', ')}</span>}
                       </span>
                       {soldOut ? (
                         <Chip tone="danger" size="xs">

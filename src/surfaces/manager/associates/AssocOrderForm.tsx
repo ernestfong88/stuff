@@ -2,21 +2,9 @@ import { useId, useState } from 'react';
 import type { AssocMeal } from '../../../domain/types';
 import { now } from '../../../lib/clock';
 import { Button, TextField } from '../../../ui';
-import {
-  CUTOFF_MIN,
-  PROGRAM_NAMES,
-  assocMenu,
-  STANDING_MENU,
-  choicesComplete,
-  countOf,
-  isLive,
-  mealOfWindow,
-  menuItem,
-  orderChoices,
-  rangeLabel,
-  windowOpen,
-  type AssocWindow,
-} from './assocProgram';
+import { itemsLeft, missingChoice } from '../../../domain/assocMeals/menu';
+import { assocMenuFor, useAssocMenuSettings } from '../../../store/assocMenu';
+import { CUTOFF_MIN, PROGRAM_NAMES, isLive, mealOfWindow, orderChoices, rangeLabel, windowOpen, type AssocWindow } from './assocProgram';
 import s from './AssocOrderForm.module.css';
 
 export interface AssocFormValue {
@@ -54,13 +42,15 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
   const at = now();
   const set = <K extends keyof AssocFormValue>(k: K, val: AssocFormValue[K]) => setV((x) => ({ ...x, [k]: val }));
 
-  const menu = assocMenu(date) ?? STANDING_MENU;
-  const item = menuItem(date, v.item);
+  const settings = useAssocMenuSettings();
+  // Lunch and dinner have different specials; the pickup time decides the meal.
+  const menu = assocMenuFor(date, mealOfWindow(v.window), date, settings, true) ?? [];
+  const item = menu.find((m) => m.name === v.item) ?? null;
   const overCutoff = !windowOpen(date, from, at) || !windowOpen(date, v.window, at);
   const name = v.associate.trim().toLowerCase();
   const dayOrders = all.filter((o) => o.date === date);
   const taken = !editing && !!name && dayOrders.some((o) => isLive(o) && o.associate.toLowerCase() === name && o.meal === mealOfWindow(v.window));
-  const ok = (editing || (name && v.item && !taken)) && (!overCutoff || v.reason.trim()) && choicesComplete(item, v.mods);
+  const ok = (editing || (name && v.item && !taken)) && (!overCutoff || v.reason.trim()) && (!item || !missingChoice(item, v.mods));
   const canCancel = windowOpen(date, from, at) || !!v.reason.trim();
   const names = PROGRAM_NAMES.filter((n) => !dayOrders.some((o) => isLive(o) && o.associate === n && o.meal === mealOfWindow(v.window)));
 
@@ -83,21 +73,21 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
       <select className={s.select} value={v.item} onChange={(e) => setV((x) => ({ ...x, item: e.target.value, mods: {} }))} aria-label="Meal">
         {!editing && <option value="">Meal (same choices as the app)</option>}
         {menu.map((m) => {
-          const c = countOf(all, date, m.name, editing?.id);
-          const soldOut = m.cap != null && c >= m.cap;
+          const left = itemsLeft(all, date, m, editing?.id);
+          const soldOut = left === 0;
           return (
             <option key={m.id} value={m.name} disabled={soldOut}>
-              {m.name}
-              {m.cap != null ? ` (${c}/${m.cap}${soldOut ? ', sold out' : ''})` : ''}
+              {m.special ? `Chef's special: ${m.name}` : m.name}
+              {m.cap != null ? ` (${m.cap - (left ?? 0)}/${m.cap}${soldOut ? ', sold out' : ''})` : ''}
             </option>
           );
         })}
       </select>
 
       {item?.mods.map((g) => (
-        <select key={g.g} className={s.select} value={v.mods[g.g] ?? ''} onChange={(e) => set('mods', { ...v.mods, [g.g]: e.target.value })} aria-label={g.g}>
-          <option value="">{g.g}, pick one</option>
-          {g.opts.map((o) => (
+        <select key={g.group} className={s.select} value={v.mods[g.group] ?? ''} onChange={(e) => set('mods', { ...v.mods, [g.group]: e.target.value })} aria-label={g.group}>
+          <option value="">{g.group}, pick one</option>
+          {g.options.map((o) => (
             <option key={o} value={o}>
               {o}
             </option>
@@ -105,7 +95,17 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
         </select>
       ))}
 
-      <select className={s.select} value={v.window} onChange={(e) => set('window', e.target.value)} aria-label="Pickup time">
+      <select
+        className={s.select}
+        value={v.window}
+        onChange={(e) => {
+          const w = e.target.value;
+          // A special doesn't carry over between lunch and dinner.
+          const keeps = (assocMenuFor(date, mealOfWindow(w), date, settings, true) ?? []).some((m) => m.name === v.item);
+          setV((x) => ({ ...x, window: w, ...(keeps ? {} : { item: '', mods: {} }) }));
+        }}
+        aria-label="Pickup time"
+      >
         {windows.map((x) => (
           <option key={x.w} value={x.w}>
             {rangeLabel(x.w)} · {x.meal}

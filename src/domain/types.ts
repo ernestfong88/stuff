@@ -309,7 +309,10 @@ export interface AssocMeal {
   meal: MealName | 'NOC' | string;
   window: string;
   associate: string;
+  /** What was ordered, as the kitchen sees it: the recipe's name (or "Soup & Salad Combo"). */
   item: string;
+  /** Recipe Book recipes the meal is made from. */
+  recipeIds?: string[];
   status: string;
   note: string;
   log: unknown[];

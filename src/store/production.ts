@@ -21,6 +21,7 @@
  *   checklistForMeal(state, venueId, meal) → ChecklistGroup[]       (only that meal's items)
  *   checkMark(state, venueId, iso, meal, itemId) → CheckMark | null
  *   productionDay(venueId, dayOffset) → ProductionDay               (dayOffset 0 to PLAN_DAYS - 1)
+ *   cycleEntrees(venueId, iso, meal) → [{recipeId, name}]           (the day's entrée specials)
  *   productionCount(state, venueId, iso, row) → ProductionCount
  *   productionOpen(state, dayOffsets?) → {open, total, byMeal}      (counts still to confirm)
  *   prepTasks(state) → PrepTask[]
@@ -55,9 +56,9 @@ import type { AssocMeal, Order } from '../domain/types';
 import { MINUTE, now, today } from '../lib/clock';
 import { createSharedStore, useShared } from '../lib/sharedStore';
 import gridSeed from '../data/seed/menuGrid.json';
-import recipeNamesSeed from '../data/seed/recipeNames.json';
 import { cycleDayOn, servingAt } from '../domain/menuCycle';
 import { menuEditsStore, type GridEntry } from './menuEdits';
+import { recipeInfo } from './recipes';
 import { venueSettingsStore } from './venueSettings';
 
 // ─── Types ───────────────────────────────────────────────────────────────
@@ -177,6 +178,8 @@ export interface ProductionRow {
   basis: string;
   /** "portions", "sandwich setups" ... for always-available items. */
   unit?: string;
+  /** Recipe Book id of a cycle item. */
+  recipeId?: string;
 }
 
 export interface ProductionDay {
@@ -612,20 +615,13 @@ function formatWeekday(date: Date): string {
 }
 
 const MEAL_ORDER: Record<PrepMeal, number> = { Breakfast: 0, Lunch: 1, Dinner: 2 };
-const recipeNames = recipeNamesSeed as Record<string, string>;
 
 /** The menu cycle as Menu Cycle & À la Carte has it: the chef's edits, else the seed. */
 function cycleGrid(): { grid: GridEntry[]; nameOf: (recipeId: string) => string | undefined } {
   const edits = menuEditsStore.get();
-  const grid = edits.grid ?? (gridSeed as unknown as GridEntry[]);
-  const edited = edits.recipes ? new Map(edits.recipes.map((r) => [r.id, r])) : null;
   return {
-    grid,
-    nameOf: (id) => {
-      const r = edited?.get(id);
-      if (r) return r.placeholder ? undefined : r.name;
-      return recipeNames[id];
-    },
+    grid: edits.grid ?? (gridSeed as unknown as GridEntry[]),
+    nameOf: (id) => recipeInfo(id, edits)?.name,
   };
 }
 
@@ -659,6 +655,7 @@ function cycleRows(venue: ProductionVenue, date: Date): { cycleDay: number; rows
       kind: 'special',
       meal,
       name,
+      recipeId: g.recipeId,
       category: g.cat,
       entree,
       recommended,
@@ -700,6 +697,19 @@ export function productionDay(venueId: string, dayOffset: number): ProductionDay
   const cycle = venue.menu === 'cycle' ? cycleRows(venue, date) : { cycleDay: 0, rows: [] };
   const rows = [...cycle.rows, ...anyDay].sort((a, b) => MEAL_ORDER[a.meal] - MEAL_ORDER[b.meal] || (a.kind === 'anyDay' ? 1 : 0) - (b.kind === 'anyDay' ? 1 : 0));
   return { offset: dayOffset, iso: isoDate(dayOffset), date, cycleDay: cycle.cycleDay, rows };
+}
+
+/**
+ * The entrée specials on a venue's menu cycle for a date ("YYYY-MM-DD") and
+ * meal, in menu order: what the chef can offer associates that day.
+ */
+export function cycleEntrees(venueId: string, iso: string, meal: PrepMeal): Array<{ recipeId: string; name: string }> {
+  const venue = getProductionVenue(venueId);
+  if (venue.menu !== 'cycle') return [];
+  const [y, m, d] = iso.split('-').map(Number);
+  return cycleRows(venue, new Date(y, m - 1, d))
+    .rows.filter((r) => r.meal === meal && r.entree && r.recipeId)
+    .map((r) => ({ recipeId: r.recipeId!, name: r.name }));
 }
 
 /** The morning crew already confirmed breakfast and most of lunch today; a few dinner counts are left. */

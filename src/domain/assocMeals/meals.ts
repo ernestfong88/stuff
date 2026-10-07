@@ -41,6 +41,7 @@ export interface NewMeal {
   date: string;
   meal: string;
   item: string;
+  recipeIds: string[];
   window: string;
   mods: Record<string, string>;
   note: string;
@@ -52,6 +53,7 @@ export function planMeal(all: AssocMeal[], meal: NewMeal, associate: string, at:
     date: meal.date,
     meal: meal.meal,
     item: meal.item,
+    recipeIds: meal.recipeIds,
     window: meal.window,
     associate,
     status: 'Planned',

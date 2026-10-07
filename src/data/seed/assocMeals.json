@@ -8,7 +8,10 @@
   "item": "Peach Glazed Chicken Breast",
   "status": "Planned",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "d_peach"
+  ]
  },
  {
   "id": "amc2",
@@ -16,10 +19,13 @@
   "meal": "Dinner",
   "window": "7:45 PM",
   "associate": "Devon Carter",
-  "item": "Entrée Salad",
+  "item": "Southwest Summer Salad",
   "status": "Planned",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "l_swsalad"
+  ]
  },
  {
   "id": "am1",
@@ -27,10 +33,13 @@
   "meal": "Lunch",
   "window": "11:00 AM",
   "associate": "Maria Lopez",
-  "item": "Sandwich of the Month",
+  "item": "Turkey Club",
   "status": "Planned",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "vf_turkeyclub"
+  ]
  },
  {
   "id": "am2",
@@ -38,10 +47,13 @@
   "meal": "Lunch",
   "window": "1:30 PM",
   "associate": "Devon Carter",
-  "item": "Peach Glazed Chicken Breast",
+  "item": "Reuben Sandwich",
   "status": "Planned",
   "note": "no onions",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "l_reuben"
+  ]
  },
  {
   "id": "am3",
@@ -49,10 +61,13 @@
   "meal": "Lunch",
   "window": "1:30 PM",
   "associate": "Grace Kim",
-  "item": "Entrée Salad",
+  "item": "Southwest Summer Salad",
   "status": "Planned",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "l_swsalad"
+  ]
  },
  {
   "id": "am4",
@@ -63,7 +78,11 @@
   "item": "Soup & Salad Combo",
   "status": "Planned",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "l_cbsoup",
+   "l_sidesalad"
+  ]
  },
  {
   "id": "am5",
@@ -74,7 +93,10 @@
   "item": "Peach Glazed Chicken Breast",
   "status": "Planned",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "d_peach"
+  ]
  },
  {
   "id": "am6",
@@ -82,10 +104,13 @@
   "meal": "Lunch",
   "window": "11:00 AM",
   "associate": "Luis Ortega",
-  "item": "Peach Glazed Chicken Breast",
+  "item": "Hummus Veggie Wrap",
   "status": "Planned",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "vf_hummuswrap"
+  ]
  },
  {
   "id": "am7",
@@ -93,10 +118,13 @@
   "meal": "Dinner",
   "window": "7:00 PM",
   "associate": "Jordan Reyes",
-  "item": "Sandwich of the Month",
+  "item": "Turkey Club",
   "status": "Planned",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "vf_turkeyclub"
+  ]
  },
  {
   "id": "am8",
@@ -104,10 +132,13 @@
   "meal": "Lunch",
   "window": "1:30 PM",
   "associate": "Maria Lopez",
-  "item": "Entrée Salad",
+  "item": "Southwest Summer Salad",
   "status": "Planned",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "l_swsalad"
+  ]
  },
  {
   "id": "am9",
@@ -115,13 +146,16 @@
   "meal": "NOC",
   "window": "11:00 PM",
   "associate": "Luis Ortega",
-  "item": "Sandwich of the Month",
+  "item": "Turkey Club",
   "status": "Planned",
   "note": "Chips",
   "mods": {
    "Side": "Chips"
   },
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "vf_turkeyclub"
+  ]
  },
  {
   "id": "am10",
@@ -129,13 +163,16 @@
   "meal": "NOC",
   "window": "2:00 AM",
   "associate": "Maria Lopez",
-  "item": "Soup of the Week",
+  "item": "Cheeseburger Soup",
   "status": "Planned",
   "note": "Bowl",
   "mods": {
    "Size": "Bowl"
   },
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "l_cbsoup"
+  ]
  },
  {
   "id": "h1",
@@ -143,10 +180,13 @@
   "meal": "Lunch",
   "window": "1:30 PM",
   "associate": "Jordan Reyes",
-  "item": "Peach Glazed Chicken Breast",
+  "item": "Patty Melt",
   "status": "Picked up",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "vf_pattymelt"
+  ]
  },
  {
   "id": "h2",
@@ -154,10 +194,13 @@
   "meal": "Dinner",
   "window": "7:00 PM",
   "associate": "Jordan Reyes",
-  "item": "Sandwich of the Month",
+  "item": "Turkey Club",
   "status": "Picked up",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "vf_turkeyclub"
+  ]
  },
  {
   "id": "h3",
@@ -168,6 +211,10 @@
   "item": "Soup & Salad Combo",
   "status": "Cancelled — shift removed",
   "note": "",
-  "log": []
+  "log": [],
+  "recipeIds": [
+   "l_cbsoup",
+   "l_sidesalad"
+  ]
  }
 ]

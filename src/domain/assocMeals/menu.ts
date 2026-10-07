@@ -1,16 +1,27 @@
 /**
- * The associate menu. Each week has one special that a set number of
- * associates can have each day, first come, first served. Like a dining
- * menu, a week is a Draft until the chef schedules it, Scheduled until its
- * Monday, then Active. The four standing choices are always on. Associates
- * plan only on scheduled or active weeks, up to the end of next week, with
- * associate-only choices and no notes.
+ * The associate menu, the same in every community:
  *
- * Back Office keeps its edits in the service settings: `am.weeks[monday]`
- * ({sched, special, sub, cap}) and `am.fixed[choiceId].sub`.
+ *   - one chef special per meal period, from that day's dining menu cycle
+ *     (lunch and dinner; overnight NOC meals get the dinner special, since
+ *     the dinner line makes them). The chef picks which entrée special and
+ *     how many associates can have it, first come, first served;
+ *   - the four standing choices, always on, each a Recipe Book recipe the
+ *     chef can swap (this month's sandwich, this week's soup ...).
+ *
+ * A week is a Draft until the chef schedules it, Scheduled until its
+ * Monday, then Active. Associates plan only on scheduled or active weeks, up
+ * to the end of next week, with associate-only choices and no notes.
+ *
+ * This module is pure; src/store/assocMenu.ts assembles a day's menu from
+ * the settings, the menu cycle and the Recipe Book.
  */
 import type { AssocMeal } from '../types';
 import { isLive } from './windows';
+
+export type AssocMealKind = 'Lunch' | 'Dinner' | 'NOC';
+
+/** The meal period whose special a meal gets: NOC meals come off the dinner line. */
+export const specialPeriodOf = (meal: AssocMealKind): 'Lunch' | 'Dinner' => (meal === 'Lunch' ? 'Lunch' : 'Dinner');
 
 export interface ModChoice {
   /** Group name: Dressing, Side, Size ... */
@@ -20,33 +31,65 @@ export interface ModChoice {
 
 export interface AssocMenuItem {
   id: string;
+  /** What the associate and the kitchen see: the recipe's name (or the combo's). */
   name: string;
   sub: string;
+  /** Recipe Book recipes the meal is made from. */
+  recipeIds: string[];
+  allergens: string[];
   /** Daily limit for the special; undefined for the standing choices. */
   cap?: number;
+  /** The meals that share the cap (dinner and NOC share the dinner special). */
+  capMeals?: AssocMealKind[];
   special?: boolean;
   mods: ModChoice[];
 }
 
+/** A week is open to plan once the chef schedules it. */
 export interface MenuWeek {
-  /** Scheduled by the chef (Draft until then). */
   sched: boolean;
-  special: string;
-  sub: string;
-  cap: number;
 }
+
+/** The chef's call for one meal period of one day. */
+export interface DaySpecialPick {
+  /** Recipe offered; null means no special this meal. Absent: the cycle's first entrée special. */
+  recipeId?: string | null;
+  /** Associates who can have it; absent: DEFAULT_SPECIAL_CAP. */
+  cap?: number;
+}
+
+export type DayPicks = Partial<Record<'Lunch' | 'Dinner', DaySpecialPick>>;
+
+export const DEFAULT_SPECIAL_CAP = 12;
 
 export type WeekState = 'draft' | 'scheduled' | 'active';
 /** Why a day can't be planned: before today, past the end of next week, or its week is still a draft. */
 export type ClosedReason = 'past' | 'late' | 'draft';
 
+// ─── The standing choices ────────────────────────────────────────────────
+
 const DRESSINGS = ['Chipotle Ranch', 'Ranch', 'Balsamic Vinaigrette', 'Italian'];
 
-export const STANDING_CHOICES: AssocMenuItem[] = [
+export interface StandingSlot {
+  id: string;
+  /** "Sandwich of the Month": what the slot is, shown with the recipe. */
+  label: string;
+  /** Recipe Book category and subcategory the chef picks from. */
+  cat: string;
+  sub: string;
+  defaultRecipe: string;
+  mods: ModChoice[];
+  /** The combo: a cup of the Soup of the Week plus this slot's side salad. */
+  withSoup?: boolean;
+}
+
+export const STANDING_SLOTS: StandingSlot[] = [
   {
     id: 'am_salad',
-    name: 'Entrée Salad',
-    sub: 'Southwest greens, black beans, corn, tomato',
+    label: 'Entrée salad',
+    cat: 'Entrees',
+    sub: 'Entrée Salad',
+    defaultRecipe: 'l_swsalad',
     mods: [
       { group: 'Dressing', options: DRESSINGS },
       { group: 'Protein', options: ['Grilled Chicken', 'No protein'] },
@@ -54,23 +97,34 @@ export const STANDING_CHOICES: AssocMenuItem[] = [
   },
   {
     id: 'am_sandwich',
-    name: 'Sandwich of the Month',
-    sub: 'Turkey club on toasted sourdough',
+    label: 'Sandwich of the month',
+    cat: 'Entrees',
+    sub: 'Sandwiches',
+    defaultRecipe: 'vf_turkeyclub',
     mods: [{ group: 'Side', options: ['Chips', 'Fruit', 'Side Salad'] }],
   },
   {
     id: 'am_soup',
-    name: 'Soup of the Week',
-    sub: 'Cheeseburger soup this week',
+    label: 'Soup of the week',
+    cat: 'Starters',
+    sub: 'Soup',
+    defaultRecipe: 'l_cbsoup',
     mods: [{ group: 'Size', options: ['Cup', 'Bowl'] }],
   },
   {
     id: 'am_combo',
-    name: 'Soup & Salad Combo',
-    sub: 'Cup of soup and a side salad',
+    label: 'Soup & salad combo',
+    cat: 'Sides',
+    sub: 'Side Salad',
+    defaultRecipe: 'l_sidesalad',
     mods: [{ group: 'Dressing', options: DRESSINGS }],
+    withSoup: true,
   },
 ];
+
+export const COMBO_NAME = 'Soup & Salad Combo';
+
+// ─── Dates and weeks ─────────────────────────────────────────────────────
 
 /** "2026-10-07" plus k days. */
 export function addDays(date: string, k: number): string {
@@ -85,16 +139,10 @@ export function mondayOf(date: string): string {
   return addDays(date, -((d.getUTCDay() + 6) % 7));
 }
 
-/** A week's menu: Back Office edits over the defaults (this week live, next week drafted). */
+/** A week's schedule: Back Office's call over the default (this week scheduled, later weeks drafts). */
 export function menuWeek(monday: string, todayIso: string, edits: Record<string, Partial<MenuWeek>> | undefined): MenuWeek {
-  const current = mondayOf(todayIso);
-  const base: MenuWeek =
-    monday === current
-      ? { sched: true, special: 'Peach Glazed Chicken Breast', sub: 'Mashed potatoes, garlic green beans', cap: 12 }
-      : monday === addDays(current, 7)
-        ? { sched: false, special: 'BBQ Pulled Pork Sandwich', sub: 'Coleslaw, kettle chips', cap: 10 }
-        : { sched: false, special: '', sub: '', cap: 10 };
-  return { ...base, ...edits?.[monday] };
+  const sched = edits?.[monday]?.sched;
+  return { sched: sched ?? monday === mondayOf(todayIso) };
 }
 
 export function weekState(week: MenuWeek, monday: string, todayIso: string): WeekState {
@@ -114,46 +162,22 @@ export const CLOSED_TEXT: Record<ClosedReason, string> = {
   draft: "The chef hasn't set this week's menu yet. Check back soon.",
 };
 
-/** What associates can pick on a date: the week's special, then the standing choices. Null when closed. */
-export function menuFor(
-  date: string,
-  todayIso: string,
-  edits: Record<string, Partial<MenuWeek>> | undefined,
-  standingSubs: Record<string, { sub?: string }> | undefined,
-): AssocMenuItem[] | null {
-  if (closedReason(date, todayIso, edits)) return null;
-  const week = menuWeek(mondayOf(date), todayIso, edits);
-  const special: AssocMenuItem[] = week.special
-    ? [
-        {
-          id: 'am_special',
-          name: week.special,
-          sub: "This week's special" + (week.sub ? ` · ${week.sub}` : ''),
-          cap: Math.max(0, Number(week.cap) || 0),
-          special: true,
-          mods: [],
-        },
-      ]
-    : [];
-  return [...special, ...standingChoices(standingSubs)];
-}
-
-/** The standing choices with the descriptions Back Office set this week. */
-export function standingChoices(standingSubs: Record<string, { sub?: string }> | undefined): AssocMenuItem[] {
-  return STANDING_CHOICES.map((c) => ({ ...c, sub: standingSubs?.[c.id]?.sub || c.sub }));
-}
+// ─── Orders against the menu ─────────────────────────────────────────────
 
 /** How many of a limited item are left on a date (null when unlimited). */
 export function itemsLeft(meals: AssocMeal[], date: string, item: AssocMenuItem, skipId?: string): number | null {
   if (item.cap == null) return null;
-  const taken = meals.filter((o) => o.date === date && o.item === item.name && o.id !== skipId && isLive(o)).length;
+  const taken = meals.filter(
+    (o) => o.date === date && o.item === item.name && o.id !== skipId && isLive(o) && (!item.capMeals || item.capMeals.includes(o.meal as AssocMealKind)),
+  ).length;
   return Math.max(0, item.cap - taken);
 }
 
 /** "Ranch, Grilled Chicken" in the item's group order. */
-export function modsText(item: AssocMenuItem, picked: Record<string, string>): string {
+export function modsText(item: AssocMenuItem | null | undefined, picked: Record<string, string> | undefined): string {
+  if (!item) return '';
   return item.mods
-    .map((g) => picked[g.group])
+    .map((g) => picked?.[g.group])
     .filter(Boolean)
     .join(', ');
 }
