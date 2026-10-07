@@ -12,6 +12,7 @@ import {
   dayFor,
   libraryFor,
   shiftTime,
+  sideWorkStore,
   sideWorkVenues,
   staffOnShift,
   useSideWork,
@@ -19,7 +20,7 @@ import {
   type ShiftPerson,
   type SideWorkTask,
 } from '../../../../store/sideWork';
-import { Button, Tabs, cx } from '../../../../ui';
+import { Button, Tabs, cx, toast } from '../../../../ui';
 import s from './SideWorkAssign.module.css';
 
 const VENUE_KEY = 'kisco_sw_venue';
@@ -104,9 +105,19 @@ export function SideWorkAssign() {
   };
 
   const clear = () => {
+    const before = sideWorkStore.get();
     clearSideWork(venue);
     setSelected(null);
     setMsg('Assignments cleared. Checked off tasks stay with whoever did them.');
+    toast('Side work assignments cleared', {
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          sideWorkStore.set(before);
+          setMsg('Assignments are back.');
+        },
+      },
+    });
   };
 
   const taskChip = (t: SideWorkTask, wide?: boolean) => {
