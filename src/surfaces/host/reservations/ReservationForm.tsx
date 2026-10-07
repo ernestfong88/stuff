@@ -120,6 +120,7 @@ export function ReservationForm({ plan, init, list, day, meal, onClose, onSave }
     });
   };
   const clashOf = (id: string) => time != null && clashes({ ...draft, tableId: id }, list).length > 0;
+  const busy = plan.tables.some((t) => t.id !== tableId && clashOf(t.id));
 
   return (
     <Modal
@@ -254,7 +255,15 @@ export function ReservationForm({ plan, init, list, day, meal, onClose, onSave }
       </div>
 
       <div className={cx(s.cap, s.capRow)}>
-        <span className={s.grow}>Table</span>
+        <span className={s.grow}>
+          Table
+          {busy && (
+            <span className={s.busyKey}>
+              <span className={s.busySwatch} />
+              Booked near this time
+            </span>
+          )}
+        </span>
         <button className={cx(s.chip, s.small, !tableId && s.on)} aria-pressed={!tableId} onClick={() => setTableId(null)}>
           Assign at arrival
         </button>
@@ -298,7 +307,9 @@ export function ReservationForm({ plan, init, list, day, meal, onClose, onSave }
           })}
         </div>
       )}
-      <div className={s.hint}>{tableId ? `${tableLabel(tableId, labelOf)} is held from an hour before.` : 'The host picks a table when they arrive.'}</div>
+      <div className={s.hint}>
+        {tableId ? `${tableLabel(tableId, labelOf)} is held from an hour before.` : 'Tap a table to hold it, or the host picks one when they arrive.'}
+      </div>
       {clash.length > 0 && (
         <div className={s.clash} role="alert">
           ⚠ {tableLabel(tableId, labelOf)} is also booked for {clash.map((x) => `${partyName(x)} at ${hm(x.time)}`).join(' and ')}. Tables turn in about 90 minutes, so

@@ -248,6 +248,24 @@
   font-size: 11.5px;
   color: var(--s400);
 }
+.guestHit {
+  color: var(--ocean);
+}
+.guestHit .hitName {
+  font-weight: 600;
+}
+.guestLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 4px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ocean);
+  align-self: flex-start;
+}
 .hitPlus {
   color: var(--ocean);
 }

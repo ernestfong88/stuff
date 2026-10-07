@@ -1,7 +1,8 @@
 import { serverName } from '../../../domain/servers';
 import type { Order } from '../../../domain/types';
 import { MINUTE } from '../../../lib/clock';
-import { Button, cx } from '../../../ui';
+import { MoreVertical, UserX, XCircle } from 'lucide-react';
+import { Button, MenuItem, Popover, cx } from '../../../ui';
 import { clashes, clockOf, hm, isOpen, partyLast, partyList, partyName, resvAt, resvStatus, RESV_STATUS_LABEL, seatedDelta, tableLabel, type Reservation } from './model';
 import s from './ReservationRow.module.css';
 
@@ -84,11 +85,39 @@ export function ReservationRow({ r, at, list, live, isToday, labelOf, name, onSe
           </Button>
         )}
         {open && <Button onClick={() => onEdit(r)}>Edit</Button>}
-        {open && st === 'late' && <Button onClick={() => onAct('noshow', r)}>No-show</Button>}
         {open && (
-          <Button className={s.cancel} onClick={() => onAct('cancel', r)}>
-            Cancel
-          </Button>
+          <Popover
+            trigger={({ toggle }) => (
+              <Button iconOnly variant="ghost" icon={<MoreVertical size={18} />} aria-label={`More for ${partyName(r)}`} onClick={toggle} />
+            )}
+            minWidth={220}
+          >
+            {({ close }) => (
+              <>
+                {st === 'late' && (
+                  <MenuItem
+                    icon={<UserX size={15} />}
+                    onClick={() => {
+                      close();
+                      onAct('noshow', r);
+                    }}
+                  >
+                    Mark as no-show
+                  </MenuItem>
+                )}
+                <MenuItem
+                  danger
+                  icon={<XCircle size={15} />}
+                  onClick={() => {
+                    close();
+                    onAct('cancel', r);
+                  }}
+                >
+                  Cancel reservation
+                </MenuItem>
+              </>
+            )}
+          </Popover>
         )}
         {st === 'seated' && order && <Button onClick={() => onOpen(order)}>Open {name(order)}</Button>}
         {dim && <Button onClick={() => onAct('restore', r)}>Restore</Button>}

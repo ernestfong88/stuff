@@ -5,7 +5,7 @@ import type { MealName, Order } from '../../domain/types';
 import { now } from '../../lib/clock';
 import { useVenue } from '../../shell/session';
 import { useDining } from '../../store/dining';
-import { Button, toast, useNow } from '../../ui';
+import { Button, cx, toast, useNow } from '../../ui';
 import { FloorPlan } from '../manager/floor/FloorPlan';
 import { checksAt, inPlan, useRoomPlan, useTableName, type PlanItem } from '../../store/floorLayout';
 import { ServerLegend } from '../manager/floor/ServerLegend';
@@ -95,8 +95,10 @@ export function HostView({ tab, onTab, onOpen }: Props) {
     if (!pick || !seats.length || !server) return;
     const oid = newCheck(pick.id, venue, mealAtMinutes(nowMinutes()), server);
     patchOrder(oid, { hostSeated: true });
+    // A guest added on the floor sits against the first resident in the party.
+    const firstResident = seats.find((x) => x.residentId)?.residentId ?? '';
     for (const x of seats) {
-      if (x.guest) addDiner(oid, 'resident', x.host ?? '', true, { guestName: x.guest.name, guestRel: x.guest.rel });
+      if (x.guest) addDiner(oid, 'resident', x.host ?? firstResident, true, { guestName: x.guest.name, guestRel: x.guest.rel });
       else if (x.residentId) addDiner(oid, 'resident', x.residentId, false);
     }
     if (seating) {
@@ -173,11 +175,23 @@ export function HostView({ tab, onTab, onOpen }: Props) {
               <span className={s.seating} role="status">
                 {pick ? 'Seating' : 'Tap a table for'} {partyName(seating)}, party of {seating.size}
                 <Button onClick={closePanel}>
-                  Cancel
+                  Stop seating
                 </Button>
               </span>
             ) : (
-              <span className={s.hint}>Tap a table to seat a party. Every open check shows in its server’s colour.</span>
+              <span className={s.hint}>
+                Tap a table to seat a party. Open checks show in their server’s colour.
+                <span className={s.keys}>
+                  <span className={s.key}>
+                    <span className={cx(s.swatch, s.swHeld)} />
+                    Held for a booking
+                  </span>
+                  <span className={s.key}>
+                    <span className={cx(s.swatch, s.swLate)} />
+                    Booking is late
+                  </span>
+                </span>
+              </span>
             ))}
           {tab === 'floor' && (
             <span className={s.legend}>

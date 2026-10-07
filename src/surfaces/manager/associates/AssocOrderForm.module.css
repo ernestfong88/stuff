@@ -43,3 +43,8 @@
 .grow {
   flex: 1;
 }
+.todo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--s500);
+}
