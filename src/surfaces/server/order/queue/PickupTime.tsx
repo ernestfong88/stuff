@@ -44,7 +44,9 @@ export function PickupTime({ order: o }: { order: Order & { queueType: QueueType
         {type === 'delivery' ? 'Delivery time' : 'Pick up time'}
       </div>
       {!on ? (
-        <p className={s.asap}>As soon as it is ready. This community does not book ranges for {type === 'delivery' ? 'delivery.' : 'pick up.'}</p>
+        <p className={s.asap}>
+          As soon as it is ready. This community does not book ranges for {type === 'delivery' ? 'delivery.' : 'pick up.'}
+        </p>
       ) : windows.length ? (
         <div className={s.chips}>
           {windows.map((w) => {
@@ -73,7 +75,9 @@ export function PickupTime({ order: o }: { order: Order & { queueType: QueueType
         <p className={s.fine}>
           Each time is a 15 minute range. Orders go in at least {cut} minutes before the range starts, and the kitchen fires about{' '}
           {pickupLeadMinutes([...orders, ...history], cfg)} minutes before so it is ready at the start.{' '}
-          {type === 'pickup' ? 'The resident gets one text, when it is packed and set out.' : 'The resident or family gets one text, when it leaves the kitchen.'}
+          {type === 'pickup'
+            ? 'The resident gets one text, when it is packed and set out.'
+            : 'The resident or family gets one text, when it leaves the kitchen.'}
         </p>
       )}
     </div>

@@ -9,7 +9,14 @@ const MIN = 60_000;
 beforeEach(() => freezeClock());
 afterEach(() => vi.useRealTimers());
 
-const ctx = (extra: Partial<CardContext> = {}): CardContext => ({ stage: 'seat', covered: false, hasExpo: false, checkInWakeMin: 2, now: T0, ...extra });
+const ctx = (extra: Partial<CardContext> = {}): CardContext => ({
+  stage: 'seat',
+  covered: false,
+  hasExpo: false,
+  checkInWakeMin: 2,
+  now: T0,
+  ...extra,
+});
 
 describe('tableStage', () => {
   it('reads an empty check as just seated, and a drink as ordering', () => {
@@ -25,7 +32,12 @@ describe('tableStage', () => {
   });
 
   it('is ready to run when the lowest course is all up at the pass', () => {
-    const o = order([diner([line('d_cbsoup', { sent: true, kitchenState: 'ready', course: 1 }), line('d_peach', { sent: true, kitchenState: 'scheduled', course: 2 })])]);
+    const o = order([
+      diner([
+        line('d_cbsoup', { sent: true, kitchenState: 'ready', course: 1 }),
+        line('d_peach', { sent: true, kitchenState: 'scheduled', course: 2 }),
+      ]),
+    ]);
     expect(tableStage(o)).toMatchObject({ key: 'run', label: 'Ready at Expo · C1' });
   });
 

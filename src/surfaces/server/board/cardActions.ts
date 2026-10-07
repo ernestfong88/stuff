@@ -94,8 +94,7 @@ export function cardActions(o: Order, ctx: CardContext): CardAction[] {
       if (work.fire != null) {
         const label = work.fire >= 3 ? 'Fire dessert' : `Fire C${work.fire}`;
         acts.push({ kind: 'fire', course: work.fire, fireAs: work.fireAs ?? [], label });
-      }
-      else if (onTheLine) acts.push({ kind: 'dessertOnLine' });
+      } else if (onTheLine) acts.push({ kind: 'dessertOnLine' });
       else if (!o.noDessert) acts.push({ kind: 'dessert' }, { kind: 'noDessert' });
     } else {
       if (eatenRun && flag(cfg, 'checkIn')) {

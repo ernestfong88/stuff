@@ -40,7 +40,9 @@ export function FloorPicker({ room, me, onPick }: { room: string; me: string; on
             <span className={s.label}>{t.label}</span>
             <span className={s.status}>{status}</span>
             {p.covers > 0 && (
-              <span className={cx(s.seats, p.full && s.full)}>{p.full ? `Full · ${p.covers} seated` : `${p.covers} of ${p.seats} seats`}</span>
+              <span className={cx(s.seats, p.full && s.full)}>
+                {p.full ? `Full · ${p.covers} seated` : `${p.covers} of ${p.seats} seats`}
+              </span>
             )}
           </button>
         );

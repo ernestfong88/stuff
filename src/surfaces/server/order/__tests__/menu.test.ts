@@ -28,7 +28,11 @@ describe('menu catalog', () => {
     expect(secs[0]).toMatchObject({ kind: 'specials', label: "Today's specials" });
     expect(secs[0].items.every((i) => i.special)).toBe(true);
     const types = secs.slice(1).map((s) => s.key);
-    expect(types).toEqual([...types].sort((a, b) => ['salad', 'sandwich', 'plate', 'pasta', 'byo'].indexOf(a) - ['salad', 'sandwich', 'plate', 'pasta', 'byo'].indexOf(b)));
+    expect(types).toEqual(
+      [...types].sort(
+        (a, b) => ['salad', 'sandwich', 'plate', 'pasta', 'byo'].indexOf(a) - ['salad', 'sandwich', 'plate', 'pasta', 'byo'].indexOf(b),
+      ),
+    );
   });
 
   it('groups drinks by subcategory and keeps cocktails to venues with a bar', () => {

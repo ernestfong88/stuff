@@ -39,8 +39,7 @@ export const LANES: readonly Lane[] = [
   { key: 'check', label: 'Ready to close', hint: 'everything served' },
 ];
 
-const servedAt = (o: Order, lines: OrderLine[]) =>
-  Math.max(o.openedAt, ...lines.map((i) => i.clearedAt || i.firedAt || o.openedAt));
+const servedAt = (o: Order, lines: OrderLine[]) => Math.max(o.openedAt, ...lines.map((i) => i.clearedAt || i.firedAt || o.openedAt));
 
 /** Ch: the table's stage, from what is on the check and where it is. */
 export function tableStage(o: Order, cfg: DiningConfig = DEFAULT_CONFIG, at: number = now()): TableStage {

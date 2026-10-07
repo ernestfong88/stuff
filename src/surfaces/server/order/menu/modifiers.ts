@@ -44,7 +44,15 @@ export function groupRule(groupId: string): GroupRule {
   if (!r) return FREE;
   const max = Math.max(0, r.max || 0);
   const min = Math.max(r.required ? 1 : 0, r.min || 0);
-  return { required: min > 0, min: max ? Math.min(min, max) : min, max, included: r.included, extra: Math.max(0, r.extra || 0), ask: r.ask, label: r.label };
+  return {
+    required: min > 0,
+    min: max ? Math.min(min, max) : min,
+    max,
+    included: r.included,
+    extra: Math.max(0, r.extra || 0),
+    ask: r.ask,
+    label: r.label,
+  };
 }
 
 /** __kMRuleSet: the group carries a rule worth showing. */
@@ -81,11 +89,6 @@ export function modGroup(id: string): ModGroup | undefined {
   return groupById.get(id);
 }
 
-/** Option price, where the group has rules (pizza crust, gluten-free bread). */
-export function optionPrice(groupId: string, option: string): number {
-  return modifierRules.groups[groupId]?.options.find((o) => o.name === option)?.price ?? 0;
-}
-
 /**
  * The item's modifier groups: the pinned ones and the most used ones up top
  * (at least three, pinned in their set order), the rest behind "View all".
@@ -93,9 +96,11 @@ export function optionPrice(groupId: string, option: string): number {
 export function groupsForItem(itemId: string, usage: Record<string, number>): { top: ModGroup[]; more: ModGroup[] } {
   const pinned = pinnedGroupIds(itemId);
   const rank = (g: ModGroup) => (pinned.includes(g.id) ? 0 : 1);
-  const sorted = [...modGroups].sort((a, b) => rank(a) - rank(b) || (usage[b.id] || 0) - (usage[a.id] || 0) || a.name.localeCompare(b.name));
+  const sorted = [...modGroups].sort(
+    (a, b) => rank(a) - rank(b) || (usage[b.id] || 0) - (usage[a.id] || 0) || a.name.localeCompare(b.name),
+  );
   const n = Math.max(3, sorted.filter((g) => rank(g) === 0).length);
-  const order = (g: ModGroup) => (pinned.indexOf(g.id) + 1 || 99);
+  const order = (g: ModGroup) => pinned.indexOf(g.id) + 1 || 99;
   return { top: sorted.slice(0, n).sort((a, b) => order(a) - order(b)), more: sorted.slice(n) };
 }
 

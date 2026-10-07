@@ -7,7 +7,10 @@ import { createSharedStore, useShared } from '../../../../lib/sharedStore';
 
 type Saved = Record<string, Contact[]>;
 
-export const guestContactsStore = createSharedStore<Saved>({}, { persistKey: 'kisco_server_guestContacts', channel: 'kisco-server-guest-contacts' });
+export const guestContactsStore = createSharedStore<Saved>(
+  {},
+  { persistKey: 'kisco_server_guestContacts', channel: 'kisco-server-guest-contacts' },
+);
 
 /** The resident's contacts on file plus guests saved here, each name once. */
 export function contactsOf(r: Resident, saved: Saved): Contact[] {

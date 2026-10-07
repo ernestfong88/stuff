@@ -29,17 +29,25 @@
   background: var(--surface);
   box-shadow: inset 0 0 0 1px var(--hair);
   cursor: pointer;
-  transition: box-shadow var(--fast) var(--ease), transform var(--fast) var(--ease);
+  transition:
+    box-shadow var(--fast) var(--ease),
+    transform var(--fast) var(--ease);
 }
 .card:hover {
-  box-shadow: inset 0 0 0 1px var(--hair-2), var(--shadow-2);
+  box-shadow:
+    inset 0 0 0 1px var(--hair-2),
+    var(--shadow-2);
 }
 .card:focus-visible {
   outline: none;
-  box-shadow: var(--focus), inset 0 0 0 1px var(--hair);
+  box-shadow:
+    var(--focus),
+    inset 0 0 0 1px var(--hair);
 }
 .loud {
-  box-shadow: inset 0 0 0 2px #3f7d3f, 0 6px 16px -8px #3f7d3f;
+  box-shadow:
+    inset 0 0 0 2px #3f7d3f,
+    0 6px 16px -8px #3f7d3f;
 }
 .late {
   box-shadow: inset 0 0 0 2px var(--danger);
@@ -111,7 +119,9 @@
   font-weight: 800;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: transform var(--fast) var(--ease), filter var(--fast);
+  transition:
+    transform var(--fast) var(--ease),
+    filter var(--fast);
 }
 .act:active {
   transform: scale(0.97);

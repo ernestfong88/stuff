@@ -47,7 +47,12 @@ export function PinPad({ onOk }: { onOk: () => void }) {
       </div>
       <div className={s.keys}>
         {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clr', '0', 'del'].map((k) => (
-          <button key={k} className={cx(s.key, k.length > 1 && s.keyWord)} onClick={() => press(k)} aria-label={k === 'del' ? 'Delete' : k === 'clr' ? 'Clear' : k}>
+          <button
+            key={k}
+            className={cx(s.key, k.length > 1 && s.keyWord)}
+            onClick={() => press(k)}
+            aria-label={k === 'del' ? 'Delete' : k === 'clr' ? 'Clear' : k}
+          >
             {k === 'del' ? <Delete size={20} aria-hidden /> : k === 'clr' ? 'Clear' : k}
           </button>
         ))}
@@ -57,7 +62,17 @@ export function PinPad({ onOk }: { onOk: () => void }) {
 }
 
 /** Manager PIN in a dialog. */
-export function ManagerPinDialog({ title, sub, onOk, onClose }: { title: ReactNode; sub?: ReactNode; onOk: () => void; onClose: () => void }) {
+export function ManagerPinDialog({
+  title,
+  sub,
+  onOk,
+  onClose,
+}: {
+  title: ReactNode;
+  sub?: ReactNode;
+  onOk: () => void;
+  onClose: () => void;
+}) {
   return (
     <Modal open onClose={onClose} width={380} title={title} subtitle={sub}>
       <PinPad onOk={onOk} />
@@ -91,7 +106,11 @@ export function CompDialog({
       onClose={onClose}
       width={380}
       title={title}
-      subtitle={free?.length ? `${free.join(' or ')} comps right away. ${others.join(' or ')} needs a manager PIN.` : 'Pick the reason, then a manager enters their PIN.'}
+      subtitle={
+        free?.length
+          ? `${free.join(' or ')} comps right away. ${others.join(' or ')} needs a manager PIN.`
+          : 'Pick the reason, then a manager enters their PIN.'
+      }
     >
       <div className={s.reasons} role="group" aria-label="Reason">
         {COMP_REASONS.map((r) => (

@@ -88,8 +88,14 @@ export function DinerHead({ diner, onProfile }: { diner: Diner; onProfile: (resi
 function GoodToKnowCard({ resident }: { resident: Resident }) {
   const notes = useNotes();
   const contact = resident.contacts?.[0];
-  const base = goodToKnow[resident.id] ?? (contact ? { k: [], q: `How is your ${contact.rel.toLowerCase()} ${contact.name.split(' ')[0]} doing?` } : null);
-  const key = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const base =
+    goodToKnow[resident.id] ??
+    (contact ? { k: [], q: `How is your ${contact.rel.toLowerCase()} ${contact.name.split(' ')[0]} doing?` } : null);
+  const key = (t: string) =>
+    t
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
   const seen = new Set<string>();
   const once = (t: string) => !seen.has(key(t)) && !!seen.add(key(t));
   const recent = notes

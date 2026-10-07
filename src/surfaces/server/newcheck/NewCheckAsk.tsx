@@ -25,8 +25,8 @@ export function NewCheckAsk({
   return (
     <Modal open onClose={onClose} width={460} title={`Start a new check at ${table.label}?`} hideClose>
       <p className={s.lede}>
-        You already have {mine.length === 1 ? 'a check' : `${mine.length} checks`} open here. A new check has its own diners, its own pacing and
-        its own timer, for someone who sits down later.
+        You already have {mine.length === 1 ? 'a check' : `${mine.length} checks`} open here. A new check has its own diners, its own pacing
+        and its own timer, for someone who sits down later.
       </p>
       <Button variant="primary" size="lg" block onClick={onNew} data-autofocus>
         Yes, start a new check

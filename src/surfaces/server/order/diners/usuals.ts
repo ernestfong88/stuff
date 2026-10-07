@@ -24,7 +24,8 @@ export interface Usual {
   n?: number;
 }
 
-const MEAT = /(beef|steak|chicken|pork|\bham\b|bacon|sausage|turkey|lamb|veal|meatball|bolognese|burger|brisket|prosciutto|pepperoni|salami|hot dog|\bdeli\b|seafood|\bblt\b|sushi|\bribs?\b|salmon|fish|flounder|shrimp|crab|tuna|\bcod\b|halibut|scallop|lobster|anchov)/i;
+const MEAT =
+  /(beef|steak|chicken|pork|\bham\b|bacon|sausage|turkey|lamb|veal|meatball|bolognese|burger|brisket|prosciutto|pepperoni|salami|hot dog|\bdeli\b|seafood|\bblt\b|sushi|\bribs?\b|salmon|fish|flounder|shrimp|crab|tuna|\bcod\b|halibut|scallop|lobster|anchov)/i;
 const MULTI = new Set(['Fillings', 'Add']);
 const FAV_STOPWORDS =
   /^(meat|with|from|always|wants|whenever|first|every|everything|loves|good|after|before|anything|black|small|warm|light|eater|particular|about|things|cooked|option|sometimes|watches|free|gluten|decaf|special|former|chef)$/;
@@ -101,7 +102,9 @@ export function usualsFor(r: Resident, meal: MealName, learned: LearnedFavorite[
     const safe = (it: MenuItem) => !(it.allergens ?? []).some((a) => avoid.includes(String(a).toLowerCase()));
     const all = ['Specials', 'Entrées']
       .flatMap((k) => g[k] ?? [])
-      .filter((it) => isToday(it) && safe(it) && !food.some((x) => x.item.id === it.id) && !(veg && MEAT.test(it.name + ' ' + (it.desc || ''))));
+      .filter(
+        (it) => isToday(it) && safe(it) && !food.some((x) => x.item.id === it.id) && !(veg && MEAT.test(it.name + ' ' + (it.desc || ''))),
+      );
     const withChoices = all.filter((it) => (it.mods ?? []).some((m) => m.group !== 'Notes' && (m.opts ?? []).length));
     const pool = withChoices.length >= 4 ? withChoices : all;
     const favWords = ((r.fav || '').toLowerCase().match(/[a-z]{4,}/g) ?? []).filter((w) => !FAV_STOPWORDS.test(w));

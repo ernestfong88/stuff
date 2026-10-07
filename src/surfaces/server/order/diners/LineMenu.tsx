@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { MoreHorizontal, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { getItem } from '../../../../data';
 import { tableName } from '../../../../domain/orders';
-import type { Diner, Order, OrderLine, Resident } from '../../../../domain/types';
+import type { Order, OrderLine, Resident } from '../../../../domain/types';
 import { addNote } from '../../../../store/notes';
 import { cx } from '../../../../ui';
 import { AnchoredMenu } from '../../shared/AnchoredMenu';
@@ -15,14 +15,12 @@ import s from './LineMenu.module.css';
  */
 export function LineMenu({
   order,
-  diner,
   line,
   resident,
   onRemake,
   onCancel,
 }: {
   order: Order;
-  diner: Diner;
   line: OrderLine;
   /** Set when the diner is a resident (not a guest) and the line is food. */
   resident: Resident | null;
@@ -54,7 +52,7 @@ export function LineMenu({
     >
       {({ close }) => (
         <>
-          {resident && <LineFeedback order={order} diner={diner} line={line} resident={resident} onDone={close} />}
+          {resident && <LineFeedback order={order} line={line} resident={resident} onDone={close} />}
           {canRemake && (
             <button
               role="menuitem"
@@ -77,7 +75,9 @@ export function LineMenu({
             }}
           >
             Cancel
-            <span className={s.sub}>{started ? 'Stays on the check and the cook is told to stop' : 'The kitchen has not started it, so it comes straight off'}</span>
+            <span className={s.sub}>
+              {started ? 'Stays on the check and the cook is told to stop' : 'The kitchen has not started it, so it comes straight off'}
+            </span>
           </button>
         </>
       )}
@@ -86,7 +86,17 @@ export function LineMenu({
 }
 
 /** "How did Ruth like it?" Liked it / Didn't, with an optional note, saved as dining feedback. */
-function LineFeedback({ order, line, resident, onDone }: { order: Order; diner: Diner; line: OrderLine; resident: Resident; onDone: () => void }) {
+function LineFeedback({
+  order,
+  line,
+  resident,
+  onDone,
+}: {
+  order: Order;
+  line: OrderLine;
+  resident: Resident;
+  onDone: () => void;
+}) {
   const it = getItem(line.itemId);
   const [verdict, setVerdict] = useState<'pos' | 'neg' | null>(null);
   const [text, setText] = useState('');
@@ -113,7 +123,13 @@ function LineFeedback({ order, line, resident, onDone }: { order: Order; diner: 
       )}
       {verdict && !saved && (
         <>
-          <input className={s.input} value={text} onChange={(e) => setText(e.target.value)} placeholder="Add a note (optional)" aria-label="Feedback note" />
+          <input
+            className={s.input}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Add a note (optional)"
+            aria-label="Feedback note"
+          />
           <button className={s.save} onClick={save}>
             Save feedback
           </button>

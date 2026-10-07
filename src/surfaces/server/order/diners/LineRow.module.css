@@ -26,10 +26,17 @@
 }
 .top {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 8px;
-  min-height: 36px;
+  gap: 4px 8px;
 }
 .indent {
   width: 30px;

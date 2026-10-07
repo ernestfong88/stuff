@@ -9,7 +9,17 @@ import s from './CardDialogs.module.css';
 import { WhoGetsWhat } from './WhoGetsWhat';
 
 /** Get Drinks: who gets what, by first name, then mark them delivered. */
-export function DrinksDialog({ order, queue, onClose, onDone }: { order: Order; queue: DrinkQueue; onClose: () => void; onDone: () => void }) {
+export function DrinksDialog({
+  order,
+  queue,
+  onClose,
+  onDone,
+}: {
+  order: Order;
+  queue: DrinkQueue;
+  onClose: () => void;
+  onDone: () => void;
+}) {
   const groups = byDiner([...queue.pour, ...queue.up]).map((g) => ({ diner: g.diner, lines: g.rows.map((r) => r.line) }));
   return (
     <Modal

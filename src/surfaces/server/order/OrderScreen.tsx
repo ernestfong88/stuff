@@ -72,7 +72,8 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
   const dining = useDining();
   const cfg = useConfig();
   const tabs = menuTabs(o.meal);
-  const startTab = (): MenuTab => (initialCategory && tabs.includes(initialCategory as MenuTab) ? (initialCategory as MenuTab) : (tabs[0] ?? 'Entrees'));
+  const startTab = (): MenuTab =>
+    initialCategory && tabs.includes(initialCategory as MenuTab) ? (initialCategory as MenuTab) : (tabs[0] ?? 'Entrees');
   const [selected, setSelected] = useState<string | null>(o.diners[0]?.id ?? null);
   const [adding, setAdding] = useState(o.diners.length === 0);
   const [guestHost, setGuestHost] = useState<Resident | null>(null);

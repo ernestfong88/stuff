@@ -109,8 +109,3 @@ export function sentMessage(o: Order): string {
   if (!drinks.length) return 'Sent to kitchen';
   return drinks.length === last.length ? `Drinks rung in · ${text}` : `Sent to kitchen · ${text}`;
 }
-
-/** Lines by course for the line's course chip, drinks excluded. */
-export function isFoodLine(line: OrderLine): boolean {
-  return !isDrink(line.itemId);
-}

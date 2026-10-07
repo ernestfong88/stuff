@@ -45,10 +45,21 @@ const cardRef = () => 'sq_' + Math.random().toString(36).slice(2, 7).toUpperCase
  * apartment or a card at the terminal, and closing the whole table or just
  * some of the people at it (the rest stay open).
  */
-export function CloseScreen({ order: o, dinerIds, onBack, onDone }: { order: Order; dinerIds: string[] | null; onBack: () => void; onDone: () => void }) {
+export function CloseScreen({
+  order: o,
+  dinerIds,
+  onBack,
+  onDone,
+}: {
+  order: Order;
+  dinerIds: string[] | null;
+  onBack: () => void;
+  onDone: () => void;
+}) {
   const cfg = useConfig();
   const { closeOrder, closeDiner } = useDining();
-  const guestCreditOn = useSetting<boolean | undefined>(`guestCredit.${COMMUNITY_NAME}`) ?? GUEST_CREDIT_COMMUNITIES.includes(COMMUNITY_NAME);
+  const guestCreditOn =
+    useSetting<boolean | undefined>(`guestCredit.${COMMUNITY_NAME}`) ?? GUEST_CREDIT_COMMUNITIES.includes(COMMUNITY_NAME);
   const [closing, setClosing] = useState<string[]>(() => dinerIds ?? o.diners.map((d) => d.id));
   const [printed, setPrinted] = useState<Record<string, boolean>>({});
   const [how, setHow] = useState<Record<string, PayHow>>({});
@@ -246,11 +257,17 @@ export function CloseScreen({ order: o, dinerIds, onBack, onDone }: { order: Ord
         )}
         <div className={s.actions}>
           <CloseTotal views={views} total={total} />
-          <button className={cx(s.printTable, printed.table && s.printed)} title="Print a receipt for the whole table" onClick={() => print('table')}>
-            {printed.table ? <Check size={15} aria-hidden /> : <Printer size={15} aria-hidden />} {printed.table ? 'Printed' : 'Print table'}
+          <button
+            className={cx(s.printTable, printed.table && s.printed)}
+            title="Print a receipt for the whole table"
+            onClick={() => print('table')}
+          >
+            {printed.table ? <Check size={15} aria-hidden /> : <Printer size={15} aria-hidden />}{' '}
+            {printed.table ? 'Printed' : 'Print table'}
           </button>
           <button className={s.close} disabled={blocked} onClick={finish}>
-            <Check size={17} aria-hidden /> {blocked ? 'Take card payment on the terminal first' : closeButtonLabel(views, total, closing.length, o.diners.length)}
+            <Check size={17} aria-hidden />{' '}
+            {blocked ? 'Take card payment on the terminal first' : closeButtonLabel(views, total, closing.length, o.diners.length)}
           </button>
         </div>
       </footer>

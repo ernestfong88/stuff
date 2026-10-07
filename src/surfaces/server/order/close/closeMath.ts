@@ -110,7 +110,9 @@ export function closeCharge(d: Diner, x: CloseInputs): CloseCharge {
     return { ...base, outOfPlan: amt, needsDrop: amt > 0, covered: false, comped: false, hostCredit: false };
   }
   const use = creditUse(d, x.overflowChoice);
-  const extra = use ? use.overflow.filter((l) => overflowIsAla(d, l, x.overflowChoice)).reduce((s, l) => s + (getItem(l.itemId)?.alaPrice ?? 0), 0) : 0;
+  const extra = use
+    ? use.overflow.filter((l) => overflowIsAla(d, l, x.overflowChoice)).reduce((s, l) => s + (getItem(l.itemId)?.alaPrice ?? 0), 0)
+    : 0;
   if (d.isGuest && x.guestOnHost[d.id] && x.guestCreditOn) {
     const amt = (base.delivery || 0) + extra;
     return { ...base, outOfPlan: amt, needsDrop: amt > 0, covered: true, comped: false, hostCredit: true };
@@ -146,7 +148,8 @@ export function planUse(rows: CloseRow[], mode: Record<string, PlanMode>, uses: 
   for (const r of rows) {
     const h = hostPlan(r.person);
     if (!h || !r.person || r.charge.comped) continue;
-    const own = !r.diner.isGuest && r.diner.kind !== 'associate' && (mode[r.diner.id] ?? defaultPlanMode(r.diner)) !== 'alacarte' && h.left > 0;
+    const own =
+      !r.diner.isGuest && r.diner.kind !== 'associate' && (mode[r.diner.id] ?? defaultPlanMode(r.diner)) !== 'alacarte' && h.left > 0;
     const guest = r.diner.isGuest && r.charge.hostCredit;
     if (!own && !guest) continue;
     const u = (by[r.person.id] ??= { left: h.left, own: 0, guests: 0, names: [] });
@@ -253,7 +256,9 @@ export function closeView(
       how: null,
       onPlan,
       title: g ? `Covered by ${host}'s meal plan` : 'Covered by meal plan',
-      sub: g ? `Uses ${use} of ${host}'s meals · ${meals(after)}${tail}` : `This meal uses ${meals(use)}${guestText} · ${meals(after)}${tail}`,
+      sub: g
+        ? `Uses ${use} of ${host}'s meals · ${meals(after)}${tail}`
+        : `This meal uses ${meals(use)}${guestText} · ${meals(after)}${tail}`,
     };
   }
   return { k: 'none', tone: 'comp', amt: 0, how: null, onPlan: false, title: 'Nothing to charge', sub: '' };
@@ -263,7 +268,9 @@ export function closeView(
 export function closeButtonLabel(views: CloseView[], total: number, closing: number, all: number): string {
   const part = closing < all ? ` ${closing} of ${all}` : '';
   if (total <= 0) return `Close${part} · nothing to charge`;
-  return views.some((v) => v.how === 'apt') ? `Charge ${formatMoney(total)} & close${part}` : `Close${part} · ${formatMoney(total)} paid by card`;
+  return views.some((v) => v.how === 'apt')
+    ? `Charge ${formatMoney(total)} & close${part}`
+    : `Close${part} · ${formatMoney(total)} paid by card`;
 }
 
 /** "$29.00 to resident accounts · 1 person on the meal plan" under the table total. */

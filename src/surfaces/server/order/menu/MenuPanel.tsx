@@ -10,7 +10,16 @@ import { cx, SearchField } from '../../../../ui';
 import { sideParentFor } from '../checkLines';
 import { DinerHead } from './DinerHead';
 import s from './MenuPanel.module.css';
-import { drinkGroups, effectiveDrinkGroup, menuSections, menuTabs, TODAY_MENU_DAY, type DrinkGroup, type MenuSection, type MenuTab } from './menuCatalog';
+import {
+  drinkGroups,
+  effectiveDrinkGroup,
+  menuSections,
+  menuTabs,
+  TODAY_MENU_DAY,
+  type DrinkGroup,
+  type MenuSection,
+  type MenuTab,
+} from './menuCatalog';
 import { MenuTile } from './MenuTile';
 import { ModifierEditor } from './ModifierEditor';
 import { defaultMods, opensModifiers } from './modifiers';
@@ -103,7 +112,9 @@ export function MenuPanel({
       )}
       <div className={s.grid}>
         {tab === 'Sides' && !search && sideWait === diner.id && (
-          <div className={s.sideNote}>This entree has no side. Adding one is optional: tap a side, another item, the next diner or Send.</div>
+          <div className={s.sideNote}>
+            This entree has no side. Adding one is optional: tap a side, another item, the next diner or Send.
+          </div>
         )}
         {sections.map((sec) => (
           <SectionBlock key={sec.key} section={sec}>
@@ -123,7 +134,9 @@ export function MenuPanel({
           </SectionBlock>
         ))}
         {sections.length === 0 && (
-          <div className={s.empty}>{search ? `No ${o.meal.toLowerCase()} items match “${search}”.` : "Nothing on today's menu in this category."}</div>
+          <div className={s.empty}>
+            {search ? `No ${o.meal.toLowerCase()} items match “${search}”.` : "Nothing on today's menu in this category."}
+          </div>
         )}
       </div>
       {modItem && (
@@ -198,9 +211,14 @@ function SectionBlock({ section, children }: { section: MenuSection; children: R
   return (
     <>
       {section.label && (
-        <div className={cx(s.head, star && s.headSpecial, section.kind === 'everyday' && s.headPlain)} style={section.tint ? { color: section.tint[1] } : undefined}>
+        <div
+          className={cx(s.head, star && s.headSpecial, section.kind === 'everyday' && s.headPlain)}
+          style={section.tint ? { color: section.tint[1] } : undefined}
+        >
           {star && <Star size={11} strokeWidth={2.5} aria-hidden />}
-          {section.tint && <span className={s.swatch} style={{ background: section.tint[0], boxShadow: `inset 0 0 0 1px ${section.tint[1]}66` }} />}
+          {section.tint && (
+            <span className={s.swatch} style={{ background: section.tint[0], boxShadow: `inset 0 0 0 1px ${section.tint[1]}66` }} />
+          )}
           {section.label}
           {section.kind !== 'specials' && section.kind !== 'everyday' && <span className={s.count}>{section.items.length}</span>}
         </div>

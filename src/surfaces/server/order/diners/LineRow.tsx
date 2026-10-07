@@ -77,15 +77,17 @@ export function LineRow({
           ) : (
             <CoursePick course={lineCourse(line)} toGo={!!line.toGo} editable={editable} onPick={pickCourse} />
           )}
-          <span className={s.name} title={it?.name}>
-            {serverItemName(it?.name ?? 'Item', cfg)}
+          <span className={s.text}>
+            <span className={s.name} title={it?.name}>
+              {serverItemName(it?.name ?? 'Item', cfg)}
+            </span>
+            {editable && <Pencil size={11} className={s.pencil} aria-hidden />}
+            <LineTags line={line} />
+            <LineState line={line} />
           </span>
-          {editable && <Pencil size={11} className={s.pencil} aria-hidden />}
-          <LineTags line={line} />
-          <LineState line={line} />
         </div>
         {(mods.length > 0 || line.note) && (
-          <div className={cx(s.mods, (o.queueType && !line.parentId) && s.modsQueue)}>
+          <div className={cx(s.mods, o.queueType && !line.parentId && s.modsQueue)}>
             {mods.join(' · ')}
             {line.note && <span className={s.note}>“{line.note}”</span>}
           </div>
@@ -103,7 +105,6 @@ export function LineRow({
       {line.sent && !line.comped && !line.cancelled && (
         <LineMenu
           order={o}
-          diner={diner}
           line={line}
           resident={resident}
           onRemake={() => dining.remakeLine(o.id, diner.id, line.id)}
@@ -121,7 +122,11 @@ export function LineRow({
           >
             {line.hold ? <Play size={13} aria-hidden /> : <Pause size={13} aria-hidden />}
           </button>
-          <button className={cx(s.iconBtn, s.remove)} aria-label={`Remove ${it?.name ?? 'item'}`} onClick={() => dining.removeItem(o.id, diner.id, line.id)}>
+          <button
+            className={cx(s.iconBtn, s.remove)}
+            aria-label={`Remove ${it?.name ?? 'item'}`}
+            onClick={() => dining.removeItem(o.id, diner.id, line.id)}
+          >
             <X size={14} strokeWidth={2.5} aria-hidden />
           </button>
         </div>

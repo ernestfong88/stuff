@@ -77,7 +77,11 @@ export function boozeType(it: Pick<MenuItem, 'id' | 'name'>): BoozeType {
   if (isAlcoholFreeName(name)) return 'na';
   if (getItem(it.id)?.category === 'Cocktails') return 'cocktail';
   if (/beer|lager|\bipa\b|stout|pilsner|porter|\bale\b/i.test(name)) return 'beer';
-  if (/wine|merlot|cabernet|chardonnay|pinot|sauvignon|riesling|ros[eé]\b|champagne|prosecco|sangria|blanc|grigio|bubbles|sparkling/i.test(name))
+  if (
+    /wine|merlot|cabernet|chardonnay|pinot|sauvignon|riesling|ros[eé]\b|champagne|prosecco|sangria|blanc|grigio|bubbles|sparkling/i.test(
+      name,
+    )
+  )
     return 'wine';
   if (/margarita|mimosa|bloody mary|martini|mojito|spritz|sour|&|tonic|sunrise/i.test(name)) return 'cocktail';
   return 'spirit';
@@ -96,10 +100,6 @@ export function drinkSubcategory(it: MenuItem): string {
   if (/juice|smoothie|cider|nectar/i.test(n)) return 'Juice';
   if (/\bcola\b|coke|pepsi|sprite|ginger ale|root beer|soda|lemonade|tonic|seltzer|sparkling|pepper|7.?up/i.test(n)) return 'Soft Drinks';
   return 'Other';
-}
-
-export function drinkTint(it: MenuItem): [string, string] {
-  return DRINK_TINTS[drinkSubcategory(it)] ?? DRINK_TINTS.Other;
 }
 
 /** __kDrinkAll: soft drinks first, then the bar (cocktails only where the venue pours them), each name once. */
@@ -244,7 +244,13 @@ export function menuSections(
       .map((i, k) => [i, k] as const)
       .sort((a, b) => rank(a[0]) - rank(b[0]) || (grp === 'Alcoholic' ? compareBooze(a[0], b[0], cfg) : 0) || a[1] - b[1])
       .map((x) => x[0]);
-    return groupBy(list, drinkSubcategory, (k, items) => ({ key: k, kind: 'drink', label: k, tint: DRINK_TINTS[k] ?? DRINK_TINTS.Other, items }));
+    return groupBy(list, drinkSubcategory, (k, items) => ({
+      key: k,
+      kind: 'drink',
+      label: k,
+      tint: DRINK_TINTS[k] ?? DRINK_TINTS.Other,
+      items,
+    }));
   }
 
   if (tab === 'Specials') {
@@ -252,7 +258,11 @@ export function menuSections(
       .flatMap((k) => g[k] ?? [])
       .filter((i) => i.special && isToday(i))
       .sort((a, b) => SPECIAL_GROUPS.indexOf(specialGroupOf(a)) - SPECIAL_GROUPS.indexOf(specialGroupOf(b)));
-    return groupBy(list, (i) => specialGroupOf(i)[1], (k, items) => ({ key: k, kind: 'special', label: specialGroupOf(items[0])[2], items }));
+    return groupBy(
+      list,
+      (i) => specialGroupOf(i)[1],
+      (k, items) => ({ key: k, kind: 'special', label: specialGroupOf(items[0])[2], items }),
+    );
   }
 
   if (tab === 'Sides') {

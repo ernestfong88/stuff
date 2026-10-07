@@ -109,7 +109,12 @@ export function TableCard({ order: o, stage, since, covered, onOpen }: TableCard
         );
       case 'getAndRun':
         return (
-          <button key="run" className={cx(s.act, s.go)} title="See what you make for this course, then run it" onClick={stop(() => setDialog('grab'))}>
+          <button
+            key="run"
+            className={cx(s.act, s.go)}
+            title="See what you make for this course, then run it"
+            onClick={stop(() => setDialog('grab'))}
+          >
             Get items · Run C{a.course}
           </button>
         );
@@ -144,7 +149,12 @@ export function TableCard({ order: o, stage, since, covered, onOpen }: TableCard
         );
       case 'noDessert':
         return (
-          <button key="nd" className={cx(s.act, s.plain)} title="They are finished; move the table to Ready to close" onClick={stop(() => dining.noDessert(o.id))}>
+          <button
+            key="nd"
+            className={cx(s.act, s.plain)}
+            title="They are finished; move the table to Ready to close"
+            onClick={stop(() => dining.noDessert(o.id))}
+          >
             No dessert
           </button>
         );
@@ -242,31 +252,31 @@ export function TableCard({ order: o, stage, since, covered, onOpen }: TableCard
       )}
       {readyCourse != null && <ReminderRow order={o} course={readyCourse} />}
       <span className={s.portal} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
-      {dialog === 'drinks' && (
-        <DrinksDialog
-          order={o}
-          queue={drinkQueue(o)}
-          onClose={() => setDialog(null)}
-          onDone={() => {
-            dining.serveDrinks(o.id);
-            setDialog(null);
-          }}
-        />
-      )}
-      {dialog === 'grab' && runCourse != null && (
-        <GetItemsDialog
-          order={o}
-          course={runCourse}
-          info={!serveCourse && grab?.kind === 'grab'}
-          goLabel={serveCourse ? `Mark C${runCourse} served` : undefined}
-          onClose={() => setDialog(null)}
-          onDone={() => {
-            if (serveCourse) dining.markServed(o.id, runCourse);
-            else dining.runCourse(o.id, runCourse);
-            setDialog(null);
-          }}
-        />
-      )}
+        {dialog === 'drinks' && (
+          <DrinksDialog
+            order={o}
+            queue={drinkQueue(o)}
+            onClose={() => setDialog(null)}
+            onDone={() => {
+              dining.serveDrinks(o.id);
+              setDialog(null);
+            }}
+          />
+        )}
+        {dialog === 'grab' && runCourse != null && (
+          <GetItemsDialog
+            order={o}
+            course={runCourse}
+            info={!serveCourse && grab?.kind === 'grab'}
+            goLabel={serveCourse ? `Mark C${runCourse} served` : undefined}
+            onClose={() => setDialog(null)}
+            onDone={() => {
+              if (serveCourse) dining.markServed(o.id, runCourse);
+              else dining.runCourse(o.id, runCourse);
+              setDialog(null);
+            }}
+          />
+        )}
       </span>
     </div>
   );

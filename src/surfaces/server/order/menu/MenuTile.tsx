@@ -35,10 +35,7 @@ export function MenuTile({
   const out = useIs86(item.id);
   const soldOut = left === 0 || out;
   return (
-    <div
-      className={cx(s.tile, special && s.special, soldOut && s.soldOut)}
-      style={!soldOut && tint ? { background: tint[0] } : undefined}
-    >
+    <div className={cx(s.tile, special && s.special, soldOut && s.soldOut)} style={!soldOut && tint ? { background: tint[0] } : undefined}>
       <button className={s.add} disabled={soldOut} onClick={onAdd} title={item.name + (item.desc ? '. ' + item.desc : '')}>
         <span className={s.name}>
           {item.special && <Star size={12} strokeWidth={2.5} className={s.star} aria-hidden />}
@@ -54,12 +51,19 @@ export function MenuTile({
           {out ? (
             <span className={s.out}>86 today</span>
           ) : (
-            left != null && <span className={cx(s.left, soldOut ? s.out : left <= 2 ? s.low : s.plenty)}>{soldOut ? 'Sold out' : `${left} left`}</span>
+            left != null && (
+              <span className={cx(s.left, soldOut ? s.out : left <= 2 ? s.low : s.plenty)}>{soldOut ? 'Sold out' : `${left} left`}</span>
+            )
           )}
         </span>
       </button>
       {!soldOut && (
-        <button className={s.mod} onClick={onModify} title="Change how it is made before it goes on the check" aria-label={`Modify ${item.name}`}>
+        <button
+          className={s.mod}
+          onClick={onModify}
+          title="Change how it is made before it goes on the check"
+          aria-label={`Modify ${item.name}`}
+        >
           Mod
         </button>
       )}

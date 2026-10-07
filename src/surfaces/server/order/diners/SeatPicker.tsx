@@ -5,7 +5,17 @@ import { AnchoredMenu } from '../../shared/AnchoredMenu';
 import s from './SeatPicker.module.css';
 
 /** The seat number on a diner's card; tap to move them to another seat (round tables show the circle). */
-export function SeatPicker({ order, diner, round, onPick }: { order: Order; diner: Diner; round: boolean; onPick: (seat: number) => void }) {
+export function SeatPicker({
+  order,
+  diner,
+  round,
+  onPick,
+}: {
+  order: Order;
+  diner: Diner;
+  round: boolean;
+  onPick: (seat: number) => void;
+}) {
   const count = Math.max(order.diners.length, diner.seat, 8);
   const seats = Array.from({ length: count }, (_, i) => i + 1);
   const taken = order.diners.filter((d) => d.id !== diner.id).map((d) => d.seat);

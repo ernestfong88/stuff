@@ -94,7 +94,10 @@ export function TablePayment({
   return (
     <div className={s.table}>
       <div className={s.eyebrow}>Card payment for the table</div>
-      <p className={s.lede}>KiscoConnect holds the check. The terminal takes the tap and nothing else, so there is no tip screen and no second total to reconcile.</p>
+      <p className={s.lede}>
+        KiscoConnect holds the check. The terminal takes the tap and nothing else, so there is no tip screen and no second total to
+        reconcile.
+      </p>
       <div className={s.modes} role="radiogroup" aria-label="Card payment">
         {(
           [
@@ -103,7 +106,13 @@ export function TablePayment({
             ['split', 'Split the table across 2 cards'],
           ] as Array<[TablePay, string]>
         ).map(([id, label]) => (
-          <button key={id} role="radio" aria-checked={mode === id} className={cx(s.mode, mode === id && s.modeOn)} onClick={() => onMode(id)}>
+          <button
+            key={id}
+            role="radio"
+            aria-checked={mode === id}
+            className={cx(s.mode, mode === id && s.modeOn)}
+            onClick={() => onMode(id)}
+          >
             {label}
           </button>
         ))}

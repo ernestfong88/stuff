@@ -72,7 +72,14 @@ export function MyTablesBoard({
             </h2>
             <div className={s.grid}>
               {list.map((r) => (
-                <TableCard key={r.order.id} order={r.order} stage={r.stage} since={r.since} covered={isCovered(r.order, cfg)} onOpen={onOpen} />
+                <TableCard
+                  key={r.order.id}
+                  order={r.order}
+                  stage={r.stage}
+                  since={r.since}
+                  covered={isCovered(r.order, cfg)}
+                  onOpen={onOpen}
+                />
               ))}
             </div>
           </section>

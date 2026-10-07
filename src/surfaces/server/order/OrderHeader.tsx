@@ -23,9 +23,7 @@ export function OrderHeader({ order: o, onBack }: { order: Order; onBack: () => 
       </button>
       <div className={s.titles}>
         <h1 className={s.title}>{title}</h1>
-        <div className={s.sub}>
-          {(rooms[o.room]?.name ?? o.room) + ' · ' + minutesSince(o.openedAt) + 'm · ' + o.server}
-        </div>
+        <div className={s.sub}>{(rooms[o.room]?.name ?? o.room) + ' · ' + minutesSince(o.openedAt) + 'm · ' + o.server}</div>
       </div>
       <MealSwitch meal={o.meal} onChange={(m) => setOrderMeal(o.id, m)} />
       <MenuReferenceButton short />

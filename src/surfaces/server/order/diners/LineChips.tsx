@@ -8,7 +8,17 @@ import s from './LineChips.module.css';
 export type CourseChoice = 1 | 2 | 3 | 4 | 'togo';
 
 /** The course chip on a line: set its course before it is sent, or box it to go any time. */
-export function CoursePick({ course, toGo, editable, onPick }: { course: number; toGo: boolean; editable: boolean; onPick: (c: CourseChoice) => void }) {
+export function CoursePick({
+  course,
+  toGo,
+  editable,
+  onPick,
+}: {
+  course: number;
+  toGo: boolean;
+  editable: boolean;
+  onPick: (c: CourseChoice) => void;
+}) {
   const row = (v: CourseChoice, label: string, on: boolean, disabled: boolean, close: () => void) => (
     <button
       key={String(v)}
@@ -66,7 +76,11 @@ const DRINK_STATES: Record<'new' | 'pour' | 'bar' | 'up' | 'cleared', [string, s
 };
 
 export function DrinkChip({ line, onDelivered }: { line: OrderLine; onDelivered: () => void }) {
-  const k = !line.sent ? 'new' : line.kitchenState === 'pour' || line.kitchenState === 'bar' || line.kitchenState === 'up' ? line.kitchenState : 'cleared';
+  const k = !line.sent
+    ? 'new'
+    : line.kitchenState === 'pour' || line.kitchenState === 'bar' || line.kitchenState === 'up'
+      ? line.kitchenState
+      : 'cleared';
   const [label, title] = DRINK_STATES[k];
   const go = k === 'pour' || k === 'up';
   return (

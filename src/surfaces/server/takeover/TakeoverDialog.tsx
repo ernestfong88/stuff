@@ -28,9 +28,7 @@ export function TakeoverDialog() {
         </>
       }
     >
-      <p className={s.body}>
-        It becomes your table and counts in your shift numbers. {from} will no longer see it.
-      </p>
+      <p className={s.body}>It becomes your table and counts in your shift numbers. {from} will no longer see it.</p>
     </Modal>
   );
 }

@@ -85,10 +85,17 @@ export function DinerCard({
               </span>
             )}
             {!isResident && (
-              <span className={s.kind}>{diner.kind === 'resident' ? 'Guest' : `${(person as Associate | undefined)?.dept ?? ''} · associate`}</span>
+              <span className={s.kind}>
+                {diner.kind === 'resident' ? 'Guest' : `${(person as Associate | undefined)?.dept ?? ''} · associate`}
+              </span>
             )}
             {pills.map((p) => (
-              <Chip key={p.kind + p.text} size="xs" tone={p.kind === 'allergy' ? 'danger' : 'gold'} icon={p.kind === 'allergy' ? <AlertTriangle size={9} strokeWidth={2.5} /> : undefined}>
+              <Chip
+                key={p.kind + p.text}
+                size="xs"
+                tone={p.kind === 'allergy' ? 'danger' : 'gold'}
+                icon={p.kind === 'allergy' ? <AlertTriangle size={9} strokeWidth={2.5} /> : undefined}
+              >
                 {p.text}
               </Chip>
             ))}
@@ -119,9 +126,7 @@ export function DinerCard({
           <Trash2 size={15} aria-hidden />
         </button>
       </div>
-      {usualsOn && isResident && resident && !hasFood && (
-        <UsualsRow diner={diner} resident={resident} meal={o.meal} onAdd={onAddUsual} />
-      )}
+      {usualsOn && isResident && resident && !hasFood && <UsualsRow diner={diner} resident={resident} meal={o.meal} onAdd={onAddUsual} />}
       {diner.items.length > 0 && (
         <div className={s.lines}>
           {sortWithSides(diner.items).map((line) => (

@@ -134,14 +134,20 @@ export function SickWaiver({
   const fee = deliveryFee(o);
   const till = sickPeriodEnd();
   const who = logAuthor(mode, o);
-  const grant = (mgr: boolean) => rid && patchOrder(o.id, { sickTray: { rid, n: used + 1, by: who, at: now(), ...(mgr ? { mgr: true } : {}) } });
+  const grant = (mgr: boolean) =>
+    rid && patchOrder(o.id, { sickTray: { rid, n: used + 1, by: who, at: now(), ...(mgr ? { mgr: true } : {}) } });
   const set = (on: boolean) => {
     if (on === !!tray || (on && disabled)) return;
     if (on && full) return setAsk(true);
     if (on) grant(false);
     else patchOrder(o.id, { sickTray: null });
   };
-  const allUsed = c.allow === 0 ? 'No waivers are allowed' : c.allow === 1 ? `The one waiver is used until ${till}` : `All ${c.allow} are used until ${till}`;
+  const allUsed =
+    c.allow === 0
+      ? 'No waivers are allowed'
+      : c.allow === 1
+        ? `The one waiver is used until ${till}`
+        : `All ${c.allow} are used until ${till}`;
   const msg = !rid
     ? 'Add the resident to the order to waive the fee.'
     : full && comp
@@ -185,7 +191,7 @@ export function SickWaiver({
         )}
       </p>
       {full && onComp && !comp && (
-        <button className={s.offerBtn + ' ' + s.compBtn} onClick={onComp}>
+        <button className={cx(s.offerBtn, s.compBtn)} onClick={onComp}>
           Manager comp…
         </button>
       )}

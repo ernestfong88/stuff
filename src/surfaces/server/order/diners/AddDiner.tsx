@@ -16,7 +16,17 @@ const KINDS: Array<{ id: Kind; label: string }> = [
 ];
 
 /** Add a resident, a resident's guest or an associate to the check. */
-export function AddDiner({ order, guestHost, onClose, onAdded }: { order: Order; guestHost: Resident | null; onClose: () => void; onAdded: (dinerId: string) => void }) {
+export function AddDiner({
+  order,
+  guestHost,
+  onClose,
+  onAdded,
+}: {
+  order: Order;
+  guestHost: Resident | null;
+  onClose: () => void;
+  onAdded: (dinerId: string) => void;
+}) {
   const { addDiner } = useDining();
   const [kind, setKind] = useState<Kind>(guestHost ? 'guest' : 'resident');
   const [q, setQ] = useState('');
@@ -26,7 +36,10 @@ export function AddDiner({ order, guestHost, onClose, onAdded }: { order: Order;
   const contacts = useContacts(host);
   const seated = order.diners.filter((d) => d.kind === 'resident' && !d.isGuest).map((d) => d.refId);
 
-  const pool = kind === 'associate' ? associates.map((a) => ({ ...a, apt: undefined })) : residents.filter((r) => kind === 'guest' || !seated.includes(r.id));
+  const pool =
+    kind === 'associate'
+      ? associates.map((a) => ({ ...a, apt: undefined }))
+      : residents.filter((r) => kind === 'guest' || !seated.includes(r.id));
   const matches = searchPeople<{ id: string; name: string; apt?: string; photo: string; dept?: string }>(pool, q, 8);
 
   const pick = (id: string) => {
@@ -82,7 +95,9 @@ export function AddDiner({ order, guestHost, onClose, onAdded }: { order: Order;
           className={s.search}
         />
       )}
-      {kind === 'guest' && !host && <p className={s.hint}>Pick whose guest they are — then choose the visitor from the resident's contacts.</p>}
+      {kind === 'guest' && !host && (
+        <p className={s.hint}>Pick whose guest they are — then choose the visitor from the resident's contacts.</p>
+      )}
 
       {kind === 'guest' && host ? (
         <div className="fade-in">
@@ -108,7 +123,13 @@ export function AddDiner({ order, guestHost, onClose, onAdded }: { order: Order;
           ))}
           {contacts.length === 0 && <p className={s.none}>No contacts on file.</p>}
           <div className={s.newGuest}>
-            <TextField value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="New guest's name" aria-label="New guest's name" className={s.newInput} />
+            <TextField
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              placeholder="New guest's name"
+              aria-label="New guest's name"
+              className={s.newInput}
+            />
             <Button variant="primary" disabled={!guestName.trim()} onClick={() => setAskRel(true)}>
               Add
             </Button>
@@ -137,7 +158,9 @@ export function AddDiner({ order, guestHost, onClose, onAdded }: { order: Order;
               <div className={s.relNote}>Saved to {hostFirst}'s contacts for next time.</div>
             </div>
           )}
-          <p className={s.fine}>Guest meals draw on the host's comp allowance first, then charge à la carte. Naming the visitor tracks who's visiting.</p>
+          <p className={s.fine}>
+            Guest meals draw on the host's comp allowance first, then charge à la carte. Naming the visitor tracks who's visiting.
+          </p>
         </div>
       ) : (
         <>

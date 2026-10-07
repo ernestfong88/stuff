@@ -29,7 +29,11 @@ const inputs = (o: Order, extra: Partial<CloseInputs> = {}): CloseInputs => ({
   feeComped: false,
   ...extra,
 });
-const row = (d: Diner, x: CloseInputs): CloseRow => ({ diner: d, person: dinerPerson(d) as Resident | undefined, charge: closeCharge(d, x) });
+const row = (d: Diner, x: CloseInputs): CloseRow => ({
+  diner: d,
+  person: dinerPerson(d) as Resident | undefined,
+  charge: closeCharge(d, x),
+});
 
 describe('check lines', () => {
   it('tucks sides under their entrée and sorts by course', () => {

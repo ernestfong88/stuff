@@ -101,7 +101,12 @@ export function ModifierEditor({
         return (
           <button
             key={m}
-            className={cx(s.option, light && s.optionLight, picked && s.optionOn, !picked && groupFull(picks, groupId, action) && s.optionDim)}
+            className={cx(
+              s.option,
+              light && s.optionLight,
+              picked && s.optionOn,
+              !picked && groupFull(picks, groupId, action) && s.optionDim,
+            )}
             aria-pressed={!!picked}
             onClick={() => setPicks((ps) => togglePick(ps, groupId, m, action))}
           >
@@ -124,13 +129,19 @@ export function ModifierEditor({
       {item.desc && <p className={s.desc}>{item.desc}</p>}
       {conflicts.length > 0 && (
         <div className={s.allergy} role="alert">
-          <AlertTriangle size={14} aria-hidden /> {person?.name.split(' ')[0]} is allergic to {conflicts.join(', ').toLowerCase()}. Confirm before sending.
+          <AlertTriangle size={14} aria-hidden /> {person?.name.split(' ')[0]} is allergic to {conflicts.join(', ').toLowerCase()}. Confirm
+          before sending.
         </div>
       )}
       {picks.length > 0 && (
         <div className={s.picked}>
           {picks.map((p) => (
-            <button key={p.name} className={s.pick} title={'Remove ' + p.label} onClick={() => setPicks((ps) => ps.filter((x) => x.name !== p.name))}>
+            <button
+              key={p.name}
+              className={s.pick}
+              title={'Remove ' + p.label}
+              onClick={() => setPicks((ps) => ps.filter((x) => x.name !== p.name))}
+            >
               {p.label}
               <span className={s.pickX}>
                 <X size={15} strokeWidth={2.75} aria-hidden />
@@ -142,7 +153,13 @@ export function ModifierEditor({
       <div className={s.eyebrow}>Action</div>
       <div className={s.actions} role="radiogroup" aria-label="Action">
         {ACTIONS.map((a) => (
-          <button key={a} role="radio" aria-checked={action === a} className={cx(s.action, action === a && s.actionOn)} onClick={() => setAction(a)}>
+          <button
+            key={a}
+            role="radio"
+            aria-checked={action === a}
+            className={cx(s.action, action === a && s.actionOn)}
+            onClick={() => setAction(a)}
+          >
             {a}
           </button>
         ))}
@@ -191,10 +208,18 @@ export function ModifierEditor({
           })}
         </div>
       )}
-      <input className={s.note} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note to kitchen (optional)" aria-label="Note to kitchen" />
+      <input
+        className={s.note}
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Note to kitchen (optional)"
+        aria-label="Note to kitchen"
+      />
       {editing ? (
         <div className={s.footer}>
-          <span className={cx(s.status, missing && s.statusMissing)}>{missing ? missing.replace(' before adding it.', '') : 'Changes save as you go.'}</span>
+          <span className={cx(s.status, missing && s.statusMissing)}>
+            {missing ? missing.replace(' before adding it.', '') : 'Changes save as you go.'}
+          </span>
           <Button variant="primary" size="lg" className={s.grow} onClick={confirm}>
             Done
           </Button>

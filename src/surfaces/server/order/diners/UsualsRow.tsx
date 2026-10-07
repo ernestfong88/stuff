@@ -8,7 +8,17 @@ import s from './UsualsRow.module.css';
 import { usualsFor, type Usual } from './usuals';
 
 /** "Usual dinner · tap to add": shown until the diner has food on the check. */
-export function UsualsRow({ diner, resident, meal, onAdd }: { diner: Diner; resident: Resident; meal: MealName; onAdd: (u: Usual) => void }) {
+export function UsualsRow({
+  diner,
+  resident,
+  meal,
+  onAdd,
+}: {
+  diner: Diner;
+  resident: Resident;
+  meal: MealName;
+  onAdd: (u: Usual) => void;
+}) {
   const cfg = useConfig();
   const dining = useDining();
   const marks = use86();

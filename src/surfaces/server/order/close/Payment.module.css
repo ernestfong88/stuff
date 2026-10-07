@@ -144,3 +144,11 @@
 .any {
   color: var(--s400);
 }
+@media (max-height: 760px) {
+  .lede {
+    display: none;
+  }
+  .eyebrow {
+    margin-bottom: 8px;
+  }
+}
