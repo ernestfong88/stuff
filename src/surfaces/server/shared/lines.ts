@@ -4,8 +4,7 @@
  */
 import { courseNumber } from '../../../domain/courses';
 import type { Diner, Order, OrderLine } from '../../../domain/types';
-import { getSetting } from '../../../store/serviceConfig';
-import { canonicalItemId } from './venue';
+import { itemReminders } from '../../../store/menuEdits';
 
 export interface DrinkLine {
   line: OrderLine;
@@ -53,8 +52,7 @@ export function byDiner<T extends { diner: Diner }>(rows: T[]): Array<{ diner: D
  */
 export function remindersFor(line: OrderLine | null | undefined): string[] {
   if (!line || line.cancelled || line.comped || line.kitchenState === 'cleared') return [];
-  const all = getSetting<Record<string, string[]> | undefined>('remind') ?? {};
-  const list = all[canonicalItemId(line.itemId)] ?? [];
+  const list = itemReminders(line.itemId);
   return list.filter((t) => !(line.rmOff ?? []).includes(t));
 }
 

@@ -429,6 +429,14 @@ button.plateRow:hover {
   color: #9aa5ad;
 }
 
+.remind {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
 /* ── Footer ─────────────────────────────────────────────────────────── */
 
 .foot {

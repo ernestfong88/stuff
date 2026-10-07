@@ -6,6 +6,7 @@ import { kitchenItemName } from '../../domain/menu';
 import { dinerName, dinerPerson } from '../../domain/orders';
 import { serverName } from '../../domain/servers';
 import { formatElapsed, formatTime } from '../../lib/format';
+import { itemReminders } from '../../store/menuEdits';
 import { cx } from '../../ui';
 import { DinerPills } from '../kitchen/DinerPills';
 import { pickupWindow } from '../kitchen/kitchenTime';
@@ -248,6 +249,8 @@ function PlateRow({ line, name, highlighted, onToggle }: { line: ExpoLine; name:
   const tappable = line.kitchenState === 'cooking' || ready;
   const rush = !!line.rush && line.kitchenState === 'cooking';
   const sides = line.diner.items.filter((x) => x.parentId === line.id && !x.comped && !x.cancelled).map((x) => name(x.itemId));
+  // The chef's "don't forget" (a steak knife, extra lemon), minus any the server dropped for this guest.
+  const remind = run ? [] : itemReminders(line.itemId).filter((t) => !(line.rmOff ?? []).includes(t));
   const content: ReactNode = (
     <>
       <span className={cx(s.tick, (ready || run) && s.tickOn, run && s.tickRun)} aria-hidden="true">
@@ -257,6 +260,7 @@ function PlateRow({ line, name, highlighted, onToggle }: { line: ExpoLine; name:
         {rush && <span className={s.rush}>REMAKE, RUSH</span>}
         {name(line.itemId)}
         {sides.length > 0 && <span className={s.sides}>+ {sides.join(', ')}</span>}
+        {remind.length > 0 && <span className={s.remind}>Don't forget: {remind.join(', ')}</span>}
       </span>
       {line.toGo && <span className={cx(s.togo, s.togoSmall)}>TO GO</span>}
     </>

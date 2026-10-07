@@ -6,6 +6,7 @@
 import { catalog, rooms } from '../../../data';
 import type { Order } from '../../../domain/types';
 import { getSetting } from '../../../store/serviceConfig';
+import { kitchenHasExpo, venueSettingsStore } from '../../../store/venueSettings';
 
 /**
  * __kInVenue: by floor plan, not order.room. Some seeded Evergreen checks
@@ -22,19 +23,13 @@ export function tableRoom(o: Pick<Order, 'tableId' | 'room'>): string {
 }
 
 /** Kitchen screens each venue starts with; Sequoia runs a hot and a cold screen. */
-const DEFAULT_KITCHEN_SCREENS: Record<string, number> = { sequoia: 2 };
-
 /**
  * __kHasExpo: servers never press Run where Expo runs the courses. A
  * kitchen with one cook screen usually has no one on Expo, so until a venue
  * says otherwise, one screen means the server runs the course.
  */
 export function venueHasExpo(room: string): boolean {
-  const set = getSetting<Record<string, boolean> | undefined>('expo')?.[room];
-  if (set != null) return !!set;
-  const screens = getSetting<Record<string, unknown[]> | undefined>('kds')?.[room];
-  const count = Array.isArray(screens) && screens.length ? screens.length : (DEFAULT_KITCHEN_SCREENS[room] ?? 1);
-  return count > 1;
+  return kitchenHasExpo(venueSettingsStore.get(), room);
 }
 
 /**
