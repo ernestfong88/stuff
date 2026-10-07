@@ -17,15 +17,7 @@ import { BoPage, BoRow, BoSection, BoTable, type BoColumn } from '../kit';
 const venues = Object.entries(rooms).map(([key, r]) => ({ key, name: r.name }));
 type Venue = (typeof venues)[number];
 
-/** Coursing choices in plain words: when the next course goes to the kitchen. */
-const COURSE_LABELS: Record<CourseMode, string> = {
-  off: 'Off: every course goes at once',
-  expo: 'When the course before is served',
-  timer5: '5 min after the course before is fired',
-  timer8: '8 min after the course before is fired',
-  manual: 'Only when the server or expo fires it',
-};
-const COURSE_OPTIONS = COURSE_MODES.map((m) => ({ id: m.id, label: COURSE_LABELS[m.id] }));
+const COURSE_OPTIONS = COURSE_MODES.map((m) => ({ id: m.id, label: m.label }));
 
 const TABS = ['courses', 'order', 'pickup'] as const;
 type FlowTab = (typeof TABS)[number];
@@ -74,7 +66,7 @@ function Coursing() {
     <BoSection
       flush
       title="Coursing"
-      sub="When the next course goes to the kitchen, for each venue and meal. Servers can't change this on the check. Nothing stalls: a held course fires on its own 15 minutes after the one before reaches the table. Dessert always waits for the server or expo, or for those 15 minutes."
+      sub="Fire all: every course at send · Fire on drop: when the one before is dropped at the table · Auto-fire +5 / +8: minutes after the one before fired · Manual fire: the server or expo fires it. A held course fires on its own 15 min after the one before is dropped; dessert waits for a manual fire or those 15 min."
     >
       <BoTable columns={columns} rows={venues} rowKey={(v) => v.key} />
     </BoSection>

@@ -11,21 +11,21 @@ import type { MealName } from './types';
 
 /**
  * When the next course fires:
- *   off     every course fires together
- *   expo    once the prior course is served (default)
- *   timer5  5 / 8 minutes after the prior course fired
- *   manual  only when a server or expo fires it
+ *   off     Fire all: every course fires together
+ *   expo    Fire on drop: once the prior course is dropped at the table (default)
+ *   timer5  Auto-fire +5 / +8: 5 / 8 minutes after the prior course fired
+ *   manual  Manual fire: only when a server or expo fires it
  * Every mode has a 15 minute backup counted from when the prior course was
  * run, so nothing stalls; dessert always waits for that backup or a manual fire.
  */
 export type CourseMode = 'off' | 'expo' | 'timer5' | 'timer8' | 'manual';
 
 export const COURSE_MODES: ReadonlyArray<{ id: CourseMode; label: string; short: string }> = [
-  { id: 'off', label: 'Off, all courses fire together', short: 'off' },
-  { id: 'expo', label: 'Served fires next', short: 'until the prior course is served' },
-  { id: 'timer5', label: 'Timed, 5 min', short: 'timed 5m' },
-  { id: 'timer8', label: 'Timed, 8 min', short: 'timed 8m' },
-  { id: 'manual', label: 'Server or Expo fires', short: 'until fired, backup 15m' },
+  { id: 'off', label: 'Fire all', short: 'fire all' },
+  { id: 'expo', label: 'Fire on drop', short: 'fire on drop' },
+  { id: 'timer5', label: 'Auto-fire +5', short: 'auto-fire +5' },
+  { id: 'timer8', label: 'Auto-fire +8', short: 'auto-fire +8' },
+  { id: 'manual', label: 'Manual fire', short: 'manual fire, backup 15m' },
 ];
 
 /** Feature switches. A flag that is not set counts as on. */

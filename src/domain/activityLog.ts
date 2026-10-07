@@ -181,7 +181,7 @@ export function seatedText(
 export function pacingText(mode: string, timerMin?: number): string {
   return (
     'Pacing: ' +
-    (mode === 'timer' ? `timed, ${timerMin || 5} min` : mode === 'manual' ? 'hold until fired' : 'after the prior course is served')
+    (mode === 'timer' ? `auto-fire +${timerMin || 5}` : mode === 'manual' ? 'manual fire' : 'fire on drop')
   );
 }
 
