@@ -18,7 +18,12 @@ export default function AssociatesPage(_props: BoPageProps) {
   const [shown, setShown] = useState<Record<string, boolean>>({});
   const [fresh, setFresh] = useState<Record<string, boolean>>({});
   const [sort, setSort] = useState<BoSort>({ key: 'name', dir: 1 });
-  const rows = filterAssociates(ADP_ASSOCIATES, { query, how, sort: { key: sort.key as AssociateSortKey, dir: sort.dir } });
+  const [newOnly, setNewOnly] = useState(false);
+  const rows = filterAssociates(ADP_ASSOCIATES, { query, how, newOnly, sort: { key: sort.key as AssociateSortKey, dir: sort.dir } });
+  const pickHow = (h: SignIn) => {
+    setHow(h);
+    setNewOnly(false);
+  };
   const nWin = ADP_ASSOCIATES.filter((a) => a.win).length;
   const nNew = ADP_ASSOCIATES.filter((a) => a.days <= 30).length;
 
@@ -115,7 +120,7 @@ export default function AssociatesPage(_props: BoPageProps) {
   return (
     <BoPage
       title="Associates & PINs"
-      sub={`Everyone at ${COMMUNITY_NAME} in ADP. Accounts are created from the ADP feed, and associates without a Windows login get a Culinary App PIN automatically.`}
+      sub={`Everyone at ${COMMUNITY_NAME} in ADP, and how each one signs in. Associates without a Windows login get a Culinary App PIN. If someone forgets theirs, use Reset PIN and give them the new one.`}
     >
       <div className={s.sync}>
         <span className={s.syncIcon}>
@@ -133,14 +138,16 @@ export default function AssociatesPage(_props: BoPageProps) {
       </div>
 
       <BoStatRow>
-        <BoStatTile value={ADP_ASSOCIATES.length} label="associates in ADP" active={how === 'all'} onClick={() => setHow('all')} />
-        <BoStatTile value={nWin} label="sign in with Windows" active={how === 'win'} onClick={() => setHow(how === 'win' ? 'all' : 'win')} />
-        <BoStatTile value={ADP_ASSOCIATES.length - nWin} label="use a Culinary App PIN" active={how === 'pin'} onClick={() => setHow(how === 'pin' ? 'all' : 'pin')} />
+        <BoStatTile value={ADP_ASSOCIATES.length} label="associates in ADP" active={how === 'all' && !newOnly} onClick={() => pickHow('all')} />
+        <BoStatTile value={nWin} label="sign in with Windows" active={how === 'win'} onClick={() => pickHow(how === 'win' ? 'all' : 'win')} />
+        <BoStatTile value={ADP_ASSOCIATES.length - nWin} label="use a Culinary App PIN" active={how === 'pin'} onClick={() => pickHow(how === 'pin' ? 'all' : 'pin')} />
         <BoStatTile
           value={nNew}
           label="added in the last 30 days"
+          active={newOnly}
           onClick={() => {
             setHow('all');
+            setNewOnly(!newOnly);
             setSort({ key: 'added', dir: 1 });
           }}
         />
@@ -153,7 +160,7 @@ export default function AssociatesPage(_props: BoPageProps) {
           size="sm"
           aria-label="Signs in with"
           value={how}
-          onChange={setHow}
+          onChange={pickHow}
           options={[
             { id: 'all', label: 'Everyone' },
             { id: 'pin', label: 'PIN' },
@@ -162,6 +169,7 @@ export default function AssociatesPage(_props: BoPageProps) {
         />
         <span className={s.count}>
           {rows.length} {rows.length === 1 ? 'associate' : 'associates'}
+          {newOnly ? ' added in the last 30 days' : ''}
         </span>
       </div>
 

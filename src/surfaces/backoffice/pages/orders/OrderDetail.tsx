@@ -27,9 +27,14 @@ export function OrderDetail({ row }: { row: OrderRow }) {
   const [ask, dialog] = useConfirm();
   const o = row.order;
   const fee = o.deliveryFeeId ? deliveryFees.find((f) => f.id === o.deliveryFeeId) : undefined;
+  /** Correct a closed check, with Undo; the activity trail keeps both. */
   const fix = (patch: (o: Order) => Order, what: string, message: string) => {
+    const before = o;
     setHistory((list) => list.map((x) => (x.id === o.id ? corrected(patch(x), what) : x)));
-    toast(message, { tone: 'success' });
+    toast(message, {
+      tone: 'success',
+      action: { label: 'Undo', onClick: () => setHistory((list) => list.map((x) => (x.id === o.id ? corrected({ ...before, log: x.log }, `Undid: ${what}`) : x))) },
+    });
   };
 
   return (

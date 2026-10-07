@@ -23,3 +23,21 @@ export function toggleApproval(c: Charge, by: string, at: number): Charge {
 export function approveAll(charges: Charge[], by: string, at: number): Charge[] {
   return charges.map((c) => (!c.importedAt && !c.approvedAt && c.active ? { ...c, approvedAt: at, approvedBy: by } : c));
 }
+
+/** Mark every approved, live charge waiting to import as sent to billing. */
+export function sendToBilling(charges: Charge[], at: number): Charge[] {
+  return charges.map((c) => (!c.importedAt && c.approvedAt && c.active ? { ...c, importedAt: at } : c));
+}
+
+/** What a charge is for, in words, from the old system's item codes. */
+const ITEM_LABELS: Record<string, string> = { TRAY: 'Delivery', LIQUOR: 'Alcohol', GMEAL: 'Guest meal', MEAL: 'Meal', MANUAL: 'Added by hand' };
+export const itemLabel = (item: string) => ITEM_LABELS[item] ?? item;
+
+export type ChargeStep = 'voided' | 'waiting' | 'approved' | 'sent';
+
+/** Where a charge is: voided, waiting for review, approved, or sent to billing. */
+export function chargeStep(c: Charge): ChargeStep {
+  if (c.importedAt) return 'sent';
+  if (!c.active) return 'voided';
+  return c.approvedAt ? 'approved' : 'waiting';
+}

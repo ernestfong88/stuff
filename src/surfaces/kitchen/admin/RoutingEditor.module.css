@@ -24,10 +24,18 @@
 .sidesHint {
   color: var(--s400);
 }
+.find {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
 .search {
   display: flex;
-  max-width: 440px;
-  margin-bottom: 18px;
+  flex: 1;
+  min-width: 220px;
+  max-width: 380px;
   background: var(--surface);
 }
 .none {

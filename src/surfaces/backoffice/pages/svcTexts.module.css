@@ -138,3 +138,16 @@
   line-height: 1.45;
   white-space: pre-wrap;
 }
+.how {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: var(--s500);
+}
+.warn {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: var(--warning-bg);
+  font-size: 12.5px;
+  color: var(--ink);
+}

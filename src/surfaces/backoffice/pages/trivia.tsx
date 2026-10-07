@@ -106,11 +106,11 @@ export default function Page(_props: BoPageProps) {
         </div>
         <div className={s.stat}>
           <b>{answers}</b>
-          <span>answers this month</span>
+          <span>answers in {monthName(ref)}</span>
         </div>
         <div className={s.stat}>
           <b>{answers ? `${Math.round((points / answers) * 100)}%` : '–'}</b>
-          <span>answered correctly</span>
+          <span>answered correctly in {monthName(ref)}</span>
         </div>
         <div className={s.stat}>
           <b>{todays.length}</b>

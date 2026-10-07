@@ -36,10 +36,18 @@ const sortValue: Record<AssociateSortKey, (a: AdpAssociate) => string> = {
   added: (a) => String(a.days).padStart(6, '0'),
 };
 
-export function filterAssociates(list: AdpAssociate[], f: { query: string; how: SignIn; sort: { key: AssociateSortKey; dir: 1 | -1 } }): AdpAssociate[] {
+export function filterAssociates(
+  list: AdpAssociate[],
+  f: { query: string; how: SignIn; sort: { key: AssociateSortKey; dir: 1 | -1 }; newOnly?: boolean },
+): AdpAssociate[] {
   const q = f.query.trim().toLowerCase();
   return list
-    .filter((a) => (f.how === 'all' || (f.how === 'win' ? !!a.win : !a.win)) && (!q || [a.name, a.title, a.dept, a.emp, a.win ?? ''].join(' ').toLowerCase().includes(q)))
+    .filter(
+      (a) =>
+        (f.how === 'all' || (f.how === 'win' ? !!a.win : !a.win)) &&
+        (!f.newOnly || a.days <= 30) &&
+        (!q || [a.name, a.title, a.dept, a.emp, a.win ?? ''].join(' ').toLowerCase().includes(q)),
+    )
     .sort((a, b) => {
       const A = sortValue[f.sort.key](a);
       const B = sortValue[f.sort.key](b);

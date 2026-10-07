@@ -19,6 +19,9 @@ export function HospiceCard({ rid, name }: { rid: string; name: string }) {
   const cfg = useConfig();
   const h = hospiceStatus(rid, cfg) ?? { on: false, since: '', note: '', log: [] };
   const first = name.split(' ')[0];
+  const meals = flag(cfg, 'hospiceAuto');
+  const fees = flag(cfg, 'freeDeliveryComp');
+  const does = [meals && 'meals are comped at close', fees && 'delivery fees are waived'].filter(Boolean).join(' and ');
   const set = (patch: Parameters<typeof setHospice>[1], message?: string) => {
     setHospice(rid, patch, BACK_OFFICE_USER.name);
     if (message) toast(message, { tone: 'success' });
@@ -27,12 +30,16 @@ export function HospiceCard({ rid, name }: { rid: string; name: string }) {
     <BoSection
       title="Hospice"
       actions={h.on ? <Chip tone="plum" size="xs">On hospice</Chip> : undefined}
-      sub={`While ${first} is on hospice, delivery fees are waived automatically with no manager PIN. It doesn't use a sick waiver. Staff can switch it off for a single order.`}
+      sub={
+        does
+          ? `While ${first} is on hospice, ${does}, with no manager PIN. It never uses a sick waiver, and staff can switch it off for a single order.`
+          : `Both hospice comps are off in Service Flow, so a manager comps ${first}'s meals and fees with their PIN.`
+      }
     >
-      <BoRow label="On hospice" hint={h.on ? `Since ${dateText(h.since)}` : 'Off: delivery fees apply as usual'}>
+      <BoRow label="On hospice" hint={h.on ? `Since ${dateText(h.since)}` : 'Off: meals and delivery fees are charged as usual'}>
         <Toggle
           checked={h.on}
-          onChange={(on) => set({ on }, on ? `${first} is on hospice. Delivery fees are waived from now on.` : `${first} is no longer on hospice.`)}
+          onChange={(on) => set({ on }, on ? `${first} is on hospice${does ? `: ${does} from now on` : ''}.` : `${first} is no longer on hospice.`)}
           label={<span className="sr-only">On hospice, {name}</span>}
         />
       </BoRow>
@@ -46,7 +53,8 @@ export function HospiceCard({ rid, name }: { rid: string; name: string }) {
           </div>
         </>
       )}
-      {!flag(cfg, 'freeDeliveryComp') && <p className={s.warnText}>The automatic hospice fee waiver is off in Service Flow, so a manager comps the fee with their PIN.</p>}
+      {does && !fees && <p className={s.warnText}>The hospice delivery fee waiver is off in Service Flow, so a manager waives the fee with their PIN.</p>}
+      {does && !meals && <p className={s.warnText}>Hospice meal comps are off in Service Flow, so a manager comps meals with their PIN.</p>}
       {h.log.length > 0 && (
         <ul className={s.audit}>
           {h.log.slice(0, 4).map((e, i) => (

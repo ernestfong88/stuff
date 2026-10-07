@@ -3,16 +3,32 @@ import { COURSE_MODES, flag, type CourseMode, type FlowFlag } from '../../../dom
 import type { MealName } from '../../../domain/types';
 import { updateConfig, useConfig } from '../../../store/config';
 import { getSetting, setSetting, useSetting } from '../../../store/serviceConfig';
-import { Button, Toggle } from '../../../ui';
+import { Button, Tabs, Toggle } from '../../../ui';
 import { greetConfig } from '../../../domain/greet';
 import { checkInWakeMinutes } from '../../../domain/venue';
 import { MEALS } from '../../../domain/metrics/stepsOfService';
-import { InlineField, InlineFields, PickMany, ResetButton, SettingNumber, SettingSelect } from '../kit/SettingControls';
+import { InlineField, InlineFields, PickMany, SettingNumber, SettingSelect } from '../kit/SettingControls';
+import { ConfirmReset } from './ConfirmReset';
+import { usePageTab } from './pageTab';
 import type { BoPageProps } from '../nav';
 import { BoPage, BoRow, BoSection, BoTable, type BoColumn } from '../kit';
 
 const venues = Object.entries(rooms).map(([key, r]) => ({ key, name: r.name }));
 type Venue = (typeof venues)[number];
+
+/** Coursing choices in plain words: when the next course goes to the kitchen. */
+const COURSE_LABELS: Record<CourseMode, string> = {
+  off: 'Off: every course goes at once',
+  expo: 'When the course before is served',
+  timer5: '5 min after the course before is fired',
+  timer8: '8 min after the course before is fired',
+  manual: 'Only when the server or expo fires it',
+};
+const COURSE_OPTIONS = COURSE_MODES.map((m) => ({ id: m.id, label: COURSE_LABELS[m.id] }));
+
+const TABS = ['courses', 'order', 'pickup'] as const;
+type FlowTab = (typeof TABS)[number];
+const TAB_LABELS: Record<FlowTab, string> = { courses: 'Courses and timing', order: 'Taking the order', pickup: 'Pick up and comps' };
 
 function FlowToggle({ k, label, hint }: { k: FlowFlag; label: string; hint: string }) {
   const cfg = useConfig();
@@ -44,7 +60,7 @@ function Coursing() {
         key: meal,
         header: meal,
         render: (v) => (
-          <SettingSelect<CourseMode> label={`${v.name} ${meal} coursing`} value={cfg.course[v.key]?.[meal] ?? 'expo'} options={COURSE_MODES} onChange={(m) => set(v.key, meal, m)} />
+          <SettingSelect<CourseMode> label={`${v.name} ${meal} coursing`} value={cfg.course[v.key]?.[meal] ?? 'expo'} options={COURSE_OPTIONS} onChange={(m) => set(v.key, meal, m)} />
         ),
       }),
     ),
@@ -53,7 +69,7 @@ function Coursing() {
     <BoSection
       flush
       title="Coursing"
-      sub="Turn coursing on or off, and set when the next course fires, for each venue and meal. Servers do not change this on the check. Off sends every course to the kitchen together. Every mode has a 15 minute backup counted from when the course before was run, so nothing stalls. Dessert always waits: it fires when the server or expo fires it, or 15 minutes after the entrees reach the table."
+      sub="When the next course goes to the kitchen, for each venue and meal. Servers can't change this on the check. Nothing stalls: a held course fires on its own 15 minutes after the one before reaches the table. Dessert always waits for the server or expo, or for those 15 minutes."
     >
       <BoTable columns={columns} rows={venues} rowKey={(v) => v.key} />
     </BoSection>
@@ -78,7 +94,7 @@ function Greet() {
     <BoSection
       flush
       title="Time to greet"
-      sub="The clock starts when the check opens. When a host seats the table it starts when the server first opens the check, and seated to greeted is recorded too. Greet to drinks over the limit is flagged for the manager and counted as a slow greeting; anything under the floor is ignored."
+      sub="Greet to drinks runs from when the server opens the check to when drinks are served. Over the flag time, the manager sees it and it counts as a slow greeting. Under the ignore time, it isn't counted at all."
     >
       <BoTable columns={columns} rows={venues} rowKey={(v) => v.key} />
     </BoSection>
@@ -89,13 +105,13 @@ function Greet() {
 function PickupTracking() {
   useSetting('pud');
   return (
-    <BoSection title="Pick up orders" sub="Residents get one text when a pick up is packed and set out. Off: the order is complete at that point, with no picked-up step on PU & Delivery or Expo.">
+    <BoSection title="Track when pick up orders are collected" sub="Residents get one text when a pick up is packed and set out. Off: the order is done at that point, with no Picked up step on PU & Delivery or Expo.">
       {venues.map((v) => {
         const on = getSetting<boolean | undefined>(`pud.track.${v.key}`) !== false;
         return (
           <BoRow
             key={v.key}
-            label={`Track when pick up orders are collected · ${v.name}`}
+            label={v.name}
             hint={on ? 'Staff tap Picked up when the resident or associate collects it.' : 'Packed and set out finishes the order.'}
           >
             <Toggle checked={on} onChange={(x) => setSetting(`pud.track.${v.key}`, x ? undefined : false)} label={<span className="sr-only">Track when pick up orders are collected at {v.name}</span>} />
@@ -128,55 +144,73 @@ function CheckInNudge() {
 /** Service Flow: the steps servers see on each table, from the order to the check. */
 export default function Page({ goto }: BoPageProps) {
   const cfg = useConfig();
+  const [tab, setTab] = usePageTab<FlowTab>('svcFlow', TABS);
   return (
     <BoPage
       title="Service Flow"
-      sub="The steps servers see on each table, from the order to the check."
-      actions={<ResetButton sections={['ciMin', 'greet', 'pud']} onReset={() => updateConfig({ flow: {}, course: {} })} message="Service flow is back to the defaults" />}
+      sub="The steps servers see on each table, from the order to the check. Changes reach the tablets straight away."
+      actions={
+        <ConfirmReset
+          sections={['ciMin', 'greet', 'pud']}
+          onReset={() => updateConfig({ flow: {}, course: {} })}
+          title="Put service flow back to the default?"
+          message="Coursing, greet times, pick up tracking and every switch on all three tabs go back to the standard."
+          done="Service flow is back to the defaults"
+        />
+      }
     >
-      <Coursing />
-      <Greet />
-      <PickupTracking />
-      <BoSection title="After the entree">
-        <FlowToggle k="checkIn" label="Check in after the entree" hint="Tables stay in Eating after course 2 until the server taps Check in. Off moves them straight to Ready to close." />
-        {flag(cfg, 'checkIn') && <CheckInNudge />}
-        <FlowToggle k="dessert" label="Ask about dessert" hint="After the check-in the card offers Dessert and No dessert. Off moves the table to Ready to close as soon as they check in." />
-      </BoSection>
-      <BoSection title="Taking the order">
-        <FlowToggle k="appToEntree" label="Move on to entrees after a starter" hint="Adding a starter switches the menu to Entrees for the next pick." />
-        <FlowToggle
-          k="entreeNext"
-          label="Move on to the next diner after an entree"
-          hint="Adding an entree selects the next diner on the check and opens Starters. An entree that comes without a side opens the Sides tab automatically, but choosing a side is optional: pick one and the check moves on, or carry on with another item, the next diner or Send. The last diner stays selected."
-        />
-        <FlowToggle k="dessertNext" label="Move on to the next diner after a dessert" hint="When the table is ordering dessert after the meal, adding one selects the next diner and stays on Desserts." />
-        <FlowToggle k="hideDefaults" label="Hide default choices on the check" hint="A line only lists the choices the guest changed, not the ones that come with the dish." />
-        <FlowToggle k="usuals" label="Show usual picks" hint="Before anything is ordered, a resident's usual drinks and dishes show as small chips under their name. Off hides them." />
-      </BoSection>
-      <BoSection title="Comps">
-        <FlowToggle
-          k="hospiceAuto"
-          label="Comp meals for residents on hospice"
-          hint="Residents marked On hospice in Dining Plans & Notes have their meals comped at close with the reason Hospice. No manager PIN, and no meal credit used."
-        />
-        <FlowToggle
-          k="freeDeliveryComp"
-          label="Waive delivery fees for residents on hospice"
-          hint="Residents marked On hospice in Dining Plans & Notes get the delivery fee waived automatically, with no manager PIN. For anyone else Hospice needs a manager PIN, like every other comp. Sick has its own waiver with a monthly limit, under Delivery Options."
-        />
-      </BoSection>
-      <BoSection
-        title="Item names"
-        sub="Each recipe has its menu name and a short name. Set the short name on the recipe."
-        actions={
-          <Button size="sm" variant="ghost" onClick={() => goto('recipes')}>
-            Open recipes
-          </Button>
-        }
-      >
-        <FlowToggle k="shortServer" label="Short names for servers" hint="Menu tiles, the check and the usual picks use the short name." />
-        <FlowToggle k="shortKitchen" label="Short names for the kitchen" hint="Cook line, expo and the bar use the short name." />
-      </BoSection>
+      <Tabs aria-label="Service flow" variant="underline" value={tab} onChange={setTab} options={TABS.map((id) => ({ id, label: TAB_LABELS[id] }))} />
+      {tab === 'courses' && (
+        <>
+          <Coursing />
+          <BoSection title="After the entree">
+            <FlowToggle k="checkIn" label="Check in after the entree" hint="Tables stay in Eating after course 2 until the server taps Check in. Off moves them straight to Ready to close." />
+            {flag(cfg, 'checkIn') && <CheckInNudge />}
+            <FlowToggle k="dessert" label="Ask about dessert" hint="After the check-in the card offers Dessert and No dessert. Off moves the table to Ready to close as soon as they check in." />
+          </BoSection>
+          <Greet />
+        </>
+      )}
+      {tab === 'order' && (
+        <>
+          <BoSection title="Taking the order" sub="What the server's tablet does after each pick, so the order goes quickly.">
+            <FlowToggle k="appToEntree" label="Move on to entrees after a starter" hint="Adding a starter switches the menu to Entrees for the next pick." />
+            <FlowToggle
+              k="entreeNext"
+              label="Move on to the next diner after an entree"
+              hint="Adding an entree selects the next diner and opens Starters. If the entree comes without a side, Sides opens first; picking one is optional. The last diner stays selected."
+            />
+            <FlowToggle k="dessertNext" label="Move on to the next diner after a dessert" hint="When the table orders dessert after the meal, adding one selects the next diner and stays on Desserts." />
+            <FlowToggle k="hideDefaults" label="Hide default choices on the check" hint="A line only lists the choices the guest changed, not the ones that come with the dish." />
+            <FlowToggle k="usuals" label="Show usual picks" hint="Before anything is ordered, a resident's usual drinks and dishes show as small chips under their name." />
+          </BoSection>
+          <BoSection
+            title="Item names"
+            sub="Each recipe has its menu name and a short name. Set the short name on the recipe."
+            actions={
+              <Button size="sm" variant="ghost" onClick={() => goto('recipes')}>
+                Open the Recipe Book
+              </Button>
+            }
+          >
+            <FlowToggle k="shortServer" label="Short names for servers" hint="Menu tiles, the check and the usual picks use the short name." />
+            <FlowToggle k="shortKitchen" label="Short names for the kitchen" hint="Cook line, expo and the bar use the short name." />
+          </BoSection>
+        </>
+      )}
+      {tab === 'pickup' && (
+        <>
+          <PickupTracking />
+          <BoSection title="Comps for residents on hospice" sub="Mark a resident On hospice in Resident Profiles.">
+            <FlowToggle k="hospiceAuto" label="Comp their meals" hint="Their meals are comped at close with the reason Hospice. No manager PIN, and no meal credit used." />
+            <FlowToggle
+              k="freeDeliveryComp"
+              label="Waive their delivery fees"
+              hint="The delivery fee is waived with no manager PIN. For anyone else a hospice waiver needs a manager PIN. Sick waivers have their own monthly limit, under Delivery Options."
+            />
+          </BoSection>
+        </>
+      )}
     </BoPage>
   );
 }

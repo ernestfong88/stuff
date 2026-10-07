@@ -20,7 +20,7 @@ export function ResidentList({ onOpen }: { onOpen: (id: string) => void }) {
   const [query, setQuery] = useState('');
   const shown = searchResidents(records, query);
   return (
-    <BoPage title="Dining Plans & Notes" sub="Each resident's meal plan, dining preferences and notes for the kitchen.">
+    <BoPage title="Dining Plans & Notes" sub="Each resident's meal plan, dining preferences and notes for the kitchen. Open a resident to change them.">
       <SearchField value={query} onChange={setQuery} placeholder="Search name or apartment" aria-label="Search residents" className={s.search} />
       {shown.length === 0 ? (
         <EmptyState title="No resident matches">Try part of the name or the apartment number.</EmptyState>
@@ -36,7 +36,7 @@ export function ResidentList({ onOpen }: { onOpen: (id: string) => void }) {
                   <span className={s.rowText}>
                     <span className={s.rowName}>{r.name}</span>
                     <span className={s.rowSub}>
-                      Apt {r.apt} · {r.level} · {plan?.text ?? 'No plan'}
+                      Apt {r.apt} · {dining?.level ?? r.level} · {plan?.text ?? 'No plan'}
                     </span>
                   </span>
                   {dining && isOnHospice(r.id, cfg) && (
@@ -44,7 +44,7 @@ export function ResidentList({ onOpen }: { onOpen: (id: string) => void }) {
                       On hospice
                     </Chip>
                   )}
-                  {r.allergies.map((a) => (
+                  {(dining?.allergies ?? r.allergies).map((a) => (
                     <Chip key={a} tone="danger" size="xs">
                       {a}
                     </Chip>

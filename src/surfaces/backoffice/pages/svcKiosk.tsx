@@ -48,10 +48,10 @@ function Rotation() {
   const turn = kioskRotation(useServiceSettings());
   return (
     <BoSection
-      title="Rotate 90°"
-      sub="For a kiosk tablet mounted in landscape, or one that can't hold itself in portrait (iPads can't). The portrait kiosk turns a quarter turn to fill the whole screen. Off keeps it upright, using the landscape layout."
+      title="Turn the kiosk screen"
+      sub="Only for a kiosk tablet mounted on its side. The kiosk turns a quarter turn to fill the screen. Try Clockwise first; if it comes out upside down, pick Counter-clockwise."
     >
-      <BoRow label="Rotate the kiosk" hint={turn ? 'The kiosk tablet holds itself in landscape in full screen' : 'The kiosk tablet holds itself in portrait in full screen'}>
+      <BoRow label="Turn the screen" hint={turn ? 'Turned a quarter, for a tablet mounted on its side' : 'Upright, for a tablet mounted the usual way'}>
         <Tabs
           aria-label="Rotate the kiosk"
           variant="segmented"
@@ -66,8 +66,8 @@ function Rotation() {
         />
       </BoRow>
       <p className={s.help}>
-        Try Clockwise first. If the kiosk is upside down, pick Counter-clockwise. To set one tablet only, open the kiosk at <code>#/kiosk?rotate=90</code> (clockwise),{' '}
-        <code>rotate=-90</code> (counter-clockwise) or <code>rotate=0</code> (off). The address wins over this setting.
+        For one tablet only, open the kiosk at <code>#/kiosk?rotate=90</code> (clockwise), <code>rotate=-90</code> (counter-clockwise) or <code>rotate=0</code> (upright). That
+        tablet then ignores this setting.
       </p>
     </BoSection>
   );
@@ -80,7 +80,8 @@ function FeaturedCard({ list, title, sub }: { list: FeaturedList; title: string;
   const pool = menuPool(list);
   const own = featuredOverride(svc, list);
   const current = (own ?? FEATURED_DEFAULTS[list]).filter((n) => pool.has(n));
-  const save = (names: string[]) => setSetting(`kioskFeat.${list}`, names);
+  const save = (names: string[] | undefined) => setSetting(`kioskFeat.${list}`, names);
+  const undo = () => save(own ?? undefined);
   const move = (i: number, d: number) => {
     const next = current.slice();
     const j = i + d;
@@ -99,8 +100,8 @@ function FeaturedCard({ list, title, sub }: { list: FeaturedList; title: string;
             variant="ghost"
             size="sm"
             onClick={() => {
-              setSetting(`kioskFeat.${list}`, undefined);
-              toast(`${title} are back to the standard picks`);
+              save(undefined);
+              toast(`${title} are back to the standard picks`, { action: { label: 'Undo', onClick: undo } });
             }}
           >
             Reset to standard picks
@@ -113,7 +114,8 @@ function FeaturedCard({ list, title, sub }: { list: FeaturedList; title: string;
           const e = pool.get(name)!;
           const shown = i < FEATURED_COUNT;
           return (
-            <li key={name} className={s.item}>
+            <li key={name} className={cx(s.item, i === FEATURED_COUNT && s.firstSpare)}>
+              {i === FEATURED_COUNT && <span className={s.spareNote}>Backups: shown only when one above isn&apos;t on that meal&apos;s menu</span>}
               <span className={cx(s.rank, !shown && s.faint)}>{i + 1}</span>
               <div className={cx(s.itemText, !shown && s.faint)}>
                 <div className={s.itemName}>
@@ -121,7 +123,6 @@ function FeaturedCard({ list, title, sub }: { list: FeaturedList; title: string;
                   {e.alcohol && ' · behind Beer, wine & spirits'}
                 </div>
                 <div className={s.itemHint}>
-                  {shown ? '' : "Only when one above isn't on that meal's menu · "}
                   On {e.meals.join(', ').toLowerCase()}
                 </div>
               </div>
@@ -135,7 +136,7 @@ function FeaturedCard({ list, title, sub }: { list: FeaturedList; title: string;
                 aria-label={`Remove ${name}`}
                 onClick={() => {
                   save(current.filter((n) => n !== name));
-                  toast(`${name} is no longer featured`);
+                  toast(`${name} is no longer featured`, { action: { label: 'Undo', onClick: undo } });
                 }}
               />
             </li>
@@ -172,11 +173,11 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Featured on Kiosk"
-      sub={`What residents see first at the lobby kiosk. The kiosk shows the first ${FEATURED_COUNT} that are on that meal's menu, in this order, fills any gap from the menu, and puts everything else behind a More button.`}
+      sub={`What residents see first at the lobby kiosk. It shows the first ${FEATURED_COUNT} on each list that are on that meal's menu, in this order. Everything else is behind a More button.`}
     >
+      <FeaturedCard list="drinks" title="Drinks" sub="Use the arrows to change the order. Beer, wine and spirits always sit behind their own button, even when listed here." />
+      <FeaturedCard list="sides" title="Sides" sub="Use the arrows to change the order. “No side, thanks” always comes first, above these." />
       <Rotation />
-      <FeaturedCard list="drinks" title="Drinks" sub="Beer, wine and spirits always sit behind their own button on the kiosk, even when listed here." />
-      <FeaturedCard list="sides" title="Sides" sub="“No side, thanks” always comes first, above these." />
     </BoPage>
   );
 }

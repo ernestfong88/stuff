@@ -5,11 +5,13 @@ import { dinerPerson, tableName } from '../../../../domain/orders';
 import { serverName } from '../../../../domain/servers';
 import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
-import { Avatar, Chip, EmptyState, SearchField, cx } from '../../../../ui';
+import { Avatar, Button, Chip, EmptyState, SearchField, Tabs, cx } from '../../../../ui';
+import { formatDayShort, formatTime } from '../../../../lib/format';
+import { startOfToday } from '../../../../lib/clock';
 import { BoPage, BoSelect } from '../../kit';
 import type { BoPageProps } from '../../nav';
 import { OrderDetail } from './OrderDetail';
-import { buildRows, filterRows, type ChargeFilter, type OrderRow } from './orderRows';
+import { buildRows, filterRows, type ChargeFilter, type OrderRow, type StatusFilter } from './orderRows';
 import s from './orders.module.css';
 
 /** Order History: every check, filtered and drilled into, with corrections to closed ones. */
@@ -19,15 +21,30 @@ export default function OrderHistoryPage(_props: BoPageProps) {
   const [query, setQuery] = useState('');
   const [server, setServer] = useState('All');
   const [charge, setCharge] = useState<ChargeFilter>('All');
+  const [status, setStatus] = useState<StatusFilter>('all');
   const [openId, setOpenId] = useState<string | null>(null);
   const all = useMemo(() => buildRows(orders, history, cfg), [orders, history, cfg]);
-  const rows = filterRows(all, { query, server, charge });
+  const rows = filterRows(all, { query, server, charge, status });
+  const openCount = all.filter((r) => r.open).length;
+  const filtered = query !== '' || server !== 'All' || charge !== 'All' || status !== 'all';
   const total = rows.reduce((sum, r) => sum + r.charged, 0);
   const servers = [...new Set([...staff.map((x) => x.id), ...all.map((r) => r.order.server)])].filter(Boolean);
 
   return (
-    <BoPage title="Order History" sub="Every check: filter, drill in, and correct it without leaving the back office.">
+    <BoPage title="Order History" sub="Every check, newest first. Open one to see who ate what and how they paid, and to correct a closed check.">
       <div className={s.filters}>
+        <Tabs
+          aria-label="Checks"
+          variant="segmented"
+          size="sm"
+          value={status}
+          onChange={setStatus}
+          options={[
+            { id: 'all', label: 'All' },
+            { id: 'open', label: 'Open', count: openCount },
+            { id: 'closed', label: 'Closed' },
+          ]}
+        />
         <SearchField value={query} onChange={setQuery} placeholder="Resident name" aria-label="Search by resident name" className={s.search} />
         <BoSelect value={server} onChange={(e) => setServer(e.target.value)} aria-label="Associate">
           <option value="All">All associates</option>
@@ -47,7 +64,24 @@ export default function OrderHistoryPage(_props: BoPageProps) {
         </span>
       </div>
       {rows.length === 0 ? (
-        <EmptyState title="No orders match">Try another name, associate or charge type.</EmptyState>
+        <EmptyState title="No orders match">
+          Try another name, associate or charge type.
+          {filtered && (
+            <div className={s.clear}>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setQuery('');
+                  setServer('All');
+                  setCharge('All');
+                  setStatus('all');
+                }}
+              >
+                Clear filters
+              </Button>
+            </div>
+          )}
+        </EmptyState>
       ) : (
         <ul className={s.list}>
           {rows.map((r) => (
@@ -66,6 +100,8 @@ function OrderItem({ row, open, onToggle }: { row: OrderRow; open: boolean; onTo
   const room = rooms[o.room]?.name ?? '';
   const where = o.queueType || room.includes('/') ? tableName(o) : `${room} ${tableName(o)}`.trim();
   const detailId = `order-${o.id}`;
+  const at = o.closedAt ?? o.openedAt;
+  const when = at ? (at >= startOfToday() ? formatTime(at) : `${formatDayShort(at)}, ${formatTime(at)}`) : '';
   return (
     <li className={cx(s.card, open && s.cardOpen)}>
       <button className={s.head} onClick={onToggle} aria-expanded={open} aria-controls={detailId}>
@@ -77,6 +113,7 @@ function OrderItem({ row, open, onToggle }: { row: OrderRow; open: boolean; onTo
             {' '}
             · {where} · {o.meal} · {o.server}
           </span>
+          {when && <span className={s.when}>{row.open ? `Opened ${when}` : `Closed ${when}`}</span>}
         </span>
         {row.feedback && (
           <Chip tone={row.feedback.tone} size="xs">

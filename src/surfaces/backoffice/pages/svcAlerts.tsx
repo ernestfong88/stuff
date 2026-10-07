@@ -1,7 +1,8 @@
 import type { BoPageProps } from '../nav';
 import { BoPage, BoRow, BoSection } from '../kit';
 import { Row } from '../../../ui';
-import { ResetButton, SettingNumber, Swatch } from '../kit/SettingControls';
+import { SettingNumber, Swatch } from '../kit/SettingControls';
+import { ConfirmReset } from './ConfirmReset';
 
 /** One alert threshold: red after this many minutes (blank is off where allowed). */
 function Threshold({ k, label, hint, off }: { k: string; label: string; hint: string; off?: boolean }) {
@@ -39,7 +40,14 @@ export default function Page(_props: BoPageProps) {
     <BoPage
       title="Alerts & Timing"
       sub="When tables, tickets and check timelines turn red. Changes show on the dining screens right away."
-      actions={<ResetButton sections={['t', 'gap']} message="Alerts are back to the defaults" />}
+      actions={
+        <ConfirmReset
+          sections={['t', 'gap']}
+          title="Put every alert back to the default?"
+          message="Every red and amber time on this page goes back to the standard. The dining screens change straight away."
+          done="Alerts are back to the defaults"
+        />
+      }
     >
       <BoSection title="Tables on the floor" sub="My Tables, the manager floor and Triage turn a table red once it has waited this long. Leave a box blank to never flag that wait.">
         <Threshold off k="passLate" label="Plates up, waiting to be run" hint="Food is ready at the pass and no one has run it yet." />

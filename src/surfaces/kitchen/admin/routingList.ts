@@ -57,12 +57,12 @@ export function defaultRoute(it: RoutedItem, room: string): RouteChoice {
 
 /**
  * The groups to show. Without a search, only the exceptions: what the
- * server makes and the drinks made at the bar. With one, every match, by
- * menu group.
+ * server makes and the drinks made at the bar. With one, or when asked for
+ * the whole menu, every match, by menu group.
  */
-export function routingView(items: readonly RoutedItem[], room: string, cfg: DiningConfig, query: string): Array<{ title: string; items: RoutedItem[] }> {
+export function routingView(items: readonly RoutedItem[], room: string, cfg: DiningConfig, query: string, wholeMenu = false): Array<{ title: string; items: RoutedItem[] }> {
   const q = query.trim().toLowerCase();
-  if (q)
+  if (q || wholeMenu)
     return GROUP_ORDER.map((g) => ({
       title: groupLabel(g),
       items: items.filter((it) => menuGroupOf(it.category) === g && it.item.name.toLowerCase().includes(q)),
