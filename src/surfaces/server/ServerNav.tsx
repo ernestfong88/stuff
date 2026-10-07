@@ -1,6 +1,8 @@
-import { ClipboardList, ListChecks, ShoppingBag, Users } from 'lucide-react';
+import { Check, ChevronDown, ClipboardList, ListChecks, Map as MapIcon, ShoppingBag, Users } from 'lucide-react';
+import type { ReactNode } from 'react';
 import type { Order } from '../../domain/types';
-import { cx, useViewportWidth } from '../../ui';
+import { cx, MenuItem, Popover, useViewportWidth } from '../../ui';
+import type { MineMode } from '../../store/serverMine';
 import { MenuReferenceButton, PointsChip, SideWorkChip } from './features';
 import s from './ServerNav.module.css';
 
@@ -9,17 +11,24 @@ export type ServerView = 'mine' | 'new' | 'check' | 'residents' | 'shift';
 /** Header row narrows to icons below this width rather than wrapping. */
 const NARROW = 1100;
 
-/** What My tables shows: the table board, or pick up, delivery and associate orders. */
-export type MineShowing = 'tables' | 'away';
+const MINE_MODES: Array<{ id: MineMode; label: string; hint: string; icon: ReactNode }> = [
+  { id: 'tables', label: 'My tables', hint: 'Your tables by what they need next', icon: <ClipboardList size={16} strokeWidth={2} /> },
+  { id: 'pud', label: 'P/U & delivery', hint: 'The pick up and delivery queue', icon: <ShoppingBag size={16} strokeWidth={2} /> },
+  { id: 'map', label: 'Table map', hint: 'Every table and its status, as the manager sees it', icon: <MapIcon size={16} strokeWidth={2} /> },
+];
 
-/** Left side of the header: My tables (tables or pick up & delivery), points, side work and the other servers' tables. */
+/**
+ * Left side of the header: the My tables button, points, side work and the
+ * other servers' tables. The button shows one of three views (my tables,
+ * pick up & delivery, the table map) and opens a menu to swap between them.
+ */
 export function ServerNavLeft({
   view,
   me,
   viewServer,
   live,
-  showing,
-  awayCount,
+  mode,
+  counts,
   onMine,
   onViewServer,
   onShift,
@@ -29,10 +38,11 @@ export function ServerNavLeft({
   viewServer: string;
   /** Open dine-in checks in this venue. */
   live: Order[];
-  showing: MineShowing;
-  /** My open pick up, delivery and associate orders. */
-  awayCount: number;
-  onMine: (showing: MineShowing) => void;
+  mode: MineMode;
+  /** Badge count for each view. */
+  counts: Record<MineMode, number>;
+  /** Go to My tables; with a mode, switch to that view first. */
+  onMine: (mode?: MineMode) => void;
   onViewServer: (server: string) => void;
   onShift: () => void;
 }) {
@@ -40,34 +50,50 @@ export function ServerNavLeft({
   const narrow = width < NARROW;
   const servers = [...new Set([me, ...live.map((o) => o.server)])].sort();
   const count = (id: string) => live.filter((o) => o.server === id).length;
-  const onMineView = (view === 'mine' || view === 'new') && viewServer === me;
+  const onMineView = (view === 'mine' || view === 'new') && (viewServer === me || mode !== 'tables');
+  const current = MINE_MODES.find((x) => x.id === mode) ?? MINE_MODES[0];
   return (
     <>
-      <div className={cx(s.mine, onMineView && s.mineOn)} role="group" aria-label="My tables">
-        <button
-          className={cx(s.seg, onMineView && showing === 'tables' && s.segOn)}
-          onClick={() => onMine('tables')}
-          title="My tables: table map"
-          aria-pressed={onMineView && showing === 'tables'}
-        >
-          <ClipboardList size={15} strokeWidth={2} aria-hidden />
-          {width >= 900 ? ' My tables' : <span className="sr-only">My tables</span>}
-          <span className={s.count}>{count(me)}</span>
-        </button>
-        <button
-          className={cx(s.seg, onMineView && showing === 'away' && s.segOn)}
-          onClick={() => onMine('away')}
-          title="My pick up, delivery and associate orders"
-          aria-pressed={onMineView && showing === 'away'}
-        >
-          <ShoppingBag size={15} strokeWidth={2} aria-hidden />
-          {width >= 1000 ? ' P/U & delivery' : <span className="sr-only">Pick up and delivery</span>}
-          <span className={s.count}>{awayCount}</span>
-        </button>
-      </div>
+      <Popover
+        align="left"
+        minWidth={280}
+        trigger={({ open, toggle }) => (
+          <button
+            className={cx(s.btn, onMineView && s.on)}
+            // Away from it, the button goes back to the view; on it, it opens the menu to swap views.
+            onClick={() => (onMineView ? toggle() : onMine())}
+            title={onMineView ? 'Switch view' : current.label}
+            aria-haspopup="menu"
+            aria-expanded={open}
+          >
+            {current.icon}
+            {width >= 900 ? ` ${current.label}` : <span className="sr-only">{current.label}</span>}
+            <span className={s.count}>{counts[mode]}</span>
+            {onMineView && <ChevronDown size={14} strokeWidth={2.5} className={cx(s.chev, open && s.chevOpen)} aria-hidden />}
+          </button>
+        )}
+      >
+        {({ close }) =>
+          MINE_MODES.map((x) => (
+            <MenuItem
+              key={x.id}
+              active={x.id === mode}
+              icon={x.icon}
+              end={x.id === mode ? <Check size={15} strokeWidth={2.5} /> : <span className={s.menuCount}>{counts[x.id]}</span>}
+              onClick={() => {
+                close();
+                onMine(x.id);
+              }}
+            >
+              <span className={s.menuLabel}>{x.label}</span>
+              <span className={s.menuHint}>{x.hint}</span>
+            </MenuItem>
+          ))
+        }
+      </Popover>
       <PointsChip short={narrow} onOpen={onShift} />
       {width >= 900 && <SideWorkChip short={width < 1200} />}
-      {view === 'mine' && (
+      {view === 'mine' && mode === 'tables' && (
         <div className={cx(s.servers, 'scroll-hidden')} role="group" aria-label="Other servers' tables">
           {servers
             .filter((id) => id !== me)

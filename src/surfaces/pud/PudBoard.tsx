@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { pickupLeadMinutes } from '../../domain/pickup';
 import { startOfToday } from '../../lib/clock';
 import { useView } from '../../shell/router';
@@ -18,13 +18,18 @@ const FILTERS: readonly QueueFilter[] = ['all', 'pickup', 'delivery'];
 export interface PudBoardProps {
   onOpen: (orderId: string) => void;
   onNew: (type: 'pickup' | 'delivery') => void;
+  /** Keep the filter here instead of in the URL (when the board sits inside another screen). */
+  local?: boolean;
 }
 
 /** The list under the tablet header: #/pud/<filter>, plus /done for Completed today. */
-export function PudBoard({ onOpen, onNew }: PudBoardProps) {
-  const [view, setView, rest] = useView<QueueFilter>('all');
+export function PudBoard({ onOpen, onNew, local }: PudBoardProps) {
+  const [routeView, setRouteView, rest] = useView<QueueFilter>('all');
+  const [own, setOwn] = useState<{ view: QueueFilter; done: boolean }>({ view: 'all', done: false });
+  const view = local ? own.view : routeView;
+  const setView = (f: QueueFilter, more: string[] = []) => (local ? setOwn({ view: f, done: more[0] === 'done' }) : setRouteView(f, more));
   const filter: QueueFilter = FILTERS.includes(view) ? view : 'all';
-  const showDone = rest[0] === 'done';
+  const showDone = local ? own.done : rest[0] === 'done';
   const at = useNow(15_000);
   const { orders, history, kitchenMode } = useDining();
   const cfg = useConfig();

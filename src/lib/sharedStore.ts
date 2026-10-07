@@ -50,6 +50,7 @@ const DEVICE_KEYS = new Set([
   'kisco_bump_keys',
   'kisco_prep_venue',
   'kisco_sw_venue',
+  'kisco_server_mine_mode',
   'kisco-dining-leader',
 ]);
 

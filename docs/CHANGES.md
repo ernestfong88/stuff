@@ -227,7 +227,7 @@ The final order is:
   - My Tables shows one *Open checks* lane, oldest first, with no cooking, ready or late colours. The only actions are Trivia and closing the check;
   - the Manager floor reads "Sent X min ago, check still open";
   - Cook and Expo say the venue uses printers.
-- **My Tables toggle.** The *My tables* button in the header is a two-part toggle: *My tables* (the table board) and *P/U & delivery*, each with its count. The second lists your pick up, delivery and associate orders, oldest first, with the window, the item count and where each one is. Leaving a pick up or delivery order brings you back to that list. An empty one is removed.
+- **My tables button swaps views.** The *My tables* button shows one of three views and opens a small menu to swap between them: *My tables* (your table board), *P/U & delivery* (the same queue as the PU & Delivery screen, with New pick up and New delivery) and *Table map* (every table in its status colour with a timer, as the Manager sees it). The tablet remembers the view, even after a reload or a demo reset. Tapping the button from another screen goes back to the view it was left on.
 - **Associate meals locked to the associate menu.** When an associate meal is ordered on the tablet, only today's chef's special and the standing choices from *Associate Menu* can be picked. There is no search, no tabs and no price. Recipes on the associate menu that are not on the tablet menu (such as *Turkey Club*) are added so they can be ordered and reach the kitchen.
 
 ### Steps of Service: average table time first
