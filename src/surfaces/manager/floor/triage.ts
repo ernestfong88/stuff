@@ -8,7 +8,8 @@ import { DEFAULT_CONFIG, flag, type DiningConfig } from '../../../domain/config'
 import { checkedIn, courseNumber, lastRun, lineReadyAt } from '../../../domain/courses';
 import { isDrinkLine } from '../../../domain/routing';
 import type { Order } from '../../../domain/types';
-import { getSetting, threshold } from '../../../store/serviceConfig';
+import { threshold } from '../../../store/serviceConfig';
+import { checkInWakeMinutes } from '../../server/shared/venue';
 import { drinkQueue, drinksWaiting } from './drinks';
 import { greetConfig, greetInfo, type GreetConfig } from './greet';
 import type { ThresholdFn } from './floorState';
@@ -32,17 +33,6 @@ export interface TriageOptions {
   greet?: GreetConfig;
   /** Minutes after a course is run before a missing check-in counts. */
   checkInAfter?: number;
-}
-
-/**
- * __kCheckInMin: minutes after a course is run before the Check in button
- * wakes up. Each venue can set its own; the default comes from t.checkInWake.
- */
-export function checkInMinutes(room: string): number {
-  const perRoom = getSetting<Record<string, number | undefined>>('ciMin')?.[room];
-  if (perRoom != null) return Number(perRoom);
-  const wake = getSetting<number | string | null>('t.checkInWake');
-  return wake != null && wake !== '' ? Number(wake) : 2;
 }
 
 /** __kTriageWhy: every reason a table needs help, worst first. */
@@ -86,7 +76,7 @@ export function triageReasons(o: Order, opts: TriageOptions = {}): TriageReason[
     const run = lastRun(o);
     if (run && !checkedIn(o, run)) {
       const cm = minutesSince(run.at);
-      const after = opts.checkInAfter ?? checkInMinutes(o.room);
+      const after = opts.checkInAfter ?? checkInWakeMinutes(o.room);
       // A wake-up of 0 means the button is lit straight away, not that triage nags.
       if (cm >= (after || Infinity)) add(true, cm, `No check-in after course ${run.c} · ${cm} min`, 'Check in with the table');
     }

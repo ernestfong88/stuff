@@ -5,7 +5,7 @@ import { updateConfig, useConfig } from '../../../store/config';
 import { getSetting, setSetting, useSetting } from '../../../store/serviceConfig';
 import { Button, Toggle } from '../../../ui';
 import { greetConfig } from '../../manager/floor/greet';
-import { checkInMinutes } from '../../manager/floor/triage';
+import { checkInWakeMinutes } from '../../server/shared/venue';
 import { MEALS } from '../../manager/metrics/stepsOfService';
 import { InlineField, InlineFields, PickMany, ResetButton, SettingNumber, SettingSelect } from '../../manager/settings/SettingControls';
 import type { BoPageProps } from '../nav';
@@ -117,7 +117,7 @@ function CheckInNudge() {
       <InlineFields>
         {venues.map((v) => (
           <InlineField key={v.key} label={v.name}>
-            <SettingNumber path={`ciMin.${v.key}`} label={`${v.name} check-in nudge minutes`} placeholder={String(checkInMinutes(v.key))} clearRemoves width={58} />
+            <SettingNumber path={`ciMin.${v.key}`} label={`${v.name} check-in nudge minutes`} placeholder={String(checkInWakeMinutes(v.key))} clearRemoves width={58} />
           </InlineField>
         ))}
       </InlineFields>
