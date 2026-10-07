@@ -75,3 +75,108 @@ export function newItem(kind: NewKind, items: PlanItem[], bands: FloorBand[], id
     ...(kind === 'round' ? { shape: 'round' } : {}),
   };
 }
+
+// ─── Reshaping, copying and lining up ────────────────────────────────────
+
+/** A resize handle: which edges it moves (n, s, e, w, or a corner). */
+export type Handle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
+
+/** Smallest table or wall, in percent of the plan. */
+export const MIN_SIZE = 2;
+
+/**
+ * Drag a handle by a delta in percent: the opposite edge stays put, sizes
+ * snap, and the item stays on the plan and at least MIN_SIZE across.
+ */
+export function resizeItem(it: PlanItem, handle: Handle, dx: number, dy: number): PlanItem {
+  let { x, y, w, h } = it;
+  const right = x + w;
+  const bottom = y + h;
+  if (handle.includes('e')) w = Math.min(100 - x, Math.max(MIN_SIZE, snap(w + dx)));
+  if (handle.includes('s')) h = Math.min(100 - y, Math.max(MIN_SIZE, snap(h + dy)));
+  if (handle.includes('w')) {
+    x = Math.max(0, Math.min(right - MIN_SIZE, snap(x + dx)));
+    w = right - x;
+  }
+  if (handle.includes('n')) {
+    y = Math.max(0, Math.min(bottom - MIN_SIZE, snap(y + dy)));
+    h = bottom - y;
+  }
+  return { ...it, x, y, w, h };
+}
+
+/** Turn an item a quarter: width and height trade, around its centre, kept on the plan. */
+export function turnItem(it: PlanItem): PlanItem {
+  const cx = it.x + it.w / 2;
+  const cy = it.y + it.h / 2;
+  return clampItem({ ...it, w: it.h, h: it.w, x: cx - it.h / 2, y: cy - it.w / 2 });
+}
+
+/**
+ * Copies of some items, placed just beside the originals (or at
+ * `at`, the top-left of the group, when pasting), each table with the next
+ * free name in the room.
+ */
+export function copyItems(all: PlanItem[], picked: PlanItem[], newId: () => string, at?: { x: number; y: number }): PlanItem[] {
+  if (!picked.length) return [];
+  const left = Math.min(...picked.map((t) => t.x));
+  const top = Math.min(...picked.map((t) => t.y));
+  const right = Math.max(...picked.map((t) => t.x + t.w));
+  const bottom = Math.max(...picked.map((t) => t.y + t.h));
+  // Beside the originals (to the right, else below), so the copy is easy to grab.
+  const besideRight = right + 1 + (right - left) <= 100;
+  const dx = at ? at.x - left : besideRight ? right - left + 1 : 0;
+  const dy = at ? at.y - top : besideRight ? 0 : bottom - top + 1;
+  const named = [...all];
+  return picked.map((t) => {
+    const copy = clampItem({ ...t, id: newId(), x: t.x + dx, y: t.y + dy });
+    if (copy.type === 'seat') copy.label = nextTableLabel(named, t.label.replace(/\s*\d+$/, '') || 'T');
+    named.push(copy);
+    return copy;
+  });
+}
+
+export type Align = 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom';
+
+/** Line items up on the group's left, centre or right edge (or top, middle, bottom). */
+export function alignItems(items: PlanItem[], how: Align): PlanItem[] {
+  if (items.length < 2) return items;
+  const left = Math.min(...items.map((t) => t.x));
+  const right = Math.max(...items.map((t) => t.x + t.w));
+  const top = Math.min(...items.map((t) => t.y));
+  const bottom = Math.max(...items.map((t) => t.y + t.h));
+  return items.map((t) => {
+    switch (how) {
+      case 'left':
+        return clampItem({ ...t, x: left });
+      case 'right':
+        return clampItem({ ...t, x: right - t.w });
+      case 'center':
+        return clampItem({ ...t, x: (left + right) / 2 - t.w / 2 });
+      case 'top':
+        return clampItem({ ...t, y: top });
+      case 'bottom':
+        return clampItem({ ...t, y: bottom - t.h });
+      default:
+        return clampItem({ ...t, y: (top + bottom) / 2 - t.h / 2 });
+    }
+  });
+}
+
+/** Space three or more items evenly across (or down), keeping the two outer ones where they are. */
+export function distributeItems(items: PlanItem[], axis: 'across' | 'down'): PlanItem[] {
+  if (items.length < 3) return items;
+  const k = axis === 'across' ? 'x' : 'y';
+  const size = axis === 'across' ? 'w' : 'h';
+  const order = [...items].sort((a, b) => a[k] - b[k]);
+  const first = order[0];
+  const last = order[order.length - 1];
+  const gap = (last[k] + last[size] - first[k] - order.reduce((n, t) => n + t[size], 0)) / (order.length - 1);
+  let at = first[k];
+  const placed = new Map<string, PlanItem>();
+  for (const t of order) {
+    placed.set(t.id, clampItem({ ...t, [k]: at }));
+    at += t[size] + gap;
+  }
+  return items.map((t) => placed.get(t.id) ?? t);
+}

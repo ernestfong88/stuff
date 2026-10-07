@@ -223,6 +223,13 @@ The final order is:
 ### Less text in Back Office; Dining Service is now POS Settings
 - **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
 - **Dining Service is now POS Settings** in the Back Office menu.
+- **Easier floor plan editor** (Venue Settings → Floor plan).
+  - **Reshape on the plan:** drag the handles around the selected table or wall. A size tag shows while you drag, and the Width / Height steppers are gone.
+  - **Copy:** *Duplicate*, or Ctrl/⌘ D, C and V. A copy lands beside the original with the next free table name.
+  - **Several at once:** Shift-click to pick several, then move, copy or remove them together, line them up (left, centre, right, top, middle, bottom) or *Space across / down*.
+  - **Turn:** swaps width and height.
+  - **Undo and Redo:** buttons plus Ctrl/⌘ Z and Shift Z, covering every change until you save. Delete removes, Esc deselects and Ctrl/⌘ A picks everything.
+  - **Bigger plan:** inside Venue Settings the plan uses the full width and the controls sit under it.
 - **Copy or swap a meal.** Each day's meal in the cycle builder has a ⋯ next to *Add more* with *Copy this lunch to…*, *Swap with…* and *Clear this lunch*.
   - **Any meal to any meal:** pick the target meal (Breakfast, Lunch or Dinner) and the day or days, so Monday lunch can go onto Wednesday dinner, or swap with Monday dinner.
   - **Copy:** replaces what's there or adds to it, and warns before replacing.
