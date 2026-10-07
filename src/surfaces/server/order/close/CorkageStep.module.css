@@ -26,3 +26,17 @@
   font-weight: 800;
   color: var(--ink);
 }
+.step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--limestone);
+  color: var(--ink);
+}
+.step:disabled {
+  background: var(--paper);
+  color: #b8c0c6;
+}

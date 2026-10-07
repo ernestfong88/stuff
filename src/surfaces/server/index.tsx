@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { navigate, useView } from '../../shell/router';
+import { navigate, useRoute, useView } from '../../shell/router';
 import { useMe, useVenue } from '../../shell/session';
 import { TabletShell } from '../../shell/TabletShell';
 import { useDining } from '../../store/dining';
@@ -22,6 +22,7 @@ const VIEWS: readonly ServerView[] = ['mine', 'new', 'check', 'residents', 'shif
  */
 export default function ServerSurface() {
   const [rawView, setView, rest] = useView<ServerView>('mine');
+  const { query } = useRoute();
   const view: ServerView = VIEWS.includes(rawView) ? rawView : 'mine';
   const me = useMe().initials;
   const [venue] = useVenue();
@@ -37,7 +38,7 @@ export default function ServerSurface() {
   };
 
   if (view === 'check' && rest[0]) {
-    return <OrderScreen orderId={rest[0]} onClose={() => setView('mine')} />;
+    return <OrderScreen orderId={rest[0]} initialCategory={query.get('cat') ?? undefined} onClose={() => setView('mine')} />;
   }
 
   return (
