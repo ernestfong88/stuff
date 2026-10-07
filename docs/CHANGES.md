@@ -220,6 +220,94 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Usability pass on every other screen
+
+Each screen was checked at tablet and desktop sizes, or phone size for the Associate Phone. Bugs (things that didn't work) were fixed first, then confusing controls and layout. The general rules applied everywhere:
+- **Mistakes can be undone:** destructive or one-tap actions have a confirm or an **Undo**.
+- **Each row has one main action**, with the rest in a ⋮ menu.
+- **Status is plain text**, and labels are written in words.
+
+**Bugs fixed**
+- **Server tablet:**
+  - A guest's dishes were flagged with the host resident's allergies.
+  - The ⋯ menu on a diner closed as soon as it opened.
+  - Removing a diner deleted items that had already been sent, with no confirm.
+  - Quick close had no undo.
+  - Card splits (50/50, 60/40, 70/30) could be a cent off.
+  - Corkage was silently dropped when seat 1 was empty. It now shows a warning.
+- **Cook / Expo:**
+  - Recall listed tickets that couldn't be brought back.
+  - Bumps and "Run course" had no undo.
+  - The M key did nothing on Expo.
+  - **Production Prep:** a stray tap unticked a finished prep item and lost who did it.
+- **Host:** walk-in visitors couldn't be seated.
+- **Manager:** an associate meal could be saved with no meal.
+- **Bar:** mis-taps had no undo.
+- **PU & Delivery:**
+  - Every stage moved in one tap with no undo.
+  - Backing out of a new order left an empty order behind.
+- **Associate Phone:** a meal could be cancelled after the kitchen had started it.
+- **Back Office:**
+  - *Charge Approval:* approved charges could never be sent to billing.
+  - *Pricing:* clearing a price box snapped back, so "5" became "85".
+  - *Floor Plans:* two tables could share a name, or have none.
+  - *Text Messages:* the preview filled details the real text can't, such as {apt}.
+  - *Resident Profiles:* switching resident dropped unsaved story edits.
+  - *Dining Plans:* the list showed out-of-date care levels and allergies.
+  - *Modifiers:* "Copy from another community" copied nothing.
+  - *Recipe Book:* recipes could be added from the Global Library twice.
+  - *Dashboard:* the "Schedule a menu" link went to the wrong page.
+  - *Assign Side Work:* Clear had no undo.
+
+**Bigger changes by screen**
+- **Server tablet:**
+  - A banner when you're looking at another server's tables.
+  - A confirm before starting a second check at another server's table.
+  - Close & Charge's payment panel no longer pushes the page into a long scroll.
+  - Shift review says what is blocking sign-off.
+- **Cook:**
+  - An **All day** strip of what this screen still has to make.
+  - Every bump shows "SQ 1 bumped · Undo".
+- **Expo:**
+  - One Fire button per ticket.
+  - Refire and print are in a labelled ⋮ menu.
+  - Ready tickets are grouped.
+  - The prompt stays after a text is sent.
+  - Associate meals show the person's name.
+- **Production Prep:** done items need a separate Undo to untick, and progress counts include the specials.
+- **Manager:**
+  - The *Shift review* tab is now *Closing report*, so it no longer shares a name with the server's screen.
+  - Open tables blocking sign-off can be tapped.
+  - The 86 list has Undo.
+  - The associate meal form says what is missing.
+- **Host:**
+  - Reservations keep Seat now and Edit on the row; no-show and cancel are in a ⋮ menu.
+  - The held-table colours have a key.
+- **PU & Delivery:** New pick up and New delivery buttons, and a "not sent yet" tile.
+- **Resident Kiosk:**
+  - The review lists one answer per line, and tapping a line edits it.
+  - "Is this you?" has a "No, that's not me" button.
+  - Text is larger on landscape tablets.
+- **Specials Display:** each dish stays 8 seconds, with larger descriptions.
+- **Associate Phone:**
+  - Planned meals can be changed, not just cancelled.
+  - The Plan button stays on screen with a summary.
+- **Back Office:**
+  - *Charge Approval:* Approve, Bring back and Send to billing, with plain statuses and item names.
+  - *Text Messages* and *Service Flow:* split into tabs, and every Reset asks first.
+  - *Kitchen Routing:* a *Whole menu* view, and moving an item has Undo.
+  - *Floor Plans:* unsaved-changes status and Undo.
+  - *Menu Export:* print tomorrow's menu or next week's.
+  - *Modifiers:* copying from another community shows what will be added.
+  - *Associate Meals:* plain week status, and pick up times shown as spans.
+  - *Retired rows* on the billing lists can be brought back.
+
+**Found but not fixed yet** (each needs a change to shared logic, so it was left for a decision)
+- **Settings saved but never used:** *Meal Plans*, *Meal Counts*, the *Delivery Options* fee list and *Shift Metrics* are stored but not read by the floor. Each page now carries a warning saying so.
+- **Seat 1 charges:** corkage and the delivery fee are tied to seat 1, so they are lost if that resident leaves early or is comped.
+- **Floor Plans:** unsaved changes are lost when you move to another Back Office page. Only closing the browser tab is caught.
+- **Undo only on the screen you used:** Cook's and Expo's recall lists only see bumps made in their own browser tab.
+
 ### Wiring fixed (settings that did nothing in the mockup)
 - **Guest meal credit**: the toggle was saved in Back Office, but the floor never read it. The checkout now reads it.
 - **Apartment charges**: charges put on an apartment from the floor never reached *Charge Approval*. They now do, and Charge Approval looks up the resident's name.
