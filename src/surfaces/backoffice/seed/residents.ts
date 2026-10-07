@@ -19,6 +19,8 @@ export interface BoResident {
   kitchenNotes: string;
   diet: string[];
   allergies: string[];
+  /** Plan changes drive billing, so each one is kept: newest first. */
+  planLog?: Array<{ at: number; by: string; from: string; to: string }>;
 }
 
 export const seedBoResidents = (): BoResident[] => boResidents.map((r) => ({ ...(r as unknown as BoResident) }));
