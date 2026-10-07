@@ -1,0 +1,32 @@
+/* Floor palette: the manager floor, its legend and Triage share these colours. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: #fff;
+  flex-shrink: 0;
+}
+.run {
+  background: #3f7d3f;
+}
+.cook {
+  background: #c9a227;
+  color: #2a2204;
+}
+.late {
+  background: var(--danger);
+}
+.check {
+  background: #1f6fb8;
+}
+.eat {
+  background: #2f8c8c;
+}
+.idle {
+  background: var(--s400);
+}

@@ -1,0 +1,65 @@
+.wrap {
+  margin-top: 6px;
+}
+.chart {
+  position: relative;
+}
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.line {
+  fill: none;
+  stroke: #b7c2cb;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.now {
+  stroke-width: 3;
+  stroke: var(--ocean);
+}
+.dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #b7c2cb;
+}
+.dotNow {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: var(--ocean);
+  box-shadow: 0 0 0 2px #fff;
+}
+.good {
+  stroke: #3f7d3f;
+  background: #3f7d3f;
+}
+.bad {
+  stroke: var(--danger);
+  background: var(--danger);
+}
+.par {
+  stroke: var(--ocean);
+  background: var(--ocean);
+}
+.labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.label {
+  width: 26px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #a3acb2;
+}
+.labelNow {
+  color: var(--ink);
+}

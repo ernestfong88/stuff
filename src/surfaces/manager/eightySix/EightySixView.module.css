@@ -1,0 +1,115 @@
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 16px 24px;
+}
+.outBox {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  padding: 12px 14px;
+  margin: 14px 0;
+  box-shadow: var(--ring);
+}
+.outTitle {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.outTitleOn {
+  color: var(--danger);
+  margin-bottom: 8px;
+}
+.outList {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.outChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  font-weight: 800;
+  background: #f6dfdb;
+  color: #8e2f24;
+}
+.backOn {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--s500);
+}
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.grow {
+  flex: 1;
+}
+.search {
+  width: 260px;
+  max-width: 100%;
+}
+.cat {
+  margin-bottom: 14px;
+}
+.catTitle {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--s400);
+  margin: 0 2px 6px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 8px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: var(--r-lg);
+  text-align: left;
+  background: var(--surface);
+  box-shadow: var(--ring);
+}
+.itemName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.mark {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding: 4px 9px;
+  border-radius: var(--r-pill);
+  background: var(--limestone);
+  color: var(--s500);
+}
+.itemOut {
+  background: #f6dfdb;
+  box-shadow: inset 0 0 0 1.5px var(--danger);
+}
+.itemOut .itemName {
+  color: #8e2f24;
+  text-decoration: line-through;
+}
+.itemOut .mark {
+  background: var(--danger);
+  color: #fff;
+}

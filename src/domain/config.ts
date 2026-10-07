@@ -39,7 +39,8 @@ export type FlowFlag =
   | 'shortServer'
   | 'shortKitchen'
   | 'hideDefaults'
-  | 'hospiceAuto';
+  | 'hospiceAuto'
+  | 'usuals';
 
 export interface HospiceStatus {
   on: boolean;

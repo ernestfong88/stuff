@@ -1,0 +1,89 @@
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1.5px rgba(20, 35, 48, 0.15);
+  transition: box-shadow var(--fast);
+}
+.tile:hover {
+  box-shadow: inset 0 0 0 1.5px rgba(20, 35, 48, 0.3);
+}
+.round {
+  border-radius: 50%;
+}
+.selected,
+.selected:hover {
+  box-shadow: inset 0 0 0 3px var(--ink);
+}
+.held,
+.held:hover {
+  box-shadow: inset 0 0 0 2px #a86a00;
+}
+.heldLate,
+.heldLate:hover {
+  box-shadow: inset 0 0 0 2px #b4441f;
+}
+.label {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  max-width: 100%;
+}
+.pill {
+  height: 18px;
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  white-space: nowrap;
+}
+.free {
+  font-size: 10.5px;
+  color: var(--s400);
+  font-weight: 600;
+}
+.hold {
+  max-width: 100%;
+  padding: 3px 6px;
+  border-radius: 9px;
+  background: #fcf0d6;
+  color: #a86a00;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.15;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 3px;
+}
+.holdLate {
+  background: #fbe6df;
+  color: #b4441f;
+}
+.holdTime {
+  white-space: nowrap;
+}
+.holdName {
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
