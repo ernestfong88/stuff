@@ -18,7 +18,8 @@ app has twelve surfaces, and each physical device runs one of them:
 | Specials Display | dining room TV | Tonight's specials |
 | Back Office | desktop | Culinary back office: dashboard, menus, billing, residents ... |
 
-The original single-file mockup is kept in `reference/` for comparison.
+The mockups (IT's original and the edited one) are kept in `reference/` for
+comparison. [CHANGES.md](CHANGES.md) lists what changed between them and this app.
 
 ## Stack
 

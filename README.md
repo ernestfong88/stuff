@@ -72,8 +72,10 @@ show initials on their colour and dishes show a plate illustration.
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the structure, the
 conventions, and how state flows between surfaces.
 
-The original single-file mockup is kept in
-[`reference/`](reference/KiscoConnect_Proposed.html) for comparison.
+The mockups are kept in [`reference/`](reference/) for comparison: IT's
+original and the culinary team's edited version. [docs/CHANGES.md](docs/CHANGES.md)
+lists what changed from the original mockup to the edited one, and from there
+to this app.
 
 ## Production notes
 
