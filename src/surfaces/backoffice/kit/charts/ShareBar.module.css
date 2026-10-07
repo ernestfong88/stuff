@@ -1,0 +1,35 @@
+.bar {
+  display: block;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.legend {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 11.5px;
+  color: var(--s500);
+}
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+.meter {
+  display: block;
+  height: 5px;
+  border-radius: var(--r-pill);
+  background: var(--sunken);
+  overflow: hidden;
+}
+.meterFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+}

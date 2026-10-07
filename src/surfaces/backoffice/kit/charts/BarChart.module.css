@@ -1,0 +1,98 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+.svg {
+  display: block;
+  overflow: visible;
+}
+.baseline {
+  stroke: var(--hair-2);
+  stroke-width: 1;
+}
+.bar {
+  outline: none;
+}
+.bar:focus-visible {
+  box-shadow: none;
+}
+.hit {
+  fill: transparent;
+}
+.clickable {
+  cursor: pointer;
+}
+.hovered .hit {
+  fill: rgba(20, 87, 133, 0.06);
+}
+.focus {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 2;
+}
+.bar:focus-visible .focus {
+  stroke: var(--ocean);
+}
+.highlight {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+.value {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+  /* A halo in the card colour keeps labels readable where they cross the goal line. */
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.axis {
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--s400);
+  text-anchor: middle;
+}
+.axisThin {
+  font-size: 9.5px;
+}
+.strong {
+  font-weight: 800;
+  fill: var(--ink);
+}
+.axis.strong {
+  fill: var(--ink);
+}
+.goal {
+  stroke: var(--s500);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+}
+.line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  z-index: 5;
+  width: max-content;
+  max-width: 200px;
+  padding: 6px 9px;
+  border-radius: var(--r-sm);
+  background: var(--ink);
+  color: #fff;
+  font-size: 11.5px;
+  line-height: 1.35;
+  pointer-events: none;
+  box-shadow: var(--shadow-2);
+}
