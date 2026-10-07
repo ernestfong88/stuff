@@ -2,7 +2,7 @@ export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from '.
 export { Chip, CountBadge, type ChipProps, type Tone } from './Chip';
 export { Card, type CardProps } from './Card';
 export { Avatar, type AvatarPerson, type AvatarProps } from './Avatar';
-export { Modal, Sheet, type ModalProps, type SheetProps } from './Overlay';
+export { Modal, Sheet, isOverlayOpen, type ModalProps, type SheetProps } from './Overlay';
 export { Popover, MenuItem, MenuDivider } from './Popover';
 export { Tabs, type TabOption } from './Tabs';
 export { TextField, SearchField, TextArea } from './Field';

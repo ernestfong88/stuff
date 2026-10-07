@@ -58,6 +58,9 @@
   background: transparent;
   font-size: inherit;
 }
+.input:focus-visible {
+  box-shadow: none;
+}
 .input::placeholder,
 .textarea::placeholder {
   color: var(--s400);
