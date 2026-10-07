@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ChevronDown, Search, X } from 'lucide-react';
 import { Tabs, cx } from '../../../ui';
 import { navPageId, type BoSectionDef } from '../nav';
-import { orderedSections, phaseOf, sectionPhase, setPhaseView, usePhasePlan, usePhaseView, visiblePages } from '../phases';
+import { orderedSections, phaseOf, sectionPhase, setPhaseView, usePhasePlan, usePhaseView, visiblePages, type Phase } from '../phases';
 import { AccountCard } from './AccountCard';
 import { CommunitySwitcher } from './CommunitySwitcher';
 import { KiscoMark } from './KiscoMark';
@@ -18,10 +18,13 @@ interface Props {
   onClose?: () => void;
 }
 
-/** "Phase 2" beside a page that ships later. */
-function PhaseTag() {
-  return <span className={s.phaseTag}>Phase 2</span>;
+/** "Phase 2" or "Phase 3" beside a page that ships later. */
+function PhaseTag({ phase }: { phase: Phase }) {
+  return <span className={cx(s.phaseTag, s[`tag${phase}`])}>Phase {phase}</span>;
 }
+
+/** Text colour for an item in a later phase. */
+const phaseClass = (phase: Phase) => (phase === 3 ? s.later3 : phase === 2 ? s.later : undefined);
 
 /**
  * A few sections instead of one long list. Only the section you are in is
@@ -64,8 +67,10 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
           {orderedSections(plan).map((sec, si, all) => {
             const pages = visiblePages(sec, view, plan, current);
             if (!pages.length) return null;
-            const laterSection = sectionPhase(sec, plan) === 2;
-            const firstLaterSection = laterSection && (si === 0 || sectionPhase(all[si - 1], plan) === 1);
+            const secPhase = sectionPhase(sec, plan);
+            const laterSection = secPhase > 1;
+            // The first section of each later phase starts with that phase's heading.
+            const firstLaterSection = laterSection && (si === 0 || sectionPhase(all[si - 1], plan) !== secPhase);
             const Icon = sec.icon;
             const single = pages.length === 1;
             const isCurrent = sec.id === section.id;
@@ -73,9 +78,9 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
             const listId = `bo-sec-${sec.id}`;
             return (
               <li key={sec.id} className={cx(firstLaterSection && s.laterStart)}>
-                {firstLaterSection && <div className={s.laterHead}>Phase 2</div>}
+                {firstLaterSection && <div className={cx(s.laterHead, secPhase === 3 && s.later3)}>Phase {secPhase}</div>}
                 <button
-                  className={cx(s.sectionBtn, laterSection && s.later, isCurrent && s.sectionCurrent, single && isCurrent && s.sectionOn)}
+                  className={cx(s.sectionBtn, phaseClass(secPhase), isCurrent && s.sectionCurrent, single && isCurrent && s.sectionOn)}
                   aria-expanded={single ? undefined : isOpen}
                   aria-controls={single ? undefined : listId}
                   aria-current={single && isCurrent ? 'page' : undefined}
@@ -90,7 +95,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
                 >
                   <Icon size={17} strokeWidth={1.9} className={s.sectionIcon} aria-hidden />
                   <span className={s.sectionLabel}>{sec.label}</span>
-                  {single && !laterSection && view === 'all' && phaseOf(pages[0].id, plan) === 2 && <PhaseTag />}
+                  {single && view === 'all' && phaseOf(pages[0].id, plan) > secPhase && <PhaseTag phase={phaseOf(pages[0].id, plan)} />}
                   {!single && <ChevronDown size={14} className={cx(s.chev, isOpen && s.chevOpen)} aria-hidden />}
                 </button>
                 {isOpen && (
@@ -101,7 +106,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
                         <li key={p.id}>
                           <a
                             href={`#/backoffice/${p.id}`}
-                            className={cx(s.pageLink, phaseOf(p.id, plan) === 2 && s.later, on && s.pageOn)}
+                            className={cx(s.pageLink, phaseClass(phaseOf(p.id, plan)), on && s.pageOn)}
                             aria-current={on ? 'page' : undefined}
                             onClick={(e) => {
                               e.preventDefault();
@@ -109,7 +114,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
                             }}
                           >
                             <span className={s.pageLabel}>{p.label}</span>
-                            {view === 'all' && !laterSection && phaseOf(p.id, plan) === 2 && <PhaseTag />}
+                            {view === 'all' && phaseOf(p.id, plan) > secPhase && <PhaseTag phase={phaseOf(p.id, plan)} />}
                           </a>
                         </li>
                       );

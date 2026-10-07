@@ -17,7 +17,6 @@ import { CopyDayDialog } from './CopyDayDialog';
 import { MenuGrid, type SlotTarget } from './MenuGrid';
 import { PrintMenus } from './PrintMenus';
 import { QuickEdit } from './QuickEdit';
-import { RecipePicker } from './RecipePicker';
 import s from './CycleBuilder.module.css';
 
 const LENGTHS = [28, 35, 42, 49, 56, 63, 70];
@@ -36,7 +35,6 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
   const [confirmClear, setConfirmClear] = useState(false);
   const clearTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(clearTimer.current), []);
-  const [pick, setPick] = useState<SlotTarget | null>(null);
   const [copyFrom, setCopyFrom] = useState<number | null>(null);
   const [quick, setQuick] = useState<{ r: Recipe; day: number } | null>(null);
   const [full, setFull] = useState<Recipe | null>(null);
@@ -44,7 +42,6 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
   const w = Math.min(week, Math.max(0, weeks - 1));
   const days = Array.from({ length: 7 }, (_, i) => w * 7 + i + 1).filter((d) => d <= len);
   const empty = emptyDays(bo.grid, m.id, len);
-  const nameOf = (id: string) => bo.recipes.find((r) => r.id === id)?.name ?? '';
   const dayLabel = (d: number) => {
     const dt = anchor ? addDays(anchor.start, d - 1) : null;
     return dt ? `${dt.toLocaleDateString('en-US', { weekday: 'short' })} ${monthDay(dt)}` : `Day ${d}`;
@@ -75,14 +72,6 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
     }
   };
 
-  const pickTitle = (t: SlotTarget) => {
-    if (t.allWeek) return `One dish for ${t.meal.toLowerCase()}, every day of week ${w + 1}`;
-    if (t.with) {
-      const e = bo.grid.find((g) => g.id === t.with);
-      return `Add a side for ${e ? nameOf(e.recipeId) : 'this entrée'} · ${dayLabel(t.day)}`;
-    }
-    return `Add to ${t.meal.toLowerCase()} · ${dayLabel(t.day)}`;
-  };
 
   const readOnly = !!m.locked;
 
@@ -223,7 +212,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
             note={
               readOnly
                 ? 'Click a dish to open its recipe.'
-                : 'Click + to add a dish. Click a dish to change its sides, or × to take it off. Each date has a menu to copy or clear the day.'
+                : 'Click + and type a dish name to add it. Click a dish to change its sides, or × to take it off. An empty row has an × by its name to drop it from that meal. Each date has a menu to copy or clear the day.'
             }
           />
 
@@ -233,7 +222,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
             anchor={anchor}
             highlight={highlight}
             readOnly={readOnly}
-            onSlot={setPick}
+            onPlace={place}
             onQuick={(r, day) => (readOnly ? setFull(r) : setQuick({ r, day }))}
             onCopyDay={setCopyFrom}
           />
@@ -245,15 +234,6 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
         </EmptyState>
       )}
 
-      {pick && (
-        <RecipePicker
-          title={pickTitle(pick)}
-          cat={pick.cat}
-          placeholder={pick.allWeek ? `Search, then pick one dish for all ${days.length} days` : undefined}
-          onPick={(id) => place(id, pick)}
-          onClose={() => setPick(null)}
-        />
-      )}
       {copyFrom != null && <CopyDayDialog menuId={m.id} from={copyFrom} len={len} anchor={anchor} onClose={() => setCopyFrom(null)} />}
       {quick && (
         <QuickEdit

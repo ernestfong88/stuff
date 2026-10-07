@@ -1,17 +1,17 @@
-import { Fragment, useMemo } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { CalendarDays, ChevronDown, Copy, Eraser, Plus, X } from 'lucide-react';
-import { useState } from 'react';
 import { now } from '../../../../lib/clock';
 import type { BoMenu, GridEntry, Recipe, RecipeCategory } from '../../../../store/menuEdits';
 import { MenuDivider, MenuItem, Popover, cx, toast } from '../../../../ui';
 import { placementSides, useBo } from '../data';
-import { removePlacements, restorePlacements, setDayDate } from '../menuActions';
+import { removePlacements, restorePlacements, setDayDate, updateMenu } from '../menuActions';
 import { dishLong } from '../model/categories';
 import { addDays, dayStart, isoDay, parseIsoDay, type CycleAnchor } from '../../../../domain/menuCycle';
 import { groupDay, placementsAt, type DayGroup } from '../model/dayGroup';
 import { BUILDER_MEALS, type BuilderMeal } from '../model/types';
 import { PLAN_LABEL, planClass, swatchClass } from '../ui/menuBits';
 import type { AiHighlight } from './AiReview';
+import { SlotSearch } from './SlotSearch';
 import s from './MenuGrid.module.css';
 
 /** Where a new placement goes. */
@@ -23,7 +23,25 @@ export interface SlotTarget {
   with?: string;
   /** Every day of the week shown. */
   allWeek?: boolean;
+  /** Opened from a day's Add more menu. */
+  more?: boolean;
 }
+
+/** The default lanes a menu can drop for a meal (Soup or starter at breakfast ...). */
+export type DefaultLane = 'starters' | 'entree' | 'desserts';
+const LANE_NAME: Record<DefaultLane, string> = { starters: 'Soup or starter', entree: 'Entrée', desserts: 'Dessert' };
+
+/** "Type another entrée" ... in a day's Add more slot. */
+const MORE_LABEL: Record<string, string> = {
+  Entrees: 'another entrée',
+  Starters: 'another soup or starter',
+  Sides: 'a side',
+  Desserts: 'another dessert',
+  Drinks: 'a drink',
+};
+
+const sameTarget = (a: SlotTarget | null, b: SlotTarget) =>
+  !!a && a.day === b.day && a.meal === b.meal && a.cat === b.cat && (a.with ?? '') === (b.with ?? '') && !!a.allWeek === !!b.allWeek && !!a.more === !!b.more;
 
 type LaneKind = 'starters' | 'entree' | 'sides' | 'looseSides' | 'desserts' | 'drinks' | 'other';
 
@@ -33,45 +51,27 @@ interface Lane {
   label: string;
   sub?: string;
   cat: RecipeCategory;
+  /** A default lane with nothing in it this week: the chef can take it off this meal. */
+  removable?: boolean;
 }
 
-/** The rows a meal needs this week: as many entrées as the busiest day, each with its sides under it. */
-function lanesFor(groups: DayGroup[]): Lane[] {
+/**
+ * The rows a meal needs this week: as many entrées as the busiest day, each
+ * with its sides under it. Soup or starter, Entrée and Dessert always show one
+ * empty row to fill, unless the menu has taken that row off this meal.
+ */
+function lanesFor(groups: DayGroup[], hidden: string[] = []): Lane[] {
   const max = (f: (g: DayGroup) => number) => Math.max(0, ...groups.map(f));
+  const atLeast = (kind: DefaultLane) => (hidden.includes(kind) ? 0 : 1);
   const out: Lane[] = [];
-  for (
-    let i = 0;
-    i <
-    Math.max(
-      1,
-      max((g) => g.starters.length),
-    );
-    i++
-  )
-    out.push({
-      kind: 'starters',
-      i,
-      label: 'Soup or starter',
-      cat: 'Starters',
-    });
-  const ne = Math.max(
-    1,
-    max((g) => g.entrees.length),
-  );
+  const ns = max((g) => g.starters.length);
+  for (let i = 0; i < Math.max(atLeast('starters'), ns); i++)
+    out.push({ kind: 'starters', i, label: 'Soup or starter', cat: 'Starters', removable: ns === 0 });
+  const filled = max((g) => g.entrees.length);
+  const ne = Math.max(atLeast('entree'), filled);
   for (let i = 0; i < ne; i++) {
-    out.push({
-      kind: 'entree',
-      i,
-      label: ne > 1 ? `Entrée ${i + 1}` : 'Entrée',
-      cat: 'Entrees',
-    });
-    out.push({
-      kind: 'sides',
-      i,
-      label: 'Sides',
-      sub: ne > 1 ? `with entrée ${i + 1}` : 'with the entrée',
-      cat: 'Sides',
-    });
+    out.push({ kind: 'entree', i, label: ne > 1 ? `Entrée ${i + 1}` : 'Entrée', cat: 'Entrees', removable: filled === 0 });
+    out.push({ kind: 'sides', i, label: 'Sides', sub: ne > 1 ? `with entrée ${i + 1}` : 'with the entrée', cat: 'Sides' });
   }
   for (let i = 0; i < max((g) => g.looseSides.length); i++)
     out.push({
@@ -81,16 +81,8 @@ function lanesFor(groups: DayGroup[]): Lane[] {
       sub: i ? '' : 'not tied to an entrée',
       cat: 'Sides',
     });
-  for (
-    let i = 0;
-    i <
-    Math.max(
-      1,
-      max((g) => g.desserts.length),
-    );
-    i++
-  )
-    out.push({ kind: 'desserts', i, label: 'Dessert', cat: 'Desserts' });
+  const nd = max((g) => g.desserts.length);
+  for (let i = 0; i < Math.max(atLeast('desserts'), nd); i++) out.push({ kind: 'desserts', i, label: 'Dessert', cat: 'Desserts', removable: nd === 0 });
   for (let i = 0; i < max((g) => g.drinks.length); i++) out.push({ kind: 'drinks', i, label: 'Drink', cat: 'Drinks' });
   for (let i = 0; i < max((g) => g.other.length); i++) out.push({ kind: 'other', i, label: 'Other', cat: 'Snacks' });
   return out;
@@ -101,7 +93,7 @@ export function MenuGrid({
   days,
   anchor,
   highlight,
-  onSlot,
+  onPlace,
   onQuick,
   onCopyDay,
   readOnly,
@@ -110,7 +102,8 @@ export function MenuGrid({
   days: number[];
   anchor: CycleAnchor | null;
   highlight: AiHighlight | null;
-  onSlot: (t: SlotTarget) => void;
+  /** A recipe typed into a slot goes there. */
+  onPlace: (recipeId: string, t: SlotTarget) => void;
   onQuick: (r: Recipe, day: number) => void;
   onCopyDay: (day: number) => void;
   /** A locked menu: dishes show, but nothing can be added, moved or removed. */
@@ -120,6 +113,28 @@ export function MenuGrid({
   const recipes = useMemo(() => new Map(bo.recipes.map((r) => [r.id, r])), [bo.recipes]);
   const nameOf = (id: string) => recipes.get(id)?.name ?? '';
   const today = anchor?.live ? anchor.today : null;
+  // The slot being typed into, if any.
+  const [typing, setTyping] = useState<SlotTarget | null>(null);
+  const search = (t: SlotTarget, placeholder: string, className?: string) => (
+    <SlotSearch
+      cat={t.cat}
+      placeholder={placeholder}
+      className={className}
+      onCancel={() => setTyping(null)}
+      onPick={(id) => {
+        setTyping(null);
+        onPlace(id, t);
+      }}
+    />
+  );
+  const hiddenLanes = (meal: string) => m.hiddenLanes?.[meal] ?? [];
+  const setLaneHidden = (meal: string, lane: DefaultLane, hide: boolean) => {
+    const now = hiddenLanes(meal);
+    updateMenu(m.id, { hiddenLanes: { ...m.hiddenLanes, [meal]: hide ? [...now, lane] : now.filter((x) => x !== lane) } });
+    toast(hide ? `${LANE_NAME[lane]} is off ${meal.toLowerCase()} on this menu` : `${LANE_NAME[lane]} is back on ${meal.toLowerCase()}`, {
+      action: hide ? { label: 'Undo', onClick: () => setLaneHidden(meal, lane, false) } : undefined,
+    });
+  };
 
   const card = (g: GridEntry, day: number, side?: boolean) => {
     const r = recipes.get(g.recipeId);
@@ -158,8 +173,10 @@ export function MenuGrid({
     );
   };
   const slot = (t: SlotTarget, label: string) =>
-    readOnly ? null : (
-      <button className={cx(s.slot, t.with && s.slotSide)} onClick={() => onSlot(t)}>
+    readOnly ? null : sameTarget(typing, t) ? (
+      search(t, `Type a ${label.toLowerCase()}`)
+    ) : (
+      <button className={cx(s.slot, t.with && s.slotSide)} onClick={() => setTyping(t)}>
         + {label}
       </button>
     );
@@ -206,7 +223,9 @@ export function MenuGrid({
         <tbody>
           {BUILDER_MEALS.map((meal) => {
             const groups = days.map((d) => groupDay(placementsAt(bo.grid, m.id, d, meal), (rid) => placementSides(bo, m.id, d, rid).sides, nameOf));
-            const lanes = lanesFor(groups);
+            const hidden = hiddenLanes(meal);
+            const lanes = lanesFor(groups, hidden);
+            const allWeek: SlotTarget = { day: 0, meal, cat: null, allWeek: true };
             const hi = (d: number) =>
               !!highlight && highlight.day === d && (!highlight.meal || highlight.meal === meal || !/^(Lunch|Dinner)$/.test(highlight.meal));
             return (
@@ -215,15 +234,20 @@ export function MenuGrid({
                   <td colSpan={days.length + 1} className={s.band}>
                     <span className={s.bandIn}>
                       <span className={s.mealName}>{meal}</span>
-                      {!readOnly && (
-                        <button
-                          className={s.allWeek}
-                          title={`Put one dish on ${meal.toLowerCase()} every day of this week`}
-                          onClick={() => onSlot({ day: 0, meal, cat: null, allWeek: true })}
-                        >
-                          + Same dish all week
-                        </button>
-                      )}
+                      {!readOnly &&
+                        (sameTarget(typing, allWeek) ? (
+                          <span className={s.allWeekSearch}>{search(allWeek, 'Type one dish for every day this week')}</span>
+                        ) : (
+                          <button className={s.allWeek} title={`Put one dish on ${meal.toLowerCase()} every day of this week`} onClick={() => setTyping(allWeek)}>
+                            + Same dish all week
+                          </button>
+                        ))}
+                      {!readOnly &&
+                        (hidden as DefaultLane[]).map((lane) => (
+                          <button key={lane} className={s.laneBack} onClick={() => setLaneHidden(meal, lane, false)} title={`Show the ${LANE_NAME[lane].toLowerCase()} row again`}>
+                            + {LANE_NAME[lane]} row
+                          </button>
+                        ))}
                     </span>
                   </td>
                 </tr>
@@ -233,6 +257,16 @@ export function MenuGrid({
                       <span className={s.laneLabel}>
                         <span className={cx(swatchClass, planClass(ln.cat))} />
                         {ln.label}
+                        {!readOnly && ln.removable && ln.i === 0 && (
+                          <button
+                            className={s.laneX}
+                            aria-label={`Take the ${ln.label.toLowerCase()} row off ${meal.toLowerCase()} on this menu`}
+                            title={`Take this row off ${meal.toLowerCase()}`}
+                            onClick={() => setLaneHidden(meal, ln.kind as DefaultLane, true)}
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
                       </span>
                       {ln.sub && <span className={s.laneSub}>{ln.sub}</span>}
                     </th>
@@ -271,8 +305,12 @@ export function MenuGrid({
                     <td className={s.optHead} />
                     {days.map((d) => {
                       const has = placementsAt(bo.grid, m.id, d, meal).length > 0;
+                      const more = typing?.more && typing.day === d && typing.meal === meal ? typing : null;
                       return (
                         <td key={d} className={cx(s.optCell, today === d && s.todayCol)}>
+                          {more ? (
+                            search(more, `Type ${MORE_LABEL[more.cat ?? 'Entrees']}`)
+                          ) : (
                           <Popover
                             align="center"
                             minWidth={220}
@@ -299,7 +337,7 @@ export function MenuGrid({
                                     icon={<span className={cx(swatchClass, planClass(c))} />}
                                     onClick={() => {
                                       close();
-                                      onSlot({ day: d, meal, cat: c });
+                                      setTyping({ day: d, meal, cat: c, more: true });
                                     }}
                                   >
                                     {label}
@@ -330,6 +368,7 @@ export function MenuGrid({
                               </>
                             )}
                           </Popover>
+                          )}
                         </td>
                       );
                     })}

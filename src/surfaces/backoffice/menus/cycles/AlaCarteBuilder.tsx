@@ -13,7 +13,7 @@ import type { BuilderMeal } from '../model/types';
 import { RecipeDialog } from '../recipes/RecipeDialog';
 import { QuarterBadge, QuarterPick, StateChip } from '../ui/menuBits';
 import { ApprovalStatus, LockBanner, LockButton } from '../ui/MenuLock';
-import { RecipePicker } from './RecipePicker';
+import { SlotSearch } from './SlotSearch';
 import s from './AlaCarteBuilder.module.css';
 
 const MEALS: BuilderMeal[] = ['Breakfast', 'Lunch', 'Dinner'];
@@ -48,6 +48,7 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
   const bo = useBo();
   const [meal, setMeal] = useState<string>('All');
   const [pick, setPick] = useState<RecipeCategory | null>(null);
+  const [added, setAdded] = useState(0);
   const [edit, setEdit] = useState<Recipe | null>(null);
   const venues = useMemo(() => venuesAt(bo.venues, now()), [bo.venues]);
   const where = venues.filter((v) => v.menuId === m.id).map((v) => v.name);
@@ -158,11 +159,26 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
                 <span className={s.count}>
                   {list.length} {list.length === 1 ? 'item' : 'items'}
                 </span>
-                {!readOnly && (
-                  <Button size="sm" icon={<Plus size={13} />} onClick={() => setPick(ck)}>
-                    Add {label.toLowerCase()}
-                  </Button>
-                )}
+                {!readOnly &&
+                  (pick === ck ? (
+                    <span className={s.addSearch}>
+                      <SlotSearch
+                        key={added}
+                        cat={ck}
+                        placeholder={`Type ${label.toLowerCase()} to add`}
+                        onCancel={() => setPick(null)}
+                        onPick={(id) => {
+                          add(id, ck);
+                          // Stays open, empty, for the next one.
+                          setAdded((n) => n + 1);
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <Button size="sm" icon={<Plus size={13} />} onClick={() => setPick(ck)}>
+                      Add {label.toLowerCase()}
+                    </Button>
+                  ))}
               </header>
               {!list.length && (
                 <p className={s.none}>{meal === 'All' ? 'Nothing on the menu here yet.' : `Nothing here at ${meal.toLowerCase()}.`}</p>
@@ -223,14 +239,6 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
         })}
       </div>
 
-      {pick && (
-        <RecipePicker
-          title={`Add to ${m.name} · ${SECTIONS.find((x) => x[0] === pick)?.[1]}${meal !== 'All' ? ' · ' + meal : ''}`}
-          cat={pick}
-          onPick={(id) => add(id, pick)}
-          onClose={() => setPick(null)}
-        />
-      )}
       {edit && <RecipeDialog recipe={edit} onClose={() => setEdit(null)} />}
     </BoPage>
   );

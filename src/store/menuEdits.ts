@@ -141,6 +141,8 @@ export interface BoMenu {
   approveReq?: boolean;
   approval?: string;
   fav?: boolean;
+  /** Default rows (starters, entree, desserts) the menu builder leaves off a meal, by meal. */
+  hiddenLanes?: Record<string, string[]>;
 }
 
 /** Which menu a venue serves, from when, and what comes next. */

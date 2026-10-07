@@ -111,6 +111,10 @@
 .phase2 {
   color: var(--plum);
 }
+.phase3,
+.phaseHead.phase3 {
+  color: var(--clay-600);
+}
 
 .venue {
   display: inline-flex;

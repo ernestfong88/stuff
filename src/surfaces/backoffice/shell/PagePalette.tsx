@@ -108,7 +108,7 @@ export function PagePalette({ onClose, goto }: { onClose: () => void; goto: (pag
                 </span>
                 <span className={s.itemSection}>
                   {r.section}
-                  {phaseOf(r.id, plan) === 2 && ' · Phase 2'}
+                  {phaseOf(r.id, plan) > 1 && ` · Phase ${phaseOf(r.id, plan)}`}
                 </span>
               </div>
             );

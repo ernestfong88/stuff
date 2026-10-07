@@ -20,7 +20,7 @@ export interface BoPageDef {
    */
   parent?: string;
   /** Release phase; absent means Phase 1. HO Settings -> Release Phases can move it. */
-  phase?: 1 | 2;
+  phase?: 1 | 2 | 3;
 }
 
 export interface BoSectionDef {

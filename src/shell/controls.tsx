@@ -38,7 +38,8 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
   const view = usePhaseView();
   // Phase 2 screens sit below a divider, in their own colour; "Phase 1 only" hides them (except this one).
   const modes = orderedModes(plan).filter((x) => view === 'all' || x.id === mode || modePhase(x.id, plan) === 1);
-  const firstLater = modes.findIndex((x) => modePhase(x.id, plan) === 2);
+  // A heading wherever the phase steps up (Phase 2, Phase 3).
+  const startsPhase = (i: number) => i > 0 && modePhase(modes[i].id, plan) !== modePhase(modes[i - 1].id, plan);
   const demo = useDemoActions();
   const [ask, dialog] = useConfirm();
   return (
@@ -81,10 +82,10 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
             )}
             {modes.map((x, i) => (
               <Fragment key={x.id}>
-                {i === firstLater && (
+                {startsPhase(i) && (
                   <>
                     <MenuDivider />
-                    <div className={s.phaseHead}>Phase 2</div>
+                    <div className={cx(s.phaseHead, modePhase(x.id, plan) === 3 && s.phase3)}>Phase {modePhase(x.id, plan)}</div>
                   </>
                 )}
                 <MenuItem
@@ -96,7 +97,7 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
                     navigate(x.id);
                   }}
                 >
-                  <span className={cx(i >= firstLater && firstLater >= 0 && s.phase2)}>{x.label}</span>
+                  <span className={cx(modePhase(x.id, plan) === 2 && s.phase2, modePhase(x.id, plan) === 3 && s.phase3)}>{x.label}</span>
                 </MenuItem>
               </Fragment>
             ))}

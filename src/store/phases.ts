@@ -10,7 +10,9 @@
  */
 import { createSharedStore, useShared } from '../lib/sharedStore';
 
-export type Phase = 1 | 2;
+export type Phase = 1 | 2 | 3;
+
+export const PHASES: Phase[] = [1, 2, 3];
 export type PhaseView = 'all' | 'p1';
 export type PhasePlan = Record<string, Phase>;
 
@@ -47,7 +49,7 @@ export function setPhaseView(view: PhaseView): void {
   phaseViewStore.set(view);
 }
 
-/** Phase 1 first, then Phase 2, each keeping its own order. */
+/** Phase 1 first, then Phase 2, then Phase 3, each keeping its own order. */
 export function byPhase<T>(items: T[], phaseOf: (item: T) => Phase): T[] {
-  return [...items.filter((x) => phaseOf(x) === 1), ...items.filter((x) => phaseOf(x) === 2)];
+  return PHASES.flatMap((ph) => items.filter((x) => phaseOf(x) === ph));
 }

@@ -5,6 +5,7 @@ import { aiCheck, applyOps, undoOps } from '../model/aiReview';
 import { guessCategory, guessProtein, guessSubcategory, normCategory, subOf } from '../model/categories';
 import { cycleDayOn, DAY_MS, menuAnchor, menuState, quarterLabel, quarterMenuName, venuesAt } from '../../../../domain/menuCycle';
 import { approvalOf } from '../model/approval';
+import { searchRecipes } from '../cycles/slotSearchModel';
 import { groupDay, parseDays, sameWeekday, sideMatches } from '../model/dayGroup';
 import { menuRows, quarterGaps } from '../model/menuList';
 import { andList, esc, printContext, dailyMenuHtml, orderFormHtml } from '../model/menuPrint';
@@ -236,5 +237,22 @@ describe('menu builder helpers', () => {
     expect(approvalOf({ approval: 'Pending signature', approveReq: true }).step).toBe('waiting');
     const ok = approvalOf({ approval: 'Approved', approveReq: true, signedBy: 'Dana Whitfield, RD', signedAt: new Date(2026, 8, 30).getTime() });
     expect(ok).toEqual({ step: 'approved', label: 'Approved', detail: 'Dana Whitfield, RD · Sep 30, 2026' });
+  });
+});
+
+describe('typing a recipe into a slot', () => {
+  const r = (id: string, name: string, cat: Recipe['cat'], retired = false) => ({ id, name, cat, retired }) as Recipe;
+  const book = [r('a', 'Chicken Noodle Soup', 'Starters'), r('b', 'Chicken Breast', 'Entrees'), r('c', 'Grilled Chicken Salad', 'Entrees'), r('d', 'Old Chicken Pie', 'Entrees', true)];
+
+  it('finds every typed word in the category, names that start with the text first', () => {
+    expect(searchRecipes(book, 'chicken', 'Entrees').list.map((x) => x.id)).toEqual(['b', 'c']);
+    expect(searchRecipes(book, 'salad chick', 'Entrees').list.map((x) => x.id)).toEqual(['c']);
+    expect(searchRecipes(book, 'chicken', null).list.map((x) => x.id)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('leaves out retired recipes and says when the text is already a recipe', () => {
+    expect(searchRecipes(book, 'pie', 'Entrees').list).toEqual([]);
+    expect(searchRecipes(book, 'chicken breast', 'Entrees').exact).toBe(true);
+    expect(searchRecipes(book, 'chicken bre', 'Entrees').exact).toBe(false);
   });
 });

@@ -53,3 +53,17 @@ describe('release phases', () => {
     expect(text).toContain('Phase 2 (3 items)\n  Screen › Cook\n  Screen › Expo\n  Back Office › KDS › KDS Settings');
   });
 });
+
+describe('phase 3', () => {
+  beforeEach(() => resetPhases());
+
+  it('lists Phase 3 after Phase 2, in pages, sections and screens', () => {
+    setPhase('access', 3);
+    setPhase(modePhaseKey('kiosk'), 3);
+    const plan = phasePlanStore.get();
+    const order = orderedSections(plan).map((s) => s.id);
+    expect(order.slice(-2)).toEqual(['kds', 'admin']);
+    expect(orderedModes(plan).map((m) => m.id).slice(-3)).toEqual(['cook', 'expo', 'kiosk']);
+    expect(phaseListText(plan)).toContain('Phase 3 (2 items)\n  Screen › Resident Kiosk\n  Back Office › Associates & PINs › Associates & PINs');
+  });
+});

@@ -123,3 +123,7 @@
 .mealStatic {
   cursor: default;
 }
+.addSearch {
+  width: 280px;
+  max-width: 50%;
+}

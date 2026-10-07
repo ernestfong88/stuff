@@ -220,6 +220,18 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Phase 3, typing recipes into the menu builder, and removable rows
+
+- **Phase 3.** Release Phases now offers Phase 1, 2 or 3 for every screen and Back Office page.
+  - Phase 3 items are brown and listed after Phase 2 (purple), in the screen menu and the side menu.
+  - A section takes its earliest page's phase, so an all-Phase 3 section drops to the very bottom under a *Phase 3* heading.
+  - Phase 3 pages get a brown banner. *Phase 1 only* hides Phase 2 and Phase 3. *Copy as a list* lists all three.
+- **Type a recipe straight into the menu builder.** Clicking a **+** slot turns it into a search box in place, instead of opening a pop-up. Matching recipes from the Recipe Book appear as you type.
+  - Arrow keys and Enter, or a click, place the dish. Escape puts the slot back.
+  - A dish that isn't in the Recipe Book yet can be drafted with *Create "…" with AI Assist*.
+  - The same box is used for **+ Same dish all week**, each day's **Add more**, and each section's **Add** button in the à la carte builder. In the à la carte builder, the box stays open for the next dish.
+- **Remove a default row from a meal.** Soup or starter, Entrée and Dessert always showed an empty row on every meal. An empty one now has an **×** by its name that takes it off that meal for this menu, for example no soup at breakfast. A **+ Soup or starter row** button next to the meal name brings it back. A row with dishes in it can't be removed.
+
 ### New check: pick up, delivery or an associate meal from the table map
 
 - When a server starts a new check, the table map now has **Not at a table?** buttons above it: **Pick up**, **Delivery** and **Associate meal**. Each opens a new order on the server's own name, straight on the order screen.

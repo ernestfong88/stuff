@@ -10,11 +10,11 @@
  * In the side nav, Phase 2 pages come after the Phase 1 pages of their
  * section, and a section that is all Phase 2 comes after every other one.
  */
-import { byPhase, phasePlanStore, type Phase, type PhasePlan, type PhaseView } from '../../store/phases';
+import { byPhase, PHASES, phasePlanStore, type Phase, type PhasePlan, type PhaseView } from '../../store/phases';
 import { MODES, modePhase } from '../../shell/modes';
 import { BO_MORE_PAGES, BO_PAGES, BO_SECTIONS, type BoPageDef, type BoSectionDef } from './nav';
 
-export { phasePlanStore, resetPhases, setPhase, setPhaseView, usePhasePlan, usePhaseView, type Phase, type PhasePlan, type PhaseView } from '../../store/phases';
+export { PHASES, phasePlanStore, resetPhases, setPhase, setPhaseView, usePhasePlan, usePhaseView, type Phase, type PhasePlan, type PhaseView } from '../../store/phases';
 
 /** A page's phase: the plan's call, else nav.ts, else Phase 1. */
 export function phaseOf(pageId: string, plan: PhasePlan = phasePlanStore.get()): Phase {
@@ -33,24 +33,27 @@ export function visiblePages(section: BoSectionDef, view: PhaseView, plan: Phase
   return pages.filter((p) => p.id === currentId || phaseOf(p.id, plan) === 1);
 }
 
-/** A section is Phase 2 when every page in it is. */
+/** A section's phase is its earliest page's: a section is Phase 3 only when every page in it is. */
 export function sectionPhase(section: BoSectionDef, plan: PhasePlan): Phase {
-  return section.pages.every((p) => phaseOf(p.id, plan) === 2) ? 2 : 1;
+  return Math.min(...section.pages.map((p) => phaseOf(p.id, plan))) as Phase;
 }
 
-/** The side nav's sections: those with any Phase 1 page first, then all-Phase 2 sections, each in nav order. */
+/** The side nav's sections: Phase 1 sections first, then Phase 2, then Phase 3, each in nav order. */
 export function orderedSections(plan: PhasePlan): BoSectionDef[] {
   return byPhase(BO_SECTIONS, (s) => sectionPhase(s, plan));
 }
 
-/** Phase 2 pages, in nav order. */
-export function phaseTwoPages(plan: PhasePlan): BoPageDef[] {
-  return BO_SECTIONS.flatMap((s) => s.pages).filter((p) => phaseOf(p.id, plan) === 2);
+/** The pages in a phase, in nav order. */
+export function pagesInPhase(plan: PhasePlan, phase: Phase): BoPageDef[] {
+  return BO_SECTIONS.flatMap((s) => s.pages).filter((p) => phaseOf(p.id, plan) === phase);
 }
+
+/** Phase 2 pages, in nav order. */
+export const phaseTwoPages = (plan: PhasePlan) => pagesInPhase(plan, 2);
 
 /** The split as plain text, to paste into an email or a ticket. */
 export function phaseListText(plan: PhasePlan): string {
-  return ([1, 2] as Phase[])
+  return PHASES
     .map((ph) => {
       const lines = [
         ...MODES.filter((m) => modePhase(m.id, plan) === ph).map((m) => `  Screen › ${m.label}`),

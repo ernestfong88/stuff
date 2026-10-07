@@ -237,3 +237,15 @@
   flex: 1;
   justify-content: center;
 }
+.later3,
+.later3 .sectionIcon {
+  color: var(--clay-600);
+}
+.later3:hover {
+  color: var(--clay-600);
+  background: var(--clay-100);
+}
+.tag3 {
+  color: var(--clay-600);
+  background: var(--clay-100);
+}
