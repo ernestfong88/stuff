@@ -25,7 +25,6 @@ export default function DeliveryFeesTab(_props: Partial<BoPageProps>) {
   return (
     <BoPage
       title="Delivery fees"
-      sub="What a delivery or tray costs, and how many times a sick resident can skip the fee. Retiring a fee keeps it on closed checks."
       actions={
         <Button variant="primary" icon={<Plus size={15} />} disabled={editing.draft != null} onClick={() => editing.add({ id: uid('df'), text: 'New option', amt: 0, isDefault: false, active: true })}>
           Add a fee

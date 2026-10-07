@@ -220,6 +220,10 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Less text in Back Office; Dining Service is now POS Settings
+- **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
+- **Dining Service is now POS Settings** in the Back Office menu.
+
 ### Menu builder: copy or swap days, à la carte item counter; phase switches in the demo box
 - **Copy or swap a day.** Each day's menu in the cycle builder has *Copy this day to…* and *Swap with…*.
   - **Copy:** pick all meals or one meal, then whether to replace what's on the target days or add to it, then one or more days from the week grid.

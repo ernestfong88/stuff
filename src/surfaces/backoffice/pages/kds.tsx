@@ -20,7 +20,6 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="KDS Settings"
-      sub="The kitchen display screens: how many each kitchen has, what each one shows, and whether there is an expo screen. What goes to the kitchen at all is set on each venue's Kitchen routing tab."
     >
       <KitchenModeSetting />
       <Tabs aria-label="Kitchen" value={room} onChange={setRoom} options={keys.map((k) => ({ id: k, label: `${rooms[k].name} kitchen` }))} />

@@ -47,7 +47,6 @@ function ResidentProfiles({ goto }: BoPageProps) {
     return (
       <BoPage
         title={resident.name}
-        sub={`What a server sees when they open ${first} on the tablet.`}
         actions={
           <>
             <Button variant="ghost" onClick={() => navigate('backoffice', ['residents', resident.id])}>
@@ -76,7 +75,6 @@ function ResidentProfiles({ goto }: BoPageProps) {
   return (
     <BoPage
       title="Resident Profiles"
-      sub="Residents as servers see them on the tablet. Open one to see the profile, mark them on hospice, or go to their meal plan or story."
       actions={
         <>
           <Button variant="ghost" onClick={() => goto('resDiets')}>

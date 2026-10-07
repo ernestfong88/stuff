@@ -77,7 +77,6 @@ export default function AllergiesDietsPage(_props: BoPageProps) {
   return (
     <BoPage
       title="Allergies & Diets"
-      sub="Every resident with an allergy, diet or texture on file, tagged the way the kitchen ticket shows it. Tap a tag to see everyone with it, or a name to open the profile."
     >
       <BoStatRow>
         <BoStatTile value={rows.filter((x) => x.tags.length).length} label="residents with something on file" active={cat === 'all'} onClick={() => pickCat('all')} />

@@ -98,7 +98,6 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Side Work Tasks"
-      sub="Each venue's side work, in the order servers see it. Hand it out each day under Assign Side Work."
       actions={
         isLibraryEdited(state, venue) && (
           <Button

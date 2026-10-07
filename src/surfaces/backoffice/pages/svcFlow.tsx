@@ -153,7 +153,6 @@ export default function Page({ goto }: BoPageProps) {
   return (
     <BoPage
       title="Service Flow"
-      sub="The steps servers see on each table, from the order to the check. Changes reach the tablets straight away."
       actions={
         <ConfirmReset
           sections={['ciMin', 'greet', 'pud']}

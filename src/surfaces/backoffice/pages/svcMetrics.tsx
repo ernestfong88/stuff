@@ -58,7 +58,6 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Shift Metrics"
-      sub="How a shift is scored against the last seven."
       actions={
         <ConfirmReset
           sections={['met']}

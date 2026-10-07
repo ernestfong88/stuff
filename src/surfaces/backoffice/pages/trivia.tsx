@@ -87,7 +87,6 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Trivia Scoreboard"
-      sub="Servers ask one question of the day at the end of each meal. A correct answer is one point, once a day per resident. Guests play for fun."
       actions={
         <>
           <Button variant="ghost" onClick={() => setBig(true)}>

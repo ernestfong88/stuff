@@ -155,7 +155,6 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
   return (
     <BoPage
       title="Charge Approval"
-      sub="Charges put on residents' apartments. Each one is reviewed and approved here, then sent to billing."
       actions={
         <>
           <Button icon={<Plus size={15} />} onClick={() => setAdding(true)}>

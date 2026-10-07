@@ -5,7 +5,7 @@
  *
  * Late is the cook line's ten minutes on the fire, five minutes sitting
  * ready at the pass, or a held course left unfired too long (thresholds
- * from Dining Service settings). Pick up and delivery go out together, as
+ * from POS Settings). Pick up and delivery go out together, as
  * one course.
  */
 import { isSide } from '../../domain/menu';

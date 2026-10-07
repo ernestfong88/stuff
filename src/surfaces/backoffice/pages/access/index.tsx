@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Eye, EyeOff, RefreshCw } from 'lucide-react';
-import { COMMUNITY_NAME } from '../../../../data';
 import { now } from '../../../../lib/clock';
 import { Button, Chip, SearchField, Tabs, toast, useConfirm } from '../../../../ui';
 import { BoIconButton, BoPage, BoStatRow, BoStatTile, BoTable, type BoColumn, type BoSort } from '../../kit';
@@ -120,7 +119,6 @@ export default function AssociatesPage(_props: BoPageProps) {
   return (
     <BoPage
       title="Associates & PINs"
-      sub={`Everyone at ${COMMUNITY_NAME} in ADP, and how each one signs in. Associates without a Windows login get a Culinary App PIN. If someone forgets theirs, use Reset PIN and give them the new one.`}
     >
       <div className={s.sync}>
         <span className={s.syncIcon}>

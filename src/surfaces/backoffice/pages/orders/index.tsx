@@ -31,7 +31,7 @@ export default function OrderHistoryPage(_props: BoPageProps) {
   const servers = [...new Set([...staff.map((x) => x.id), ...all.map((r) => r.order.server)])].filter(Boolean);
 
   return (
-    <BoPage title="Order History" sub="Every check, newest first. Open one to see who ate what and how they paid, and to correct a closed check.">
+    <BoPage title="Order History">
       <div className={s.filters}>
         <Tabs
           aria-label="Checks"

@@ -90,7 +90,6 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Prep Checklist"
-      sub="What the Production Prep tablet checks off below the specials, for each venue. Checks start fresh each day and meal."
       actions={
         isChecklistEdited(state, venueId) && (
           <Button

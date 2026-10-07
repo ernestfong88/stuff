@@ -210,7 +210,6 @@ function ResidentTexts() {
   return (
     <BoPage
       title="Text Messages"
-      sub={`What ${COMMUNITY_NAME} sends by text. Each community writes its own wording; a change goes out with the next text.`}
       actions={
         edited && (
           <ConfirmReset

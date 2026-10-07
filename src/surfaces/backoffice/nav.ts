@@ -168,7 +168,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
   },
   {
     id: 'service',
-    label: 'Dining Service',
+    label: 'POS Settings',
     icon: Timer,
     pages: [
       {

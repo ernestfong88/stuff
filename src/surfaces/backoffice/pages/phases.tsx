@@ -63,7 +63,6 @@ export default function Page() {
   return (
     <BoPage
       title="Release Phases"
-      sub="Mark which screens and back office pages ship in Phase 1, Phase 2 or Phase 3. Phase 2 items show in purple and Phase 3 in brown, below the earlier ones. Switch a phase off to take it out of the whole system."
       actions={
         <>
           <Button icon={<Copy size={15} />} onClick={copy}>

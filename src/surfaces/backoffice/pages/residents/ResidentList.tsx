@@ -20,7 +20,7 @@ export function ResidentList({ onOpen }: { onOpen: (id: string) => void }) {
   const [query, setQuery] = useState('');
   const shown = searchResidents(records, query);
   return (
-    <BoPage title="Dining Plans & Notes" sub="Each resident's meal plan, dining preferences and notes for the kitchen. Open a resident to change them.">
+    <BoPage title="Dining Plans & Notes">
       <SearchField value={query} onChange={setQuery} placeholder="Search name or apartment" aria-label="Search residents" className={s.search} />
       {shown.length === 0 ? (
         <EmptyState title="No resident matches">Try part of the name or the apartment number.</EmptyState>

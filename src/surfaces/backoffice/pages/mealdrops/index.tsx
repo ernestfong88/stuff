@@ -35,7 +35,6 @@ export default function MealCountsPage(_props: BoPageProps) {
   return (
     <BoPage
       title="Meal Counts"
-      sub="The options a server picks when closing a check: resident, guest and associate variants."
       actions={
         <Button
           variant="primary"

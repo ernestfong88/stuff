@@ -173,7 +173,6 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Kiosk Settings"
-      sub={`What residents see first at the lobby kiosk. It shows the first ${FEATURED_COUNT} on each list that are on that meal's menu, in this order. Everything else is behind a More button.`}
     >
       <FeaturedCard list="drinks" title="Drinks" sub="Use the arrows to change the order. Beer, wine and spirits always sit behind their own button, even when listed here." />
       <FeaturedCard list="sides" title="Sides" sub="Use the arrows to change the order. “No side, thanks” always comes first, above these." />

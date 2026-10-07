@@ -66,7 +66,7 @@ export default function Page({ goto }: BoPageProps) {
   const rangesFor = (meal: AssocMealName) => spansText(assocWindows(settings.grid, meal, '', []).map((w) => windowMinutes(w) ?? 0));
 
   return (
-    <BoPage title="Associate Meals" sub="What associates can order for their shifts in the Associate App, and when they pick it up.">
+    <BoPage title="Associate Meals">
       <MenuSection settings={menuSettings} todayIso={todayIso} />
       <StandingChoices settings={menuSettings} />
 

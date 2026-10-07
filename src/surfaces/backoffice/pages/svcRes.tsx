@@ -148,7 +148,7 @@ export default function Page(_props: BoPageProps) {
     setSelected(id);
   };
   return (
-    <BoPage title="Conversation Profiles" sub="The story, conversation starters and Good to know notes servers see when they open a resident. Pick a resident, write, then Save.">
+    <BoPage title="Conversation Profiles">
       <div className={s.layout}>
         <nav className={s.list} aria-label="Residents">
           <SearchField value={query} onChange={setQuery} placeholder="Search residents" aria-label="Search residents" className={s.search} />

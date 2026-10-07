@@ -79,7 +79,7 @@ export default function Page(_props: BoPageProps) {
   };
 
   return (
-    <BoPage title="Broadcasts" sub="Servers open these from the Notices button on their tablet and tap Got it, so you can see who has read each one.">
+    <BoPage title="Broadcasts">
       <div className={s.grid}>
         <BoSection title="New broadcast">
           <div className={s.form}>

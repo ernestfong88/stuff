@@ -31,7 +31,6 @@ export default function Page({ goto }: BoPageProps) {
   return (
     <BoPage
       title="Meal Credits"
-      sub="What one meal credit covers on a resident's meal plan, and how anything past it is charged. Every server's Close & charge screen counts checks with these rules."
       actions={
         <Button
           icon={<RotateCcw size={15} />}

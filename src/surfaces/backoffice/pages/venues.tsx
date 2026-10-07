@@ -79,7 +79,6 @@ export default function Page({ goto }: BoPageProps) {
   return (
     <BoPage
       title="Venue Settings"
-      sub="Everything about a venue in one place: what it serves, its prices, floor plan, kitchen routing, printers and name. Choose a venue on the left. Kitchen screens are under KDS."
       actions={
         <Button variant="primary" icon={<Plus size={16} />} onClick={() => setAdding(true)}>
           New venue

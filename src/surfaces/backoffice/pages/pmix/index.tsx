@@ -61,7 +61,7 @@ export default function PmixPage(_props: BoPageProps) {
   const clampBack = (b: number) => Math.min(PMIX_OLDEST, Math.max(1, b));
 
   return (
-    <BoPage title="P-Mix" sub="What sold, specials against the à la carte menu, by day or range, meal, category and venue.">
+    <BoPage title="P-Mix">
       <div className={s.filters}>
         <Group label="When">
           <div className={s.when}>

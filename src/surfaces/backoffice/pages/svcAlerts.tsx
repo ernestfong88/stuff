@@ -39,7 +39,6 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Alerts & Timing"
-      sub="When tables, tickets and check timelines turn red. Changes show on the dining screens right away."
       actions={
         <ConfirmReset
           sections={['t', 'gap']}

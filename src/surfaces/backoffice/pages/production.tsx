@@ -103,7 +103,6 @@ export default function Page(_props: BoPageProps) {
           />
         </span>
       }
-      sub={`Plan what ${venue.fullName} makes, a week at a time. Nothing is final until you confirm it.`}
       actions={
         <>
           <Button icon={<Printer size={15} />} onClick={() => printProductionSheets(venue.fullName, dayName(day), day, state, venueId)} disabled={!day.rows.length}>

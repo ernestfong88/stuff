@@ -327,7 +327,6 @@ function PickUpTimes() {
   return (
     <BoPage
       title="Pick Up Windows"
-      sub="Every booking is a 15 minute range, such as 5:00 to 5:15 PM. Residents and associates only see the ranges a venue offers that are still open."
       actions={
         <ConfirmReset
           sections={['win']}

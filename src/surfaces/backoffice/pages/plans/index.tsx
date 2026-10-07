@@ -35,7 +35,6 @@ function MealPlansTab({ goto }: BoPageProps) {
   return (
     <BoPage
       title="Meal Plans"
-      sub="The plans a resident can be on: a number of meals a month or a day, or a dollar spend-down shared by a couple (Monthly $). Choose a resident's plan from their profile, under Residents."
       actions={
         <Button variant="primary" icon={<Plus size={15} />} onClick={() => editing.add({ id: uid('pl'), text: 'New plan', amt: 30, type: 'Monthly', isDefault: false, active: true })} disabled={editing.draft != null}>
           Add a plan
@@ -77,7 +76,6 @@ export default function BillingSetupPage(props: BoPageProps) {
     <BoTabbedPage
       page="plans"
       title="Meal Plans"
-      sub="Set up once and rarely changed: the meal plans residents can be on, the meal counts servers pick at close, and corkage."
       current={tab}
       onTab={go}
       tabs={[
