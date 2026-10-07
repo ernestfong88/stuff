@@ -1,0 +1,9 @@
+.body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--s500);
+}
+.grow {
+  flex: 1;
+}

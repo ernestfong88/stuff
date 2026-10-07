@@ -1,0 +1,44 @@
+.group {
+  padding: 10px 0;
+  border-top: 1px solid var(--hair);
+}
+.group:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.who {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding-left: 12px;
+  margin-top: 4px;
+}
+.name {
+  flex: 1;
+  min-width: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--s700);
+}
+.mods {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--s400);
+}
+.muted .who {
+  font-size: 14px;
+  color: #6b7780;
+}
+.muted .name {
+  color: #7d8890;
+}
+.muted .group {
+  padding: 4px 0;
+  border-top: none;
+}
