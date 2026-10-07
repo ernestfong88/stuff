@@ -4,7 +4,7 @@
  * up, associate pick up and delivery, caps how many orders a range takes,
  * and sets when ordering closes and how early the kitchen fires.
  */
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { rooms } from '../../../data';
 import { isoDate, pickupLeadMinutes, ticketAverage } from '../../../domain/pickup';
 import type { MealName } from '../../../domain/types';
@@ -47,7 +47,6 @@ const TAB_LABELS: Record<WinTab, string> = { ranges: 'Ranges offered', capacity:
 
 const venueOptions = Object.entries(rooms).map(([id, r]) => ({ id, label: r.name }));
 const hourLabel = (h: number) => `${h % 12 || 12} ${h % 24 >= 12 ? 'PM' : 'AM'}`;
-const mealOfHour = (h: number) => (Object.keys(MEAL_WINDOWS) as MealName[]).find((m) => h * 60 >= MEAL_WINDOWS[m][0] && h * 60 < MEAL_WINDOWS[m][1]);
 
 function VenueTabs({ venue, onChange }: { venue: string; onChange: (v: string) => void }) {
   return <Tabs aria-label="Venue" size="sm" variant="segmented" value={venue} onChange={onChange} options={venueOptions} />;
@@ -56,7 +55,10 @@ function VenueTabs({ venue, onChange }: { venue: string; onChange: (v: string) =
 /** Which order types book a range at all. */
 function OrderTypes({ win }: { win: WindowSettings }) {
   return (
-    <BoSection title="Order types" sub="Turn ranges off and staff take the order as soon as it is ready instead. Associate meals always book a range.">
+    <BoSection
+      title="Order types"
+      sub="Turn ranges off and staff take the order as soon as it is ready instead. Associate meals always book a range."
+    >
       {WINDOW_TYPES.map((t) => (
         <BoRow key={t.id} label={t.label} hint={t.hint}>
           {t.id === 'assoc' ? (
@@ -78,133 +80,233 @@ function OrderTypes({ win }: { win: WindowSettings }) {
 }
 
 /** One quarter-hour cell: tap to offer or stop offering that range. */
-function Cell({ on, label, start, noc, dim, onClick }: { on: boolean; label: string; start: number; noc?: boolean; dim?: boolean; onClick: () => void }) {
+function Cell({ on, label, start, noc, onClick }: { on: boolean; label: string; start: number; noc?: boolean; onClick: () => void }) {
   return (
-    <button className={cx(s.cell, on && (noc ? s.cellNoc : s.cellOn), dim && s.cellDim)} aria-pressed={on} aria-label={`${label} ${rangeLabel(start)}`} title={rangeLabel(start)} onClick={onClick}>
+    <button
+      className={cx(s.cell, on && (noc ? s.cellNoc : s.cellOn))}
+      aria-pressed={on}
+      aria-label={`${label} ${rangeLabel(start)}`}
+      title={rangeLabel(start)}
+      onClick={onClick}
+    >
       :{String(start % 60).padStart(2, '0')}
     </button>
   );
 }
 
-/** The grid of quarter hours each venue offers, by meal, plus the NOC shift. */
+/** Ranges the settings would offer with nothing changed, so a meal switched back on gets its usual hours. */
+const NO_CHANGES = {} as WindowSettings;
+
+/** 450, 465 … 555 → "7:30 – 9:30 AM"; gaps make more than one span. */
+function spansText(starts: number[]): string {
+  const spans: Array<[number, number]> = [];
+  for (const st of starts) {
+    const last = spans[spans.length - 1];
+    if (last && last[1] === st) last[1] = st + 15;
+    else spans.push([st, st + 15]);
+  }
+  return spans
+    .map(([a, b]) => {
+      const x = minuteLabel(a);
+      const y = minuteLabel(b);
+      return x.slice(-2) === y.slice(-2) ? `${x.slice(0, -3)} – ${y}` : `${x} – ${y}`;
+    })
+    .join(', ');
+}
+
+/**
+ * The ranges each venue offers, one order type at a time. Each meal is one
+ * line: on or off, from and until. Fine-tune opens that meal's quarter hours
+ * for gaps.
+ */
 function RangesOffered({ win, venue, setVenue }: { win: WindowSettings; venue: string; setVenue: (v: string) => void }) {
-  const grid = Object.fromEntries(WINDOW_TYPES.map((t) => [t.id, windowStarts(win, venue, t.id)])) as Record<WindowType, number[]>;
+  const [type, setType] = useState<WindowType>('pickup');
+  const label = WINDOW_TYPES.find((t) => t.id === type)?.label ?? '';
+  const starts = windowStarts(win, venue, type);
   const noc = nocStarts(win, venue);
-  const put = (type: WindowType | 'noc', list: number[] | undefined) => setSetting(`win.grid.${venue}.${type}`, list);
-  /** Swap a whole column at once, with Undo, since one tap clears a day of ranges. */
-  const replaceAll = (type: WindowType, label: string, list: number[] | undefined) => {
-    const before = win.grid?.[venue]?.[type];
-    put(type, list);
-    toast(list ? `${label}: no ranges offered at ${rooms[venue]?.name}` : `${label}: back to the meal hours at ${rooms[venue]?.name}`, {
-      action: { label: 'Undo', onClick: () => put(type, before) },
-    });
+  const put = (key: WindowType | 'noc', list: number[] | undefined) => setSetting(`win.grid.${venue}.${key}`, list);
+  /** Replace one meal's part of the list, with Undo. */
+  const setMeal = (key: WindowType | 'noc', all: number[], bounds: readonly [number, number], next: number[], what: string) => {
+    const before = win.grid?.[venue]?.[key];
+    put(
+      key,
+      [...all.filter((x) => x < bounds[0] || x >= bounds[1]), ...next].sort((x, y) => x - y),
+    );
+    toast(what, { action: { label: 'Undo', onClick: () => put(key, before) } });
   };
-  const flip = (list: number[], start: number) => (list.includes(start) ? list.filter((x) => x !== start) : [...list, start].sort((a, b) => a - b));
-  const hours: number[] = [];
-  for (let h = WINDOW_DAY[0] / 60; h < WINDOW_DAY[1] / 60; h++) hours.push(h);
-  const nocHours: number[] = [];
-  for (let h = NOC_DAY[0] / 60; h < NOC_DAY[1] / 60; h++) nocHours.push(h);
+  const meals = Object.keys(MEAL_WINDOWS) as MealName[];
   return (
-    <BoSection
-      title="Ranges offered"
-      sub="Tap a quarter hour to offer it (dark) or stop offering it (light). Meal hours puts back the standard ranges for each meal; None stops that order type booking at this venue."
-      actions={<VenueTabs venue={venue} onChange={setVenue} />}
-    >
-      <div className={s.gridWrap}>
-        <table className={s.grid}>
-          <thead>
-            <tr>
-              <th className={s.hourCol}>Starts</th>
-              {WINDOW_TYPES.map((t) => (
-                <th key={t.id}>
-                  <div>{t.label}</div>
-                  <div className={s.headTools}>
-                    <span className={s.muted}>
-                      {grid[t.id].length} {grid[t.id].length === 1 ? 'range' : 'ranges'}
-                    </span>
-                    <button className={s.link} onClick={() => replaceAll(t.id, t.label, undefined)}>
-                      Meal hours
-                    </button>
-                    <button className={s.link} onClick={() => replaceAll(t.id, t.label, [])}>
-                      None
-                    </button>
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {hours.map((h) => (
-              <HourRow key={h} hour={h} meal={mealOfHour(h) !== mealOfHour(h - 1) ? mealOfHour(h) : undefined}>
-                {WINDOW_TYPES.map((t) => (
-                  <td key={t.id}>
-                    <div className={s.quarters}>
-                      {[0, 15, 30, 45].map((q) => {
-                        const start = h * 60 + q;
-                        return (
-                          <Cell
-                            key={q}
-                            start={start}
-                            label={t.label}
-                            on={grid[t.id].includes(start)}
-                            dim={!windowTypeOn(win, t.id)}
-                            onClick={() => put(t.id, flip(grid[t.id], start))}
-                          />
-                        );
-                      })}
-                    </div>
-                  </td>
-                ))}
-              </HourRow>
-            ))}
-            <tr>
-              <td colSpan={1 + WINDOW_TYPES.length} className={s.nocHead}>
-                <span className={s.nocTitle}>NOC shift</span>
-                <span className={s.muted}>
-                  Associate pick up only, overnight into the next morning. {noc.length} {noc.length === 1 ? 'range' : 'ranges'} offered.
-                </span>
-              </td>
-            </tr>
-            {nocHours.map((h) => (
-              <HourRow key={h} hour={h % 24}>
-                {WINDOW_TYPES.map((t) => (
-                  <td key={t.id}>
-                    {t.id === 'assoc' ? (
-                      <div className={s.quarters}>
-                        {[0, 15, 30, 45].map((q) => {
-                          const start = h * 60 + q;
-                          return <Cell key={q} noc start={start} label="NOC" on={noc.includes(start)} onClick={() => put('noc', flip(noc, start))} />;
-                        })}
-                      </div>
-                    ) : (
-                      <span className={s.none}>—</span>
-                    )}
-                  </td>
-                ))}
-              </HourRow>
-            ))}
-          </tbody>
-        </table>
+    <BoSection title="Ranges offered" actions={<VenueTabs venue={venue} onChange={setVenue} />}>
+      <div className={s.typeBar}>
+        <Tabs
+          aria-label="Order type"
+          size="sm"
+          variant="segmented"
+          value={type}
+          onChange={setType}
+          options={WINDOW_TYPES.map((t) => ({
+            id: t.id,
+            label: t.label,
+            count: windowStarts(win, venue, t.id).length + (t.id === 'assoc' ? noc.length : 0),
+          }))}
+        />
+        <button
+          className={s.link}
+          onClick={() => setMeal(type, starts, WINDOW_DAY, windowStarts(NO_CHANGES, venue, type), `${label}: back to the usual meal hours`)}
+        >
+          Back to meal hours
+        </button>
+      </div>
+      {!windowTypeOn(win, type) && (
+        <p className={s.offNote}>{label} doesn't book ranges at the moment (Order types, above), so these only apply once it does.</p>
+      )}
+      <div className={s.meals}>
+        {meals.map((m) => (
+          <MealRanges
+            key={m}
+            meal={m}
+            label={label}
+            bounds={MEAL_WINDOWS[m]}
+            starts={starts.filter((x) => x >= MEAL_WINDOWS[m][0] && x < MEAL_WINDOWS[m][1])}
+            usual={windowStarts(NO_CHANGES, venue, type).filter((x) => x >= MEAL_WINDOWS[m][0] && x < MEAL_WINDOWS[m][1])}
+            onChange={(next, what) => setMeal(type, starts, MEAL_WINDOWS[m], next, what)}
+          />
+        ))}
+        {type === 'assoc' && (
+          <MealRanges
+            meal="NOC shift"
+            hint="Overnight, into the next morning"
+            label="NOC"
+            noc
+            bounds={NOC_DAY}
+            starts={noc}
+            usual={nocStarts(NO_CHANGES, venue)}
+            onChange={(next, what) => setMeal('noc', noc, NOC_DAY, next, what)}
+          />
+        )}
       </div>
     </BoSection>
   );
 }
 
-function HourRow({ hour, meal, children }: { hour: number; meal?: string; children: ReactNode }) {
+/** One meal's ranges: on or off, from and until, and the quarter hours behind Fine-tune. */
+function MealRanges({
+  meal,
+  hint,
+  label,
+  noc,
+  bounds,
+  starts,
+  usual,
+  onChange,
+}: {
+  meal: string;
+  hint?: string;
+  label: string;
+  noc?: boolean;
+  bounds: readonly [number, number];
+  starts: number[];
+  usual: number[];
+  onChange: (next: number[], what: string) => void;
+}) {
+  const [fine, setFine] = useState(false);
+  const on = starts.length > 0;
+  const quarters: number[] = [];
+  for (let x = bounds[0]; x < bounds[1]; x += 15) quarters.push(x);
+  const from = starts[0] ?? bounds[0];
+  const until = (starts[starts.length - 1] ?? bounds[0]) + 15;
+  const gaps = on && starts.length !== (until - from) / 15;
+  const span = (a: number, b: number) => quarters.filter((x) => x >= a && x < b);
+  const flip = (st: number) => (starts.includes(st) ? starts.filter((x) => x !== st) : [...starts, st].sort((x, y) => x - y));
   return (
-    <>
-      {meal && (
-        <tr>
-          <td colSpan={1 + WINDOW_TYPES.length} className={s.band}>
-            {meal}
-          </td>
-        </tr>
+    <div className={cx(s.meal, !on && s.mealOff)}>
+      <div className={s.mealHead}>
+        <span className={s.mealName}>
+          {meal}
+          {hint && <span className={s.mealHint}>{hint}</span>}
+        </span>
+        <Toggle
+          checked={on}
+          label={
+            <span className="sr-only">
+              Offer {label.toLowerCase()} at {meal.toLowerCase()}
+            </span>
+          }
+          onChange={(v) =>
+            onChange(v ? (usual.length ? usual : quarters) : [], v ? `${meal}: ranges back on` : `${meal}: no ${label.toLowerCase()} ranges`)
+          }
+        />
+        {on ? (
+          <>
+            <span className={s.span}>{spansText(starts)}</span>
+            <span className={s.muted}>
+              {starts.length} {starts.length === 1 ? 'range' : 'ranges'}
+            </span>
+          </>
+        ) : (
+          <span className={s.muted}>Not offered</span>
+        )}
+        {on && (
+          <span className={s.fromTo}>
+            <select
+              className={s.select}
+              aria-label={`${meal} from`}
+              value={from}
+              onChange={(e) =>
+                onChange(span(+e.target.value, Math.max(until, +e.target.value + 15)), `${meal}: from ${minuteLabel(+e.target.value)}`)
+              }
+            >
+              {quarters.map((x) => (
+                <option key={x} value={x}>
+                  {minuteLabel(x)}
+                </option>
+              ))}
+            </select>
+            <span className={s.muted}>until</span>
+            <select
+              className={s.select}
+              aria-label={`${meal} until`}
+              value={until}
+              onChange={(e) =>
+                onChange(span(Math.min(from, +e.target.value - 15), +e.target.value), `${meal}: until ${minuteLabel(+e.target.value)}`)
+              }
+            >
+              {quarters.map((x) => (
+                <option key={x} value={x + 15}>
+                  {minuteLabel(x + 15)}
+                </option>
+              ))}
+            </select>
+          </span>
+        )}
+        <button className={s.link} aria-expanded={fine} onClick={() => setFine(!fine)}>
+          {fine ? 'Done' : gaps ? 'Fine-tune (has gaps)' : 'Fine-tune'}
+        </button>
+      </div>
+      {fine && (
+        <div className={s.fine}>
+          {quarters
+            .filter((x) => x % 60 === 0)
+            .map((h) => (
+              <div key={h} className={s.fineHour}>
+                <span className={s.hour}>{hourLabel(h / 60)}</span>
+                <div className={s.quarters}>
+                  {[0, 15, 30, 45].map((q) => (
+                    <Cell
+                      key={q}
+                      start={h + q}
+                      noc={noc}
+                      label={label}
+                      on={starts.includes(h + q)}
+                      onClick={() => onChange(flip(h + q), `${meal}: ${rangeLabel(h + q)} ${starts.includes(h + q) ? 'off' : 'on'}`)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+        </div>
       )}
-      <tr>
-        <td className={s.hour}>{hourLabel(hour)}</td>
-        {children}
-      </tr>
-    </>
+    </div>
   );
 }
 
@@ -217,7 +319,8 @@ function Capacity({ win, venue, setVenue }: { win: WindowSettings; venue: string
   const d = new Date(now());
   const nowMin = d.getHours() * 60 + d.getMinutes();
   const starts = new Set<number>();
-  for (const m of Object.keys(MEAL_WINDOWS) as MealName[]) for (const t of WINDOW_TYPES) for (const w of mealWindows(win, t.id, venue, m)) if (w.start >= nowMin) starts.add(w.start);
+  for (const m of Object.keys(MEAL_WINDOWS) as MealName[])
+    for (const t of WINDOW_TYPES) for (const w of mealWindows(win, t.id, venue, m)) if (w.start >= nowMin) starts.add(w.start);
   const busy = [...starts]
     .sort((a, b) => a - b)
     .map((start) => ({ start, used: windowUsage({ orders, history, assocOrders }, venue, start, date) }))
@@ -231,7 +334,10 @@ function Capacity({ win, venue, setVenue }: { win: WindowSettings; venue: string
       sub={`Limit how many orders can book the same 15 minute window at ${rooms[venue]?.name}. Leave a box blank for no limit.`}
       actions={<VenueTabs venue={venue} onChange={setVenue} />}
     >
-      <BoRow label="Max orders per 15 minute window" hint="Resident pick up, associate pick up and delivery counted together, since it is the kitchen's capacity.">
+      <BoRow
+        label="Max orders per 15 minute window"
+        hint="Resident pick up, associate pick up and delivery counted together, since it is the kitchen's capacity."
+      >
         {box('total', 'Max orders per 15 minute window')}
       </BoRow>
       {WINDOW_TYPES.map((t) => (
@@ -240,7 +346,8 @@ function Capacity({ win, venue, setVenue }: { win: WindowSettings; venue: string
         </BoRow>
       ))}
       <p className={s.note}>
-        The total and the per type limits both apply: a window is full as soon as either one is reached. Booking screens show Full, or how many are left when it is down to 2.
+        The total and the per type limits both apply: a window is full as soon as either one is reached. Booking screens show Full, or how many are
+        left when it is down to 2.
         {venue !== ASSOC_ROOM && ' Associate meals are made in the main kitchen, so they count there.'}
       </p>
       <div className={s.booked}>
@@ -277,7 +384,14 @@ function Timing({ win }: { win: WindowSettings }) {
   return (
     <BoSection title="Timing">
       <BoRow label="Orders close before the range starts" hint="A range disappears from every booking screen this long before it starts.">
-        <NumberBox value={cut} unit="min" min={0} step={5} aria-label="Orders close before the range starts" onChange={(v) => setSetting('win.cut', v == null ? undefined : Math.max(0, v))} />
+        <NumberBox
+          value={cut}
+          unit="min"
+          min={0}
+          step={5}
+          aria-label="Orders close before the range starts"
+          onChange={(v) => setSetting('win.cut', v == null ? undefined : Math.max(0, v))}
+        />
       </BoRow>
       <BoRow
         label="NOC meals are made by"
@@ -338,7 +452,13 @@ function PickUpTimes() {
       }
     >
       <OrderTypes win={win} />
-      <Tabs aria-label="Pick up windows" variant="underline" value={tab} onChange={setTab} options={TABS.map((id) => ({ id, label: TAB_LABELS[id] }))} />
+      <Tabs
+        aria-label="Pick up windows"
+        variant="underline"
+        value={tab}
+        onChange={setTab}
+        options={TABS.map((id) => ({ id, label: TAB_LABELS[id] }))}
+      />
       {tab === 'ranges' && <RangesOffered win={win} venue={venue} setVenue={setVenue} />}
       {tab === 'capacity' && <Capacity win={win} venue={venue} setVenue={setVenue} />}
       {tab === 'timing' && <Timing win={win} />}
