@@ -12,13 +12,12 @@ import {
   isEmptyOrder,
   isLate,
   nextAction,
-  nowLineIndex,
   openRows,
   runTextNote,
   slotHeading,
   slotSummary,
   stageView,
-  statusCounts,
+  nextStepGroups,
   undoPatch,
   type QueueRow,
 } from '../queue/queue';
@@ -47,7 +46,14 @@ function order(id: string, o: Partial<Order> & { state?: KitchenState; sent?: bo
     queueType: 'pickup',
     readyAt: '6:15 PM',
     diners: [
-      { id: id + 'd', kind: 'resident', refId: rid, isGuest: false, seat: 1, items: [{ id: id + 'i', itemId: 'd_spag', mods: {}, note: '', sent, kitchenState: sent ? state : null, firedAt: T0 - 6 * MINUTE }] },
+      {
+        id: id + 'd',
+        kind: 'resident',
+        refId: rid,
+        isGuest: false,
+        seat: 1,
+        items: [{ id: id + 'i', itemId: 'd_spag', mods: {}, note: '', sent, kitchenState: sent ? state : null, firedAt: T0 - 6 * MINUTE }],
+      },
     ],
     ...rest,
   };
@@ -56,15 +62,17 @@ function order(id: string, o: Partial<Order> & { state?: KitchenState; sent?: bo
 const row = (o: Order): QueueRow => openRows([o])[0];
 
 describe('the open list', () => {
-  it('sorts by promise and groups 15 minute ranges, with the NOW line before the first one still to come', () => {
-    const rows = openRows([order('b', { readyAt: '6:15 PM' }), order('a', { readyAt: '5:45 PM' }), order('c', { readyAt: '6:15 PM', queueType: 'delivery' })]);
+  it('sorts by promise and groups 15 minute ranges', () => {
+    const rows = openRows([
+      order('b', { readyAt: '6:15 PM' }),
+      order('a', { readyAt: '5:45 PM' }),
+      order('c', { readyAt: '6:15 PM', queueType: 'delivery' }),
+    ]);
     expect(rows.map((r) => r.order.id)).toEqual(['a', 'b', 'c']);
     const slots = groupSlots(rows);
     expect(slots.map((s) => s.rows.length)).toEqual([1, 2]);
     expect(slotHeading(slots[1])).toBe('6:15 to 6:30 PM');
     expect(slotSummary(slots[1].rows)).toBe('1 pick up · 1 delivery');
-    expect(nowLineIndex(slots, T0)).toBe(1);
-    expect(nowLineIndex(slots.slice(1), T0)).toBe(-1);
   });
 
   it('labels a range booked for tomorrow', () => {
@@ -85,16 +93,36 @@ describe('the open list', () => {
     expect(dueText(row(order('n', { readyAt: '6:00 PM' })), T0)).toEqual({ text: 'due now', tone: 'soon' });
   });
 
-  it('counts the status summary', () => {
+  it('groups by what needs doing now, most urgent first, late ones leading their section', () => {
     const rows = openRows([
-      order('late', { readyAt: '5:30 PM' }),
-      order('ready', { state: 'ready' }),
-      order('wait', { notified: true }),
-      order('out', { notified: true, queueType: 'delivery' }),
-      order('sched', { state: 'scheduled' }),
+      order('sched', { state: 'scheduled', readyAt: '6:45 PM' }),
       order('draft', { sent: false }),
+      order('cook2', { readyAt: '6:30 PM' }),
+      order('cook1', { readyAt: '6:15 PM' }),
+      order('out', { notified: true, queueType: 'delivery' }),
+      order('dlv', { state: 'ready', queueType: 'delivery' }),
+      order('wait', { notified: true, readyAt: '5:30 PM' }),
+      order('readyOk', { state: 'ready', readyAt: '6:15 PM' }),
+      order('readyLate', { state: 'ready', readyAt: '5:45 PM', openedAt: T0 }),
     ]);
-    expect(statusCounts(rows, T0)).toEqual({ late: 1, ready: 1, waiting: 1, out: 1, cooking: 1, later: 1, draft: 1 });
+    const groups = nextStepGroups(rows, T0);
+    expect(groups.map((g) => [g.id, g.rows.map((r) => r.order.id)])).toEqual([
+      // readyLate is late; the waiting one is older but waiting is never late.
+      ['handOff', ['readyLate', 'wait', 'readyOk']],
+      ['takeOut', ['dlv']],
+      ['onTheWay', ['out']],
+      ['kitchen', ['cook1', 'cook2']],
+      ['notSent', ['draft']],
+      ['later', ['sched']],
+    ]);
+    expect(groups[0]).toMatchObject({ title: 'Hand off now' });
+    expect(groups.map((g) => g.title)).toEqual(['Hand off now', 'Take out for delivery', 'On the way', 'In the kitchen', 'Not sent yet', 'Later']);
+  });
+
+  it('leaves out sections with nothing in them', () => {
+    expect(nextStepGroups([], T0)).toEqual([]);
+    const groups = nextStepGroups(openRows([order('c'), order('s', { state: 'scheduled' })]), T0);
+    expect(groups.map((g) => g.id)).toEqual(['kitchen', 'later']);
   });
 });
 
@@ -125,14 +153,20 @@ describe('hand-off undo', () => {
 
 describe('stage wording and the next step', () => {
   it('describes each stage', () => {
-    expect(stageView(row(order('d', { sent: false })), T0, ctx, 20)).toEqual({ label: 'Not sent yet', tone: 'muted', detail: 'Finish the order to send it' });
+    expect(stageView(row(order('d', { sent: false })), T0, ctx, 20)).toEqual({
+      label: 'Not sent yet',
+      tone: 'muted',
+      detail: 'Finish the order to send it',
+    });
     expect(stageView(row(order('s', { state: 'scheduled' })), T0, ctx, 20).detail).toBe('Kitchen fires at 5:55 PM');
     expect(stageView(row(order('c')), T0, ctx, 20).detail).toBe('Cooking 6m');
     expect(stageView(row(order('r', { state: 'ready', readyStampAt: T0 - 2 * MINUTE })), T0, ctx, 20).detail).toBe('Up for 2m');
     expect(stageView(row(order('w', { notified: true, notifiedAt: T0 - 9 * MINUTE })), T0, ctx, 20).detail).toBe('Texted 9m ago');
     expect(stageView(row(order('j', { notified: true, notifiedAt: T0 - 20_000 })), T0, ctx, 20).detail).toBe('Texted just now');
     // Joan (r6) has no phone.
-    expect(stageView(row(order('n', { rid: 'r6', notified: true, notifiedAt: T0 - 9 * MINUTE })), T0, ctx, 20).detail).toBe('Ready 9m ago · not texted, no mobile');
+    expect(stageView(row(order('n', { rid: 'r6', notified: true, notifiedAt: T0 - 9 * MINUTE })), T0, ctx, 20).detail).toBe(
+      'Ready 9m ago · not texted, no mobile',
+    );
     expect(stageView(row(order('o', { queueType: 'delivery', notified: true, notifiedAt: T0 - 3 * MINUTE })), T0, ctx, 20)).toMatchObject({
       label: 'On the way',
       detail: 'Left 3m ago',
@@ -143,7 +177,9 @@ describe('stage wording and the next step', () => {
     expect(nextAction(row(order('d', { sent: false })), ctx, true)).toEqual({ kind: 'finish', label: 'Finish order' });
     expect(nextAction(row(order('p', { state: 'ready' })), ctx, true)).toEqual({ kind: 'packed', label: 'Packed · text Eleanor' });
     expect(nextAction(row(order('q', { state: 'ready', rid: 'r6' })), ctx, true)?.label).toBe('Packed · no mobile');
-    expect(nextAction(row(order('q', { state: 'ready' })), { texts: { pickupReady: { on: false } }, mobile: {} }, true)?.label).toBe('Packed · no text');
+    expect(nextAction(row(order('q', { state: 'ready' })), { texts: { pickupReady: { on: false } }, mobile: {} }, true)?.label).toBe(
+      'Packed · no text',
+    );
     expect(nextAction(row(order('r', { state: 'ready', queueType: 'delivery' })), ctx, true)?.kind).toBe('onMyWay');
     expect(nextAction(row(order('w', { notified: true })), ctx, true)?.kind).toBe('pickedUp');
     expect(nextAction(row(order('w', { notified: true })), ctx, false)).toBeNull();
@@ -156,7 +192,9 @@ describe('stage wording and the next step', () => {
     expect(runTextNote([d('a', 'r2'), d('b', 'r3')], ctx)).toBe('Each resident gets an on-the-way text.');
     expect(runTextNote([d('a', 'r2'), d('b', 'r6')], ctx)).toBe('Each gets an on-the-way text except Joan (no mobile).');
     expect(runTextNote([d('a', 'r6'), d('b', 'r22')], ctx)).toBe('No one here has a mobile, so nothing is texted.');
-    expect(runTextNote([d('a', 'r2')], { texts: { deliveryOut: { on: false } }, mobile: {} })).toBe('On-the-way texts are off, so nothing is texted.');
+    expect(runTextNote([d('a', 'r2')], { texts: { deliveryOut: { on: false } }, mobile: {} })).toBe(
+      'On-the-way texts are off, so nothing is texted.',
+    );
   });
 });
 
@@ -183,9 +221,12 @@ describe('texts', () => {
   it('fills placeholders and leaves unknown ones showing', () => {
     expect(fillText('Hi {first}, {nope}', { first: 'Ruth' })).toBe('Hi Ruth, {nope}');
     expect(textMessage(order('a'), 'pickupReady', ctx)).toBe('Hi Eleanor, your dinner from Sequoia / Evergreen is ready for you to come get.');
-    expect(textMessage(order('a', { queueType: 'delivery' }), 'deliveryOut', { texts: { deliveryOut: { body: '{first}: on the way to {apt}' } }, mobile: {} })).toBe(
-      'Eleanor: on the way to 208',
-    );
+    expect(
+      textMessage(order('a', { queueType: 'delivery' }), 'deliveryOut', {
+        texts: { deliveryOut: { body: '{first}: on the way to {apt}' } },
+        mobile: {},
+      }),
+    ).toBe('Eleanor: on the way to 208');
   });
 
   it('texts only a resident with a mobile, unless Back Office says otherwise', () => {
@@ -200,8 +241,21 @@ describe('texts', () => {
 
 describe('NOC meals', () => {
   it('groups tonight’s live NOC meals by range and stamps the set-out time', () => {
-    const m = (id: string, window: string, status = 'Planned') => ({ id, date: '2026-10-07', meal: 'NOC', window, associate: id, item: 'Soup', status, note: '', log: [] });
-    const groups = nocGroups([m('a', '2:00 AM'), m('b', '11:00 PM'), m('c', '11:00 PM'), m('d', '11:00 PM', 'Cancelled — shift removed'), m('e', '7:00 PM')], '2026-10-07');
+    const m = (id: string, window: string, status = 'Planned') => ({
+      id,
+      date: '2026-10-07',
+      meal: 'NOC',
+      window,
+      associate: id,
+      item: 'Soup',
+      status,
+      note: '',
+      log: [],
+    });
+    const groups = nocGroups(
+      [m('a', '2:00 AM'), m('b', '11:00 PM'), m('c', '11:00 PM'), m('d', '11:00 PM', 'Cancelled — shift removed'), m('e', '7:00 PM')],
+      '2026-10-07',
+    );
     expect(groups.map((g) => [g.window, g.meals.map((x) => x.id)])).toEqual([
       ['11:00 PM', ['b', 'c']],
       ['2:00 AM', ['a']],

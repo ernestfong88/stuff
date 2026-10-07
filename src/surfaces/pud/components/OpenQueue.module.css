@@ -1,59 +1,100 @@
-.attention {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 4px;
-  padding: 0;
-  list-style: none;
+.section {
+  margin-top: 18px;
 }
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  height: 30px;
-  padding: 0 12px;
+.section:first-child {
+  margin-top: 4px;
+}
+.head,
+.laterToggle {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0 4px 8px;
+}
+.title {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.count {
+  align-self: center;
+  min-width: 26px;
+  padding: 2px 8px;
   border-radius: var(--r-pill);
+  background: var(--ink);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 900;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.lateCount {
+  align-self: center;
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  background: var(--danger);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+.hint {
   font-size: 13px;
   font-weight: 600;
+  color: var(--s500);
 }
-.pill b {
-  font-weight: 900;
-  font-variant-numeric: tabular-nums;
+
+/* The sections with nothing to do yet read quieter. */
+.sec_kitchen .title,
+.sec_notSent .title,
+.later .title {
+  color: var(--s700);
 }
-.danger {
-  background: var(--danger-bg);
-  color: var(--danger);
+.sec_kitchen .count,
+.sec_notSent .count,
+.later .count {
+  background: var(--s400);
 }
-.flora {
-  background: var(--flora-100);
-  color: var(--flora);
+
+.later {
+  margin-top: 22px;
+  border-top: 1px solid var(--hair-2);
+  padding-top: 6px;
 }
-.coast {
-  background: var(--ocean-100);
+.laterToggle {
+  align-items: center;
+  width: calc(100% - 8px);
+  min-height: 48px;
+  margin-bottom: 0;
+  padding: 0 4px;
+  border-radius: var(--r-lg);
+  text-align: left;
+}
+.laterToggle:hover {
+  background: rgba(20, 35, 48, 0.04);
+}
+.laterToggle:focus-visible {
+  box-shadow: var(--focus);
+}
+.grow {
+  flex: 1;
+}
+.toggleText {
+  font-size: 13.5px;
+  font-weight: 800;
   color: var(--coast);
 }
-.now {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 14px 0 0;
+.chev {
+  color: var(--coast);
+  transition: transform var(--fast) var(--ease);
 }
-.nowLabel {
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  color: var(--danger);
-  font-variant-numeric: tabular-nums;
+.chevOpen {
+  transform: rotate(180deg);
 }
-.nowLine {
-  flex: 1;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--danger);
-  opacity: 0.35;
-}
+
 .slotHead {
-  margin: 14px 4px 6px;
+  margin: 10px 4px 6px;
   font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.01em;

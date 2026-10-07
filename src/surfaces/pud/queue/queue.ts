@@ -73,12 +73,6 @@ export function groupSlots(rows: QueueRow[]): QueueSlot[] {
   return slots;
 }
 
-/** Where the NOW line goes: before the first range that hasn't passed. -1 when it would sit at the top or nowhere. */
-export function nowLineIndex(slots: QueueSlot[], at: number): number {
-  const i = slots.findIndex((s) => s.due >= at - MINUTE);
-  return i > 0 ? i : -1;
-}
-
 /** "5:00 to 5:15 PM", with "Tomorrow" for an order booked ahead. */
 export function slotHeading(slot: QueueSlot): string {
   const o = slot.rows[0].order;
@@ -94,29 +88,62 @@ export function slotSummary(rows: QueueRow[]): string {
   return [pu && `${pu} pick up`, dl && `${dl} ${dl === 1 ? 'delivery' : 'deliveries'}`].filter(Boolean).join(' · ');
 }
 
-export interface StatusCounts {
-  late: number;
-  ready: number;
-  waiting: number;
-  out: number;
-  cooking: number;
-  later: number;
-  /** Started but not sent to the kitchen. */
-  draft: number;
+// ─── What needs doing now ────────────────────────────────────────────────
+
+export type NextStepId = 'handOff' | 'takeOut' | 'onTheWay' | 'kitchen' | 'notSent' | 'later';
+
+export interface NextStepGroup {
+  id: NextStepId;
+  title: string;
+  /** One short line on what to do with these. */
+  hint: string;
+  rows: QueueRow[];
 }
 
-/** The status summary above the list. */
-export function statusCounts(rows: QueueRow[], at: number): StatusCounts {
-  const n = (k: PickupStage) => rows.filter((r) => r.stage === k).length;
-  return {
-    late: rows.filter((r) => isLate(r, at)).length,
-    ready: n('ready'),
-    waiting: n('waiting'),
-    out: n('out'),
-    cooking: n('cooking'),
-    later: n('scheduled'),
-    draft: n('draft'),
-  };
+const NEXT_STEPS: readonly Omit<NextStepGroup, 'rows'>[] = [
+  { id: 'handOff', title: 'Hand off now', hint: 'Ready for the resident at the counter' },
+  { id: 'takeOut', title: 'Take out for delivery', hint: 'Ready on the pass' },
+  { id: 'onTheWay', title: 'On the way', hint: 'Mark delivered once it’s at the door' },
+  { id: 'kitchen', title: 'In the kitchen', hint: 'Nothing to do yet' },
+  { id: 'notSent', title: 'Not sent yet', hint: 'Finish these so the kitchen gets them' },
+  { id: 'later', title: 'Later', hint: 'Booked for later. The kitchen starts them closer to the time' },
+];
+
+/** Which "what to do now" section an order belongs in. */
+export function nextStepOf(r: QueueRow): NextStepId {
+  switch (r.stage) {
+    case 'ready':
+      return r.order.queueType === 'delivery' ? 'takeOut' : 'handOff';
+    case 'waiting':
+      return 'handOff';
+    case 'out':
+      return 'onTheWay';
+    case 'cooking':
+      return 'kitchen';
+    case 'draft':
+      return 'notSent';
+    case 'scheduled':
+      return 'later';
+    default:
+      return r.order.queueType === 'delivery' ? 'onTheWay' : 'handOff';
+  }
+}
+
+/**
+ * The open list split by what needs doing now, most urgent first: hand-offs,
+ * deliveries to take out, deliveries on the way, the kitchen, unsent orders,
+ * then later bookings. Empty sections are left out. Late orders lead their
+ * section; the rest keep promise order.
+ */
+export function nextStepGroups(rows: QueueRow[], at: number): NextStepGroup[] {
+  const byId = new Map<NextStepId, QueueRow[]>();
+  for (const r of rows) {
+    const id = nextStepOf(r);
+    byId.set(id, [...(byId.get(id) ?? []), r]);
+  }
+  const lateFirst = (a: QueueRow, b: QueueRow) =>
+    Number(isLate(b, at)) - Number(isLate(a, at)) || a.due - b.due || a.order.openedAt - b.order.openedAt;
+  return NEXT_STEPS.filter((g) => byId.has(g.id)).map((g) => ({ ...g, rows: [...byId.get(g.id)!].sort(lateFirst) }));
 }
 
 export type DueTone = 'late' | 'past' | 'soon' | 'later';

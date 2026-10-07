@@ -1,13 +1,14 @@
-import { Fragment } from 'react';
-import { ShoppingBag } from 'lucide-react';
-import { clockLabel } from '../../../domain/pickup';
+import { useState } from 'react';
+import { ChevronDown, ShoppingBag } from 'lucide-react';
 import { EmptyState, cx } from '../../../ui';
 import {
   groupSlots,
-  nowLineIndex,
+  isLate,
+  nextStepGroups,
   readyDeliveries,
   slotHeading,
-  statusCounts,
+  slotSummary,
+  type NextStepGroup,
   type QueueActionKind,
   type QueueFilter,
   type QueueRow,
@@ -30,62 +31,70 @@ export interface OpenQueueProps {
   onTakeAll: (rows: QueueRow[]) => void;
 }
 
-/** Open orders: what needs attention, one-trip suggestion, then each 15 minute range in order. */
+/** Open orders split by what needs doing now, most urgent at the top; later bookings fold away. */
 export function OpenQueue({ rows, filter, at, ctx, leadMinutes, tracksPickups, onOpen, onAction, onTakeAll }: OpenQueueProps) {
-  const c = statusCounts(rows, at);
-  // Only what needs someone now; the rest is already on each row.
-  const attention = [
-    { n: c.late, label: 'late', tone: s.danger },
-    { n: c.ready, label: 'ready to go', tone: s.flora },
-    { n: c.out, label: 'out for delivery', tone: s.coast },
-  ].filter((a) => a.n > 0);
+  const [showLater, setShowLater] = useState(false);
+  const groups = nextStepGroups(rows, at);
   const runs = filter === 'pickup' ? [] : readyDeliveries(rows);
-  const slots = groupSlots(rows);
-  const nowAt = nowLineIndex(slots, at);
+
+  const card = (r: QueueRow) => (
+    <QueueRowCard
+      key={r.order.id}
+      row={r}
+      at={at}
+      ctx={ctx}
+      leadMinutes={leadMinutes}
+      tracksPickups={tracksPickups(r.order.room)}
+      onOpen={onOpen}
+      onAction={onAction}
+    />
+  );
+
+  const section = (g: NextStepGroup) => {
+    const late = g.rows.filter((r) => isLate(r, at)).length;
+    if (g.id === 'later') {
+      return (
+        <section key={g.id} className={cx(s.section, s.later)} aria-label={`${g.title}, ${g.rows.length}`}>
+          <button className={s.laterToggle} aria-expanded={showLater} onClick={() => setShowLater((v) => !v)}>
+            <span className={s.title}>{g.title}</span>
+            <span className={s.count}>{g.rows.length}</span>
+            <span className={s.hint}>{slotSummary(g.rows)}</span>
+            <span className={s.grow} />
+            <span className={s.toggleText}>{showLater ? 'Hide' : 'Show'}</span>
+            <ChevronDown size={18} strokeWidth={2.5} className={cx(s.chev, showLater && s.chevOpen)} aria-hidden />
+          </button>
+          {showLater &&
+            groupSlots(g.rows).map((slot) => (
+              <div key={slot.due} className={s.slot}>
+                <h3 className={s.slotHead}>{slotHeading(slot)}</h3>
+                <div className={s.rows}>{slot.rows.map(card)}</div>
+              </div>
+            ))}
+        </section>
+      );
+    }
+    return (
+      <section key={g.id} className={cx(s.section, s[`sec_${g.id}`])} aria-label={`${g.title}, ${g.rows.length}`}>
+        <h2 className={s.head}>
+          <span className={s.title}>{g.title}</span>
+          <span className={s.count}>{g.rows.length}</span>
+          {late > 0 && <span className={s.lateCount}>{late} late</span>}
+          <span className={s.hint}>{g.hint}</span>
+        </h2>
+        {g.id === 'takeOut' && runs.length > 1 && <DeliveryRun runs={runs} ctx={ctx} onTakeAll={() => onTakeAll(runs)} />}
+        <div className={s.rows}>{g.rows.map(card)}</div>
+      </section>
+    );
+  };
+
   return (
     <>
-      {attention.length > 0 && (
-        <ul className={s.attention} aria-label="Needs attention">
-          {attention.map((a) => (
-            <li key={a.label} className={cx(s.pill, a.tone)}>
-              <b>{a.n}</b> {a.label}
-            </li>
-          ))}
-        </ul>
-      )}
-      {runs.length > 1 && <DeliveryRun runs={runs} ctx={ctx} onTakeAll={() => onTakeAll(runs)} />}
       {rows.length === 0 && (
         <EmptyState icon={<ShoppingBag size={30} strokeWidth={1.5} />} title="No open orders">
-          New orders line up here by the time they are promised.
+          New orders show up here, sorted by what needs doing next.
         </EmptyState>
       )}
-      {slots.map((slot, i) => (
-        <Fragment key={slot.due}>
-          {i === nowAt && (
-            <div className={s.now} role="separator" aria-label={`Now, ${clockLabel(at)}`}>
-              <span className={s.nowLabel}>NOW · {clockLabel(at)}</span>
-              <span className={s.nowLine} />
-            </div>
-          )}
-          <section className={s.slot} aria-label={slotHeading(slot)}>
-            <h2 className={s.slotHead}>{slotHeading(slot)}</h2>
-            <div className={s.rows}>
-              {slot.rows.map((r) => (
-                <QueueRowCard
-                  key={r.order.id}
-                  row={r}
-                  at={at}
-                  ctx={ctx}
-                  leadMinutes={leadMinutes}
-                  tracksPickups={tracksPickups(r.order.room)}
-                  onOpen={onOpen}
-                  onAction={onAction}
-                />
-              ))}
-            </div>
-          </section>
-        </Fragment>
-      ))}
+      {groups.map(section)}
       {filter !== 'delivery' && <NocMeals />}
     </>
   );

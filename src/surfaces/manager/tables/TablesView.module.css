@@ -249,3 +249,13 @@
     animation: none;
   }
 }
+.startable {
+  cursor: pointer;
+}
+.startable:hover {
+  box-shadow: inset 0 0 0 2px var(--ocean);
+}
+.startable .freeWord {
+  color: var(--ocean);
+  font-weight: 700;
+}

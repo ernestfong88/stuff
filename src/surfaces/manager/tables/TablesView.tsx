@@ -18,7 +18,13 @@ import s from './TablesView.module.css';
  * __KMgrFloor: every table in its stage colour with a timer, so the manager
  * sees at a glance where the room is. Tap a check to open it.
  */
-export function TablesView({ onOpen }: { onOpen: (o: Order) => void }) {
+export function TablesView({
+  onOpen,
+  onStart,
+}: {
+  onOpen: (o: Order) => void;
+  /** Tapping a free table starts a check there (the server tablet). */ onStart?: (table: PlanItem) => void;
+}) {
   const [venue] = useVenue();
   const plan = useRoomPlan(venue);
   const { orders } = useDining();
@@ -38,13 +44,29 @@ export function TablesView({ onOpen }: { onOpen: (o: Order) => void }) {
         <ServerLegend servers={serversOnFloor(live).filter((x) => x.open > 0)} />
       </div>
       <div className={s.planScroll}>
-        <FloorPlan plan={plan} minHeight={520} tile={(t, box) => <Tile key={t.id} table={t} box={box} checks={checksAt(live, t.id)} onOpen={onOpen} />} />
+        <FloorPlan
+          plan={plan}
+          minHeight={520}
+          tile={(t, box) => <Tile key={t.id} table={t} box={box} checks={checksAt(live, t.id)} onOpen={onOpen} onStart={onStart} />}
+        />
       </div>
     </div>
   );
 }
 
-function Tile({ table, box, checks, onOpen }: { table: PlanItem; box: CSSProperties; checks: Order[]; onOpen: (o: Order) => void }) {
+function Tile({
+  table,
+  box,
+  checks,
+  onOpen,
+  onStart,
+}: {
+  table: PlanItem;
+  box: CSSProperties;
+  checks: Order[];
+  onOpen: (o: Order) => void;
+  onStart?: (table: PlanItem) => void;
+}) {
   const cfg = useConfig();
   useShared(serviceConfig);
   const t = useNow(1000);
@@ -52,6 +74,18 @@ function Tile({ table, box, checks, onOpen }: { table: PlanItem; box: CSSPropert
   const round = table.shape === 'round';
 
   if (!checks.length) {
+    if (onStart)
+      return (
+        <button
+          className={cx(s.tile, s.free, s.startable, round && s.round)}
+          style={box}
+          onClick={() => onStart(table)}
+          aria-label={`${table.label}, free. Start a check here`}
+        >
+          <span className={s.label}>{table.label}</span>
+          <span className={s.freeWord}>+ New check</span>
+        </button>
+      );
     return (
       <div className={cx(s.tile, s.free, round && s.round)} style={box}>
         <span className={s.label}>{table.label}</span>

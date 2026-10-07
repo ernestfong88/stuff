@@ -4,6 +4,7 @@
  * Office can pick for a printer. Rules live in src/domain/printing.
  */
 import { catalog, getItem } from '../data';
+import { isAlcoholFreeName } from '../domain/menu';
 import { printGroupOf, subKey, type PrintGroup, type PrintItem } from '../domain/printing';
 import { recipeInfo, recipesIn, type RecipeInfo } from './recipes';
 
@@ -78,4 +79,17 @@ export function printOptions(): PrintOption[] {
       }),
     ),
   ].sort((a, b) => a.label.localeCompare(b.label));
+}
+
+const alcoholCache = new Map<string, boolean>();
+
+/** Is this tablet item an alcoholic drink (wine, beer, spirits, cocktails)? NA wines and beers are not. */
+export function isAlcoholItem(itemId: string): boolean {
+  let v = alcoholCache.get(itemId);
+  if (v === undefined) {
+    const name = getItem(itemId)?.name ?? '';
+    v = printItemFor(itemId)?.group === 'Alcohol' && !isAlcoholFreeName(name);
+    alcoholCache.set(itemId, v);
+  }
+  return v;
 }

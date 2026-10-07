@@ -1,4 +1,5 @@
-import { AlertTriangle, Trash2, UserPlus } from 'lucide-react';
+import { AlertTriangle, Trash2, UserPlus, Wine } from 'lucide-react';
+import { alcoholThisMeal } from '../../../../domain/alcohol';
 import { dinerBilling } from '../../../../domain/billing';
 import { isDrink } from '../../../../domain/menu';
 import { dinerName, dinerPerson } from '../../../../domain/orders';
@@ -7,6 +8,8 @@ import { initials } from '../../../../lib/format';
 import type { Associate, Diner, Order, OrderLine, Resident } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
+import { isAlcoholItem } from '../../../../store/printing';
+import { startOfToday } from '../../../../lib/clock';
 import { Avatar, Chip, cx } from '../../../../ui';
 import { sortWithSides } from '../checkLines';
 import s from './DinerCard.module.css';
@@ -54,7 +57,7 @@ export function DinerCard({
   onCloseDiner: (onPlan: boolean) => void;
 }) {
   const cfg = useConfig();
-  const { editSeat } = useDining();
+  const { editSeat, orders, history } = useDining();
   const person = dinerPerson(diner);
   const resident = diner.kind === 'resident' ? (person as Resident | undefined) : undefined;
   const isResident = diner.kind === 'resident' && !diner.isGuest;
@@ -63,6 +66,8 @@ export function DinerCard({
   const hasFood = diner.items.some((l) => !l.cancelled && !isDrink(l.itemId));
   const allOut = diner.items.length > 0 && diner.items.every((i) => i.sent && (i.kitchenState === 'cleared' || i.kitchenState === 'ready'));
   const onPlan = isResident && dinerBilling(diner, o, cfg).outOfPlan === 0;
+  // Alcoholic drinks this resident has had this meal, on every check; it starts again next meal.
+  const drinks = isResident ? alcoholThisMeal([...orders, ...history], diner.refId, o.meal, startOfToday(), isAlcoholItem) : 0;
 
   return (
     <article
@@ -87,6 +92,13 @@ export function DinerCard({
             )}
             {!isResident && (
               <span className={s.kind}>{diner.kind === 'resident' ? 'Guest' : `${(person as Associate | undefined)?.dept ?? ''} · associate`}</span>
+            )}
+            {drinks > 0 && (
+              <Chip size="xs" tone="neutral" icon={<Wine size={10} strokeWidth={2.5} />}>
+                <span title={`${drinks} alcoholic ${drinks === 1 ? 'drink' : 'drinks'} this ${o.meal.toLowerCase()}, on every check`}>
+                  {drinks} this {o.meal.toLowerCase()}
+                </span>
+              </Chip>
             )}
             {pills.map((p) => (
               <Chip

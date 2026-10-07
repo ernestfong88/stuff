@@ -18,6 +18,7 @@ import { setMineMode, useMineMode, type MineMode } from '../../store/serverMine'
 import { PudBoard } from '../pud/PudBoard';
 import { openRows } from '../pud/queue/queue';
 import { TablesView } from '../manager/tables/TablesView';
+import { currentMeal } from './shared/meal';
 import { TakeoverDialog } from './takeover/TakeoverDialog';
 
 const VIEWS: readonly ServerView[] = ['mine', 'new', 'check', 'residents', 'shift'];
@@ -33,7 +34,7 @@ export default function ServerSurface() {
   const view: ServerView = VIEWS.includes(rawView) ? rawView : 'mine';
   const me = useMe().initials;
   const [venue] = useVenue();
-  const { orders, closeOrder, openQueueOrder, patchOrder, kitchenMode } = useDining();
+  const { orders, closeOrder, openQueueOrder, openOrder, patchOrder, kitchenMode } = useDining();
   const mode = useMineMode();
   const [viewServer, setViewServer] = useState(me);
   const live = orders.filter((o) => !o.queueType && inVenue(o, venue));
@@ -110,7 +111,14 @@ export default function ServerSurface() {
           }}
         />
       ) : mode === 'map' ? (
-        <TablesView onOpen={(o) => openCheck(o.id)} />
+        <TablesView
+          onOpen={(o) => openCheck(o.id)}
+          onStart={(table) => {
+            // Same as picking a free table on New check: open the check and go straight to the order.
+            const id = openOrder(table.id, venue, currentMeal(), me);
+            if (id) openCheck(id);
+          }}
+        />
       ) : (
         <MyTablesBoard room={venue} server={viewServer} me={me} onMine={() => goMine()} onOpen={openCheck} />
       )}

@@ -51,7 +51,9 @@ export function QueueRowCard({ row, at, ctx, leadMinutes, tracksPickups, onOpen,
         <span className={s.dot} aria-hidden />
         {stage.label}
       </div>
-      <div className={cx(s.due, s[`due_${due.tone}`])}>{due.text}</div>
+      <div className={cx(s.due, s[`due_${due.tone}`])}>
+        {late ? <span className={s.lateTag}>Late · {due.text.replace(/ late$/, '')}</span> : due.text}
+      </div>
       <div className={s.action}>
         {action && ActionIcon && (
           <button className={cx(s.actionBtn, s[`act_${action.kind}`])} onClick={() => onAction(action.kind, row)}>
