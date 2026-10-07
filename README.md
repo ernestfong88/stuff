@@ -52,6 +52,7 @@ demo data.
 | `npm run dev` | Dev server with hot reload |
 | `npm run build` | Typecheck and build a static site into `dist/` |
 | `npm run preview` | Serve the production build |
+| `npm run build:single` | One self-contained `dist-single/index.html` to email or open straight from a tablet's files |
 | `npm test` | Unit tests (vitest) |
 | `npm run e2e` | End-to-end flows across surfaces (Playwright; starts its own dev server) |
 | `npm run typecheck` | TypeScript only |

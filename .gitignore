@@ -6,3 +6,4 @@ coverage
 .claude/worktrees
 test-results
 playwright-report
+dist-single
