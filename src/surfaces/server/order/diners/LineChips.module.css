@@ -59,7 +59,11 @@
 }
 
 .drink {
-  font-size: 11px;
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 999px;
 }
 .drink:disabled {
   cursor: default;
@@ -117,12 +121,32 @@
   background: var(--clay-100);
   color: var(--clay-600);
 }
-.newTag {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--s400);
+.stateIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+}
+.withText {
+  width: auto;
+  gap: 3px;
+  padding: 0 8px 0 6px;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.newDot {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  margin: 0 7px;
+  border-radius: 999px;
+  background: var(--ocean);
+  box-shadow: 0 0 0 3px var(--ocean-100);
 }
 
 .tag {
