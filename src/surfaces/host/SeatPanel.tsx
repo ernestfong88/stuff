@@ -6,7 +6,7 @@ import { serverColor, serverName, type ServerOnFloor } from '../../domain/server
 import type { Order } from '../../domain/types';
 import { MINUTE, minutesSince } from '../../lib/clock';
 import { Avatar, Button, cx } from '../../ui';
-import type { PlanItem } from '../manager/floor/layout';
+import type { PlanItem } from '../../store/floorLayout';
 import { searchResidents } from './residentSearch';
 import { hm, partyName, resvAt, seatedDelta, tableLabel, type Reservation, type SeatEntry } from './reservations/model';
 import s from './SeatPanel.module.css';

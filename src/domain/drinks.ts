@@ -3,7 +3,7 @@
  * gets it), "bar" (the bar is making it) or "up" (ready at the bar, waiting
  * for its server); once it reaches the table it is "cleared".
  */
-import type { Diner, Order, OrderLine } from '../../../domain/types';
+import type { Diner, Order, OrderLine } from './types';
 
 export interface DrinkLine extends OrderLine {
   diner: Diner;

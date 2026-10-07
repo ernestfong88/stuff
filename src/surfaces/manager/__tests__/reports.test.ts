@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AssocMeal, Diner, Order } from '../../../domain/types';
 import { checkMoney, feedbackSummary, formatMinutes, shiftMoney, ticketWeek } from '../shift/closingReport';
-import { atRisk, byServer, demoSosTables, missPercent, offGoal, shiftMeal, summarize, weekLabels } from '../metrics/stepsOfService';
-import { formatMetric, isScored, metricDefs } from '../metrics/shiftMetrics';
+import { atRisk, byServer, demoSosTables, missPercent, offGoal, shiftMeal, summarize, weekLabels } from '../../../domain/metrics/stepsOfService';
+import { formatMetric, isScored, metricDefs } from '../../../domain/metrics/shiftMetrics';
 import { assocMenu, assocWindows, choicesComplete, choicesText, isNoc, mealOfWindow, mondayOf, rangeLabel, STANDING_MENU, weekPlan, windowMinutes } from '../associates/assocProgram';
 import { mealByHour, menuForToday } from '../eightySix/menuToday';
 import { clampItem, freeSpot, nextTableLabel } from '../floor/planEdit';
-import type { PlanItem } from '../floor/layout';
+import type { PlanItem } from '../../../store/floorLayout';
 
 const T0 = new Date(2026, 9, 7, 18, 0, 0, 0).getTime();
 const MIN = 60_000;

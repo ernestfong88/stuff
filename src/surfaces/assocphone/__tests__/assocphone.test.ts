@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { AssocMeal, Order } from '../../../domain/types';
-import { cancelMeal, lastTexted, pastMeals, planMeal } from '../model/meals';
-import { closedReason, itemsLeft, menuFor, menuWeek, missingChoice, modsText, mondayOf, STANDING_CHOICES } from '../model/menu';
-import { nearestToBreak, upcomingShifts, withinShift } from '../model/shifts';
-import { assocWindows, rangeLabel, windowClosesAt, windowLoad, windowMinutes, windowStartsAt, windowTag } from '../model/windows';
+import { cancelMeal, lastTexted, pastMeals, planMeal } from '../../../domain/assocMeals/meals';
+import { closedReason, itemsLeft, menuFor, menuWeek, missingChoice, modsText, mondayOf, STANDING_CHOICES } from '../../../domain/assocMeals/menu';
+import { nearestToBreak, upcomingShifts, withinShift } from '../../../domain/assocMeals/shifts';
+import { assocWindows, rangeLabel, windowClosesAt, windowLoad, windowMinutes, windowStartsAt, windowTag } from '../../../domain/assocMeals/windows';
 
 const meal = (p: Partial<AssocMeal>): AssocMeal => ({
   id: 'x',

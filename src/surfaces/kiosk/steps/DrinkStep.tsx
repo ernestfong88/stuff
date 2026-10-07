@@ -1,6 +1,6 @@
 import { Beer, Check, Citrus, Coffee, CupSoda, GlassWater, Martini, Milk, Wine, type LucideIcon } from 'lucide-react';
 import type { CatalogItem } from '../../../domain/types';
-import { featuredOverride, useServiceSettings } from '../../pud/service/settings';
+import { featuredOverride, useServiceSettings } from '../../../domain/pickupService/settings';
 import {
   ALCOHOL_GROUPS,
   alcoholGroup,
@@ -11,7 +11,7 @@ import {
   groupItems,
   shortList,
   type KioskMenu,
-} from '../model/menu';
+} from '../../../domain/kioskMenu';
 import { useKioskPref } from '../model/prefs';
 import { ChoiceGrid, ChoiceGroups } from '../ui/Choices';
 import { KButton } from '../ui/KButton';

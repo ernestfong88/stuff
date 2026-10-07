@@ -6,9 +6,9 @@
  * the meals the venue picks: dinner by default. Set in Back Office,
  * Service Flow.
  */
-import { MINUTE, now } from '../../../lib/clock';
-import type { MealName, Order } from '../../../domain/types';
-import { getSetting } from '../../../store/serviceConfig';
+import { MINUTE, now } from '../lib/clock';
+import type { MealName, Order } from './types';
+import { getSetting } from '../store/serviceConfig';
 
 export interface GreetConfig {
   /** Minutes before greet to drinks is slow. */

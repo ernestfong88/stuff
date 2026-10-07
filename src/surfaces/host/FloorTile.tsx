@@ -3,7 +3,7 @@ import { serverColor, serverName } from '../../domain/servers';
 import type { Order } from '../../domain/types';
 import { minutesSince } from '../../lib/clock';
 import { cx } from '../../ui';
-import type { PlanItem } from '../manager/floor/layout';
+import type { PlanItem } from '../../store/floorLayout';
 import { hm, partyLast, partyName, resvAt, type Reservation } from './reservations/model';
 import s from './FloorTile.module.css';
 

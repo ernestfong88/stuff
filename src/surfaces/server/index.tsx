@@ -10,7 +10,7 @@ import { NewCheckView } from './newcheck/NewCheckView';
 import { OrderScreen } from './order';
 import { FullscreenLockButton, StartCheckButton } from './rail/RailButtons';
 import { ServerNavLeft, ServerNavRight, type ServerView } from './ServerNav';
-import { inVenue } from './shared/venue';
+import { inVenue } from '../../domain/venue';
 import { TakeoverDialog } from './takeover/TakeoverDialog';
 
 const VIEWS: readonly ServerView[] = ['mine', 'new', 'check', 'residents', 'shift'];

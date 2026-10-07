@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_CONFIG } from '../../../../domain/config';
 import { T0, diner, freezeClock, line, order } from '../../../../domain/__tests__/helpers';
 import { cardActions, type CardContext } from '../cardActions';
-import { stageSince, tableStage } from '../tableStage';
+import { stageSince, tableStage } from '../../../../domain/tableStage';
 
 const MIN = 60_000;
 

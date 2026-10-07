@@ -5,7 +5,7 @@ import type { MealName } from '../../../domain/types';
 import { now } from '../../../lib/clock';
 import { Avatar, Button, Modal, Stepper, TextArea, cx } from '../../../ui';
 import { FloorPlan } from '../../manager/floor/FloorPlan';
-import type { RoomPlan } from '../../manager/floor/layout';
+import type { RoomPlan } from '../../../store/floorLayout';
 import { searchResidents } from '../residentSearch';
 import { GUESTS_ON_FILE, recipients, recipientsLine, type GuestOnFile } from './contacts';
 import {

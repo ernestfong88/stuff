@@ -13,7 +13,7 @@ import { updateConfig, useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
 import { resetSettingsSection, setSetting } from '../../../store/serviceConfig';
 import { Button, Tabs, Toggle, cx, toast } from '../../../ui';
-import { useServiceSettings, windowSettings } from '../../pud/service/settings';
+import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
 import {
   ASSOC_ROOM,
   MEAL_WINDOWS,
@@ -33,7 +33,7 @@ import {
   type WindowCaps,
   type WindowSettings,
   type WindowType,
-} from '../../pud/service/windows';
+} from '../../../domain/pickupService/windows';
 import { BoPage, BoRow, BoSection, NumberBox } from '../kit';
 import type { BoPageProps } from '../nav';
 import s from './svcWin.module.css';

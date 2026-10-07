@@ -4,7 +4,7 @@ import { dinerPerson } from '../../../domain/orders';
 import type { Order } from '../../../domain/types';
 import { Avatar, EmptyState, cx } from '../../../ui';
 import { completedSummary, completedView, handedOffAt } from '../queue/queue';
-import type { MobileOverrides } from '../service/phones';
+import type { MobileOverrides } from '../../../domain/pickupService/phones';
 import { OrderWho } from './OrderWho';
 import { QueueTypeIcon } from './QueueTypeIcon';
 import { SummaryTiles } from './SummaryTiles';

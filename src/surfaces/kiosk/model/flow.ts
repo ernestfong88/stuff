@@ -4,7 +4,7 @@
  */
 import type { MealName, QueueType, Resident } from '../../../domain/types';
 import { getItem } from '../../../data';
-import { isBuildYourOwn, type KioskMenu } from './menu';
+import { isBuildYourOwn, type KioskMenu } from '../../../domain/kioskMenu';
 
 /** The questions, in order. */
 export const STEPS = ['apt', 'who', 'type', 'meal', 'time', 'entree', 'ver', 'side', 'soup', 'drink', 'dessert', 'notes', 'utensils', 'review'] as const;

@@ -1,5 +1,5 @@
 /** Reading and changing the associate's own meals in the dining store. */
-import type { AssocMeal } from '../../../domain/types';
+import type { AssocMeal } from '../types';
 
 /** One line of a meal's history. A change made for the associate is texted to them. */
 export interface AssocLogEntry {

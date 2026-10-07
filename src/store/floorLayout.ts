@@ -7,10 +7,10 @@
  * a plan scales to any screen. A room nobody has edited uses the seed.
  */
 import { useCallback, useMemo } from 'react';
-import { rooms } from '../../../data';
-import { tableName } from '../../../domain/orders';
-import type { FloorBand, FloorTable, Order } from '../../../domain/types';
-import { createSharedStore, useShared } from '../../../lib/sharedStore';
+import { rooms } from '../data';
+import { tableName } from '../domain/orders';
+import type { FloorBand, FloorTable, Order } from '../domain/types';
+import { createSharedStore, useShared } from '../lib/sharedStore';
 
 /** A table or wall on a plan. Walls are drawn but never seated. */
 export interface PlanItem extends FloorTable {

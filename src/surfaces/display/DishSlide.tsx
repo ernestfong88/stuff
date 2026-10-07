@@ -1,7 +1,7 @@
 import { dishPhoto } from '../../data/photos';
 import { cx } from '../../ui';
-import { PlateGlyph } from './PlateGlyph';
-import { listWords } from '../kiosk/model/menu';
+import { PlateGlyph } from '../../ui/PlateGlyph';
+import { listWords } from '../../domain/kioskMenu';
 import type { DisplaySlide } from './specials';
 import s from './DishSlide.module.css';
 

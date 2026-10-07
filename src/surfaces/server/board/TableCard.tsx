@@ -9,12 +9,12 @@ import { useDining } from '../../../store/dining';
 import { cx, useNow } from '../../../ui';
 import { TriviaButton } from '../features';
 import { drinkQueue } from '../shared/lines';
-import { checkInWakeMinutes, tableRoom, venueHasExpo } from '../shared/venue';
+import { checkInWakeMinutes, tableRoom, venueHasExpo } from '../../../domain/venue';
 import { cardActions, type CardAction } from './cardActions';
 import { DrinksDialog, GetItemsDialog } from './CardDialogs';
 import { ReminderRow } from './ReminderRow';
 import s from './TableCard.module.css';
-import { isLate, minutesBetween, type TableStage } from './tableStage';
+import { isLate, minutesBetween, type TableStage } from '../../../domain/tableStage';
 
 export interface OpenCheckOptions {
   /** Open the check on this menu category (e.g. "Desserts"). */

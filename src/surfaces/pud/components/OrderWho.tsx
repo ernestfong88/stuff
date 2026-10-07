@@ -1,7 +1,7 @@
 import { pickupApt, pickupItems, pickupWho } from '../../../domain/pickup';
 import type { Order, QueueType } from '../../../domain/types';
 import { useConfig } from '../../../store/config';
-import type { MobileOverrides } from '../service/phones';
+import type { MobileOverrides } from '../../../domain/pickupService/phones';
 import { OrderTags, utensilsText } from './OrderTags';
 import s from './OrderWho.module.css';
 

@@ -9,7 +9,7 @@
  * Back Office keeps its edits in the service settings: `am.weeks[monday]`
  * ({sched, special, sub, cap}) and `am.fixed[choiceId].sub`.
  */
-import type { AssocMeal } from '../../../domain/types';
+import type { AssocMeal } from '../types';
 import { isLive } from './windows';
 
 export interface ModChoice {

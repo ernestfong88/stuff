@@ -2,7 +2,7 @@ import { Check } from 'lucide-react';
 import { getItem } from '../../../data';
 import { defaultSides } from '../../../domain/menu';
 import type { CatalogItem } from '../../../domain/types';
-import { dishLongName, listWords, type KioskMenu } from '../model/menu';
+import { dishLongName, listWords, type KioskMenu } from '../../../domain/kioskMenu';
 import { DishPicture, DishTile } from '../ui/DishTile';
 import { KButton } from '../ui/KButton';
 import { Actions, GroupTitle, Panel, Question, TileGrid } from '../ui/Layout';

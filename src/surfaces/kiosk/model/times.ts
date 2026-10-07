@@ -5,7 +5,7 @@
  * full. When today's ordering has closed, it offers tomorrow's.
  */
 import type { MealName, QueueType } from '../../../domain/types';
-import { MEALS } from '../../pud/service/meals';
+import { MEALS } from '../../../domain/pickupService/meals';
 import {
   mealWindows,
   windowCutoff,
@@ -15,7 +15,7 @@ import {
   type WindowRoom,
   type WindowSettings,
   type WindowSlot,
-} from '../../pud/service/windows';
+} from '../../../domain/pickupService/windows';
 
 /** The venue the lobby kiosk orders from. */
 export const KIOSK_ROOM = 'sequoia';

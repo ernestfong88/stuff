@@ -13,7 +13,7 @@ import { isDrinkLine } from '../../../domain/routing';
 import type { Order } from '../../../domain/types';
 import { MINUTE } from '../../../lib/clock';
 import { drinkQueue } from '../shared/lines';
-import type { StageKey } from './tableStage';
+import type { StageKey } from '../../../domain/tableStage';
 
 export type CardAction =
   /** Drinks to bring: the server pours them, or they are up at the bar. */

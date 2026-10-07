@@ -9,9 +9,9 @@ import { checkedIn, courseNumber, lastRun, lineReadyAt } from '../../../domain/c
 import { isDrinkLine } from '../../../domain/routing';
 import type { Order } from '../../../domain/types';
 import { threshold } from '../../../store/serviceConfig';
-import { checkInWakeMinutes } from '../../server/shared/venue';
-import { drinkQueue, drinksWaiting } from './drinks';
-import { greetConfig, greetInfo, type GreetConfig } from './greet';
+import { checkInWakeMinutes } from '../../../domain/venue';
+import { drinkQueue, drinksWaiting } from '../../../domain/drinks';
+import { greetConfig, greetInfo, type GreetConfig } from '../../../domain/greet';
 import type { ThresholdFn } from './floorState';
 import { courseWord, tableStage, type TableStage } from './stage';
 

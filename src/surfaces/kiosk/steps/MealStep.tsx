@@ -1,5 +1,5 @@
-import { useServiceSettings, windowSettings } from '../../pud/service/settings';
-import { minuteLabel, windowCutoff } from '../../pud/service/windows';
+import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
+import { minuteLabel, windowCutoff } from '../../../domain/pickupService/windows';
 import { MEAL_ANSWERS } from '../model/flow';
 import type { KioskMeal } from '../model/times';
 import { KButton } from '../ui/KButton';

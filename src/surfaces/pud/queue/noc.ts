@@ -4,7 +4,7 @@
  * PU & Delivery sets each one out; nothing is texted.
  */
 import type { AssocMeal } from '../../../domain/types';
-import { isNocWindow, windowMinute } from '../service/windows';
+import { isNocWindow, windowMinute } from '../../../domain/pickupService/windows';
 
 /** An associate meal; PU stamps readyAt when it sets the meal out. */
 export type NocMeal = AssocMeal & { readyAt?: number | null };

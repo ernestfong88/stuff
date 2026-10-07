@@ -3,9 +3,9 @@
  * dishes, sides, soups, desserts and drinks, without anything 86'd, plus
  * the plain-language names and short lists residents see.
  */
-import { catalog, modifierRules } from '../../../data';
-import { isAlcohol } from '../../../domain/menu';
-import type { CatalogItem, MealName, ModSelection } from '../../../domain/types';
+import { catalog, modifierRules } from '../data';
+import { isAlcohol } from './menu';
+import type { CatalogItem, MealName, ModSelection } from './types';
 
 // ─── Names ───────────────────────────────────────────────────────────────
 

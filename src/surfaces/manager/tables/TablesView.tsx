@@ -10,7 +10,7 @@ import { serviceConfig } from '../../../store/serviceConfig';
 import { cx, useNow } from '../../../ui';
 import { FloorPlan } from '../floor/FloorPlan';
 import { FLOOR_KEYS, floorState } from '../floor/floorState';
-import { checksAt, inPlan, useRoomPlan, useTableName, type PlanItem } from '../floor/layout';
+import { checksAt, inPlan, useRoomPlan, useTableName, type PlanItem } from '../../../store/floorLayout';
 import { ServerLegend } from '../floor/ServerLegend';
 import s from './TablesView.module.css';
 

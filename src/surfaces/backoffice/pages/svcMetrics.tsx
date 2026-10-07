@@ -2,8 +2,8 @@ import type { BoPageProps } from '../nav';
 import { BoPage, BoRow, BoSection, BoTable, type BoColumn } from '../kit';
 import { setSetting, useSetting } from '../../../store/serviceConfig';
 import { Toggle } from '../../../ui';
-import { formatMetric, isScored, metricDefs, weekAverage, type MetricDef } from '../../manager/metrics/shiftMetrics';
-import { Muted, NameAndNote, ResetButton, SettingNumber } from '../../manager/settings/SettingControls';
+import { formatMetric, isScored, metricDefs, weekAverage, type MetricDef } from '../../../domain/metrics/shiftMetrics';
+import { Muted, NameAndNote, ResetButton, SettingNumber } from '../kit/SettingControls';
 
 /** Shift Metrics: how a shift is scored against the last seven. */
 export default function Page(_props: BoPageProps) {

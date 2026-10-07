@@ -16,8 +16,8 @@ import {
   type PickupStage,
 } from '../../../domain/pickup';
 import type { Order } from '../../../domain/types';
-import { queueTextKey, textFor, type TextContext } from '../service/texts';
-import { rangeOf } from '../service/windows';
+import { queueTextKey, textFor, type TextContext } from '../../../domain/pickupService/texts';
+import { rangeOf } from '../../../domain/pickupService/windows';
 
 export type QueueFilter = 'all' | 'pickup' | 'delivery';
 

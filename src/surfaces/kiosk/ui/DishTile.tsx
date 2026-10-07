@@ -3,7 +3,7 @@ import { Beef, ChefHat, CookingPot, Drumstick, EggFried, Fish, Pizza, Salad, San
 import { dishPhoto } from '../../../data/photos';
 import type { CatalogItem } from '../../../domain/types';
 import { cx } from '../../../ui';
-import { PlateGlyph } from '../../display/PlateGlyph';
+import { PlateGlyph } from '../../../ui/PlateGlyph';
 import s from './DishTile.module.css';
 
 /** A drawn picture of the dish's kind, so a list without photos still reads at a glance. */

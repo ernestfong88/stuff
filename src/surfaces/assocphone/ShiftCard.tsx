@@ -1,10 +1,10 @@
 import { Coffee, MessageSquareText } from 'lucide-react';
 import type { AssocMeal } from '../../domain/types';
 import { Chip } from '../../ui';
-import { lastTexted } from './model/meals';
-import { CLOSED_TEXT, type ClosedReason } from './model/menu';
-import { planLabel, shortDate, type Shift } from './model/shifts';
-import { windowTag } from './model/windows';
+import { lastTexted } from '../../domain/assocMeals/meals';
+import { CLOSED_TEXT, type ClosedReason } from '../../domain/assocMeals/menu';
+import { planLabel, shortDate, type Shift } from '../../domain/assocMeals/shifts';
+import { windowTag } from '../../domain/assocMeals/windows';
 import s from './ShiftCard.module.css';
 
 interface ShiftCardProps {

@@ -2,7 +2,7 @@
  * The associate's upcoming shifts. In production these come from the
  * scheduling system; a scheduled shift is what unlocks meal planning.
  */
-import seed from '../seed/associate.json';
+import seed from '../../data/seed/associateShifts.json';
 import { addDays } from './menu';
 import { windowMinutes, type AssocMealName } from './windows';
 

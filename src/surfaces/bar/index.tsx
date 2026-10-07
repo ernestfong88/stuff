@@ -13,7 +13,7 @@ import { TabletShell } from '../../shell/TabletShell';
 import { useConfig } from '../../store/config';
 import { useDining } from '../../store/dining';
 import { Button, EmptyState, Eyebrow, cx, useNow } from '../../ui';
-import { inPlan, useRoomPlan, useTableName } from '../manager/floor/layout';
+import { inPlan, useRoomPlan, useTableName } from '../../store/floorLayout';
 import { BAR_LATE_MIN, barQueue, roomHasBar, type BarTicket } from './barQueue';
 import s from './Bar.module.css';
 

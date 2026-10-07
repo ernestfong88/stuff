@@ -7,7 +7,7 @@ import { useDining } from '../../../store/dining';
 import { serviceConfig } from '../../../store/serviceConfig';
 import { useShared } from '../../../lib/sharedStore';
 import { EmptyState, Tabs, cx, useNow } from '../../../ui';
-import { useTableName } from '../floor/layout';
+import { useTableName } from '../../../store/floorLayout';
 import { StageChip } from '../floor/StageChip';
 import { needingHelp, triageByServer, triageRows, type ServerTriage, type TriageRow } from '../floor/triage';
 import s from './TriageView.module.css';

@@ -5,7 +5,7 @@ import { uid } from '../../../lib/id';
 import { useShared } from '../../../lib/sharedStore';
 import { Button, Tabs, TextField, toast, useConfirm, cx } from '../../../ui';
 import { planBox } from './FloorPlan';
-import { layoutStore, resetRoomLayout, roomPlan, saveRoomLayout, sectionAt, type PlanItem } from './layout';
+import { layoutStore, resetRoomLayout, roomPlan, saveRoomLayout, sectionAt, type PlanItem } from '../../../store/floorLayout';
 import { clampItem, moveItem, newItem, SNAP, type NewKind } from './planEdit';
 import s from './FloorPlanEditor.module.css';
 

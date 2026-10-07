@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { cx } from '../../../ui';
-import type { PlanItem, RoomPlan } from './layout';
+import type { PlanItem, RoomPlan } from '../../../store/floorLayout';
 import s from './FloorPlan.module.css';
 
 export interface FloorPlanProps {

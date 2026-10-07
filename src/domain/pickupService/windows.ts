@@ -18,7 +18,7 @@
  *
  * Everything here is pure; pass the `win` section of the service settings.
  */
-import type { AssocMeal, MealName, Order } from '../../../domain/types';
+import type { AssocMeal, MealName, Order } from '../types';
 
 export type WindowType = 'pickup' | 'assoc' | 'delivery';
 

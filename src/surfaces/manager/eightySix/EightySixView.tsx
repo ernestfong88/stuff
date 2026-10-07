@@ -6,7 +6,7 @@ import { today } from '../../../lib/clock';
 import { useConfig } from '../../../store/config';
 import { is86, itemsOut, set86, use86 } from '../../../store/eightySix';
 import { EmptyState, PageTitle, SearchField, Tabs, cx } from '../../../ui';
-import { MEALS } from '../metrics/stepsOfService';
+import { MEALS } from '../../../domain/metrics/stepsOfService';
 import { mealByHour, menuForToday } from './menuToday';
 import s from './EightySixView.module.css';
 

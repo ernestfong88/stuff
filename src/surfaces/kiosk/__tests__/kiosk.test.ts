@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getItem, getResident, residents } from '../../../data';
 import { dinerBilling } from '../../../domain/billing';
 import { backWithin, countedSteps, INITIAL_STATE, nextStep, type KioskState } from '../model/flow';
-import { dishLongName, drinkGroup, drinkName, kioskMenu, shortList, versionMods, dishVersions, changeChips, modsFromWords } from '../model/menu';
+import { dishLongName, drinkGroup, drinkName, kioskMenu, shortList, versionMods, dishVersions, changeChips, modsFromWords } from '../../../domain/kioskMenu';
 import { buildKioskOrder, kioskNote, kioskTextBody, mainDishName, planSentence, reviewItems, reviewWhen, sideIds } from '../model/order';
 import { aptLetters, findResidents } from '../model/residents';
 import { kioskMeals, kioskTypes, nextTimes, timeChoices } from '../model/times';

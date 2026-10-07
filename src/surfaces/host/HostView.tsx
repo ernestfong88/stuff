@@ -7,7 +7,7 @@ import { useVenue } from '../../shell/session';
 import { useDining } from '../../store/dining';
 import { Button, toast, useNow } from '../../ui';
 import { FloorPlan } from '../manager/floor/FloorPlan';
-import { checksAt, inPlan, useRoomPlan, useTableName, type PlanItem } from '../manager/floor/layout';
+import { checksAt, inPlan, useRoomPlan, useTableName, type PlanItem } from '../../store/floorLayout';
 import { ServerLegend } from '../manager/floor/ServerLegend';
 import { FloorTile } from './FloorTile';
 import { HostTabs, type HostTab } from './HostTabs';

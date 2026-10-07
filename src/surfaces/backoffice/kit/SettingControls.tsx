@@ -8,7 +8,7 @@ import { useState, type ReactNode } from 'react';
 import { RotateCcw } from 'lucide-react';
 import { resetSettingsSection, setSetting, useSetting } from '../../../store/serviceConfig';
 import { Button, cx, toast } from '../../../ui';
-import { NumberBox } from '../../backoffice/kit';
+import { NumberBox } from '.';
 import s from './SettingControls.module.css';
 
 interface NumberProps {

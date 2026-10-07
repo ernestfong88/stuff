@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { catalog } from '../../../data';
-import { mealAt, parseMeal } from '../../pud/service/meals';
+import { mealAt, parseMeal } from '../../../domain/pickupService/meals';
 import { displaySlides, nextPreview, slideLabel } from '../specials';
 
 const idOf = (name: string, meal: string) => catalog.find((i) => i.name === name && i.meal === meal)!.id;

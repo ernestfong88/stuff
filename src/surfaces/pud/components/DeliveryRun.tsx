@@ -1,7 +1,7 @@
 import { Truck } from 'lucide-react';
 import { pickupApt } from '../../../domain/pickup';
 import { firstOf, runTextNote, type QueueRow } from '../queue/queue';
-import type { TextContext } from '../service/texts';
+import type { TextContext } from '../../../domain/pickupService/texts';
 import s from './DeliveryRun.module.css';
 
 /** Two or more deliveries ready at once: suggest one trip, with one button. */

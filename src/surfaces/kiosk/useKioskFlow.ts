@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { MealName } from '../../domain/types';
 import { backWithin, INITIAL_STATE, nextStep, type KioskState, type Screen } from './model/flow';
-import type { KioskMenu } from './model/menu';
+import type { KioskMenu } from '../../domain/kioskMenu';
 
 export interface KioskFlow {
   s: KioskState;

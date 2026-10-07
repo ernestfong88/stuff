@@ -4,7 +4,7 @@ import { useMe, useVenue } from '../../shell/session';
 import { useDining } from '../../store/dining';
 import { Button, useViewportWidth } from '../../ui';
 import { MenuReferenceButton, PointsChip } from '../server/features';
-import { inPlan, useRoomPlan } from './floor/layout';
+import { inPlan, useRoomPlan } from '../../store/floorLayout';
 import s from './ManagerHeader.module.css';
 
 /** Below this width the header buttons drop their words and keep their icons. */

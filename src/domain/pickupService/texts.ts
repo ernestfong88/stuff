@@ -6,9 +6,9 @@
  * none; their orders go through the same way and the screens say "no
  * mobile" so staff let them know another way.
  */
-import { COMMUNITY_NAME, rooms } from '../../../data';
-import { dinerPerson } from '../../../domain/orders';
-import type { Diner, Order, Resident } from '../../../domain/types';
+import { COMMUNITY_NAME, rooms } from '../../data';
+import { dinerPerson } from '../orders';
+import type { Diner, Order, Resident } from '../types';
 import { hasMobile, mobileNumber, type MobileOverrides } from './phones';
 import type { TextSettings } from './settings';
 import { rangeOf } from './windows';

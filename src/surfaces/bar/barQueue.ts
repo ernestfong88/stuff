@@ -5,7 +5,7 @@
 import type { DiningConfig } from '../../domain/config';
 import { COCKTAIL_ROOMS } from '../../domain/routing';
 import type { Order } from '../../domain/types';
-import { drinkQueue, type DrinkLine } from '../manager/floor/drinks';
+import { drinkQueue, type DrinkLine } from '../../domain/drinks';
 
 /** Minutes before a ticket still being made turns red. */
 export const BAR_LATE_MIN = 6;

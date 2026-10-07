@@ -5,10 +5,10 @@
  * with a call to the community's own server, which holds the provider
  * account and sends; no provider key belongs in the browser.
  */
-import { now } from '../../../lib/clock';
-import { uid } from '../../../lib/id';
-import { createSharedStore, useShared } from '../../../lib/sharedStore';
-import type { TextKey } from './texts';
+import { now } from '../lib/clock';
+import { uid } from '../lib/id';
+import { createSharedStore, useShared } from '../lib/sharedStore';
+import type { TextKey } from '../domain/pickupService/texts';
 
 export interface OutgoingText {
   /** Mobile number, digits only. */

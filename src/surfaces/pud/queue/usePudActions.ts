@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { dinerName } from '../../../domain/orders';
 import type { Order } from '../../../domain/types';
 import { useDining } from '../../../store/dining';
-import { sendText } from '../service/outbox';
-import { mobileOverrides, textSettings, tracksPickups, useServiceSettings } from '../service/settings';
-import { queueTextKey, textFor, textMessage, textNumber, textRecipient, type TextContext } from '../service/texts';
+import { sendText } from '../../../store/textOutbox';
+import { mobileOverrides, textSettings, tracksPickups, useServiceSettings } from '../../../domain/pickupService/settings';
+import { queueTextKey, textFor, textMessage, textNumber, textRecipient, type TextContext } from '../../../domain/pickupService/texts';
 import type { QueueActionKind, QueueRow } from './queue';
 
 /** The text settings PU & Delivery reads, re-read when Back Office changes them. */

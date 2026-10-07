@@ -11,7 +11,7 @@ import { createSharedStore, useShared } from '../../../lib/sharedStore';
 import { useDining } from '../../../store/dining';
 import { GUESTS_ON_FILE, textParty, type ResvTextKind } from './contacts';
 import { dayFromToday, dayKey, dayWord, hmAmPm, isOpen, mealAtMinutes, nowMinutes, resvAt, RESV_HOURS, type Reservation, type ResvPerson } from './model';
-import { seedItems } from '../../manager/floor/layout';
+import { seedItems } from '../../../store/floorLayout';
 
 interface Book {
   /** The day the book was started; another day starts a fresh one. */

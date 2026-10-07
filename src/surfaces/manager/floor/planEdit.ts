@@ -3,7 +3,7 @@
  * plan, and naming new tables.
  */
 import type { FloorBand } from '../../../domain/types';
-import { sectionAt, type PlanItem } from './layout';
+import { sectionAt, type PlanItem } from '../../../store/floorLayout';
 
 /** Positions snap to half a percent of the plan. */
 export const SNAP = 0.5;

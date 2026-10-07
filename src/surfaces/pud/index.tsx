@@ -10,7 +10,7 @@ import { now } from '../../lib/clock';
 import { useDining } from '../../store/dining';
 import { OrderScreen } from '../server/order';
 import { PudBoard } from './PudBoard';
-import { mealAt } from './service/meals';
+import { mealAt } from '../../domain/pickupService/meals';
 
 export default function PudSurface() {
   const { openQueueOrder } = useDining();

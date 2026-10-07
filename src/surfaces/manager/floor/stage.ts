@@ -10,9 +10,9 @@ import { courseNumber, lineReadyAt } from '../../../domain/courses';
 import { isSide } from '../../../domain/menu';
 import { isDrinkLine } from '../../../domain/routing';
 import type { Order, OrderLine } from '../../../domain/types';
-import { tableStage as serverStage, type TableStage as ServerStage } from '../../server/board/tableStage';
+import { tableStage as serverStage, type TableStage as ServerStage } from '../../../domain/tableStage';
 
-export type { StageKey } from '../../server/board/tableStage';
+export type { StageKey } from '../../../domain/tableStage';
 
 export interface TableStage extends ServerStage {
   /** The course the run is about, when the lowest course is up at the pass. */

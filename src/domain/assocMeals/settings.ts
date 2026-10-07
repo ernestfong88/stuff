@@ -9,8 +9,8 @@
  *   win.cap     orders per range per venue
  *   win.nocBy   when the dinner line closes and sets NOC meals out
  */
-import { rooms } from '../../../data';
-import { useSetting } from '../../../store/serviceConfig';
+import { rooms } from '../../data';
+import { useSetting } from '../../store/serviceConfig';
 import type { MenuWeek } from './menu';
 import type { WindowCap, WindowGrid } from './windows';
 

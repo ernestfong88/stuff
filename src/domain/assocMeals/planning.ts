@@ -1,4 +1,4 @@
-import type { AssocMeal } from '../../../domain/types';
+import type { AssocMeal } from '../types';
 import type { AssocSettings } from './settings';
 import { shiftMeals, withinShift, type Shift } from './shifts';
 import { assocWindows, windowClosesAt, type AssocMealName } from './windows';

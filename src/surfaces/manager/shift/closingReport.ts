@@ -8,7 +8,7 @@ import { courseSummaries, firstSend, normalizeOrder } from '../../../domain/cour
 import { dinerName } from '../../../domain/orders';
 import type { MealName, Order, ResidentNote } from '../../../domain/types';
 import { MINUTE } from '../../../lib/clock';
-import { mean } from '../metrics/stepsOfService';
+import { mean } from '../../../domain/metrics/stepsOfService';
 
 // ─── Money ───────────────────────────────────────────────────────────────
 

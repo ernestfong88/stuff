@@ -11,11 +11,11 @@ import { now } from '../../lib/clock';
 import { useRoute } from '../../shell/router';
 import { is86, use86 } from '../../store/eightySix';
 import { useNow } from '../../ui';
-import { mealAt, parseMeal } from '../pud/service/meals';
+import { mealAt, parseMeal } from '../../domain/pickupService/meals';
 import type { MealName } from '../../domain/types';
 import { DishSlide } from './DishSlide';
 import { displaySlides, nextPreview, slideLabel, specialsLabel } from './specials';
-import { StaffCorner } from './StaffCorner';
+import { StaffCorner } from '../../shell/StaffCorner';
 import s from './Display.module.css';
 
 /** How long each dish stays up. */

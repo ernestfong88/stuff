@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react';
-import { hasMobile, maskPhone } from '../../pud/service/phones';
-import { mobileOverrides, useServiceSettings } from '../../pud/service/settings';
-import { rangeLabel } from '../../pud/service/windows';
+import { hasMobile, maskPhone } from '../../../domain/pickupService/phones';
+import { mobileOverrides, useServiceSettings } from '../../../domain/pickupService/settings';
+import { rangeLabel } from '../../../domain/pickupService/windows';
 import { kioskVenue } from '../model/order';
 import { KButton } from '../ui/KButton';
 import { Panel } from '../ui/Layout';

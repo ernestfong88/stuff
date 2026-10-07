@@ -2,8 +2,8 @@ import { hospiceOnOrder } from '../../../domain/waivers';
 import type { Order } from '../../../domain/types';
 import { useConfig } from '../../../store/config';
 import { Chip } from '../../../ui';
-import { lacksMobile } from '../service/texts';
-import type { MobileOverrides } from '../service/phones';
+import { lacksMobile } from '../../../domain/pickupService/texts';
+import type { MobileOverrides } from '../../../domain/pickupService/phones';
 
 /** Placed by the resident at the lobby kiosk. Other surfaces show this tag too. */
 export function KioskTag({ order }: { order: Order }) {

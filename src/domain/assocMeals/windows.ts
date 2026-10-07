@@ -6,7 +6,7 @@
  * 6 AM, and count as minutes from the service day's midnight, so 2:00 AM is
  * 1560 and falls on the next calendar day.
  */
-import type { AssocMeal, Order } from '../../../domain/types';
+import type { AssocMeal, Order } from '../types';
 
 export type AssocMealName = 'Lunch' | 'Dinner' | 'NOC';
 

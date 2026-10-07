@@ -3,11 +3,11 @@ import { ChevronLeft } from 'lucide-react';
 import { rooms } from '../../data';
 import type { AssocMeal, Order } from '../../domain/types';
 import { Button, Chip, cx, useNow } from '../../ui';
-import type { NewMeal } from './model/meals';
-import { CLOSED_TEXT, closedReason, itemsLeft, menuFor, missingChoice, modsText } from './model/menu';
-import type { AssocSettings } from './model/settings';
-import { openWindows } from './model/planning';
-import { dayName, nearestToBreak, shiftMeals, type Shift } from './model/shifts';
+import type { NewMeal } from '../../domain/assocMeals/meals';
+import { CLOSED_TEXT, closedReason, itemsLeft, menuFor, missingChoice, modsText } from '../../domain/assocMeals/menu';
+import type { AssocSettings } from '../../domain/assocMeals/settings';
+import { openWindows } from '../../domain/assocMeals/planning';
+import { dayName, nearestToBreak, shiftMeals, type Shift } from '../../domain/assocMeals/shifts';
 import {
   loadTag,
   minutesLabel,
@@ -16,7 +16,7 @@ import {
   windowLoad,
   windowMinutes,
   type AssocMealName,
-} from './model/windows';
+} from '../../domain/assocMeals/windows';
 import s from './PlanMeal.module.css';
 
 interface PlanMealProps {

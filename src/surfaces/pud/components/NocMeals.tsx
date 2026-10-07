@@ -3,8 +3,8 @@ import { now } from '../../../lib/clock';
 import { formatTime } from '../../../lib/format';
 import { useDining } from '../../../store/dining';
 import { nocGroups, setOutMeal, type NocMeal } from '../queue/noc';
-import { useServiceSettings, windowSettings } from '../service/settings';
-import { minuteLabel, nocMadeBy, rangeOf } from '../service/windows';
+import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
+import { minuteLabel, nocMadeBy, rangeOf } from '../../../domain/pickupService/windows';
 import s from './NocMeals.module.css';
 
 /** "NOC 11:00 to 11:15 PM" */

@@ -8,11 +8,11 @@ import type { DinerBilling } from '../../../domain/billing';
 import { defaultSides, shortName } from '../../../domain/menu';
 import type { Order, OrderLine, Resident } from '../../../domain/types';
 import { formatMoney } from '../../../lib/format';
-import type { TextSettings } from '../../pud/service/settings';
-import { fillText, textBody } from '../../pud/service/texts';
-import { minuteLabel, rangeLabel } from '../../pud/service/windows';
+import type { TextSettings } from '../../../domain/pickupService/settings';
+import { fillText, textBody } from '../../../domain/pickupService/texts';
+import { minuteLabel, rangeLabel } from '../../../domain/pickupService/windows';
 import type { KioskState } from './flow';
-import { defaultMods, dishLongName, dishVersions, drinkName, modsFromWords, versionMods, type DishVersion } from './menu';
+import { defaultMods, dishLongName, dishVersions, drinkName, modsFromWords, versionMods, type DishVersion } from '../../../domain/kioskMenu';
 import { KIOSK_ROOM } from './times';
 
 /** "Sequoia" (the venue's first name, as residents say it). */

@@ -1,5 +1,5 @@
 import { Soup } from 'lucide-react';
-import { dishLongName, type KioskMenu } from '../model/menu';
+import { dishLongName, type KioskMenu } from '../../../domain/kioskMenu';
 import { KButton } from '../ui/KButton';
 import { Question, TileGrid } from '../ui/Layout';
 import type { KioskFlow } from '../useKioskFlow';

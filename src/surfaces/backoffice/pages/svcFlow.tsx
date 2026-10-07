@@ -4,10 +4,10 @@ import type { MealName } from '../../../domain/types';
 import { updateConfig, useConfig } from '../../../store/config';
 import { getSetting, setSetting, useSetting } from '../../../store/serviceConfig';
 import { Button, Toggle } from '../../../ui';
-import { greetConfig } from '../../manager/floor/greet';
-import { checkInWakeMinutes } from '../../server/shared/venue';
-import { MEALS } from '../../manager/metrics/stepsOfService';
-import { InlineField, InlineFields, PickMany, ResetButton, SettingNumber, SettingSelect } from '../../manager/settings/SettingControls';
+import { greetConfig } from '../../../domain/greet';
+import { checkInWakeMinutes } from '../../../domain/venue';
+import { MEALS } from '../../../domain/metrics/stepsOfService';
+import { InlineField, InlineFields, PickMany, ResetButton, SettingNumber, SettingSelect } from '../kit/SettingControls';
 import type { BoPageProps } from '../nav';
 import { BoPage, BoRow, BoSection, BoTable, type BoColumn } from '../kit';
 

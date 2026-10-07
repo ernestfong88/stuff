@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, Mic } from 'lucide-react';
 import { getItem } from '../../../data';
 import { cx } from '../../../ui';
-import { changeChips } from '../model/menu';
+import { changeChips } from '../../../domain/kioskMenu';
 import { kioskNote } from '../model/order';
 import { KButton } from '../ui/KButton';
 import { Caption, Question, TileGrid } from '../ui/Layout';

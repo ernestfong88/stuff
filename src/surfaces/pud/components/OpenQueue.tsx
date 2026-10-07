@@ -13,7 +13,7 @@ import {
   type QueueFilter,
   type QueueRow,
 } from '../queue/queue';
-import type { TextContext } from '../service/texts';
+import type { TextContext } from '../../../domain/pickupService/texts';
 import { DeliveryRun } from './DeliveryRun';
 import { NocMeals } from './NocMeals';
 import { QueueRowCard } from './QueueRowCard';

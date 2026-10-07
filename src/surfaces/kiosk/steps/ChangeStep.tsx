@@ -1,7 +1,7 @@
 import { getItem } from '../../../data';
-import { rangeLabel } from '../../pud/service/windows';
+import { rangeLabel } from '../../../domain/pickupService/windows';
 import type { KioskState, Screen } from '../model/flow';
-import { dishLongName, drinkName, type KioskMenu } from '../model/menu';
+import { dishLongName, drinkName, type KioskMenu } from '../../../domain/kioskMenu';
 import { mainDishName } from '../model/order';
 import { KButton } from '../ui/KButton';
 import { Question, TileGrid } from '../ui/Layout';

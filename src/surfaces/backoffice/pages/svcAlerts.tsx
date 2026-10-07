@@ -1,7 +1,7 @@
 import type { BoPageProps } from '../nav';
 import { BoPage, BoRow, BoSection } from '../kit';
 import { Row } from '../../../ui';
-import { ResetButton, SettingNumber, Swatch } from '../../manager/settings/SettingControls';
+import { ResetButton, SettingNumber, Swatch } from '../kit/SettingControls';
 
 /** One alert threshold: red after this many minutes (blank is off where allowed). */
 function Threshold({ k, label, hint, off }: { k: string; label: string; hint: string; off?: boolean }) {

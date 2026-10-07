@@ -1,7 +1,7 @@
 import type { DinerBilling } from '../../../domain/billing';
 import type { Order } from '../../../domain/types';
 import { cx } from '../../../ui';
-import { maskPhone } from '../../pud/service/phones';
+import { maskPhone } from '../../../domain/pickupService/phones';
 import { planSentence, reviewItems, reviewWhen } from '../model/order';
 import { Panel, Question } from '../ui/Layout';
 import type { KioskFlow } from '../useKioskFlow';

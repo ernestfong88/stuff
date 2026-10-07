@@ -6,7 +6,7 @@ import type { QueueType } from '../../../domain/types';
 import { formatMoney } from '../../../lib/format';
 import { useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
-import { useServiceSettings, windowSettings } from '../../pud/service/settings';
+import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
 import { kioskVenue } from '../model/order';
 import { KIOSK_ROOM, kioskTypes } from '../model/times';
 import { KButton } from '../ui/KButton';

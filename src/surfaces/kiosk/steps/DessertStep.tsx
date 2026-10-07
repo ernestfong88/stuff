@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { dishLongName, type KioskMenu } from '../model/menu';
+import { dishLongName, type KioskMenu } from '../../../domain/kioskMenu';
 import { DishPicture } from '../ui/DishTile';
 import { KButton } from '../ui/KButton';
 import { Actions, Panel, Question, TileGrid } from '../ui/Layout';

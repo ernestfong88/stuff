@@ -15,7 +15,7 @@ import {
   windowStarts,
   windowTypeOn,
   windowUsage,
-} from '../service/windows';
+} from '../../../domain/pickupService/windows';
 
 const order = (id: string, readyAt: string, extra: Partial<Order> = {}): Order => ({
   id,

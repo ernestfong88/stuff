@@ -10,7 +10,7 @@ import { OpenQueue } from './components/OpenQueue';
 import { QueueToolbar } from './components/QueueToolbar';
 import { completedToday, matchesFilter, openRows, type QueueFilter, type QueueRow } from './queue/queue';
 import { usePudActions, useTextContext } from './queue/usePudActions';
-import { tracksPickups, useServiceSettings } from './service/settings';
+import { tracksPickups, useServiceSettings } from '../../domain/pickupService/settings';
 import s from './PudBoard.module.css';
 
 const FILTERS: readonly QueueFilter[] = ['all', 'pickup', 'delivery'];

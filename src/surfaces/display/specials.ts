@@ -6,8 +6,8 @@
 import { catalog, getItem } from '../../data';
 import { defaultSides } from '../../domain/menu';
 import type { CatalogItem, MealName } from '../../domain/types';
-import { dishLongName, kioskMenu } from '../kiosk/model/menu';
-import { MEALS } from '../pud/service/meals';
+import { dishLongName, kioskMenu } from '../../domain/kioskMenu';
+import { MEALS } from '../../domain/pickupService/meals';
 
 export type SlideKind = 'entree' | 'soup' | 'dessert';
 

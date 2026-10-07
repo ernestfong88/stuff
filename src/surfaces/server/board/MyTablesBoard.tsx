@@ -6,10 +6,10 @@ import { serverName } from '../../../domain/servers';
 import { useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
 import { cx, EmptyState, useNow } from '../../../ui';
-import { inVenue } from '../shared/venue';
+import { inVenue } from '../../../domain/venue';
 import s from './MyTablesBoard.module.css';
 import { TableCard, type OpenCheckOptions } from './TableCard';
-import { LANES, stageSince, tableStage, type StageKey, type TableStage } from './tableStage';
+import { LANES, stageSince, tableStage, type StageKey, type TableStage } from '../../../domain/tableStage';
 
 /** Quick close is offered when every diner is a resident on plan with nothing to charge. */
 export function isCovered(o: Order, cfg: DiningConfig): boolean {

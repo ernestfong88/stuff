@@ -7,7 +7,7 @@
  * Back Office can mark a resident as having no mobile (or having one again)
  * under Text Messages; that override lives in the service settings `mobile`.
  */
-import type { Resident } from '../../../domain/types';
+import type { Resident } from '../types';
 
 export interface PhonesOnFile {
   m?: string;

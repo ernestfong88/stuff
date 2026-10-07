@@ -6,7 +6,7 @@ import { plural } from '../../../lib/format';
 import { useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
 import { Eyebrow, Tabs, cx, useNow } from '../../../ui';
-import { useTableName } from '../floor/layout';
+import { useTableName } from '../../../store/floorLayout';
 import {
   MEALS,
   atRisk,
@@ -25,7 +25,7 @@ import {
   weekLabels,
   type SosSample,
   type SosTable,
-} from './stepsOfService';
+} from '../../../domain/metrics/stepsOfService';
 import { Trend } from './Trend';
 import s from './MetricsView.module.css';
 

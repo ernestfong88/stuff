@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { X } from 'lucide-react';
-import { ModeChip, TextZoom } from '../../shell/controls';
-import { cx } from '../../ui';
+import { ModeChip, TextZoom } from './controls';
+import { cx } from '../ui';
 import s from './StaffCorner.module.css';
 
 const HOLD_MS = 900;

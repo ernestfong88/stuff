@@ -8,10 +8,10 @@
  * A table misses when either step runs past its goal. The community's goal
  * is that 90% of tables make both steps.
  */
-import { DAY, MINUTE, now, startOfToday } from '../../../lib/clock';
-import { DEFAULT_CONFIG, type DiningConfig } from '../../../domain/config';
-import { courseSummaries, firstSend, normalizeOrder, type CourseSummary } from '../../../domain/courses';
-import type { MealName, Order } from '../../../domain/types';
+import { DAY, MINUTE, now, startOfToday } from '../../lib/clock';
+import { DEFAULT_CONFIG, type DiningConfig } from '../config';
+import { courseSummaries, firstSend, normalizeOrder, type CourseSummary } from '../courses';
+import type { MealName, Order } from '../types';
 
 /** Goals in minutes, and the share of tables that should make both steps. */
 export const SOS_GOALS = { app: 7, ent: 15, sos: 90 } as const;

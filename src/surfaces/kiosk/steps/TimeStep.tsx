@@ -1,5 +1,5 @@
 import { MapPin, Truck } from 'lucide-react';
-import { minuteLabel, rangeLabel, roomTag } from '../../pud/service/windows';
+import { minuteLabel, rangeLabel, roomTag } from '../../../domain/pickupService/windows';
 import { kioskPlace } from '../model/order';
 import { nextTimes, type TimeChoice } from '../model/times';
 import { KButton } from '../ui/KButton';

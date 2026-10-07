@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { seedOrders } from '../../../data';
 import type { Diner, Order, OrderLine } from '../../../domain/types';
 import { floorState, isLate } from '../floor/floorState';
-import { greetConfig, greetInfo } from '../floor/greet';
+import { greetConfig, greetInfo } from '../../../domain/greet';
 import { courseWord, tableStage } from '../floor/stage';
 import { needingHelp, triageByServer, triageReasons, triageRows } from '../floor/triage';
 import prototype from './fixtures/prototypeFloor.json';

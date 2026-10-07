@@ -1,7 +1,7 @@
 import type { AssocMeal } from '../../domain/types';
 import { EmptyState, cx } from '../../ui';
-import { dayName } from './model/shifts';
-import { windowTag } from './model/windows';
+import { dayName } from '../../domain/assocMeals/shifts';
+import { windowTag } from '../../domain/assocMeals/windows';
 import s from './MealHistory.module.css';
 
 /** Meals picked up or cancelled, newest first. */

@@ -12,7 +12,7 @@ import {
   type QueueActionKind,
   type QueueRow,
 } from '../queue/queue';
-import { queueTextKey, textMessage, type TextContext } from '../service/texts';
+import { queueTextKey, textMessage, type TextContext } from '../../../domain/pickupService/texts';
 import { OrderWho } from './OrderWho';
 import { QueueTypeIcon } from './QueueTypeIcon';
 import s from './QueueRowCard.module.css';

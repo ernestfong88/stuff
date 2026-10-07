@@ -5,13 +5,13 @@
  * the meal. The manager floor and Triage use the same stages and colours,
  * so a server and a manager see the same colour for the same state.
  */
-import { checkedIn, courseNumber, lastRun } from '../../../domain/courses';
-import { DEFAULT_CONFIG, flag, type DiningConfig } from '../../../domain/config';
-import { isSide } from '../../../domain/menu';
-import { isDrinkLine } from '../../../domain/routing';
-import type { Order, OrderLine } from '../../../domain/types';
-import { MINUTE, now } from '../../../lib/clock';
-import { threshold } from '../../../store/serviceConfig';
+import { checkedIn, courseNumber, lastRun } from './courses';
+import { DEFAULT_CONFIG, flag, type DiningConfig } from './config';
+import { isSide } from './menu';
+import { isDrinkLine } from './routing';
+import type { Order, OrderLine } from './types';
+import { MINUTE, now } from '../lib/clock';
+import { threshold } from '../store/serviceConfig';
 
 export type StageKey = 'seat' | 'order' | 'cook' | 'run' | 'eat' | 'check';
 

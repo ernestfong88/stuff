@@ -1,5 +1,5 @@
 import { getItem } from '../../../data';
-import { dishNoun, dishVersions } from '../model/menu';
+import { dishNoun, dishVersions } from '../../../domain/kioskMenu';
 import { DishTile } from '../ui/DishTile';
 import { KButton } from '../ui/KButton';
 import { Question } from '../ui/Layout';

@@ -19,7 +19,7 @@ import {
   statusCounts,
   type QueueRow,
 } from '../queue/queue';
-import { fillText, lacksMobile, smsParts, textFor, textMessage, type TextContext } from '../service/texts';
+import { fillText, lacksMobile, smsParts, textFor, textMessage, type TextContext } from '../../../domain/pickupService/texts';
 
 /** 6:00 PM on the demo day. */
 const T0 = new Date(2026, 9, 7, 18, 0, 0, 0).getTime();

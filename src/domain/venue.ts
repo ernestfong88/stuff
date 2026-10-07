@@ -3,10 +3,10 @@
  * logic: which venue a table belongs to, whether the kitchen has someone
  * on Expo, and when the check-in button wakes up.
  */
-import { catalog, rooms } from '../../../data';
-import type { Order } from '../../../domain/types';
-import { getSetting } from '../../../store/serviceConfig';
-import { kitchenHasExpo, venueSettingsStore } from '../../../store/venueSettings';
+import { catalog, rooms } from '../data';
+import type { Order } from './types';
+import { getSetting } from '../store/serviceConfig';
+import { kitchenHasExpo, venueSettingsStore } from '../store/venueSettings';
 
 /**
  * __kInVenue: by floor plan, not order.room. Some seeded Evergreen checks

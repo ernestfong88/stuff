@@ -1,4 +1,4 @@
-import type { MealName } from '../../../domain/types';
+import type { MealName } from '../types';
 
 export const MEALS: readonly MealName[] = ['Breakfast', 'Lunch', 'Dinner'];
 

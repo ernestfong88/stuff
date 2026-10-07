@@ -37,17 +37,39 @@ npm test           # vitest
 ```
 src/
   main.tsx, App.tsx      boot, providers, routing to the current surface
-  app/Providers.tsx      app-wide providers (dining store)
-  data/                  seed data (from the mockup) + typed lookups; photos
-  domain/                pure business logic: types, courses, routing, billing ...
-  store/                 shared state: the dining store + cross-surface stores
+  app/Providers.tsx      app-wide providers (dining store, session bridge, demo tools)
+  data/                  seed data (from the mockup) + typed lookups; photos;
+                         the live menu overlay from back office edits
+  domain/                pure business logic: types, courses, routing, billing,
+                         table stage, KDS screens, pick up windows and texts
+                         (pickupService/), associate meals (assocMeals/), metrics/
+  store/                 shared state: the dining store (orders, history,
+                         associate meals) and cross-surface stores: dining
+                         config, service settings, venue settings, menu edits,
+                         86 list, notices, notes, resident stories and prefs,
+                         side work, trivia, production plan, floor layout,
+                         text outbox, PINs
   lib/                   clock, storage, sharedStore, format, id
   theme/, styles/        design tokens (TS + CSS variables), global CSS
   ui/                    reusable UI kit (import from '../ui')
   shell/                 modes, hash router, session (staff, venue), tablet
-                         shell, controls (text size, mode, venue, account)
+                         shell, controls (text size, mode, venue, account),
+                         sign-in, touch lock, staff corner
   surfaces/<mode>/       one folder per surface; index.tsx default-exports it
+  surfaces/kitchen/      pieces Cook and Expo share (dark shell, bump bar ...)
+  surfaces/backoffice/   shell, kit, nav (page registry), pages/<id>.tsx, menus/
 ```
+
+Surfaces don't reach into each other's internals. They share through
+`domain/` and `store/`, with three deliberate exceptions:
+- **`server/order` (`OrderScreen`)** is the one check screen. PU & Delivery,
+  Manager and Host open it.
+- **`server/features`** is the contract for the server's panels (menu,
+  residents, notices ...). Manager reuses it.
+- **Feature admin panels** (venue cards, routing editor, floor plan editor,
+  side work assignment) live beside the feature they configure. The back
+  office page imports them, so one component knows both the floor behaviour
+  and its settings.
 
 ## Conventions
 

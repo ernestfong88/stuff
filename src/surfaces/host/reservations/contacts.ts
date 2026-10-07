@@ -8,9 +8,8 @@
  * community's own server, which holds the provider account.
  */
 import { COMMUNITY_NAME, getResident, rooms } from '../../../data';
-import { now } from '../../../lib/clock';
-import { createSharedStore } from '../../../lib/sharedStore';
 import { getSetting } from '../../../store/serviceConfig';
+import { sendText } from '../../../store/textOutbox';
 
 export interface GuestOnFile {
   id: string;
@@ -164,20 +163,6 @@ export function fillText(body: string, values: Record<string, string>): string {
   return body.replace(/\{(\w+)\}/g, (m, k: string) => (values[k] ? values[k] : m));
 }
 
-export interface SentText {
-  to: string;
-  name: string;
-  body: string;
-  kind: string;
-  /** Reservation id. */
-  ref: string;
-  at: number;
-  status: 'simulated';
-}
-
-/** The simulated outbox, newest first (Back Office Text Messages can list it). */
-export const textOutbox = createSharedStore<SentText[]>([], { persistKey: 'kisco_sms_outbox', channel: 'kisco-sms-outbox' });
-
 /** Text everyone on a reservation who has a mobile. Returns how many were texted. */
 export function textParty(
   r: { id: string; room: string; meal: string; time: string; day: string; people: TextPerson[] },
@@ -186,18 +171,10 @@ export function textParty(
   if (!textOn(kind)) return 0;
   const { to } = recipients(r.people);
   const values = { meal: r.meal.toLowerCase(), venue: rooms[r.room]?.name ?? 'the dining room', time: r.time, day: r.day, community: COMMUNITY_NAME };
-  const at = now();
-  const sent: SentText[] = to.map((x) => ({
-    to: x.mobile,
-    name: x.name,
-    kind,
-    ref: r.id,
-    at,
-    status: 'simulated',
-    body: fillText(textBody(kind), { ...values, first: x.name.split(' ')[0], name: x.name }),
-  }));
-  if (sent.length) textOutbox.set((list) => [...sent, ...list].slice(0, 50));
-  return sent.length;
+  for (const x of to) {
+    sendText({ to: x.mobile, name: x.name, kind, ref: r.id, body: fillText(textBody(kind), { ...values, first: x.name.split(' ')[0], name: x.name }) });
+  }
+  return to.length;
 }
 
 /** ". Texted 3 people" for a toast, or nothing. */

@@ -4,7 +4,7 @@
  * whose digits find no one, can use their apartment number instead.
  */
 import type { Resident } from '../../../domain/types';
-import { residentsByPhoneDigits } from '../../pud/service/phones';
+import { residentsByPhoneDigits } from '../../../domain/pickupService/phones';
 
 /**
  * Apartment numbers compare as upper case letters and digits only, so "12b"

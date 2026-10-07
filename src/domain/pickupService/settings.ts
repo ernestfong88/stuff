@@ -3,8 +3,8 @@
  * service settings (src/store/serviceConfig.ts). Back Office edits them;
  * PU & Delivery and the Resident Kiosk read them.
  */
-import { useShared } from '../../../lib/sharedStore';
-import { serviceConfig, type ServiceConfig } from '../../../store/serviceConfig';
+import { useShared } from '../../lib/sharedStore';
+import { serviceConfig, type ServiceConfig } from '../../store/serviceConfig';
 import type { MobileOverrides } from './phones';
 import type { TextKey } from './texts';
 import type { WindowSettings } from './windows';
