@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BadgeCheck, Check, Pencil, Plus } from 'lucide-react';
+import { getResident } from '../../../../data';
 import { now } from '../../../../lib/clock';
 import { Button, Chip, Tabs, cx, toast } from '../../../../ui';
 import { BoIconButton, BoPage, BoTable, setBillingList, useBilling, useResidentRecords, type BoColumn } from '../../kit';
@@ -20,7 +21,7 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
   const [tab, setTab] = useState<ChargeTab>('review');
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Charge | null>(null);
-  const nameOf = (rid: string) => residents.find((r) => r.id === rid)?.name ?? 'Unknown resident';
+  const nameOf = (rid: string) => residents.find((r) => r.id === rid)?.name ?? getResident(rid)?.name ?? 'Unknown resident';
   const rows = chargesFor(tab, charges, now());
   const waiting = chargesFor('review', charges, now()).length;
   const setCharges = (fn: (list: Charge[]) => Charge[]) => setBillingList('charges', fn);
