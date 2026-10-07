@@ -31,3 +31,17 @@ describe('phase switches', () => {
     expect(printerMode(getConfig())).toBe(false);
   });
 });
+
+describe('features that follow their Back Office pages', () => {
+  it('turns side work off with its pages’ phase', async () => {
+    const { sideWorkOn, SIDE_WORK_PAGES } = await import('../sideWork');
+    const { BO_PAGES } = await import('../../surfaces/backoffice/nav');
+    // The standard phases here match nav.ts.
+    for (const [id, ph] of Object.entries(SIDE_WORK_PAGES)) expect(BO_PAGES.find((p) => p.id === id)?.phase ?? 1).toBe(ph);
+    expect(sideWorkOn()).toBe(true);
+    phasePlanStore.set({ swLib: 2, swAssign: 2 });
+    expect(sideWorkOn()).toBe(true);
+    setPhaseOn(2, false);
+    expect(sideWorkOn()).toBe(false);
+  });
+});

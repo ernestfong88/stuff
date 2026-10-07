@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ClipboardCheck } from 'lucide-react';
-import { isOnRoster, tasksFor, useSideWork } from '../../../../store/sideWork';
+import { isOnRoster, tasksFor, useSideWork, useSideWorkOn } from '../../../../store/sideWork';
 import { cx } from '../../../../ui';
 import { useMyInitials } from '../shared/useShiftServers';
 import { SideWorkSheet } from './SideWorkSheet';
@@ -11,8 +11,10 @@ export function SideWorkChip({ short }: { short?: boolean }) {
   const me = useMyInitials();
   const state = useSideWork();
   const [open, setOpen] = useState(false);
+  const inUse = useSideWorkOn();
   const mine = tasksFor(state, me);
-  if (!mine.length && !isOnRoster(me)) return null;
+  // Hidden while side work's release phase is switched off.
+  if (!inUse || (!mine.length && !isOnRoster(me))) return null;
   const done = mine.filter((t) => t.done).length;
   const all = mine.length > 0 && done === mine.length;
   return (

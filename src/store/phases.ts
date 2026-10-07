@@ -70,6 +70,19 @@ export function setPhaseOn(phase: Phase, value: boolean): void {
   });
 }
 
+/**
+ * A floor feature that a Back Office page sets up follows that page's phase:
+ * it is in use while any of its pages' phases is switched on. The pages'
+ * standard phase is Phase 1 unless given here (keep in step with nav.ts).
+ */
+export function featureOn(pages: Record<string, Phase>, plan: PhasePlan = phasePlanStore.get(), on: PhaseSwitches = phaseOnStore.get()): boolean {
+  return Object.entries(pages).some(([id, std]) => phaseIsOn(plan[id] ?? std, on));
+}
+
+export function useFeatureOn(pages: Record<string, Phase>): boolean {
+  return featureOn(pages, useShared(phasePlanStore), useShared(phaseOnStore));
+}
+
 export function usePhaseOn(): PhaseSwitches {
   return useShared(phaseOnStore);
 }

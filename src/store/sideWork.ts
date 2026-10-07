@@ -15,6 +15,7 @@
 import { rooms } from '../data';
 import { now, today } from '../lib/clock';
 import { createSharedStore, useShared } from '../lib/sharedStore';
+import { featureOn, useFeatureOn } from './phases';
 
 /** A shift (opening, mid, closing) or a meal (breakfast, lunch, dinner). */
 export type SideWorkWhen = 'open' | 'mid' | 'close' | 'B' | 'L' | 'D';
@@ -328,3 +329,10 @@ export function resetSideWorkLibrary(venue: string): void {
 export function useSideWork(): SideWorkState {
   return useShared(sideWorkStore);
 }
+
+/** The Back Office pages that set up side work, with their standard phase (nav.ts). */
+export const SIDE_WORK_PAGES = { swLib: 1, swAssign: 1 } as const;
+
+/** Side work is in use while its pages' phase is switched on; otherwise servers never see it. */
+export const sideWorkOn = () => featureOn(SIDE_WORK_PAGES);
+export const useSideWorkOn = () => useFeatureOn(SIDE_WORK_PAGES);

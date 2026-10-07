@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ClipboardCheck } from 'lucide-react';
-import { tasksFor, useSideWork } from '../../../../store/sideWork';
+import { tasksFor, useSideWork, useSideWorkOn } from '../../../../store/sideWork';
 import { Button } from '../../../../ui';
 import { SideWorkSheet } from './SideWorkSheet';
 import s from './SideWorkNudge.module.css';
@@ -9,8 +9,9 @@ import s from './SideWorkNudge.module.css';
 export function SideWorkNudge({ who, verb = 'sign off' }: { who: string; verb?: string }) {
   const state = useSideWork();
   const [open, setOpen] = useState(false);
+  const inUse = useSideWorkOn();
   const left = tasksFor(state, who).filter((t) => !t.done);
-  if (!left.length) return null;
+  if (!inUse || !left.length) return null;
   return (
     <div className={s.nudge} role="status">
       <ClipboardCheck size={22} className={s.icon} aria-hidden />

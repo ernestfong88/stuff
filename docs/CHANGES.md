@@ -221,6 +221,7 @@ The final order is:
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
 ### Phases switched on or off for the whole system
+- **Side work follows its phase.** The side work chip on My tables and the side work reminder at sign-off only show while the phase of *Side Work Tasks* / *Assign Side Work* is switched on.
 - **Phase 2 and Phase 3 switches.** They are at the bottom of the Back Office side menu and on *Release Phases* (HO Settings). Phase 1 is always on. Turning Phase 2 off also turns Phase 3 off, and turning Phase 3 on also turns Phase 2 on. The switches are saved and survive a demo reset. They replace the old *All pages / Phase 1 only* view.
 - **What a phase that is off does everywhere:**
   - its screens leave the screen menu, and opening one shows "part of Phase N" with a link to Release Phases;
