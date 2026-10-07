@@ -2,6 +2,8 @@ import { useEffect, type ReactNode } from 'react';
 import { useRoute } from '../shell/router';
 import { useSignedIn } from '../shell/session';
 import { registerDemoAction } from '../shell/demoTools';
+import { isoDate } from '../domain/pickup';
+import { syncAssocItems, useAssocMenuSettings } from '../store/assocMenu';
 import { DiningProvider, useDining } from '../store/dining';
 import { setSessionMode, setSignedIn } from '../store/session';
 
@@ -14,7 +16,7 @@ function SessionBridge() {
   return null;
 }
 
-/** Demo tools, at the bottom of the screen menu on every screen. */
+/** Demo tools, at the top of the screen menu on every screen. */
 function DemoTools() {
   const { resetDemo, clearAll } = useDining();
   useEffect(() => {
@@ -38,12 +40,23 @@ function DemoTools() {
   return null;
 }
 
+// Associate menu dishes the dining room menu doesn't carry are orderable (and named on tickets) from the start.
+syncAssocItems(isoDate(0));
+
+/** Keeps them in step when the chef changes the associate menu. */
+function AssocItems() {
+  const s = useAssocMenuSettings();
+  useEffect(() => syncAssocItems(isoDate(0), s), [s]);
+  return null;
+}
+
 /** App-wide providers. */
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <DiningProvider>
       <SessionBridge />
       <DemoTools />
+      <AssocItems />
       {children}
     </DiningProvider>
   );

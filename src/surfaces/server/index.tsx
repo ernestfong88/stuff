@@ -5,6 +5,7 @@ import { TabletShell } from '../../shell/TabletShell';
 import { useDining } from '../../store/dining';
 import { toast } from '../../ui';
 import { MyTablesBoard } from './board/MyTablesBoard';
+import { MineView } from './board/MineView';
 import type { OpenCheckOptions } from './board/TableCard';
 import { NoticesButton, ResidentsView, ShiftReviewView, VoiceButton } from './features';
 import { NewCheckView } from './newcheck/NewCheckView';
@@ -30,6 +31,8 @@ export default function ServerSurface() {
   const { orders, closeOrder } = useDining();
   const [viewServer, setViewServer] = useState(me);
   const live = orders.filter((o) => !o.queueType && inVenue(o, venue));
+  // My pick up, delivery and associate meal orders.
+  const away = orders.filter((o) => !!o.queueType && inVenue(o, venue) && o.server === viewServer);
 
   const openCheck = (orderId: string, opts?: OpenCheckOptions) =>
     navigate('server', ['check', orderId], { query: opts?.category ? { cat: opts.category } : undefined });
@@ -42,7 +45,8 @@ export default function ServerSurface() {
     // A pick up, delivery or associate meal left with nothing on it doesn't leave an empty order behind.
     const leave = () => {
       const o = orders.find((x) => x.id === rest[0]);
-      setView('mine');
+      // Back to the list the order lives on.
+      navigate('server', o?.queueType ? ['mine', 'away'] : ['mine']);
       if (o?.queueType && !o.diners.some((d) => d.items.length > 0)) {
         closeOrder(o.id);
         toast('Nothing was ordered, so the empty order was removed.');
@@ -84,7 +88,14 @@ export default function ServerSurface() {
       ) : view === 'shift' ? (
         <ShiftReviewView />
       ) : (
-        <MyTablesBoard room={venue} server={viewServer} me={me} onMine={goMine} onOpen={openCheck} />
+        <MineView
+          showing={rest[0] === 'away' ? 'away' : 'tables'}
+          onShow={(v) => navigate('server', v === 'away' ? ['mine', 'away'] : ['mine'], { replace: true })}
+          tables={live.filter((o) => o.server === viewServer).length}
+          away={away}
+          board={<MyTablesBoard room={venue} server={viewServer} me={me} onMine={goMine} onOpen={openCheck} />}
+          onOpen={(id) => openCheck(id)}
+        />
       )}
       <TakeoverDialog />
     </TabletShell>

@@ -203,3 +203,6 @@
 .undoBtn {
   height: 40px;
 }
+.plainCard {
+  border-left: 4px solid var(--s200);
+}

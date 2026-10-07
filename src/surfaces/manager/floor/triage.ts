@@ -4,7 +4,7 @@
  * look. Tables that are fine fold into one line at the bottom.
  */
 import { minutesSince } from '../../../lib/clock';
-import { DEFAULT_CONFIG, flag, type DiningConfig } from '../../../domain/config';
+import { DEFAULT_CONFIG, flag, printerMode, type DiningConfig } from '../../../domain/config';
 import { checkedIn, courseNumber, lastRun, lineReadyAt } from '../../../domain/courses';
 import { isDrinkLine } from '../../../domain/routing';
 import type { Order } from '../../../domain/types';
@@ -83,7 +83,8 @@ export function triageReasons(o: Order, opts: TriageOptions = {}): TriageReason[
   }
   if (st.key === 'cook' && m >= t('floorCook')) add(true, m, `Fired ${m} min ago`, 'Check with the kitchen');
   if (st.key === 'seat' && m >= 8) add(m >= 12, m, `Seated ${m} min, nothing ordered`, 'Help take the order');
-  if (st.key === 'check' && m >= 10) add(m >= t('closeLate'), m, `Served ${m} min ago, check still open`, 'Help close the check');
+  if (st.key === 'check' && m >= 10)
+    add(m >= t('closeLate'), m, printerMode(cfg) ? `Sent ${m} min ago, check still open` : `Served ${m} min ago, check still open`, 'Help close the check');
   return out.sort((a, b) => b.score - a.score);
 }
 

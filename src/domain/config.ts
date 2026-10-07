@@ -74,7 +74,19 @@ export interface DiningConfig {
   mealCredit: MealCreditRules;
   /** Residents can put a guest's meal on their own meal credit, per community. */
   guestCredit: Record<string, boolean>;
+  /**
+   * How orders reach the kitchen. "printers": the whole ticket prints when
+   * the server sends it, every course at once, and nothing tracks it after
+   * (no cooking, ready or served statuses). "kds": kitchen screens and expo
+   * track each plate. Missing means "kds".
+   */
+  kitchenMode?: KitchenMode;
 }
+
+export type KitchenMode = 'kds' | 'printers';
+
+/** Printer mode: tickets print whole and nothing is tracked after the send. */
+export const printerMode = (cfg: Pick<DiningConfig, 'kitchenMode'> = DEFAULT_CONFIG): boolean => cfg.kitchenMode === 'printers';
 
 /** What one meal credit covers. */
 export interface MealCreditRules {

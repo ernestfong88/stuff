@@ -6,9 +6,12 @@ import { availableCount, findLine } from '../../../../domain/orders';
 import type { Diner, MenuItem, ModSelection, Order, Resident } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
+import { useAssocMenuSettings } from '../../../../store/assocMenu';
+import { isoDate } from '../../../../domain/pickup';
 import { cx, SearchField } from '../../../../ui';
 import { sideParentFor } from '../checkLines';
 import { allergyPerson } from '../diners/allergyPerson';
+import { assocSections, todaysAssocMenu } from './assocMenu';
 import { DinerHead } from './DinerHead';
 import s from './MenuPanel.module.css';
 import {
@@ -71,6 +74,10 @@ export function MenuPanel({
   const tabs = menuTabs(o.meal);
   const sections = menuSections(o.meal, tab, { drinkGroup, room: o.room, search, cfg });
   const isResident = diner.kind === 'resident' && !diner.isGuest;
+  // An associate's meal is locked to the associate menu: the chef's special and the standing choices.
+  const assocOnly = !!o.assoc || diner.kind === 'associate';
+  useAssocMenuSettings();
+  const assoc = assocOnly ? assocSections(todaysAssocMenu(o.meal, isoDate(0)), o.meal) : [];
 
   const add = (item: MenuItem, mods: ModSelection, note: string) => {
     dining.addItem(o.id, diner.id, item.id, mods, note, sideParentFor(item.id, diner));
@@ -90,8 +97,13 @@ export function MenuPanel({
   return (
     <div className={s.panel}>
       <DinerHead diner={diner} onProfile={onProfile} />
-      <SearchField value={search} onChange={setSearch} placeholder={`Search ${o.meal.toLowerCase()} menu`} className={s.search} />
-      {!search && (
+      {assocOnly && (
+        <div className={s.assocNote}>
+          <b>Associate menu.</b> Only the chef's special and the standing choices can be ordered for an associate.
+        </div>
+      )}
+      {!assocOnly && <SearchField value={search} onChange={setSearch} placeholder={`Search ${o.meal.toLowerCase()} menu`} className={s.search} />}
+      {!assocOnly && !search && (
         <div ref={tabsRef} className={s.tabs} role="tablist" aria-label="Menu">
           {tabs.map((t) => (
             <button key={t} role="tab" aria-selected={tab === t} className={cx(s.tab, tab === t && s.tabOn)} onClick={() => onTab(t)}>
@@ -100,7 +112,7 @@ export function MenuPanel({
           ))}
         </div>
       )}
-      {!search && tab === 'Drinks' && (
+      {!assocOnly && !search && tab === 'Drinks' && (
         <div className={s.pills} role="group" aria-label="Drinks">
           {drinkGroups(o.meal, o.room).map(([g]) => {
             const on = effectiveDrinkGroup(o.meal, o.room, drinkGroup) === g;
@@ -112,6 +124,29 @@ export function MenuPanel({
           })}
         </div>
       )}
+      {assocOnly && (
+        <div className={s.grid}>
+          {assoc.map((sec) => (
+            <SectionBlock key={sec.key} section={{ key: sec.key, kind: sec.key === 'am_special' ? 'special' : 'everyday', label: sec.label, items: sec.items }}>
+              {sec.items.map((it) => (
+                <MenuTile
+                  key={it.id}
+                  item={it}
+                  price={0}
+                  special={sec.key === 'am_special'}
+                  allergic={it.allergens.some((a) => person?.allergies?.includes(a))}
+                  left={availableCount(it.id, dining.orders)}
+                  onAdd={() => tap(it)}
+                  onModify={() => setModItem(it)}
+                />
+              ))}
+              {!sec.items.length && <div className={s.empty}>Not on the tablet menu at {o.meal.toLowerCase()}.</div>}
+            </SectionBlock>
+          ))}
+          {!assoc.length && <div className={s.empty}>No associate menu is set for today.</div>}
+        </div>
+      )}
+      {!assocOnly && (
       <div className={s.grid}>
         {tab === 'Sides' && !search && sideWait === diner.id && (
           <div className={s.sideNote}>This entree has no side. Adding one is optional: tap a side, another item, the next diner or Send.</div>
@@ -139,6 +174,7 @@ export function MenuPanel({
           </div>
         )}
       </div>
+      )}
       {modItem && (
         <ModifierEditor
           item={modItem}

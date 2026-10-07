@@ -6,7 +6,7 @@
  * so a server and a manager see the same colour for the same state.
  */
 import { checkedIn, courseNumber, lastRun } from './courses';
-import { DEFAULT_CONFIG, flag, type DiningConfig } from './config';
+import { DEFAULT_CONFIG, flag, printerMode, type DiningConfig } from './config';
 import { isSide } from './menu';
 import { isDrinkLine } from './routing';
 import type { Order, OrderLine } from './types';
@@ -50,6 +50,11 @@ export function tableStage(o: Order, cfg: DiningConfig = DEFAULT_CONFIG, at: num
     return drinks ? { key: 'order', label: 'Drinks in', since: o.openedAt } : { key: 'seat', label: 'Seating', since: o.openedAt };
   }
   if (!sent.length) return { key: 'order', label: 'Ordering', since: o.openedAt };
+  // Printers: once the ticket prints nothing is tracked, so a sent table just waits to be closed.
+  if (printerMode(cfg)) {
+    if (sent.length < food.length) return { key: 'order', label: 'Adding items', since: o.openedAt };
+    return { key: 'check', label: 'Sent', since: Math.min(...sent.map((i) => i.firedAt || o.openedAt)) };
+  }
 
   const live = sent.filter((i) => i.kitchenState !== 'cleared');
   const lowest = live.length ? Math.min(...live.map(courseNumber)) : null;

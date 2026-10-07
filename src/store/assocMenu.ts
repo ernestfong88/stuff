@@ -10,7 +10,8 @@
  *   am.weeks[monday].sched       the week is open to plan
  *   am.venue                     the venue whose cycle and kitchen serve associates
  */
-import { rooms } from '../data';
+import { catalog, ensureItems, rooms } from '../data';
+import type { CatalogItem } from '../domain/types';
 import {
   COMBO_NAME,
   DEFAULT_SPECIAL_CAP,
@@ -186,4 +187,51 @@ export function setStandingRecipe(slotId: string, recipeId: string | undefined):
 
 export function setWeekScheduled(monday: string, sched: boolean): void {
   setSetting(`am.weeks.${monday}`, { sched });
+}
+
+// ─── On the tablet ───────────────────────────────────────────────────────
+
+const TABLET_CATEGORY: Record<string, string> = { Entrees: 'Entrées', Starters: 'Starters', Sides: 'Sides', Desserts: 'Desserts', Drinks: 'Drinks' };
+const COURSE_OF: Record<string, number> = { Starters: 1, Entrees: 2, Sides: 2, Desserts: 3 };
+
+/** A tablet item for a recipe the dining room menu doesn't carry, so it can still be rung in for an associate. */
+export function recipeAsItem(r: RecipeInfo): CatalogItem {
+  return {
+    id: r.id,
+    name: r.name,
+    desc: r.desc ?? '',
+    residentPrice: 0,
+    guestPrice: 0,
+    alaPrice: 0,
+    day: 0,
+    avail: null,
+    mods: [],
+    allergens: r.allergens ?? [],
+    course: COURSE_OF[r.cat] ?? 2,
+    entree: r.cat === 'Entrees',
+    meal: 'Lunch',
+    category: TABLET_CATEGORY[r.cat] ?? 'Entrées',
+  };
+}
+
+/**
+ * Make every dish on the associate menu orderable from the tablet: the
+ * standing choices and this week's specials. A recipe the dining room menu
+ * already carries keeps its own item.
+ */
+export function syncAssocItems(todayIso: string, s: AssocMenuSettings = assocMenuSettings()): void {
+  const ids = new Set<string>();
+  for (let k = 0; k < 14; k++) {
+    const d = new Date(todayIso + 'T12:00:00');
+    d.setDate(d.getDate() + k);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    for (const m of assocMenuForDay(iso, s)) m.recipeIds.forEach((id) => ids.add(id));
+  }
+  const byName = new Set(catalog.map((i) => i.name.toLowerCase()));
+  ensureItems(
+    [...ids]
+      .map((id) => recipeInfo(id))
+      .filter((r): r is RecipeInfo => !!r && !byName.has(r.name.toLowerCase()))
+      .map(recipeAsItem),
+  );
 }

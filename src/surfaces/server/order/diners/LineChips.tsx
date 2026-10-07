@@ -1,5 +1,7 @@
 import { Check, ChefHat, CircleCheck, GlassWater, Pause, Send } from 'lucide-react';
 import type { KitchenState, OrderLine } from '../../../../domain/types';
+import { printerMode } from '../../../../domain/config';
+import { useConfig } from '../../../../store/config';
 import { minutesSince } from '../../../../lib/clock';
 import { cx } from '../../../../ui';
 import { AnchoredMenu } from '../../shared/AnchoredMenu';
@@ -108,6 +110,7 @@ const STATE_PILLS: Partial<Record<NonNullable<KitchenState>, { label: string; cl
 
 /** Where a line is: New, Held, Sent, Cooking, Ready or Served. */
 export function LineState({ line }: { line: OrderLine }) {
+  const printers = printerMode(useConfig());
   if (!line.sent) {
     if (line.hold)
       return (
@@ -117,7 +120,8 @@ export function LineState({ line }: { line: OrderLine }) {
       );
     return <span className={s.newTag}>New</span>;
   }
-  const p = (line.kitchenState && STATE_PILLS[line.kitchenState]) || { label: 'Sent', cls: 'sent', icon: Send };
+  // Printers track nothing after the send, so a sent line just says Sent.
+  const p = (!printers && line.kitchenState && STATE_PILLS[line.kitchenState]) || { label: 'Sent', cls: 'sent', icon: Send };
   const Icon = p.icon;
   return (
     <span className={cx(s.pill, s[p.cls])}>

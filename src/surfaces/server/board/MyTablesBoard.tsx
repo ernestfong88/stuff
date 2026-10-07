@@ -1,6 +1,6 @@
 import { ClipboardList, Eye } from 'lucide-react';
 import { dinerBilling } from '../../../domain/billing';
-import type { DiningConfig } from '../../../domain/config';
+import { printerMode, type DiningConfig } from '../../../domain/config';
 import type { Order } from '../../../domain/types';
 import { serverName } from '../../../domain/servers';
 import { useConfig } from '../../../store/config';
@@ -76,6 +76,28 @@ export function MyTablesBoard({
         <EmptyState icon={<ClipboardList size={28} />} title={`No open checks for ${serverName(server)}`}>
           Start one from the floor.
         </EmptyState>
+      </div>
+    );
+  }
+
+  // Printers: tickets print whole and nothing tracks them, so no stage lanes, just the open checks, oldest first.
+  if (printerMode(cfg)) {
+    const list = [...rows].sort((a, b) => a.order.openedAt - b.order.openedAt);
+    return (
+      <div className={cx(s.board, 'scroll')}>
+        {banner}
+        <section className={cx(s.lane, s.lane_plain)} aria-label="Open checks">
+          <h2 className={s.laneHead}>
+            <span className={s.dot} aria-hidden />
+            Open checks
+            <span className={s.hint}>tickets print in the kitchen when you send</span>
+          </h2>
+          <div className={s.grid}>
+            {list.map((r) => (
+              <TableCard key={r.order.id} order={r.order} stage={r.stage} since={r.order.openedAt} covered={isCovered(r.order, cfg)} onOpen={onOpen} plain />
+            ))}
+          </div>
+        </section>
       </div>
     );
   }

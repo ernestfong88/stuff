@@ -105,3 +105,14 @@
   font-size: 13px;
   color: var(--s400);
 }
+.assocNote {
+  margin: 0 0 8px;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  background: var(--clay-100);
+  font-size: 13px;
+  color: var(--clay-600);
+}
+.assocNote b {
+  color: var(--ink);
+}

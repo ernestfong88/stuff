@@ -1,5 +1,5 @@
 import { rooms } from '../../../data';
-import { COURSE_MODES, flag, type CourseMode, type FlowFlag } from '../../../domain/config';
+import { COURSE_MODES, flag, printerMode, type CourseMode, type FlowFlag } from '../../../domain/config';
 import type { MealName } from '../../../domain/types';
 import { updateConfig, useConfig } from '../../../store/config';
 import { getSetting, setSetting, useSetting } from '../../../store/serviceConfig';
@@ -9,6 +9,7 @@ import { checkInWakeMinutes } from '../../../domain/venue';
 import { MEALS } from '../../../domain/metrics/stepsOfService';
 import { InlineField, InlineFields, PickMany, SettingNumber, SettingSelect } from '../kit/SettingControls';
 import { ConfirmReset } from './ConfirmReset';
+import { KitchenModeSetting } from './KitchenModeSetting';
 import { usePageTab } from './pageTab';
 import type { BoPageProps } from '../nav';
 import { BoPage, BoRow, BoSection, BoTable, type BoColumn } from '../kit';
@@ -46,6 +47,10 @@ function FlowToggle({ k, label, hint }: { k: FlowFlag; label: string; hint: stri
  */
 function Coursing() {
   const cfg = useConfig();
+  if (printerMode(cfg))
+    return (
+      <BoSection title="Coursing" sub="Printers print the whole ticket when the server sends it, so courses don't wait for each other. Coursing comes back with kitchen screens." />
+    );
   const set = (room: string, meal: MealName, mode: CourseMode) =>
     updateConfig((c) => {
       const venue = { ...c.course[room] };
@@ -162,6 +167,7 @@ export default function Page({ goto }: BoPageProps) {
       <Tabs aria-label="Service flow" variant="underline" value={tab} onChange={setTab} options={TABS.map((id) => ({ id, label: TAB_LABELS[id] }))} />
       {tab === 'courses' && (
         <>
+          <KitchenModeSetting />
           <Coursing />
           <BoSection title="After the entree">
             <FlowToggle k="checkIn" label="Check in after the entree" hint="Tables stay in Eating after course 2 until the server taps Check in. Off moves them straight to Ready to close." />

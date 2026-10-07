@@ -1,0 +1,50 @@
+.choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  padding-bottom: 14px;
+}
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+  text-align: left;
+}
+.choice:hover {
+  background: var(--sunken);
+}
+.on,
+.on:hover {
+  background: var(--ocean-100);
+  box-shadow: inset 0 0 0 2px var(--ocean);
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.head svg {
+  color: var(--ocean);
+}
+.tag {
+  margin-left: auto;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--ocean);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+.line {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--s700);
+}

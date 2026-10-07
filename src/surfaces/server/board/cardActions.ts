@@ -7,7 +7,7 @@
  * already means a takeout order.
  */
 import { checkedIn, courseWork, lastRun, serverItems, serverOnlyCourse } from '../../../domain/courses';
-import { DEFAULT_CONFIG, flag, type DiningConfig } from '../../../domain/config';
+import { DEFAULT_CONFIG, flag, printerMode, type DiningConfig } from '../../../domain/config';
 import { isSide } from '../../../domain/menu';
 import { isDrinkLine } from '../../../domain/routing';
 import type { Order } from '../../../domain/types';
@@ -63,6 +63,15 @@ export function cardActions(o: Order, ctx: CardContext): CardAction[] {
   const hasFood = o.diners.some((d) => d.items.some((i) => !i.cancelled && !isDrinkLine(i, o)));
 
   if (drinksToGet > 0) acts.push({ kind: 'drinks', pour: dq.pour.length > 0, upCount: dq.up.length });
+
+  // Printers track nothing after the send: no runs, fires or check-ins, just ordering and closing.
+  if (printerMode(cfg)) {
+    if (ctx.stage === 'seat') acts.push({ kind: 'takeOrder' });
+    else if (ctx.stage === 'order') acts.push({ kind: 'finishOrder', hasFood });
+    else acts.push({ kind: 'trivia' }, ctx.covered ? { kind: 'quickClose' } : { kind: 'confirmPayment' });
+    if (!drinksToGet && dq.bar.length > 0 && acts.length < 2) acts.push({ kind: 'atBar', count: dq.bar.length });
+    return acts;
+  }
 
   const run = work.run;
   const mine = serverItems(o, run, false, cfg);

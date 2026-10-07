@@ -8,7 +8,7 @@
  */
 import { getItem } from '../data';
 import { now } from '../lib/clock';
-import { DEFAULT_CONFIG, type DiningConfig } from './config';
+import { DEFAULT_CONFIG, printerMode, type DiningConfig } from './config';
 import { courseDue, runsLine, type RunUndo } from './courses';
 import type { DiningState } from './diningState';
 import { defaultSides, isDrink, isSide, itemCourse } from './menu';
@@ -328,7 +328,10 @@ export function sendOrder(s: DiningState, orderId: string, ctx: ActionContext = 
     const fireAt = pickupFireAt(o, ctx.pickupLead);
     const later = !!fireAt && fireAt > t;
     const all = o.diners.flatMap((d) => d.items);
+    // With printers the whole ticket prints at once: no course waits on another.
+    const printers = printerMode(cfg);
     const earlierCourseOut = (course: number) =>
+      !printers &&
       all.some((x) => {
         if (isDrinkLine(x, o) || (x.course || x.courseOverride || itemCourse(x.itemId)) >= course || x.comped || x.hold)
           return false;

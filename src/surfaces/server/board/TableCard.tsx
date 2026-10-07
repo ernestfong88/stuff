@@ -29,10 +29,12 @@ export interface TableCardProps {
   /** Every diner is on plan with nothing to charge. */
   covered: boolean;
   onOpen: (orderId: string, opts?: OpenCheckOptions) => void;
+  /** Printer mode: no lane colour or late flag, the timer runs from when the table sat. */
+  plain?: boolean;
 }
 
 /** A table on My Tables: name, lead diner, lane timer and the next actions. Tapping it opens the check. */
-export function TableCard({ order: o, stage, since, covered, onOpen }: TableCardProps) {
+export function TableCard({ order: o, stage, since, covered, onOpen, plain }: TableCardProps) {
   const cfg = useConfig();
   const dining = useDining();
   const t = useNow();
@@ -233,7 +235,7 @@ export function TableCard({ order: o, stage, since, covered, onOpen }: TableCard
   const readyCourse = courseWork(o).run;
   return (
     <div
-      className={cx(s.card, s[`lane_${stage.key}`], late && s.late, stage.key === 'run' && !late && s.loud)}
+      className={cx(s.card, plain ? s.plainCard : s[`lane_${stage.key}`], !plain && late && s.late, !plain && stage.key === 'run' && !late && s.loud)}
       onClick={() => onOpen(o.id)}
     >
       <button
@@ -243,8 +245,8 @@ export function TableCard({ order: o, stage, since, covered, onOpen }: TableCard
       >
         <span className={s.table}>{tableName(o)}</span>
         <span className={cx(s.lead, !lead && s.nobody)}>{lead ? lead.name + (lead.more ? ' +' + lead.more : '') : 'No one yet'}</span>
-        {late && stage.key !== 'check' && <span className={s.lateTag}>LATE</span>}
-        <span className={cx(s.timer, late && s.timerLate)}>{formatElapsed(ms)}</span>
+        {!plain && late && stage.key !== 'check' && <span className={s.lateTag}>LATE</span>}
+        <span className={cx(s.timer, !plain && late && s.timerLate)}>{formatElapsed(ms)}</span>
       </button>
       {actions.length > 0 && <div className={s.actions}>{actions.map(render)}</div>}
       {undo && (

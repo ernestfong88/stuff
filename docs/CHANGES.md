@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Printers or kitchen screens, My Tables pick up & delivery, associate menu lock
+- **Printers or kitchen screens (KDS).** A new setting, *How orders reach the kitchen*, is at the top of *KDS Settings* and on the *Courses* tab of *Service Flow*. The demo still starts on Kitchen screens.
+- **Printer mode** sends the whole ticket when the server taps Send: every course goes at once and nothing is held or fired later. There are no kitchen statuses:
+  - order lines just say *Sent*;
+  - My Tables shows one *Open checks* lane, oldest first, with no cooking, ready or late colours. The only actions are Trivia and closing the check;
+  - the Manager floor reads "Sent X min ago, check still open";
+  - Cook and Expo say the venue uses printers.
+- **My Tables toggle.** My Tables has a switch between *Tables* and *Pick up & delivery*. The second lists your pick up, delivery and associate orders, oldest first, with the window, the item count and where each one is. Leaving a pick up or delivery order brings you back to that list. An empty one is removed.
+- **Associate meals locked to the associate menu.** When an associate meal is ordered on the tablet, only today's chef's special and the standing choices from *Associate Menu* can be picked. There is no search, no tabs and no price. Recipes on the associate menu that are not on the tablet menu (such as *Turkey Club*) are added so they can be ordered and reach the kitchen.
+
 ### Steps of Service: average table time first
 
 - **Back Office dashboard, Steps of Service card:**

@@ -5,6 +5,7 @@ import { COURSE_BACKUP_MIN, courseDue, courseWork, lastRun, checkedIn, runsLine 
 import { DEFAULT_CONTEXT, pacingTick, runCourse, sendOrder, undoRunCourse } from '../diningActions';
 import { clockLabel, pickupFireAt, pickupLeadMinutes } from '../pickup';
 import { runUndoSnapshot } from '../courses';
+import { tableStage } from '../tableStage';
 import { T0, advance, diner, freezeClock, line, lines, order, prototype, stateOf } from './helpers';
 
 const MIN = 60_000;
@@ -47,6 +48,17 @@ describe('sendOrder (dine-in)', () => {
     const entree = line('d_peach');
     const o = order([diner([entree])]);
     expect(lines(sendOrder(stateOf(o), o.id).orders[0])[0].kitchenState).toBe('cooking');
+  });
+
+  it('with printers, fires every course at once and the table just waits to be closed', () => {
+    const { o, entree, dessert } = dinnerCheck();
+    const cfg = { ...DEFAULT_CONFIG, kitchenMode: 'printers' as const };
+    const sent = sendOrder(stateOf(o), o.id, { ...DEFAULT_CONTEXT, cfg }).orders[0];
+    const byId = Object.fromEntries(lines(sent).map((i) => [i.id, i]));
+    // Nothing is held back for a later course.
+    expect(byId[entree.id].kitchenState).not.toBe('scheduled');
+    expect(byId[dessert.id].kitchenState).not.toBe('scheduled');
+    expect(tableStage(sent, cfg)).toMatchObject({ key: 'check', label: 'Sent' });
   });
 
   it('leaves held lines unsent and sends alcohol to the bar where there is one', () => {

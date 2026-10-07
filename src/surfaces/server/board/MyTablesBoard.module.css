@@ -95,3 +95,6 @@
   font-weight: 700;
   font-size: 14px;
 }
+.lane_plain .dot {
+  background: var(--s400);
+}

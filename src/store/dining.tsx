@@ -37,6 +37,7 @@ import {
   type ReadyStamp,
 } from '../domain/activityLog';
 import { activeRunUndo, runUndoSnapshot, type RunUndo } from '../domain/courses';
+import { printerMode } from '../domain/config';
 import * as A from '../domain/diningActions';
 import type { DiningState } from '../domain/diningState';
 import { chosenMods, defaultSides, itemLabel, modsText } from '../domain/menu';
@@ -57,7 +58,7 @@ import type {
 import { now } from '../lib/clock';
 import { uid } from '../lib/id';
 import { resetPersistedStores, useShared } from '../lib/sharedStore';
-import { getConfig } from './config';
+import { configStore, getConfig, updateConfig } from './config';
 import { resetProduction } from './production';
 import { claimPacingLeadership, createDiningEngine, releasePacingLeadership, type DiningEngine } from './diningEngine';
 import { residentPrefsStore, updateResidentPref, type ResidentPrefs } from './residentPrefs';
@@ -203,7 +204,8 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
   const [recentBumps, setRecentBumps] = useState<RecentBump[]>([]);
   const [modUsage, setModUsage] = useState<Record<string, Record<string, number>>>({});
   const [expoActive, setExpoActive] = useState(true);
-  const [kitchenMode, setKitchenMode] = useState('kds_expo');
+  // How orders reach the kitchen, from the setting (KDS Settings, Service Flow).
+  const kitchenMode = printerMode(useShared(configStore)) ? 'printers' : 'kds_expo';
   const [pendingTakeover, setPendingTakeover] = useState<(PendingTakeover & { go: () => void }) | null>(null);
   const runUndos = useRef(new Map<string, RunUndo>());
 
@@ -531,7 +533,7 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
         setModUsage((u) => ({ ...u, [itemId]: { ...u[itemId], [groupId]: (u[itemId]?.[groupId] ?? 0) + 1 } })),
       updateResidentPref,
       setExpoActive,
-      setKitchenMode,
+      setKitchenMode: (mode: string) => updateConfig({ kitchenMode: mode === 'printers' ? 'printers' : 'kds' }),
       cancelTakeover: () => setPendingTakeover(null),
 
       clearAll: () => engine.update((s) => ({ ...s, orders: [], history: [] })),

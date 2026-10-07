@@ -109,6 +109,22 @@ function indexCatalog() {
 }
 indexCatalog();
 
+/**
+ * Dishes that can be ordered without being on a meal's menu: the associate
+ * menu's standing choices (a sandwich of the month that the dining room
+ * doesn't serve). They are in the catalog, so tickets and checks name them,
+ * but on no menu tab.
+ */
+const extraItems = new Map<string, CatalogItem>();
+export function ensureItems(items: CatalogItem[]): void {
+  for (const it of items) {
+    if (catalogById.has(it.id)) continue;
+    extraItems.set(it.id, it);
+    catalog.push(it);
+    catalogById.set(it.id, it);
+  }
+}
+
 export const getItem = (id: string | null | undefined) => (id ? catalogById.get(id) : undefined);
 
 // ─── Venues & money ──────────────────────────────────────────────────────
@@ -227,6 +243,7 @@ function applyMenuEdits(o: LiveMenuOverlay) {
   for (const [meal, cats] of Object.entries(menu) as Array<[MealName, Record<string, MenuItem[]>]>) {
     for (const [category, items] of Object.entries(cats)) for (const it of items) catalog.push({ ...it, meal, category });
   }
+  for (const it of extraItems.values()) if (!catalog.some((x) => x.id === it.id)) catalog.push(it);
   indexCatalog();
   modGroups.splice(0, modGroups.length, ...(o.modGroups ?? baseModGroups));
   const rules = o.modifierRules ?? baseModifierRules;

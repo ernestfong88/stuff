@@ -72,6 +72,12 @@ describe('cardActions', () => {
     ]);
   });
 
+  it('with printers, offers only closing once the order is in, never runs or fires', () => {
+    const o = order([diner([line('d_peach', { sent: true, kitchenState: 'ready', course: 2 })])]);
+    const cfg = { ...DEFAULT_CONFIG, kitchenMode: 'printers' as const };
+    expect(cardActions(o, ctx({ stage: tableStage(o, cfg).key, cfg })).map((a) => a.kind)).toEqual(['trivia', 'confirmPayment']);
+  });
+
   it('sends the server to the pass when Expo runs a cooked course', () => {
     const o = order([diner([line('d_peach', { sent: true, kitchenState: 'ready', course: 2 })])]);
     expect(cardActions(o, ctx({ stage: 'run', hasExpo: true })).map((a) => a.kind)).toEqual(['readyAtPass']);

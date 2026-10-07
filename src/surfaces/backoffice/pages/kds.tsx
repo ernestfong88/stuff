@@ -10,6 +10,7 @@ import { Tabs } from '../../../ui';
 import { KdsScreensEditor } from '../../kitchen/admin/KdsScreensEditor';
 import { BoPage, BoSection } from '../kit';
 import type { BoPageProps } from '../nav';
+import { KitchenModeSetting } from './KitchenModeSetting';
 
 export default function Page(_props: BoPageProps) {
   const settings = useVenueSettings();
@@ -21,6 +22,7 @@ export default function Page(_props: BoPageProps) {
       title="KDS Settings"
       sub="The kitchen display screens: how many each kitchen has, what each one shows, and whether there is an expo screen. What goes to the kitchen at all is set on each venue's Kitchen routing tab."
     >
+      <KitchenModeSetting />
       <Tabs aria-label="Kitchen" value={room} onChange={setRoom} options={keys.map((k) => ({ id: k, label: `${rooms[k].name} kitchen` }))} />
       <BoSection
         title={`${rooms[room].name} kitchen`}
