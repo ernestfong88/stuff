@@ -1,0 +1,326 @@
+.ticket {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: var(--night-2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+  cursor: pointer;
+  animation: pop-in var(--med) var(--ease);
+}
+/* Late is a steady red, never flashing. */
+.late {
+  box-shadow: inset 0 0 0 4px var(--k-late);
+}
+.ready {
+  box-shadow: inset 0 0 0 3px rgba(62, 154, 75, 0.7);
+}
+.selected {
+  outline: 3px solid var(--k-select);
+  outline-offset: 2px;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
+.head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.07);
+}
+.late .head {
+  background: var(--k-late);
+}
+.seq {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-xs);
+  background: var(--night-ink);
+  color: var(--night);
+  font-size: 14px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.selected .seq {
+  background: var(--k-select);
+}
+.where {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--k-soft);
+}
+.table {
+  flex-shrink: 0;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  color: #fff;
+}
+.server {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+.course {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 900;
+  color: #7fb6dc;
+}
+.late .course {
+  color: #ffe1dc;
+}
+.timer {
+  flex-shrink: 0;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--k-soft);
+  font-variant-numeric: tabular-nums;
+}
+.late .timer {
+  color: #fff;
+}
+.togo {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: var(--r-xs);
+  background: var(--k-togo);
+  color: var(--k-togo-ink);
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* ── Diners and plates ──────────────────────────────────────────────── */
+
+.body {
+  flex: 1;
+  padding: 4px 8px 2px;
+}
+.diner {
+  padding: 6px 0 8px;
+  transition: opacity var(--med) var(--ease);
+}
+.diner + .diner {
+  border-top: 1px solid var(--k-rule);
+}
+.dinerDone {
+  opacity: 0.45;
+}
+.dinerHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 2px 2px 5px;
+}
+.dinerName {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--night-dim);
+  line-height: 1.2;
+}
+.dinerDone .dinerName {
+  color: var(--k-done);
+  text-decoration: line-through;
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.line {
+  display: block;
+  width: 100%;
+  margin-bottom: 3px;
+  padding: 10px 8px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.035);
+  text-align: left;
+}
+.line:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+.lineOn {
+  background: rgba(91, 160, 206, 0.16);
+  box-shadow: inset 0 0 0 2px rgba(91, 160, 206, 0.9);
+}
+.lineRush {
+  background: rgba(178, 59, 46, 0.38);
+}
+.lineReady {
+  background: rgba(63, 125, 63, 0.42);
+}
+.lineReady:not(.lineOn) {
+  opacity: 0.55;
+}
+.dinerDone .lineReady {
+  opacity: 1;
+}
+.lineCancelled {
+  background: rgba(178, 59, 46, 0.2);
+}
+.lineTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.check {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2.5px var(--k-soft);
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+}
+.checkOn {
+  background: #5fa35f;
+  box-shadow: none;
+  color: #fff;
+}
+.checkX {
+  box-shadow: inset 0 0 0 2.5px var(--k-cancel);
+  color: var(--k-cancel);
+}
+.remake {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+.item {
+  flex: 1;
+  min-width: 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #fff;
+  text-decoration-thickness: 2px;
+}
+.lineReady .item {
+  color: var(--k-done);
+  text-decoration-line: line-through;
+}
+.lineCancelled .item {
+  color: var(--k-cancel);
+  text-decoration-line: line-through;
+}
+.cancelTag {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: var(--r-xs);
+  background: var(--danger);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+.detail {
+  display: block;
+  padding-left: 30px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--k-soft);
+}
+.callout {
+  font-weight: 800;
+  color: var(--k-callout);
+}
+.noSides {
+  font-weight: 800;
+  color: var(--gold);
+}
+.mods {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--k-dim);
+}
+.note {
+  font-size: 13.5px;
+  font-weight: 600;
+  font-style: italic;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────── */
+
+.foot {
+  flex-shrink: 0;
+  padding: 4px 8px 8px;
+}
+.footBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 8px;
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.footBump {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.footBump:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+.footClear {
+  background: var(--flora);
+  color: #fff;
+}
+.footWait {
+  background: rgba(93, 117, 69, 0.25);
+  color: var(--moss);
+}
+.footCancel {
+  background: rgba(178, 59, 46, 0.3);
+  color: #ffd9d3;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

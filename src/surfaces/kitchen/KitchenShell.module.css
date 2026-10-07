@@ -1,0 +1,199 @@
+/*
+ * Kitchen palette. Read at a distance under heat lamps: white on near
+ * black, and a few strong state colours that mean the same on both
+ * screens (red late, green ready, amber fired or to fire, blue selected).
+ */
+.shell {
+  --k-card: #161b21;
+  --k-card-2: #1c232b;
+  --k-head: #252d36;
+  --k-rule: rgba(255, 255, 255, 0.1);
+  --k-text: #ffffff;
+  --k-ink: var(--night-ink);
+  --k-soft: #c9d1d9;
+  --k-dim: #9aa4ae;
+  --k-mute: #6c7782;
+  --k-late: #d9372b;
+  --k-ready: #3e9a4b;
+  --k-ready-deep: #2f6b37;
+  --k-done: #8fd08a;
+  --k-amber: #f0a030;
+  --k-amber-ink: #2a1a02;
+  --k-select: var(--skies);
+  --k-togo: #8ec3ea;
+  --k-togo-ink: #0f2738;
+  --k-cancel: #ff8a7a;
+  --k-callout: #f0a868;
+  --k-neutral: #2a323b;
+
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--night);
+  color: var(--k-ink);
+  overflow: hidden;
+}
+
+.shell :focus-visible {
+  outline: 3px solid var(--k-select);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-height: 60px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--k-rule);
+}
+.titles {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+.title {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: var(--k-text);
+  white-space: nowrap;
+  line-height: 1.1;
+}
+.subtitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--night-dim);
+  white-space: nowrap;
+}
+.middle {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+/* Below a wide screen the filters take their own row under the title and buttons. */
+@media (max-width: 1599px) {
+  .ownRow {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ── Header buttons ─────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--k-ink);
+  transition: background var(--fast) var(--ease);
+}
+.btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.btn.on {
+  background: var(--k-ink);
+  color: var(--night);
+}
+.btn.outlined:not(.on) {
+  box-shadow: inset 0 0 0 1px rgba(232, 196, 106, 0.4);
+}
+.count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+.countZero {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--k-mute);
+}
+.count_neutral {
+  background: rgba(255, 255, 255, 0.18);
+}
+.count_green {
+  background: rgba(93, 117, 69, 0.75);
+}
+.count_blue {
+  background: rgba(77, 112, 147, 0.7);
+}
+.count_amber {
+  background: rgba(195, 138, 81, 0.75);
+}
+.on .count {
+  background: var(--ocean);
+  color: #fff;
+}
+
+/* ── Tickets ────────────────────────────────────────────────────────── */
+
+.area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px;
+  scrollbar-color: #3a434d transparent;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+  grid-auto-rows: max-content;
+  gap: 10px;
+  align-items: stretch;
+}
+.slot {
+  display: flex;
+  min-width: 0;
+}
+
+.message {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 72px 16px;
+  text-align: center;
+  color: var(--night-dim);
+}
+.messageIcon {
+  color: #5e6b74;
+}
+.messageTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--k-soft);
+}
+.messageBody {
+  font-size: 14px;
+}
