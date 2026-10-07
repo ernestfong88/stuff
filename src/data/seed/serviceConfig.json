@@ -37,14 +37,6 @@
   "off": {},
   "avg": {}
  },
- "res": {},
- "btype": {},
- "names": {},
- "menu": {
-  "off": {},
-  "on": {}
- },
- "recipes": {},
  "texts": {},
  "mobile": {},
  "greet": {},
@@ -60,7 +52,5 @@
  "pud": {
   "track": {}
  },
- "dside": {},
- "csub": {},
- "ccat": {}
+ "csub": {}
 }

@@ -3,7 +3,7 @@ import { COMMUNITY_NAME } from '../../data';
 import { CornerControls } from '../../shell/controls';
 import { cx } from '../../ui';
 import s from './KitchenUnavailable.module.css';
-import type { Printer } from './venueSettings';
+import type { Printer } from '../../store/venueSettings';
 
 /**
  * What a kitchen display shows where the community does not run one:

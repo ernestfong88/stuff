@@ -198,7 +198,6 @@ export interface BoMenuEdits {
   recipes?: Recipe[];
   grid?: GridEntry[];
   menus?: BoMenu[];
-  venues?: VenueSchedule[];
   modGroups?: BoModGroup[];
   modRules?: Record<string, ModRuleEdit>;
   prices?: PriceRow[];

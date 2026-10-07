@@ -3,7 +3,7 @@ import { COMMUNITY_NAME } from '../../../data';
 import { formatTime } from '../../../lib/format';
 import { Button, Chip, cx, toast } from '../../../ui';
 import { BoSection } from '../../backoffice/kit';
-import type { VenueSettings } from '../venueSettings';
+import type { VenueSettings } from '../../../store/venueSettings';
 import s from './PaymentsCard.module.css';
 
 /** Payments · Square Terminal: the card terminals and whether each is online. */

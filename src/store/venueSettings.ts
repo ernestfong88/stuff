@@ -11,12 +11,12 @@
  * Persisted and synced across tabs, so a screen renamed in the Back Office
  * shows on the cook line straight away.
  */
-import { rooms } from '../../data';
-import { revive } from '../../data/revive';
-import { createSharedStore, useShared } from '../../lib/sharedStore';
-import { safeStorage } from '../../lib/storage';
-import { screenKey, singleScreen, type KdsScreen } from './kdsScreens';
-import seed from './seed/venueSettings.json';
+import { rooms } from '../data';
+import { revive } from '../data/revive';
+import { createSharedStore, useShared } from '../lib/sharedStore';
+import { safeStorage } from '../lib/storage';
+import { screenKey, singleScreen, type KdsScreen } from '../domain/kdsScreens';
+import seed from '../data/seed/venueSettings.json';
 
 export interface UpcomingMenu {
   menuId: string;
@@ -76,8 +76,6 @@ export interface PaymentTerminal {
 
 export interface VenueSettings {
   venues: Venue[];
-  /** Menus a venue can be bound to (names, quarter and cycle length). */
-  menus: MenuSummary[];
   printers: Printer[];
   printerLinks: PrinterLink[];
   terminals: PaymentTerminal[];
@@ -231,6 +229,14 @@ export function addPrinter(printer: Printer, venueId: string, linkId: string): v
 
 // ─── Menus ───────────────────────────────────────────────────────────────
 
-export function menuById(s: VenueSettings, id: string | null | undefined): MenuSummary | undefined {
+/**
+ * Venue Settings as its admin page shows it: the stored settings plus the
+ * menus a venue can be bound to, which Menu Cycle & À la Carte owns.
+ */
+export interface VenueAdminView extends VenueSettings {
+  menus: MenuSummary[];
+}
+
+export function menuById(s: Pick<VenueAdminView, 'menus'>, id: string | null | undefined): MenuSummary | undefined {
   return id ? s.menus.find((m) => m.id === id) : undefined;
 }

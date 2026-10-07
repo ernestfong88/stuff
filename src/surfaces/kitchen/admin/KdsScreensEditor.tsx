@@ -1,8 +1,8 @@
 import { Check } from 'lucide-react';
 import { cx } from '../../../ui';
-import { looseSubcategories, MAX_SCREENS, renameScreen, resizeScreens, toggleSubcategory } from '../kdsScreens';
-import { groupLabel, KDS_GROUPS, SUBCATEGORIES } from '../subcategories';
-import { kitchenHasExpo, kitchenScreens, setKitchenExpo, setKitchenScreens, type VenueSettings } from '../venueSettings';
+import { looseSubcategories, MAX_SCREENS, renameScreen, resizeScreens, toggleSubcategory } from '../../../domain/kdsScreens';
+import { groupLabel, KDS_GROUPS, SUBCATEGORIES } from '../../../domain/subcategories';
+import { kitchenHasExpo, kitchenScreens, setKitchenExpo, setKitchenScreens, type VenueSettings } from '../../../store/venueSettings';
 import s from './KdsScreensEditor.module.css';
 
 /** Segmented choice of a few values. */

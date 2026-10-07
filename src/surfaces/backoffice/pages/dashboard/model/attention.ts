@@ -3,7 +3,23 @@
  * to act on, each with where to go to do it.
  */
 import { DAY } from '../../../../../lib/clock';
-import type { MenuName, VenueMenus } from '../../../seed/venues';
+
+/** A venue and the menus it serves (from Venue Settings). */
+export interface VenueMenus {
+  id: string;
+  name: string;
+  active: boolean;
+  /** The menu served now, or null. */
+  menuId: string | null;
+  /** Menus scheduled to take over, with their start (ms). */
+  upcoming: Array<{ menuId: string; startDt: number }>;
+}
+
+export interface MenuName {
+  id: string;
+  name: string;
+  status: string;
+}
 
 export type AttentionKind = 'eightySix' | 'late' | 'sick' | 'charges' | 'menuSoon' | 'noMenu';
 

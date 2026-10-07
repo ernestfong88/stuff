@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_CONFIG } from '../../../domain/config';
 import { diner, line, order } from '../../../domain/__tests__/helpers';
-import { screensForItem, type KdsScreen } from '../../kitchen/kdsScreens';
-import seed from '../../kitchen/seed/venueSettings.json';
+import { screensForItem, type KdsScreen } from '../../../domain/kdsScreens';
+import seed from '../../../data/seed/venueSettings.json';
 import { averageTicketMinutes, buildCookTickets, bumpLineIds, plateDetails, ticketStatus } from '../cookTickets';
 
 const SEQUOIA = (seed as unknown as { kds: { sequoia: KdsScreen[] } }).kds.sequoia;

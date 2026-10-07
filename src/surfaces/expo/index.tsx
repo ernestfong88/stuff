@@ -23,7 +23,7 @@ import type { TextSettings } from '../kitchen/orderTexts';
 import { RecallMenu } from '../kitchen/RecallMenu';
 import { useBumpBar } from '../kitchen/useBumpBar';
 import { useThreshold } from '../kitchen/useThreshold';
-import { kitchenPrinters, useVenueSettings } from '../kitchen/venueSettings';
+import { kitchenPrinters, useVenueSettings } from '../../store/venueSettings';
 import { assocTickets, plannedToday, type AssocStage } from './assocTickets';
 import s from './Expo.module.css';
 import { ExpoAssociates } from './ExpoAssociates';

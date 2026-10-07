@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { setDeviceScreen, type ScreenOption } from '../kitchen/venueSettings';
+import { setDeviceScreen, type ScreenOption } from '../../store/venueSettings';
 import s from './ScreenPicker.module.css';
 
 /** THIS SCREEN: which cook screen this device is. Saved on the device. */

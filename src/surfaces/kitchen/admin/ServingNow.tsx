@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { today } from '../../../lib/clock';
 import { Button } from '../../../ui';
 import { BoSection, BoTable } from '../../backoffice/kit';
-import { menuById, removeUpcoming, type Venue, type VenueSettings } from '../venueSettings';
+import { menuById, removeUpcoming, type Venue, type VenueAdminView } from '../../../store/venueSettings';
 import { cycleWeekLabel, isStaticMenu, menuQuarter } from './menuCycle';
 import { QuarterBadge } from './QuarterBadge';
 import { ScheduleMenuDialog } from './ScheduleMenuDialog';
@@ -12,7 +12,7 @@ import s from './ServingNow.module.css';
 const shortDate = (ts: number) => new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
 /** Serving now: each dining room's menu, where it is in its cycle, and what starts next. */
-export function ServingNow({ settings }: { settings: VenueSettings }) {
+export function ServingNow({ settings }: { settings: VenueAdminView }) {
   const [scheduling, setScheduling] = useState<string | null>(null);
   const at = today().getTime();
   const venues = settings.venues.filter((v) => v.active);

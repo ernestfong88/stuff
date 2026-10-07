@@ -12,7 +12,7 @@ import {
   suggestedEntreeType,
   type EntreeTypeId,
   type SubcategoryChoices,
-} from '../subcategories';
+} from '../../../domain/subcategories';
 import { currentRoute, defaultRoute, routableItems, routingView, type RouteChoice, type RoutedItem } from './routingList';
 import s from './RoutingEditor.module.css';
 

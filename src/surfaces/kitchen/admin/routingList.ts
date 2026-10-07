@@ -8,7 +8,7 @@ import type { DiningConfig } from '../../../domain/config';
 import { isDrink } from '../../../domain/menu';
 import { defaultDrinkRoute, defaultFoodRoute, drinkRoute, foodRoute } from '../../../domain/routing';
 import type { MenuItem } from '../../../domain/types';
-import { canonicalItemId, groupLabel, isMainCategory, menuGroupOf, type MenuGroup } from '../subcategories';
+import { canonicalItemId, groupLabel, isMainCategory, menuGroupOf, type MenuGroup } from '../../../domain/subcategories';
 
 /** Where a dish goes: the cook line, the server, or the bar (drinks). */
 export type RouteChoice = 'kds' | 'expo' | 'server' | 'bar';

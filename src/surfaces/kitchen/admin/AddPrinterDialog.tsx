@@ -2,7 +2,7 @@ import { Plus, Printer as PrinterIcon } from 'lucide-react';
 import { useId, useState } from 'react';
 import { uid } from '../../../lib/id';
 import { Button, Chip, Modal, TextField, toast } from '../../../ui';
-import { addPrinter, linkPrinter, type PrinterType, type Venue, type VenueSettings } from '../venueSettings';
+import { addPrinter, linkPrinter, type PrinterType, type Venue, type VenueSettings } from '../../../store/venueSettings';
 import s from './AddPrinterDialog.module.css';
 
 const TYPES: PrinterType[] = ['Kitchen', 'Receipt', 'Label'];

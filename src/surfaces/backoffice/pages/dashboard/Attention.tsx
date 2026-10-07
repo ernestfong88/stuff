@@ -10,7 +10,8 @@ import { threshold, useSetting } from '../../../../store/serviceConfig';
 import { useDining } from '../../../../store/dining';
 import { cx } from '../../../../ui';
 import { BoCaption, amountToReview, chargesToReview, useBilling, useCommunity } from '../../kit';
-import { MENU_NAMES, VENUE_MENUS } from '../../seed/venues';
+import { useVenueSettings } from '../../../../store/venueSettings';
+import { useBo } from '../../menus/data';
 import { attentionItems, type AttentionKind } from './model/attention';
 import s from './dashboard.module.css';
 
@@ -30,6 +31,8 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
   const community = useCommunity();
   const { orders, history } = useDining();
   const { charges } = useBilling();
+  const venueSettings = useVenueSettings();
+  const bo = useBo();
   // Re-read when the late threshold changes in Alerts & Timing.
   useSetting('t.floorCook');
   const items = useMemo(() => {
@@ -52,11 +55,11 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
       waiversUsedUp: [...used.entries()].filter(([, k]) => k >= sick.allow).map(([rid, k]) => `${getResident(rid)?.name ?? 'A resident'} (${k} of ${sick.allow})`),
       chargesToReview: chargesToReview(charges).length,
       amountToReview: amountToReview(charges),
-      venues: VENUE_MENUS,
-      menus: MENU_NAMES,
+      venues: venueSettings.venues,
+      menus: bo.menus,
       at: now(),
     });
-  }, [marks, cfg, community, orders, history, charges]);
+  }, [marks, cfg, community, orders, history, charges, venueSettings, bo]);
 
   if (!items.length) return null;
   return (

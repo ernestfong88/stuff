@@ -1,5 +1,5 @@
 /** Menu cycle arithmetic for the venue pages. */
-import type { MenuSummary } from '../venueSettings';
+import type { MenuSummary } from '../../../store/venueSettings';
 
 const DAY = 86_400_000;
 

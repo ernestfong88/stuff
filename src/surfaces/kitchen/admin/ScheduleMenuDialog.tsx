@@ -2,7 +2,7 @@ import { CalendarDays, Info } from 'lucide-react';
 import { useId, useState } from 'react';
 import { today } from '../../../lib/clock';
 import { Button, Modal, TextField, toast } from '../../../ui';
-import { menuById, scheduleMenu, type VenueSettings } from '../venueSettings';
+import { menuById, scheduleMenu, type VenueAdminView } from '../../../store/venueSettings';
 import { cycleDay } from './menuCycle';
 import s from './ScheduleMenuDialog.module.css';
 
@@ -14,7 +14,7 @@ const fromIso = (v: string) => new Date(v + 'T00:00:00').getTime();
  * date save together: changing one without the other silently shifts what
  * gets served.
  */
-export function ScheduleMenuDialog({ settings, venueId, onClose }: { settings: VenueSettings; venueId: string; onClose: () => void }) {
+export function ScheduleMenuDialog({ settings, venueId, onClose }: { settings: VenueAdminView; venueId: string; onClose: () => void }) {
   const active = settings.venues.filter((v) => v.active);
   const [vid, setVid] = useState(venueId);
   const venue = settings.venues.find((v) => v.id === vid) ?? active[0];

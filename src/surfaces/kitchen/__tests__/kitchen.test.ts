@@ -3,11 +3,11 @@ import { order, diner } from '../../../domain/__tests__/helpers';
 import { cycleDay, cycleWeekLabel, menuQuarter, quarterStyle } from '../admin/menuCycle';
 import { routableItems, routingView } from '../admin/routingList';
 import { actionForKey, barKeyName, bumpHit, DEFAULT_BUMP_KEYS, keyName, resolveBumpKeys } from '../bumpKeys';
-import { looseSubcategories, resizeScreens, screensForItem, toggleSubcategory, type KdsScreen } from '../kdsScreens';
+import { looseSubcategories, resizeScreens, screensForItem, toggleSubcategory, type KdsScreen } from '../../../domain/kdsScreens';
 import { courseWord, pickupWindow } from '../kitchenTime';
 import { orderTextPlan } from '../orderTexts';
-import { canonicalItemId, entreeTypeOf, kdsKeyOf, recipeItemIds, subcategoryOf, suggestedEntreeType } from '../subcategories';
-import seed from '../seed/venueSettings.json';
+import { canonicalItemId, entreeTypeOf, kdsKeyOf, recipeItemIds, subcategoryOf, suggestedEntreeType } from '../../../domain/subcategories';
+import seed from '../../../data/seed/venueSettings.json';
 import { DEFAULT_CONFIG } from '../../../domain/config';
 
 const SEQUOIA = (seed as unknown as { kds: { sequoia: KdsScreen[] } }).kds.sequoia;

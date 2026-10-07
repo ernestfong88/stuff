@@ -12,7 +12,7 @@
  * canonical id) wins; otherwise the recipe's own type; otherwise a guess
  * from the dish name.
  */
-import { catalog, getItem } from '../../data';
+import { catalog, getItem } from '../data';
 
 export type MenuGroup = 'Drinks' | 'Starters' | 'Entrees' | 'Sides' | 'Desserts' | 'Snacks';
 

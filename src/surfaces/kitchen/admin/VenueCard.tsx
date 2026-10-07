@@ -2,14 +2,14 @@ import { AlertTriangle, Plus, Printer as PrinterIcon, Send, Trash2, Wifi, WifiOf
 import { useState } from 'react';
 import { today } from '../../../lib/clock';
 import { Button, Chip, toast } from '../../../ui';
-import { menuById, patchVenue, unlinkPrinter, venuePrinters, type Venue, type VenueSettings } from '../venueSettings';
+import { menuById, patchVenue, unlinkPrinter, venuePrinters, type Venue, type VenueAdminView } from '../../../store/venueSettings';
 import { AddPrinterDialog } from './AddPrinterDialog';
 import { KdsScreensEditor } from './KdsScreensEditor';
 import { cycleWeekLabel } from './menuCycle';
 import s from './VenueCard.module.css';
 
 /** One venue: its name, menu, printers and, where it has a kitchen, its KDS screens. */
-export function VenueCard({ settings, venue }: { settings: VenueSettings; venue: Venue }) {
+export function VenueCard({ settings, venue }: { settings: VenueAdminView; venue: Venue }) {
   const [adding, setAdding] = useState(false);
   const menu = menuById(settings, venue.menuId);
   const unbound = !menu;

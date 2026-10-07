@@ -7,6 +7,7 @@ import { useSyncExternalStore } from 'react';
 import { pinSeq } from '../../../data';
 import { revive } from '../../../data/revive';
 import { now } from '../../../lib/clock';
+import { venueSettingsStore, type VenueSettings } from '../../../store/venueSettings';
 import {
   menuEditsStore,
   type BoMenu,
@@ -24,7 +25,6 @@ import type { BoState } from './model/types';
 import recipesJson from './seed/recipes.json';
 import gridJson from './seed/grid.json';
 import menusJson from './seed/menus.json';
-import venuesJson from './seed/venues.json';
 import modGroupsJson from './seed/modGroups.json';
 import ruleDefaultsJson from './seed/ruleDefaults.json';
 import seedSidesJson from './seed/seedSides.json';
@@ -52,12 +52,20 @@ function seedMenus(at: number): BoMenu[] {
   });
 }
 
+/**
+ * Which menu each venue serves and from when. Venue Settings owns the
+ * schedule; the menu pages only read it.
+ */
+function schedulesOf(vs: VenueSettings): VenueSchedule[] {
+  return vs.venues.map((v) => ({ id: v.id, name: v.name, menuId: v.menuId, menuStartDt: v.menuStartDt, active: v.active, upcoming: v.upcoming }));
+}
+
 function buildSeed(at: number): BoState {
   return {
     recipes: recipesJson as unknown as Recipe[],
     grid: gridJson as unknown as GridEntry[],
     menus: seedMenus(at),
-    venues: revive(venuesJson as unknown as VenueSchedule[], at),
+    venues: schedulesOf(venueSettingsStore.get()),
     modGroups: modGroupsJson as BoModGroup[],
     modRules: {},
     prices: [],
@@ -69,17 +77,19 @@ function buildSeed(at: number): BoState {
 export const SEED: BoState = buildSeed(now());
 
 let cacheKey: MenuEditsState | null = null;
+let cacheVenues: VenueSettings | null = null;
 let cacheVal: BoState = SEED;
 
 /** Back Office's menu data for a saved state. */
-export function boStateOf(s: MenuEditsState): BoState {
-  if (s === cacheKey) return cacheVal;
+export function boStateOf(s: MenuEditsState, vs: VenueSettings = venueSettingsStore.get()): BoState {
+  if (s === cacheKey && vs === cacheVenues) return cacheVal;
   cacheKey = s;
+  cacheVenues = vs;
   cacheVal = {
     recipes: s.recipes ?? SEED.recipes,
     grid: s.grid ?? SEED.grid,
     menus: s.menus ?? SEED.menus,
-    venues: s.venues ?? SEED.venues,
+    venues: schedulesOf(vs),
     modGroups: s.modGroups ?? SEED.modGroups,
     modRules: s.modRules ?? SEED.modRules,
     prices: s.prices ?? SEED.prices,
@@ -95,7 +105,24 @@ export function getBo(): BoState {
 
 /** Back Office's menu data in a component. */
 export function useBo(): BoState {
-  return useSyncExternalStore(menuEditsStore.subscribe, getBo, getBo);
+  return useSyncExternalStore(subscribeBo, getBo, getBo);
+}
+
+function subscribeBo(listener: () => void): () => void {
+  const offMenus = menuEditsStore.subscribe(listener);
+  const offVenues = venueSettingsStore.subscribe(listener);
+  return () => {
+    offMenus();
+    offVenues();
+  };
+}
+
+/**
+ * Recompute what the floor sees, e.g. after Venue Settings starts a menu:
+ * the cycle day, and so the specials, follow the venue's schedule.
+ */
+export function refreshLiveMenu(): void {
+  updateBo(() => ({}));
 }
 
 /** Change Back Office's menu data; the floor sees the result at once. */
