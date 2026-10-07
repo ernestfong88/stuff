@@ -43,7 +43,7 @@ live. Add `?clock=18:30` to start at a different time, or `?clock=real` to
 use the device clock.
 
 To reset the demo, open the screen menu (top right, on every screen) and tap
-Reset demo data at the bottom.
+Reset demo data at the top.
 
 ## Scripts
 

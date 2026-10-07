@@ -16,6 +16,10 @@
     inset 0 0 0 1px rgba(20, 35, 48, 0.08);
   animation: k-pop-in var(--med) var(--ease);
   color: var(--ink);
+  /* A long menu scrolls instead of running off a short screen. */
+  max-height: calc(100dvh - 90px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .above {
   top: auto;

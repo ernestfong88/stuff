@@ -225,7 +225,7 @@ The final order is:
 - **Cook and Expo no longer show an Undo message after a bump.** A cleared ticket stays cleared. If one goes by mistake, bring it back with **RECALL** (or the M key on the bump bar).
 - **Cook** has the same clock in its header as Expo.
 - **Table tickets show when the order first went in**, for example *5:30 PM*, on its own line under the table number on Cook and Expo. Pick up and delivery tickets keep their pick up window instead.
-- **Reset demo data** and **Clear all tickets** moved from the tablets' account menu to the bottom of the screen menu (top right), so they are on every screen, including the kitchen screens, kiosk and Back Office. Each one still asks first.
+- **Reset demo data** and **Clear all tickets** moved from the tablets' account menu to the top of the screen menu (top right), so they are on every screen, including the kitchen screens, kiosk and Back Office. Each one still asks first.
 
 ### Phasing: printers first, KDS later
 

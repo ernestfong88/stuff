@@ -60,6 +60,25 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
       >
         {({ close }) => (
           <>
+            {demo.length > 0 && (
+              <div className={s.demo}>
+                <div className={s.demoHead}>Demo</div>
+                {demo.map((a) => (
+                  <button
+                    key={a.id}
+                    role="menuitem"
+                    className={s.demoBtn}
+                    onClick={async () => {
+                      close();
+                      if (await ask({ title: a.label, message: a.confirm, confirmLabel: a.label, tone: 'danger' })) a.run();
+                    }}
+                  >
+                    <RotateCcw size={15} strokeWidth={2.5} />
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            )}
             {modes.map((x, i) => (
               <Fragment key={x.id}>
                 {i === firstLater && (
@@ -81,25 +100,6 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
                 </MenuItem>
               </Fragment>
             ))}
-            {demo.length > 0 && (
-              <div className={s.demo}>
-                <div className={s.demoHead}>Demo</div>
-                {demo.map((a) => (
-                  <button
-                    key={a.id}
-                    role="menuitem"
-                    className={s.demoBtn}
-                    onClick={async () => {
-                      close();
-                      if (await ask({ title: a.label, message: a.confirm, confirmLabel: a.label, tone: 'danger' })) a.run();
-                    }}
-                  >
-                    <RotateCcw size={15} strokeWidth={2.5} />
-                    {a.label}
-                  </button>
-                ))}
-              </div>
-            )}
           </>
         )}
       </Popover>
