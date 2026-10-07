@@ -11,6 +11,7 @@
  * Persisted and synced across tabs, so a screen renamed in the Back Office
  * shows on the cook line straight away.
  */
+import { weekStart } from '../domain/menuCycle';
 import type { PrintGroup, PrintRoute } from '../domain/printing';
 import { rooms } from '../data';
 import { revive } from '../data/revive';
@@ -91,7 +92,11 @@ export interface VenueSettings {
   expo: Record<string, boolean>;
 }
 
-const initial = (): VenueSettings => revive(seed as unknown as VenueSettings);
+/** The shipped settings. Menu weeks run Sunday to Saturday, so each venue's week 1 starts on a Sunday. */
+const initial = (): VenueSettings => {
+  const s = revive(seed as unknown as VenueSettings);
+  return { ...s, venues: s.venues.map((v) => (v.menuStartDt == null ? v : { ...v, menuStartDt: weekStart(v.menuStartDt).getTime() })) };
+};
 
 export const venueSettingsStore = createSharedStore<VenueSettings>(initial, {
   persistKey: 'kisco_venue_settings_v1',
@@ -180,6 +185,11 @@ export function addVenue(venue: Venue): void {
 
 const isAlc = (m: MenuSummary | undefined) => !!m && (m.kind === 'alc' || m.cycleLen === 0);
 
+/** A cycle menu's every-day items, offered as an à la carte choice: "m1:everyday". */
+export const everyDayId = (menuId: string) => `${menuId}:everyday`;
+/** The menu an id belongs to: "m1:everyday" is part of m1. */
+export const baseMenuId = (id: string | null | undefined) => id?.replace(/:everyday$/, '') ?? null;
+
 /**
  * A venue's two menus: the cycle and the à la carte. Older saved venues kept
  * an à la carte menu in menuId; it reads as the à la carte here.
@@ -190,15 +200,15 @@ export function venueMenus(v: Pick<Venue, 'menuId' | 'alcMenuId'>, menus: MenuSu
   return isAlc(first) ? { alc: alc ?? first } : { cycle: first, alc };
 }
 
-/** Monday of this week, local time: where a newly chosen cycle starts. */
-function thisMonday(at: number): number {
+/** Sunday of this week, local time: where a newly chosen cycle starts (weeks run Sunday to Saturday). */
+function thisSunday(at: number): number {
   const d = new Date(at);
   d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  d.setDate(d.getDate() - d.getDay());
   return d.getTime();
 }
 
-/** Choose a venue's cycle menu (null for none). A different cycle starts its week 1 this Monday; the start can be moved after. */
+/** Choose a venue's cycle menu (null for none). A different cycle starts its week 1 this Sunday; the start can be moved after. */
 export function setVenueCycle(venueId: string, menuId: string | null, at: number, menus: MenuSummary[]): void {
   update((s) => ({
     ...s,
@@ -206,7 +216,7 @@ export function setVenueCycle(venueId: string, menuId: string | null, at: number
       if (v.id !== venueId) return v;
       const { cycle, alc } = venueMenus(v, menus);
       const same = cycle?.id === menuId;
-      return { ...v, menuId, alcMenuId: alc?.id ?? null, menuStartDt: !menuId ? null : same ? v.menuStartDt : thisMonday(at) };
+      return { ...v, menuId, alcMenuId: alc?.id ?? null, menuStartDt: !menuId ? null : same ? v.menuStartDt : thisSunday(at) };
     }),
   }));
 }
@@ -252,12 +262,41 @@ export function unlinkPrinter(linkId: string): void {
   update((s) => ({ ...s, printerLinks: s.printerLinks.filter((l) => l.id !== linkId) }));
 }
 
-export function addPrinter(printer: Printer, venueId: string, linkId: string): void {
+/** Set up a new printer, linked to one venue, to several (one link id each) or to none. */
+export function addPrinter(printer: Printer, venueId: string | string[], linkId: string | string[]): void {
+  const venueIds = Array.isArray(venueId) ? venueId : [venueId];
+  const linkIds = Array.isArray(linkId) ? linkId : [linkId];
   update((s) => ({
     ...s,
     printers: [...s.printers, printer],
-    printerLinks: [...s.printerLinks, { id: linkId, printerId: printer.id, venueId }],
+    printerLinks: [...s.printerLinks, ...venueIds.map((v, i) => ({ id: linkIds[i] ?? `${linkIds[0]}-${i}`, printerId: printer.id, venueId: v }))],
   }));
+}
+
+/** Change a printer's name, type, IP or state. Its id stays. */
+export function patchPrinter(printerId: string, patch: Partial<Omit<Printer, 'id'>>): void {
+  update((s) => ({ ...s, printers: s.printers.map((p) => (p.id === printerId ? { ...p, ...patch } : p)) }));
+}
+
+/** Rename a printer; a blank name is ignored. */
+export function renamePrinter(printerId: string, name: string): void {
+  const n = name.trim();
+  if (n) patchPrinter(printerId, { name: n });
+}
+
+/** Remove a printer from the community, with its links to every venue. */
+export function removePrinter(printerId: string): void {
+  update((s) => ({
+    ...s,
+    printers: s.printers.filter((p) => p.id !== printerId),
+    printerLinks: s.printerLinks.filter((l) => l.printerId !== printerId),
+  }));
+}
+
+/** Save several printers' routes at once (an item sent to other printers changes a few of them). */
+export function setPrinterRoutes(routes: Array<{ id: string; print?: Printer['print'] }>): void {
+  const by = new Map(routes.map((r) => [r.id, r.print]));
+  update((s) => ({ ...s, printers: s.printers.map((p) => (by.has(p.id) ? { ...p, print: by.get(p.id) } : p)) }));
 }
 
 // ─── Menus ───────────────────────────────────────────────────────────────

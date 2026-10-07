@@ -4,7 +4,7 @@ import { uid } from '../../../lib/id';
 import type { BoMenu, GridEntry, MenuKind, SideOverrides } from '../../../store/menuEdits';
 import { BACK_OFFICE_AUTHOR, SEED_SIDES, getBo, updateBo } from './data';
 import { copyDaySides, copyMeal as copyMealGrid, swapMeals as swapMealGrid, type MealSlot } from './model/dayOps';
-import { addDays, dayStart, quarterMenuName } from '../../../domain/menuCycle';
+import { addDays, dayStart, quarterMenuName, weekStart } from '../../../domain/menuCycle';
 import type { BoState, BuilderMeal } from './model/types';
 
 /** Change a menu, recording who edited it and when. */
@@ -110,7 +110,8 @@ export function restoreDays(snap: DaySnapshot): void {
 
 /** Move the builder's dates so that cycle day `day` falls on `date`; the other days move with it. */
 export function setDayDate(menuId: string, day: number, date: Date): void {
-  updateMenu(menuId, { startDt: addDays(dayStart(date), -(day - 1)).getTime() });
+  // Weeks run Sunday to Saturday, so day 1 lands on the Sunday of that week.
+  updateMenu(menuId, { startDt: weekStart(addDays(dayStart(date), -(day - 1))).getTime() });
 }
 
 /** A copy of a menu (and everything on it) as a draft in a quarter; returns its id. */

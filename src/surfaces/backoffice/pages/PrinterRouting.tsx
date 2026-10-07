@@ -41,7 +41,7 @@ export function PrinterRouting() {
   return (
     <BoSection
       title="What each printer prints"
-      sub="When the server sends, each printer gets one ticket with its items. Set a printer to whole groups, to Recipe Book categories, or to single recipes. The most specific wins: a recipe or category picked for one printer prints there instead of at the printer that takes its whole group. Add or remove printers on each venue's Devices tab."
+      sub="When the server sends, each printer gets one ticket with its items. Set a printer to whole groups, to Recipe Book categories, or to single recipes. The most specific wins: a recipe or category picked for one printer prints there instead of at the printer that takes its whole group. Add, rename or remove printers on the Printers tab; set single dishes on By menu item."
     >
       {gaps.map((g) => {
         const none = g.missing.filter((m) => !m.partly).map((m) => m.group);
@@ -56,7 +56,7 @@ export function PrinterRouting() {
           </p>
         );
       })}
-      {printers.length === 0 && <p className={s.empty}>No kitchen printers yet. Add one on a venue's Devices tab.</p>}
+      {printers.length === 0 && <p className={s.empty}>No kitchen printers yet. Add one on the Printers tab.</p>}
       <ul className={s.list}>
         {printers.map((p) => (
           <PrinterRow key={p.id} printer={p} venues={venuesOf(p.id).join(', ')} options={options} />

@@ -35,14 +35,32 @@ export function parseIsoDay(s: string): Date | null {
   return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
 }
 
+/** The Sunday on or before a date. Menu weeks run Sunday to Saturday, so a cycle's day 1 is always a Sunday. */
+export function weekStart(t: number | Date): Date {
+  const d = dayStart(t);
+  return addDays(d, -d.getDay());
+}
+
+/**
+ * The demo data is written with today as cycle day 15. Weeks run Sunday to
+ * Saturday, so today is really day 15 plus the weekday (day 18 on a
+ * Wednesday); the seeded cycle is turned by that many days so today's
+ * specials still land on today.
+ */
+export const SEED_TODAY = 15;
+export const seedShift = (at: number) => new Date(at).getDay();
+/** A seeded cycle day turned by `shift` days around a cycle of `len` (day 0, every day, stays put). */
+export const shiftDay = (d: number, shift: number, len: number) => (d > 0 && len > 0 ? ((d - 1 + shift) % len) + 1 : d);
+
 /**
  * The cycle day (1 to len) a date falls on for a cycle that started on
- * `start`. The cycle repeats, so day len + 1 is day 1 again; dates before
- * the start count backwards around the cycle.
+ * `start` (counted from the Sunday of that week). The cycle repeats, so day
+ * len + 1 is day 1 again; dates before the start count backwards around the
+ * cycle.
  */
 export function cycleDayOn(start: number | null | undefined, len: number, at: number): number | null {
   if (!len || len < 1 || start == null) return null;
-  const n = Math.round((dayStart(at).getTime() - dayStart(start).getTime()) / DAY_MS) + 1;
+  const n = Math.round((dayStart(at).getTime() - weekStart(start).getTime()) / DAY_MS) + 1;
   const r = n % len;
   return r === 0 ? len : r < 0 ? r + len : r;
 }
@@ -117,14 +135,14 @@ export function menuAnchor(menu: BoMenu | undefined, venues: VenueSchedule[], le
       const cd = cycleDayOn(start, len, at) ?? 1;
       return { start: addDays(t0, 1 - cd), live: true, today: cd, venueName };
     }
-    return { start: st, live: false, today: null, venueName };
+    return { start: weekStart(st), live: false, today: null, venueName };
   };
   if (menu.startDt) return fromStart(menu.startDt);
   const options: Array<{ a: CycleAnchor; at: number }> = [];
   for (const v of venues) {
     if (v.menuId === menu.id && v.menuStartDt != null) options.push({ a: fromStart(v.menuStartDt, v.name), at: v.menuStartDt });
     for (const u of v.upcoming ?? [])
-      if (u.menuId === menu.id) options.push({ a: { start: dayStart(u.startDt), live: false, today: null, venueName: v.name }, at: u.startDt });
+      if (u.menuId === menu.id) options.push({ a: { start: weekStart(u.startDt), live: false, today: null, venueName: v.name }, at: u.startDt });
   }
   options.sort((x, y) => Number(y.a.live) - Number(x.a.live) || x.at - y.at);
   return options[0]?.a ?? null;

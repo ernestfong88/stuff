@@ -59,3 +59,14 @@
   font-weight: 700;
   color: var(--plum);
 }
+.printersLink {
+  margin: -6px 0 16px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.printersLink a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ocean);
+}

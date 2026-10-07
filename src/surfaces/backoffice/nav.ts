@@ -153,6 +153,14 @@ export const BO_SECTIONS: BoSectionDef[] = [
           'printer terminal square room price pricing cost guest a la carte floor plan tables layout seating map kitchen routing bar route tickets',
         component: lazy(() => import('./pages/venues')),
       },
+      {
+        id: 'printers',
+        label: 'Printers',
+        blurb: 'Add, rename and remove printers, and choose what each one prints, down to single menu items',
+        keywords: 'printer ticket kitchen print route receipt label ip test menu item send to',
+        phase: 1,
+        component: lazy(() => import('./pages/printers')),
+      },
     ],
   },
   {

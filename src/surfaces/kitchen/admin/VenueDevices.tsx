@@ -18,7 +18,7 @@ export function VenueDevices({ settings, venue }: { settings: VenueSettings; ven
     <>
       <BoSection
         title="Printers"
-        sub="Tickets and receipts for this venue print here."
+        sub="Tickets and receipts for this venue print here. Rename or remove printers, and set what each prints, on Venues › Printers."
         actions={
           <Button size="sm" icon={<Plus size={14} />} onClick={() => setAdding(true)}>
             Add printer
@@ -36,16 +36,18 @@ export function VenueDevices({ settings, venue }: { settings: VenueSettings; ven
                     {printer.type} · {printer.ip}
                   </span>
                 </span>
-                {printer.reachable ? (
-                  <Chip tone="success">Working</Chip>
-                ) : (
-                  <Chip tone="danger">Can't be reached</Chip>
-                )}
+                {printer.reachable ? <Chip tone="success">Working</Chip> : <Chip tone="danger">Can't be reached</Chip>}
                 <Button
                   size="sm"
                   variant="ghost"
                   icon={<Send size={14} />}
-                  onClick={() => toast(printer.reachable ? `Test page sent to ${printer.name}` : `${printer.name} can't be reached at ${printer.ip}. Check it's on and plugged in.`)}
+                  onClick={() =>
+                    toast(
+                      printer.reachable
+                        ? `Test page sent to ${printer.name}`
+                        : `${printer.name} can't be reached at ${printer.ip}. Check it's on and plugged in.`,
+                    )
+                  }
                 >
                   Test
                 </Button>
@@ -86,7 +88,11 @@ export function VenueDevices({ settings, venue }: { settings: VenueSettings; ven
                 <span className={s.main}>
                   <span className={s.name}>{t.name}</span>
                 </span>
-                {t.online ? <Chip tone="success">Online</Chip> : <Chip tone="warning">Offline{t.lastSeen ? ` · last seen ${formatTime(t.lastSeen)}` : ''}</Chip>}
+                {t.online ? (
+                  <Chip tone="success">Online</Chip>
+                ) : (
+                  <Chip tone="warning">Offline{t.lastSeen ? ` · last seen ${formatTime(t.lastSeen)}` : ''}</Chip>
+                )}
               </li>
             ))}
           </ul>

@@ -22,8 +22,7 @@ export const ALCOHOL_SUBS = ['Wine', 'Beer', 'Spirits / Liquor', 'Cocktails'];
 
 /** The first version had one Drinks group; a saved pick of it means both. */
 const LEGACY: Record<string, PrintGroup[]> = { Drinks: ['Beverages', 'Alcohol'] };
-const upgradeGroups = (gs: readonly string[]): PrintGroup[] =>
-  PRINT_GROUPS.filter((g) => gs.includes(g) || gs.some((x) => LEGACY[x]?.includes(g)));
+const upgradeGroups = (gs: readonly string[]): PrintGroup[] => PRINT_GROUPS.filter((g) => gs.includes(g) || gs.some((x) => LEGACY[x]?.includes(g)));
 
 /** What a printer prints when it doesn't take the whole ticket. */
 export interface PrintPick {
@@ -155,4 +154,37 @@ export function printSummary(jobs: PrintJob[]): string {
     'Printed at ' +
     jobs.map((j) => `${j.printer.name} (${j.whole ? 'whole ticket' : `${j.items.length} item${j.items.length === 1 ? '' : 's'}`})`).join(' · ')
   );
+}
+
+// ─── Item-level rules (Printers page, By menu item) ─────────────────────
+
+/** The printers that take one recipe by name (an item-level rule), in printer order. Whole-ticket printers aren't listed. */
+export function itemPrinterIds(printers: RoutedPrinter[], recipeId: string): string[] {
+  return printers
+    .filter((p) => {
+      const r = printRoute(p);
+      return r !== 'all' && r.recipes.includes(recipeId);
+    })
+    .map((p) => p.id);
+}
+
+/**
+ * Send one recipe to exactly these printers: it joins their recipe picks and
+ * leaves every other printer's, so it prints there (plus at the whole-ticket
+ * printers) and nowhere else. No printers puts it back to automatic: it
+ * prints wherever its category or group does. Whole-ticket printers keep
+ * printing everything and are left as they are. Returns the printers with
+ * their new routes; a printer whose route doesn't change is returned as is.
+ */
+export function setItemPrinters<P extends RoutedPrinter>(printers: P[], recipeId: string, printerIds: string[]): P[] {
+  const chosen = new Set(printerIds);
+  return printers.map((p) => {
+    const r = printRoute(p);
+    if (r === 'all') return p;
+    const has = r.recipes.includes(recipeId);
+    const want = chosen.has(p.id);
+    if (has === want) return p;
+    const recipes = want ? [...r.recipes, recipeId] : r.recipes.filter((id) => id !== recipeId);
+    return { ...p, print: { ...r, recipes } };
+  });
 }

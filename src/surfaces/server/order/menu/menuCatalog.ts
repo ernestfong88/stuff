@@ -8,9 +8,11 @@ import { isAlcoholFreeName, serverItemName } from '../../../../domain/menu';
 import { COCKTAIL_ROOMS } from '../../../../domain/routing';
 import type { MealName, MenuItem } from '../../../../domain/types';
 import { DEFAULT_CONFIG, type DiningConfig } from '../../../../domain/config';
+import { SEED_TODAY, seedShift, shiftDay } from '../../../../domain/menuCycle';
+import { today } from '../../../../lib/clock';
 
-/** The day of the menu cycle being served today; items on day 0 are on every day. */
-export const TODAY_MENU_DAY = 15;
+/** The day of the menu cycle being served today (weeks run Sunday to Saturday); items on day 0 are on every day. */
+export const TODAY_MENU_DAY = shiftDay(SEED_TODAY, seedShift(today().getTime()), 35);
 
 export type MenuTab = 'Drinks' | 'Specials' | 'Starters' | 'Entrees' | 'Sides' | 'Desserts';
 

@@ -5,7 +5,7 @@
  */
 import { catalog, getItem } from '../data';
 import { isAlcoholFreeName } from '../domain/menu';
-import { printGroupOf, subKey, type PrintGroup, type PrintItem } from '../domain/printing';
+import { PRINT_GROUPS, printGroupOf, subKey, type PrintGroup, type PrintItem } from '../domain/printing';
 import { recipeInfo, recipesIn, type RecipeInfo } from './recipes';
 
 const BOOK_CATS = ['Drinks', 'Starters', 'Entrees', 'Sides', 'Desserts', 'Snacks'];
@@ -79,6 +79,31 @@ export function printOptions(): PrintOption[] {
       }),
     ),
   ].sort((a, b) => a.label.localeCompare(b.label));
+}
+
+export interface PrintMenuRow extends PrintItem {
+  /** The recipe id, or "item:<name>" when the item has no Recipe Book entry. */
+  key: string;
+}
+
+/**
+ * Every item on the tablet menu as the printers see it, once each (an item on
+ * several meals' menus, or two items for one recipe, is one row), in print
+ * group order, then Recipe Book category, then name. Items with no recipe
+ * can't take an item-level rule; they print by their group.
+ */
+export function printMenuItems(): PrintMenuRow[] {
+  const names = byName();
+  const rows = new Map<string, PrintMenuRow>();
+  for (const it of catalog) {
+    const p = printItemFor(it.id, names);
+    const key = p?.recipeId ?? `item:${it.name.toLowerCase()}`;
+    if (p && !rows.has(key)) rows.set(key, { ...p, key });
+  }
+  const order = (g: PrintGroup) => PRINT_GROUPS.indexOf(g);
+  return [...rows.values()].sort(
+    (a, b) => order(a.group) - order(b.group) || (a.sub ?? '\uffff').localeCompare(b.sub ?? '\uffff') || a.name.localeCompare(b.name),
+  );
 }
 
 const alcoholCache = new Map<string, boolean>();

@@ -18,7 +18,7 @@ import { FloorPlanEditor } from '../../manager/floor/FloorPlanEditor';
 import { useConfig } from '../../../store/config';
 import { PricingPage } from '../menus/pricing/PricingPage';
 import { ConfirmReset } from './ConfirmReset';
-import { patchVenue, useVenueSettings, venueMenus, venueSettingsStore, type Venue, type VenueAdminView } from '../../../store/venueSettings';
+import { everyDayId, patchVenue, useVenueSettings, venueMenus, venueSettingsStore, type Venue, type VenueAdminView } from '../../../store/venueSettings';
 import { cycleLenOf, refreshLiveMenu, useBo } from '../menus/data';
 import { BoEmbedded, BoPage, BoSection } from '../kit';
 import type { BoPageProps } from '../nav';
@@ -46,15 +46,11 @@ export default function Page({ goto }: BoPageProps) {
   const settings = useMemo<VenueAdminView>(
     () => ({
       ...stored,
-      menus: bo.menus.map((m) => ({
-        id: m.id,
-        name: m.name,
-        season: m.quarter,
-        quarter: m.quarter,
-        kind: m.kind,
-        status: m.status,
-        cycleLen: cycleLenOf(bo, m.id),
-      })),
+      menus: bo.menus.flatMap((m) => {
+        const own = { id: m.id, name: m.name, season: m.quarter, quarter: m.quarter, kind: m.kind, status: m.status, cycleLen: cycleLenOf(bo, m.id) };
+        // A cycle's every-day items can be a venue's à la carte menu too.
+        return m.kind === 'cycle' ? [own, { ...own, id: everyDayId(m.id), name: `${m.name} · Every-day items`, kind: 'alc', cycleLen: 0 }] : [own];
+      }),
     }),
     [stored, bo],
   );

@@ -69,7 +69,7 @@ describe('phase 3', () => {
 
 describe('the standard phase split', () => {
   it('matches the agreed list', () => {
-    expect(phaseListText({})).toBe(`Phase 1 (23 items)
+    expect(phaseListText({})).toBe(`Phase 1 (24 items)
   Screen › Server
   Screen › Manager
   Screen › PU & Delivery
@@ -81,6 +81,7 @@ describe('the standard phase split', () => {
   Back Office › Menus & Recipes › Modifiers
   Back Office › Menus & Recipes › Associate Meals
   Back Office › Venues › Venue Settings
+  Back Office › Venues › Printers
   Back Office › POS Settings › Service Flow
   Back Office › POS Settings › Pick Up & Delivery
   Back Office › POS Settings › Messages

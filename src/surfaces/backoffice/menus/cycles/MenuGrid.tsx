@@ -446,8 +446,9 @@ function DayMenu({
         </>
       ) : (
         <span className={s.dateWords}>
-          <span>DAY {day}</span>
-          <span className={s.dateSub}>No date yet</span>
+          {/* Weeks run Sunday to Saturday, so day 1 is a Sunday even before the menu has dates. */}
+          <span>{['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][(day - 1) % 7]}</span>
+          <span className={s.dateSub}>Day {day}</span>
         </span>
       )}
     </>

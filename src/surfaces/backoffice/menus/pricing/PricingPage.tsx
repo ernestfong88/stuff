@@ -27,7 +27,7 @@ export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) 
   const [q, setQ] = useState('');
   const [changedOnly, setChangedOnly] = useState(false);
   const venue = fixedVenue ? venues.find((v) => v.id === fixedVenue) : (venues.find((v) => v.id === venueId) ?? venues[0]);
-  const onMenu = useMemo(() => recipesOnMenu(bo, venue?.menuId ?? venue?.alcMenuId ?? null), [bo, venue]);
+  const onMenu = useMemo(() => recipesOnMenu(bo, venue?.menuId ?? venue?.alcMenuId?.replace(/:everyday$/, '') ?? null), [bo, venue]);
   const byId = useMemo(() => new Map(bo.recipes.map((r) => [r.id, r])), [bo.recipes]);
   const query = q.trim().toLowerCase();
   const rows = onMenu

@@ -156,7 +156,7 @@ function MenuList() {
             {rows.map((r) => {
               const m = r.menu;
               const st = menuState(m, venues);
-              const w = where(m);
+              const w = r.everyDay ? venues.filter((v) => v.alcMenuId === `${m.id}:everyday`).map((v) => v.name.replace(/ Dining Room$/, '')) : where(m);
               const len = cycleLenOf(bo, m.id);
               const ap = approvalOf(m);
               return (
@@ -189,7 +189,7 @@ function MenuList() {
                         </span>
                       )}
                     </div>
-                    {!r.everyDay && <div className={s.muted}>{w.length ? 'Served at ' + w.join(', ') : 'Not on a venue yet'}</div>}
+                    <div className={s.muted}>{w.length ? 'Served at ' + w.join(', ') : 'Not on a venue yet'}</div>
                   </td>
                   <td>
                     {!r.everyDay && (

@@ -17,7 +17,7 @@
      }
     }
    ],
-   "alcMenuId": null
+   "alcMenuId": "m1:everyday"
   },
   {
    "id": "v2",
@@ -36,7 +36,7 @@
      }
     }
    ],
-   "alcMenuId": null
+   "alcMenuId": "m1:everyday"
   },
   {
    "id": "v3",

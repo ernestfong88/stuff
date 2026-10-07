@@ -1,24 +1,13 @@
 /** Menu cycle arithmetic for the venue pages. */
+import { cycleDayOn } from '../../../domain/menuCycle';
 import type { MenuSummary } from '../../../store/venueSettings';
 
-const DAY = 86_400_000;
-
-const midnight = (ts: number) => {
-  const d = new Date(ts);
-  d.setHours(0, 0, 0, 0);
-  return d.getTime();
-};
-
 /**
- * Day of the cycle a menu is on (1 = its start date), wrapping round the
- * cycle; null for a static menu or no start date. Matches the legacy
- * formula, days before the start count backwards round the cycle.
+ * Day of the cycle a menu is on (1 = the Sunday of its start week), wrapping
+ * round the cycle; null for a static menu or no start date.
  */
 export function cycleDay(startDt: number | null, cycleLen: number, at: number): number | null {
-  if (!startDt || !cycleLen || cycleLen < 1) return null;
-  const day = Math.round((midnight(at) - midnight(startDt)) / DAY) + 1;
-  const r = ((day % cycleLen) + cycleLen) % cycleLen;
-  return r === 0 ? cycleLen : r;
+  return startDt ? cycleDayOn(startDt, cycleLen, at) : null;
 }
 
 /** "Week 3 of 5", or null when there is no cycle to count. */

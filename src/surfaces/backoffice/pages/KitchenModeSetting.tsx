@@ -1,10 +1,9 @@
-import { MonitorPlay, Printer } from 'lucide-react';
+import { ArrowRight, MonitorPlay, Printer } from 'lucide-react';
 import { printerMode, type KitchenMode } from '../../../domain/config';
 import { updateConfig, useConfig } from '../../../store/config';
 import { kdsOn, kdsPhase, usePhaseOn, usePhasePlan } from '../../../store/phases';
 import { cx, toast } from '../../../ui';
 import { BoSection } from '../kit';
-import { PrinterRouting } from './PrinterRouting';
 import s from './KitchenModeSetting.module.css';
 
 const CHOICES: Array<{ id: KitchenMode; title: string; icon: typeof Printer; lines: string[] }> = [
@@ -82,7 +81,13 @@ export function KitchenModeSetting() {
           })}
         </div>
       </BoSection>
-      {current === 'printers' && <PrinterRouting />}
+      {current === 'printers' && (
+        <p className={s.printersLink}>
+          <a href="#/backoffice/printers/routing">
+            Set what each printer prints on the Printers page <ArrowRight size={14} aria-hidden />
+          </a>
+        </p>
+      )}
     </>
   );
 }

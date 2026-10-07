@@ -4,7 +4,7 @@
  * recomputes what the floor sees.
  */
 import { useSyncExternalStore } from 'react';
-import { pinSeq } from '../../../data';
+import { pinSeq, SEED_GRID, TURNED_MENUS } from '../../../data';
 import { revive } from '../../../data/revive';
 import { now } from '../../../lib/clock';
 import { venueSettingsStore, type VenueSettings } from '../../../store/venueSettings';
@@ -12,18 +12,17 @@ import {
   menuEditsStore,
   type BoMenu,
   type BoModGroup,
-  type GridEntry,
   type MenuEditsState,
   type ModRuleEdit,
   type Recipe,
+  type SideOverrides,
   type VenueSchedule,
 } from '../../../store/menuEdits';
-import { quarterIndexOf, quarterLabel, quarterMenuName } from '../../../domain/menuCycle';
+import { quarterIndexOf, quarterLabel, quarterMenuName, seedShift, shiftDay } from '../../../domain/menuCycle';
 import { computeLive } from './model/liveOverlay';
 import { tabletIndex } from './model/tablet';
 import type { BoState } from './model/types';
 import recipesJson from './seed/recipes.json';
-import gridJson from '../../../data/seed/menuGrid.json';
 import menusJson from './seed/menus.json';
 import modGroupsJson from './seed/modGroups.json';
 import ruleDefaultsJson from './seed/ruleDefaults.json';
@@ -39,7 +38,17 @@ export const RULE_DEFAULTS = ruleDefaultsJson as Record<string, ModRuleEdit>;
  * Default sides each placement comes with before a chef changes them:
  * menu → day → entrée recipe → side recipe ids.
  */
-export const SEED_SIDES = seedSidesJson as Record<string, Record<string, Record<string, string[]>>>;
+export const SEED_SIDES = turnSides(seedSidesJson as Record<string, Record<string, Record<string, string[]>>>, seedShift(now()));
+
+/** Seeded side choices follow their turned days (see SEED_TODAY). */
+function turnSides(sides: SideOverrides, shift: number): SideOverrides {
+  if (!shift) return sides;
+  const out: SideOverrides = { ...sides };
+  for (const [menuId, len] of Object.entries(TURNED_MENUS))
+    if (sides[menuId]) out[menuId] = Object.fromEntries(Object.entries(sides[menuId]).map(([d, v]) => [String(shiftDay(+d, shift, len)), v]));
+  return out;
+}
+
 
 type SeedMenu = Omit<BoMenu, 'name' | 'quarter'> & { name?: string; quarterOffset?: number; yearRound?: boolean };
 
@@ -63,7 +72,7 @@ function schedulesOf(vs: VenueSettings): VenueSchedule[] {
 function buildSeed(at: number): BoState {
   return {
     recipes: recipesJson as unknown as Recipe[],
-    grid: gridJson as unknown as GridEntry[],
+    grid: SEED_GRID,
     menus: seedMenus(at),
     venues: schedulesOf(venueSettingsStore.get()),
     modGroups: modGroupsJson as BoModGroup[],

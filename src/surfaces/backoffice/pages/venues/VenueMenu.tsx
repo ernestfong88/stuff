@@ -1,3 +1,4 @@
+import { weekStart } from '../../../../domain/menuCycle';
 import { today } from '../../../../lib/clock';
 import { patchVenue, setVenueAlc, setVenueCycle, venueMenus, type MenuSummary, type Venue, type VenueAdminView } from '../../../../store/venueSettings';
 import { toast } from '../../../../ui';
@@ -35,15 +36,15 @@ export function VenueMenu({ settings, venue, goto }: { settings: VenueAdminView;
         />
       </BoRow>
       {cycle && (
-        <BoRow label="Week 1 started" hint="The cycle day each date falls on counts from here.">
+        <BoRow label="Week 1 started" hint="Weeks run Sunday to Saturday, so this is always a Sunday.">
           <input
             type="date"
             className={s.dateInput}
             aria-label={`${venue.name} week 1 started`}
-            value={venue.menuStartDt ? isoDay(venue.menuStartDt) : ''}
+            value={venue.menuStartDt ? isoDay(weekStart(venue.menuStartDt).getTime()) : ''}
             onChange={(e) => {
               const [y, mo, d] = e.target.value.split('-').map(Number);
-              if (y) patchVenue(venue.id, { menuStartDt: new Date(y, mo - 1, d).getTime() });
+              if (y) patchVenue(venue.id, { menuStartDt: weekStart(new Date(y, mo - 1, d)).getTime() });
             }}
           />
         </BoRow>

@@ -223,6 +223,13 @@ The final order is:
 ### Less text in Back Office; Dining Service is now POS Settings
 - **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
 - **Dining Service is now POS Settings** in the Back Office menu.
+- **Menu weeks run Sunday to Saturday.** A cycle's week 1 always starts on a Sunday, in the builder, Venue Settings ("Week 1 started" snaps to the Sunday), production, printed menus and the floor. Builder columns without dates show their weekday. The demo cycle is turned so today keeps the specials the floor shows.
+- **Every-day items as an à la carte choice.** Each cycle menu's every-day list (for example "VT Fall 2026 · Every-day items") can be picked as a venue's à la carte menu, and Sequoia and Evergreen use it by default. The menus list shows where each one is served.
+- **Printers page** (Venues → Printers), with three tabs:
+  - **Printers:** add, rename, remove and test printers, and set their type, IP and venues.
+  - **What each printer prints:** the routing rules, moved here from Service Flow.
+  - **By menu item:** every menu item, where it prints now and why, with a *Send to* choice per item ("Automatic" or specific printers). It can be filtered to items that print nowhere.
+- **Service Flow, easier to read.** Short headings (Coursing, After the entrée, Dessert, Time to greet, Taking the order, Short names, Pick up, Comps), labels that say what happens when a setting is on, at most one short hint line, and per-venue numbers in one aligned column.
 - **Venue menus are two choices.** A venue's Menu tab is now *Menu cycle*, with a *Week 1 started* date, and *À la carte menu*. Each is a dropdown with a "None" option, and the "Up next" scheduling is gone. The Bistro's à la carte menu moved to its à la carte choice. A venue needs at least one of the two.
 - **Default release phases.** Out of the box, before anyone changes Release Phases:
   - **Phase 1:** Server, Manager, PU & Delivery and Back Office screens, and every Back Office page not listed below.

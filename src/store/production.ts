@@ -51,12 +51,11 @@
  */
 import seedJson from '../surfaces/prep/seed/production.json';
 import swapJson from '../surfaces/prep/seed/swapCandidates.json';
-import { catalog } from '../data';
+import { catalog, SEED_GRID } from '../data';
 import { isoDate } from '../domain/pickup';
 import type { AssocMeal, Order } from '../domain/types';
 import { MINUTE, now, today } from '../lib/clock';
 import { createSharedStore, useShared } from '../lib/sharedStore';
-import gridSeed from '../data/seed/menuGrid.json';
 import { cycleDayOn, servingAt } from '../domain/menuCycle';
 import { menuEditsStore, type GridEntry } from './menuEdits';
 import { recipeInfo } from './recipes';
@@ -626,7 +625,7 @@ const MEAL_ORDER: Record<PrepMeal, number> = { Breakfast: 0, Lunch: 1, Dinner: 2
 function cycleGrid(): { grid: GridEntry[]; nameOf: (recipeId: string) => string | undefined } {
   const edits = menuEditsStore.get();
   return {
-    grid: edits.grid ?? (gridSeed as unknown as GridEntry[]),
+    grid: edits.grid ?? SEED_GRID,
     nameOf: (id) => recipeInfo(id, edits)?.name,
   };
 }

@@ -3,7 +3,7 @@ import type { GridEntry, Recipe, VenueSchedule } from '../../../../store/menuEdi
 import { SEED } from '../data';
 import { aiCheck, applyOps, undoOps } from '../model/aiReview';
 import { guessCategory, guessProtein, guessSubcategory, normCategory, subOf } from '../model/categories';
-import { cycleDayOn, DAY_MS, menuAnchor, menuState, quarterLabel, quarterMenuName, venuesAt } from '../../../../domain/menuCycle';
+import { cycleDayOn, DAY_MS, menuAnchor, menuState, quarterLabel, quarterMenuName, SEED_TODAY, seedShift, shiftDay, venuesAt } from '../../../../domain/menuCycle';
 import { approvalOf } from '../model/approval';
 import { searchRecipes } from '../cycles/slotSearchModel';
 import { groupDay, parseDays, sameWeekday, sideMatches } from '../model/dayGroup';
@@ -17,12 +17,14 @@ import { mentionScore, noteDish, popularity, recipeScore, type FeedbackEntry } f
 const day = (iso: string) => new Date(iso + 'T12:00:00').getTime();
 
 describe('cycle days', () => {
-  it('counts from the start date and wraps around the cycle', () => {
-    const start = day('2026-09-23');
-    expect(cycleDayOn(start, 35, day('2026-09-23'))).toBe(1);
-    expect(cycleDayOn(start, 35, day('2026-10-07'))).toBe(15);
-    expect(cycleDayOn(start, 35, day('2026-10-28'))).toBe(1);
-    expect(cycleDayOn(start, 7, day('2026-09-22'))).toBe(7);
+  it('counts from the Sunday of the start week and wraps around the cycle', () => {
+    const start = day('2026-09-20'); // a Sunday
+    expect(cycleDayOn(start, 35, day('2026-09-20'))).toBe(1);
+    expect(cycleDayOn(start, 35, day('2026-10-07'))).toBe(18);
+    expect(cycleDayOn(start, 35, day('2026-10-25'))).toBe(1);
+    expect(cycleDayOn(start, 7, day('2026-09-19'))).toBe(7);
+    // Weeks run Sunday to Saturday: a Wednesday start counts from its Sunday.
+    expect(cycleDayOn(day('2026-09-23'), 35, day('2026-09-23'))).toBe(4);
     expect(cycleDayOn(null, 35, day('2026-10-07'))).toBeNull();
   });
 
@@ -48,8 +50,9 @@ describe('cycle days', () => {
     const venues: VenueSchedule[] = [{ id: 'v1', name: 'A', menuId: 'm1', menuStartDt: day('2026-09-23'), active: true }];
     const a = menuAnchor({ id: 'm1', name: '', kind: 'cycle', quarter: '', cycleLen: 35, status: 'active' }, venues, 35, at)!;
     expect(a.live).toBe(true);
-    expect(a.today).toBe(15);
-    expect(a.start.getDate()).toBe(23);
+    expect(a.today).toBe(18);
+    expect(a.start.getDate()).toBe(20);
+    expect(a.start.getDay()).toBe(0);
   });
 
   it('names menus after their quarter', () => {
@@ -193,7 +196,8 @@ describe('printed menus', () => {
   it('builds the daily menu and order form for a venue', () => {
     const recipes = SEED.recipes.map((r) => (r.id === 'd_peach' ? { ...r, name: 'Peach <script>' } : r));
     const C = printContext({ ...SEED, recipes }, { venueId: 'v1', at: Date.now() }, () => []);
-    expect(C.today).toBe(15);
+    // The seeded venue's cycle is turned so today keeps its specials; weeks run Sunday to Saturday.
+    expect(C.today).toBe(shiftDay(SEED_TODAY, seedShift(Date.now()), 35));
     const html = dailyMenuHtml(C, C.today);
     expect(html).toContain('Peach &lt;script&gt;');
     expect(html).not.toContain('<script>');

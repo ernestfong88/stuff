@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { printGroupOf, printJobs, printRoute, printSummary, printersFor, unprintedGroups, type PrintItem, type RoutedPrinter } from '../printing';
+import {
+  itemPrinterIds,
+  printGroupOf,
+  printJobs,
+  printRoute,
+  printSummary,
+  printersFor,
+  setItemPrinters,
+  unprintedGroups,
+  type PrintItem,
+  type RoutedPrinter,
+} from '../printing';
 
 const hot: RoutedPrinter = { id: 'p1', name: 'Hot Line', type: 'Kitchen', reachable: true, print: ['Entrées', 'Sides'] };
 const cold: RoutedPrinter = {
@@ -76,5 +87,33 @@ describe('printer routing', () => {
     expect(unprintedGroups([grill], (id) => (id === 'burger' ? 'Entrées' : undefined)).filter((g) => g.partly)).toEqual([
       { group: 'Entrées', partly: true },
     ]);
+  });
+
+  it('sends one item to exactly the chosen printers, plus whole-ticket printers', () => {
+    const all = [hot, cold, grill, pass, label];
+    // Burger goes to the Pantry instead of the Grill.
+    const next = setItemPrinters(all, 'burger', ['p2']);
+    expect(itemPrinterIds(next, 'burger')).toEqual(['p2']);
+    expect(names(printersFor(burger, next))).toEqual(['Pantry', 'Expo']);
+    expect(printRoute(next[3])).toBe('all');
+    // Untouched printers come back as they were.
+    expect(next[0]).toBe(hot);
+    expect(next[3]).toBe(pass);
+    // Two printers at once.
+    const both = setItemPrinters(next, 'burger', ['p1', 'p4']);
+    expect(names(printersFor(burger, both))).toEqual(['Hot Line', 'Grill', 'Expo']);
+    // A label printer with nothing set can take an item too.
+    expect(names(printersFor(burger, setItemPrinters(all, 'burger', ['p5'])))).toEqual(['Expo', 'Labels']);
+  });
+
+  it('puts an item back to automatic', () => {
+    const auto = setItemPrinters([hot, cold, grill, pass], 'burger', []);
+    expect(itemPrinterIds(auto, 'burger')).toEqual([]);
+    // It now prints where its group does.
+    expect(names(printersFor(burger, auto))).toEqual(['Hot Line', 'Expo']);
+    // Other recipes and picks are kept.
+    expect(printRoute(auto[1])).toEqual(printRoute(cold));
+    // Without a whole-ticket printer or a group pick it prints nowhere.
+    expect(printersFor(pie, setItemPrinters([hot, grill], 'pie', []))).toEqual([]);
   });
 });

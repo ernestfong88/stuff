@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import seed from '../seed/production.json';
 import { PLAN_DAYS, productionDay } from '../../../store/production';
+import { seedShift, shiftDay } from '../../../domain/menuCycle';
+import { now } from '../../../lib/clock';
 
 interface SeedRow {
   id: string;
@@ -14,9 +16,11 @@ describe('production plan from the menu cycle', () => {
   it('reproduces the prototype for today, tomorrow and the day after', () => {
     seededDays.forEach((want, off) => {
       const day = productionDay('sequoia', off);
-      expect(day.cycleDay).toBe(want.cycleDay);
-      expect(day.rows.filter((r) => r.kind === 'special').map((r) => [r.id, r.name, r.recommended])).toEqual(
-        want.rows.filter((r) => r.kind === 'special').map((r) => [r.id, r.name, r.recommended]),
+      // The seed is written with today as day 15; weeks run Sunday to Saturday, so the cycle is turned by the weekday.
+      expect(day.cycleDay).toBe(shiftDay(want.cycleDay, seedShift(now()), 35));
+      // Same specials; the suggested amounts are simulated from the cycle day, so they move with it.
+      expect(day.rows.filter((r) => r.kind === 'special').map((r) => [r.id, r.name])).toEqual(
+        want.rows.filter((r) => r.kind === 'special').map((r) => [r.id, r.name]),
       );
     });
   });

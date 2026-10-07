@@ -23,7 +23,8 @@ import type {
 } from '../domain/types';
 import { useSyncExternalStore } from 'react';
 import { today } from '../lib/clock';
-import { liveOverlay, menuEditsStore, type LiveMenuOverlay } from '../store/menuEdits';
+import { seedShift, shiftDay } from '../domain/menuCycle';
+import { liveOverlay, menuEditsStore, type GridEntry, type LiveMenuOverlay } from '../store/menuEdits';
 import { revive } from './revive';
 
 import residentsJson from './seed/residents.json';
@@ -39,6 +40,7 @@ import itemKindsJson from './seed/itemKinds.json';
 import modDefaultsJson from './seed/modDefaults.json';
 import pinSeqJson from './seed/pinSeq.json';
 import menuJson from './seed/menu.json';
+import gridSeedJson from './seed/menuGrid.json';
 import barMenuJson from './seed/barMenu.json';
 import venueFeesJson from './seed/venueFees.json';
 import deliveryFeesJson from './seed/deliveryFees.json';
@@ -80,7 +82,28 @@ export const getStaff = (idOrInitials: string | null | undefined) =>
 // ─── Menu ────────────────────────────────────────────────────────────────
 
 export const meals = mealsJson as Array<{ id: MealName; time: string }>;
-export const menu = menuJson as unknown as Menu;
+/** The seeded menu cycle's length, for turning its days (see SEED_TODAY in domain/menuCycle). */
+const SEED_CYCLE_LEN = 35;
+/** Menus whose seeded days are written with today as day 15: the cycle the seeded venues serve. */
+export const TURNED_MENUS: Record<string, number> = { m1: SEED_CYCLE_LEN };
+
+/** The Back Office menu grid as it ships, with the served cycle turned so today's specials are on today. */
+export const SEED_GRID: GridEntry[] = (gridSeedJson as unknown as GridEntry[]).map((g) => {
+  const shift = seedShift(today().getTime());
+  return shift && TURNED_MENUS[g.menuId] ? { ...g, day: shiftDay(g.day, shift, TURNED_MENUS[g.menuId]) } : g;
+});
+/** The tablet menu; today's seeded specials sit on today's cycle day. */
+export const menu = turnSeedDays(menuJson as unknown as Menu, seedShift(today().getTime()));
+
+function turnSeedDays(m: Menu, shift: number): Menu {
+  if (!shift) return m;
+  return Object.fromEntries(
+    Object.entries(m).map(([meal, cats]) => [
+      meal,
+      Object.fromEntries(Object.entries(cats).map(([cat, items]) => [cat, items.map((it) => (it.day > 0 ? { ...it, day: shiftDay(it.day, shift, SEED_CYCLE_LEN) } : it))])),
+    ]),
+  ) as Menu;
+}
 /** The tablet menu as it ships, before Back Office edits (see applyMenuEdits). */
 export const baseMenu: Menu = structuredClone(menu);
 /** Bar and café menu by section (starters, mains, cocktails, bar, fees ...). */

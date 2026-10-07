@@ -112,13 +112,16 @@ describe('order texts', () => {
 
 describe('menu cycle', () => {
   const day = (d: number) => new Date(2026, 9, d, 12).getTime();
-  it('counts the cycle day from the start date and wraps', () => {
-    expect(cycleDay(day(1), 35, day(1))).toBe(1);
-    expect(cycleDay(day(1), 7, day(8))).toBe(1);
-    expect(cycleDay(day(1), 7, day(7))).toBe(7);
+  it('counts the cycle day from the Sunday of the start week and wraps', () => {
+    // Oct 4, 2026 is a Sunday.
+    expect(cycleDay(day(4), 35, day(4))).toBe(1);
+    expect(cycleDay(day(4), 7, day(11))).toBe(1);
+    expect(cycleDay(day(4), 7, day(10))).toBe(7);
+    // A start mid-week counts from that week's Sunday: Wednesday is day 4.
+    expect(cycleDay(day(7), 35, day(7))).toBe(4);
     expect(cycleDay(null, 7, day(7))).toBeNull();
     const m = { id: 'm', name: 'M', season: 'Fall 2026', quarter: '', kind: 'cycle', status: 'active', cycleLen: 35 };
-    expect(cycleWeekLabel(day(1), m, day(15))).toBe('Week 3 of 5');
+    expect(cycleWeekLabel(day(4), m, day(18))).toBe('Week 3 of 5');
     expect(menuQuarter(m)).toBe('Q4 2026');
     expect(quarterStyle('Q4 2026').season).toBe('Fall');
   });
