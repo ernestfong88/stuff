@@ -10,7 +10,7 @@ import { isBuildYourOwn, type KioskMenu } from '../../../domain/kioskMenu';
 export const STEPS = ['apt', 'who', 'type', 'meal', 'time', 'entree', 'ver', 'side', 'soup', 'drink', 'dessert', 'notes', 'utensils', 'review'] as const;
 
 export type Question = (typeof STEPS)[number];
-export type Screen = 'welcome' | Question | 'change' | 'done';
+export type Screen = 'welcome' | Question | 'done';
 
 /** A side choice: keep what the dish comes with, none, or another side's item id. */
 export type SideChoice = 'keep' | 'none' | string;

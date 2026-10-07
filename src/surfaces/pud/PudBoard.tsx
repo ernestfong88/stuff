@@ -34,7 +34,7 @@ export function PudBoard({ onOpen, onNew }: PudBoardProps) {
   const open = useMemo(() => openRows(orders, kitchenMode), [orders, kitchenMode]);
   const done = useMemo(() => completedToday(history, startOfToday()), [history]);
   const lead = useMemo(() => pickupLeadMinutes([...orders, ...history], cfg), [orders, history, cfg]);
-  const { run, leave, reopen } = usePudActions(open, onOpen);
+  const { run, takeAll, reopen } = usePudActions(open, onOpen);
 
   const rows = open.filter((r) => matchesFilter(r.order, filter));
   const counts: Record<QueueFilter, number> = {
@@ -75,7 +75,7 @@ export function PudBoard({ onOpen, onNew }: PudBoardProps) {
             tracksPickups={(room) => tracksPickups(svc, room)}
             onOpen={onOpen}
             onAction={(kind, r: QueueRow) => run(kind, r.order)}
-            onTakeAll={(runs) => runs.forEach((r) => leave(r.order))}
+            onTakeAll={takeAll}
           />
         )}
       </div>

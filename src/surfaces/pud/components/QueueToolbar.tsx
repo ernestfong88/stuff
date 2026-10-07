@@ -35,13 +35,13 @@ export function QueueToolbar({ filter, onFilter, counts, completed, completedCou
         {!completed && <span className={s.count}>{completedCount}</span>}
       </button>
       <span className={s.grow} />
-      <button className={cx(s.add, s.addPickup)} onClick={() => onNew('pickup')} aria-label="New pick up order">
+      <button className={cx(s.add, s.addPickup)} onClick={() => onNew('pickup')}>
         <Plus size={16} strokeWidth={2.5} aria-hidden />
-        Pick up
+        New pick up
       </button>
-      <button className={cx(s.add, s.addDelivery)} onClick={() => onNew('delivery')} aria-label="New delivery order">
+      <button className={cx(s.add, s.addDelivery)} onClick={() => onNew('delivery')}>
         <Plus size={16} strokeWidth={2.5} aria-hidden />
-        Delivery
+        New delivery
       </button>
     </div>
   );

@@ -49,6 +49,12 @@
   user-select: none;
   -webkit-user-select: none;
 }
+/* Landscape grows with the width too, so a tablet's type isn't tiny (kioskUnitFor in ui/unit.ts). */
+@container (orientation: landscape) {
+  .app {
+    --k: clamp(1cqmin / 12, 1cqw / 14.6, 1cqmin / 9.6);
+  }
+}
 
 .footer {
   flex-shrink: 0;
@@ -64,10 +70,6 @@
 }
 .back {
   min-width: calc(var(--k) * 230);
-}
-.change {
-  min-width: calc(var(--k) * 300);
-  font-size: calc(var(--k) * 34);
 }
 .next {
   min-width: calc(var(--k) * 300);

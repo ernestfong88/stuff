@@ -1,14 +1,18 @@
+import { ChevronRight } from 'lucide-react';
 import type { DinerBilling } from '../../../domain/billing';
+import type { KioskMenu } from '../../../domain/kioskMenu';
 import type { Order } from '../../../domain/types';
 import { cx } from '../../../ui';
 import { maskPhone } from '../../../domain/pickupService/phones';
-import { planSentence, reviewItems, reviewWhen } from '../model/order';
-import { Panel, Question } from '../ui/Layout';
+import { planSentence } from '../model/order';
+import { reviewLines } from '../model/review';
+import { Question } from '../ui/Layout';
 import type { KioskFlow } from '../useKioskFlow';
 import s from './ReviewStep.module.css';
 
 export interface ReviewStepProps {
   flow: KioskFlow;
+  menu: KioskMenu | null;
   /** The order as it would be placed. */
   order: Order;
   bill: DinerBilling;
@@ -19,22 +23,32 @@ export interface ReviewStepProps {
   today: string;
 }
 
-/** "Please check your order": when and where, what, the plan sentence, and Text me a copy. */
-export function ReviewStep({ flow, order, bill, hospice, mobile, today }: ReviewStepProps) {
+/**
+ * "Please check your order": one answer to a line, each tappable to change
+ * it, then the plan sentence and Text me a copy.
+ */
+export function ReviewStep({ flow, menu, order, bill, hospice, mobile, today }: ReviewStepProps) {
   const st = flow.s;
   const r = st.resident;
-  const items = reviewItems(st);
   const on = st.textCopy;
   const fee = hospice ? ' No delivery charge.' : order.sickTray ? ' Delivery fee waived (sick).' : '';
   return (
     <div>
-      <Question title="Please check your order" sub={r ? `${r.name} · Apt ${r.apt}` : undefined} tight />
-      <Panel className={s.summary}>
-        <p className={s.when}>{reviewWhen(st, today)}</p>
-        <p className={s.items}>{items.length ? items.join(' · ') : 'No food or drink yet'}</p>
-        {st.note && <p className={s.line}>Changes: {st.note}</p>}
-        <p className={s.line}>Utensils: {st.utensils ? 'yes' : 'no'}</p>
-      </Panel>
+      <Question title="Please check your order" sub={`${r ? `${r.name} · Apt ${r.apt}. ` : ''}Tap a line to change it.`} tight />
+      <ul className={s.lines}>
+        {reviewLines(st, menu, today).map((l) => (
+          <li key={l.key}>
+            <button type="button" className={s.line} onClick={() => flow.go(l.to, { edit: true, ...l.patch })}>
+              <span className={s.label}>{l.label}</span>
+              <span className={s.value}>{l.value}</span>
+              <span className={s.change}>
+                Change
+                <ChevronRight size="1.1em" strokeWidth={2.6} aria-hidden />
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
       <p className={s.plan}>{planSentence(r, bill) + fee}</p>
       {mobile && (
         <button type="button" role="switch" aria-checked={on} className={s.textCopy} onClick={() => flow.put({ textCopy: !on })}>

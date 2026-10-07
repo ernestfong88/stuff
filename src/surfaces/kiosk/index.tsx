@@ -35,7 +35,6 @@ import { kioskMenu, drinkName } from '../../domain/kioskMenu';
 import { buildKioskOrder, kioskTextBody } from './model/order';
 import { saveKioskPref } from './model/prefs';
 import { KIOSK_ROOM, kioskMeals, timeChoices } from './model/times';
-import { ChangeStep } from './steps/ChangeStep';
 import { ChangesStep } from './steps/ChangesStep';
 import { DessertStep } from './steps/DessertStep';
 import { DoneStep } from './steps/DoneStep';
@@ -187,9 +186,7 @@ export default function ResidentKiosk() {
       case 'utensils':
         return <UtensilsStep flow={flow} />;
       case 'review':
-        return bill && <ReviewStep flow={flow} order={preview} bill={bill} hospice={hospiceOnOrder(preview, cfg)} mobile={copyTo} today={todayIso} />;
-      case 'change':
-        return menu && <ChangeStep flow={flow} menu={menu} today={isToday} />;
+        return bill && <ReviewStep flow={flow} menu={menu} order={preview} bill={bill} hospice={hospiceOnOrder(preview, cfg)} mobile={copyTo} today={todayIso} />;
       case 'done':
         return (
           <DoneStep
@@ -214,10 +211,6 @@ export default function ResidentKiosk() {
         <span className={s.note}>
           This screen starts over in {doneLeft} {doneLeft === 1 ? 'second' : 'seconds'}.
         </span>
-      ) : st.step === 'review' ? (
-        <KButton className={s.change} onClick={() => flow.go('change')}>
-          Make a change
-        </KButton>
       ) : (
         <KButton className={s.back} icon={<ChevronLeft size="1.3em" strokeWidth={2.6} aria-hidden />} onClick={flow.back}>
           Back

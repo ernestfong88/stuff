@@ -38,11 +38,12 @@ export function OpenQueue({ rows, filter, at, ctx, leadMinutes, tracksPickups, o
   const tone = (v: number, t: TileTone): TileTone => (v > 0 ? t : 'off');
   const tiles: SummaryTile[] = [
     { value: c.late, label: 'late', tone: tone(c.late, 'danger') },
-    { value: c.ready, label: 'ready to hand off', tone: tone(c.ready, 'flora') },
+    { value: c.ready, label: 'ready', tone: tone(c.ready, 'flora') },
     { value: c.waiting, label: 'waiting at the counter', tone: tone(c.waiting, 'clay') },
-    { value: c.out, label: 'out for delivery', tone: tone(c.out, 'coast') },
+    { value: c.out, label: 'on the way', tone: tone(c.out, 'coast') },
     { value: c.cooking, label: 'in the kitchen', tone: tone(c.cooking, 'clayDeep') },
-    { value: c.later, label: 'scheduled later', tone: tone(c.later, 'ink') },
+    { value: c.later, label: 'scheduled', tone: tone(c.later, 'ink') },
+    ...(c.draft ? [{ value: c.draft, label: 'not sent yet', tone: 'ink' as const }] : []),
   ];
   const runs = filter === 'pickup' ? [] : readyDeliveries(rows);
   const slots = groupSlots(rows);

@@ -54,7 +54,7 @@ export function useKioskFlow(menuFor: (meal: MealName) => KioskMenu): KioskFlow 
     if (!history.length) return reset();
     const prev = history[history.length - 1];
     setHistory(history.slice(0, -1));
-    setS((q) => ({ ...q, step: prev, more: null, edit: prev === 'review' || prev === 'change' ? false : q.edit }));
+    setS((q) => ({ ...q, step: prev, more: null, edit: prev === 'review' ? false : q.edit }));
   }, [s, history, put, reset]);
 
   const finish = useCallback((patch: Partial<KioskState>) => {

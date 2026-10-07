@@ -8,6 +8,8 @@ import {
   completedView,
   dueText,
   groupSlots,
+  handOffMessage,
+  isEmptyOrder,
   isLate,
   nextAction,
   nowLineIndex,
@@ -17,6 +19,7 @@ import {
   slotSummary,
   stageView,
   statusCounts,
+  undoPatch,
   type QueueRow,
 } from '../queue/queue';
 import { fillText, lacksMobile, smsParts, textFor, textMessage, type TextContext } from '../../../domain/pickupService/texts';
@@ -91,7 +94,32 @@ describe('the open list', () => {
       order('sched', { state: 'scheduled' }),
       order('draft', { sent: false }),
     ]);
-    expect(statusCounts(rows, T0)).toEqual({ late: 1, ready: 1, waiting: 1, out: 1, cooking: 1, later: 2 });
+    expect(statusCounts(rows, T0)).toEqual({ late: 1, ready: 1, waiting: 1, out: 1, cooking: 1, later: 1, draft: 1 });
+  });
+});
+
+describe('hand-off undo', () => {
+  it('says what happened to whose order', () => {
+    const o = order('p', { queueType: 'pickup' });
+    expect(handOffMessage('packed', o)).toMatch(/^\w+'s order is set out\.$/);
+    expect(handOffMessage('packed', o, true)).toMatch(/set out and done\.$/);
+    expect(handOffMessage('onMyWay', order('d', { queueType: 'delivery' }))).toMatch(/'s delivery is on the way\.$/);
+    expect(handOffMessage('delivered', order('d', { queueType: 'delivery' }))).toMatch(/'s delivery is delivered\.$/);
+  });
+
+  it('puts a handed-on order back to ready, and clears the hand-off on a closed one', () => {
+    expect(undoPatch('packed')).toMatchObject({ notified: false, notifiedAt: undefined, setOut: undefined });
+    expect(undoPatch('onMyWay')).toMatchObject({ notified: false, pickedUpAt: undefined, textedOnWayAt: undefined });
+    expect(undoPatch('delivered')).toEqual({ deliveredAt: undefined, setOut: undefined });
+    expect('notified' in undoPatch('pickedUp')).toBe(false);
+    const ready = order('r', { state: 'ready', notified: true, notifiedAt: T0 });
+    expect(row({ ...ready, ...undoPatch('packed') }).stage).toBe('ready');
+  });
+
+  it('knows an order with nothing on it', () => {
+    expect(isEmptyOrder(order('a'))).toBe(false);
+    expect(isEmptyOrder({ ...order('b'), diners: [] })).toBe(true);
+    expect(isEmptyOrder({ ...order('c'), diners: order('c').diners.map((d) => ({ ...d, items: [] })) })).toBe(true);
   });
 });
 

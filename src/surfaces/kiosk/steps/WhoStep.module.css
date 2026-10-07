@@ -12,6 +12,9 @@
   font-weight: 500;
   color: var(--kk-mute);
 }
-.yes {
+.answers {
   margin-top: calc(var(--k) * 24);
+}
+.yes {
+  flex-grow: 2;
 }

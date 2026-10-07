@@ -112,15 +112,6 @@ export function buildKioskOrder(s: KioskState, ctx: KioskOrderContext): Order {
   };
 }
 
-/** "Veggie Pizza, no side · Cheeseburger Soup · Iced Tea" pieces for the review. */
-export function reviewItems(s: KioskState): string[] {
-  const side =
-    !s.entree || !s.side || s.side === 'keep' ? '' : s.side === 'none' ? ', no side' : ` with ${dishLongName(getItem(s.side)?.name ?? '').toLowerCase()}`;
-  const name = (id: string | null) => (id ? dishLongName(getItem(id)?.name ?? '') : '');
-  const drink = s.drink ? getItem(s.drink) : undefined;
-  return [s.entree && mainDishName(s) + side, name(s.soup), drink && drinkName(drink), name(s.dessert)].filter((x): x is string => !!x);
-}
-
 /** "Dinner today, 6:30 to 6:45 PM, pick up at the Sequoia Dining basket." */
 export function reviewWhen(s: KioskState, today: string): string {
   const day = s.date === today ? 'today' : 'tomorrow';

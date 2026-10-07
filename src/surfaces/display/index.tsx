@@ -1,6 +1,7 @@
 /**
  * Specials Display: a dining room TV with no controls. It shows the current
- * meal's specials, one dish at a time for four seconds each, crossfading (a
+ * meal's specials, one dish at a time for eight seconds each (long
+ * enough to read the description from across the room), crossfading (a
  * plain swap under reduced motion), and follows the clock from breakfast to
  * dinner. #/display?meal=Lunch pins a meal. Staff can also tap the top left
  * corner three times to step through Breakfast, Lunch and Dinner and back to
@@ -18,8 +19,8 @@ import { displaySlides, nextPreview, slideLabel, specialsLabel } from './special
 import { StaffCorner } from '../../shell/StaffCorner';
 import s from './Display.module.css';
 
-/** How long each dish stays up. */
-const SLIDE_MS = 4000;
+/** How long each dish stays up: residents read the name, then the description and sides. */
+const SLIDE_MS = 8000;
 const TAPS = 3;
 const TAP_WINDOW_MS = 1500;
 
