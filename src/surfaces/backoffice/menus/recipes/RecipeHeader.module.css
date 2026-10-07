@@ -1,0 +1,228 @@
+.header {
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+.top {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 18px 20px;
+  flex-wrap: wrap;
+}
+.pic {
+  border-radius: var(--r-lg);
+}
+.main {
+  flex: 1 1 380px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.title {
+  width: 100%;
+  padding: 2px 6px;
+  margin: -2px 0 0 -6px;
+  border: none;
+  outline: none;
+  border-radius: var(--r-sm);
+  background: none;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.title:hover:not(:disabled) {
+  background: var(--paper);
+}
+.title:focus-visible {
+  background: var(--surface);
+  box-shadow: var(--focus);
+}
+.title:disabled {
+  color: var(--ink);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.desc {
+  width: 100%;
+  padding: 8px 11px;
+  border: none;
+  outline: none;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px #d5dbe1;
+  font-size: 13.5px;
+  line-height: 1.45;
+  resize: vertical;
+  color: var(--ink);
+}
+.desc:focus-visible,
+.kdsInput:focus-visible,
+.portion:focus-visible,
+.num:focus-visible {
+  box-shadow:
+    inset 0 0 0 1px var(--ocean),
+    var(--focus);
+}
+.desc:disabled {
+  background: var(--paper);
+}
+.choice {
+  margin: 0;
+  padding: 8px 11px;
+  border-radius: var(--r-md);
+  background: #fdf6e7;
+  color: #6b4a14;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.kds {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.kdsInput {
+  width: 200px;
+  height: 32px;
+  padding: 0 10px;
+  border: none;
+  outline: none;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px #d5dbe1;
+  font-size: 13px;
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px 18px;
+  padding: 14px 20px;
+  background: #f9fafb;
+  border-top: 1px solid var(--hair);
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.statLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.statValue {
+  font-size: 20px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.statSub {
+  font-size: 11px;
+  color: var(--s400);
+}
+.portion {
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  border: none;
+  outline: none;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+}
+.numRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.num {
+  width: 64px;
+  height: 32px;
+  padding: 0 8px;
+  border: none;
+  outline: none;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+  font-size: 18px;
+  font-weight: 650;
+  -moz-appearance: textfield;
+}
+.num::-webkit-outer-spin-button,
+.num::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.unit {
+  font-size: 12px;
+  color: var(--s500);
+}
+.scoreBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 20px 16px;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  font-size: 12.5px;
+  color: var(--s500);
+}
+.scoreLabel {
+  font-weight: 700;
+  color: var(--ink);
+}
+.scoreText {
+  flex: 1;
+}
+.scoreLink {
+  font-weight: 700;
+  color: var(--ocean);
+}
+@media (max-width: 1240px) {
+  .side {
+    flex: 1 1 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}

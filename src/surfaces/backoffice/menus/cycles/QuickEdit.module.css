@@ -1,0 +1,74 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.info {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--s500);
+}
+.label {
+  margin-bottom: 7px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.fishRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cod {
+  font-size: 14px;
+  font-weight: 700;
+}
+.fishIn {
+  flex: 1;
+}
+.note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--s500);
+  line-height: 1.45;
+}
+.sides {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.side {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 6px 0 12px;
+  border-radius: var(--r-pill);
+  background: #f3ead9;
+  color: #5a4120;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.side button {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-pill);
+}
+.side button:hover {
+  background: rgba(90, 65, 32, 0.12);
+}
+.muted {
+  font-size: 12.5px;
+  color: var(--s400);
+}
+.link {
+  margin-top: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ocean);
+}

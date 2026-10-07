@@ -21,7 +21,9 @@ import type {
   Room,
   StaffMember,
 } from '../domain/types';
+import { useSyncExternalStore } from 'react';
 import { today } from '../lib/clock';
+import { liveOverlay, menuEditsStore, type LiveMenuOverlay } from '../store/menuEdits';
 import { revive } from './revive';
 
 import residentsJson from './seed/residents.json';
@@ -79,9 +81,12 @@ export const getStaff = (idOrInitials: string | null | undefined) =>
 
 export const meals = mealsJson as Array<{ id: MealName; time: string }>;
 export const menu = menuJson as unknown as Menu;
+/** The tablet menu as it ships, before Back Office edits (see applyMenuEdits). */
+export const baseMenu: Menu = structuredClone(menu);
 /** Bar and café menu by section (starters, mains, cocktails, bar, fees ...). */
 export const barMenu = barMenuJson as unknown as Record<string, MenuItem[]>;
 export const modGroups = modGroupsJson as ModGroup[];
+const baseModGroups: ModGroup[] = structuredClone(modGroups);
 /** Modifier prefixes offered on every item: Add, No, Sub, Xtra, Lite, Side. */
 export const modPrefixes = modPrefixesJson as string[];
 /** Colour per item kind (entree, side, ...). */
@@ -98,7 +103,11 @@ export const catalog: CatalogItem[] = Object.entries(menu).flatMap(([meal, cats]
   ),
 );
 const catalogById = new Map<string, CatalogItem>();
-for (const it of catalog) if (!catalogById.has(it.id)) catalogById.set(it.id, it);
+function indexCatalog() {
+  catalogById.clear();
+  for (const it of catalog) if (!catalogById.has(it.id)) catalogById.set(it.id, it);
+}
+indexCatalog();
 
 export const getItem = (id: string | null | undefined) => (id ? catalogById.get(id) : undefined);
 
@@ -167,6 +176,7 @@ export const modifierRules = modifierRulesJson as {
   groups: Record<string, RuledModifierGroup>;
   items: Record<string, string[]>;
 };
+const baseModifierRules: typeof modifierRules = structuredClone(modifierRules);
 
 // ─── Resident notes ──────────────────────────────────────────────────────
 
@@ -182,3 +192,71 @@ export const seedResidentNotes = (): ResidentNote[] => revive(residentNotesJson 
  * demo clock (see seedDiningState).
  */
 export const pickupPromiseOffsets = pickupPromisesJson as Record<string, number>;
+
+// ─── Back Office menu edits ──────────────────────────────────────────────
+
+/*
+ * Back Office edits the menu (renames, prices, what is on each meal's
+ * everyday list, modifier groups) and stores the difference from the menu
+ * above in src/store/menuEdits. It is applied here, in place, so `menu`,
+ * `catalog`, `getItem`, `modGroups` and `modifierRules` keep their shape
+ * and every surface sees the edit without changing how it reads the menu.
+ * A component that lists the menu can re-render on a change with
+ * useMenuVersion().
+ */
+let menuVersionNo = 0;
+let appliedOverlay: LiveMenuOverlay | null = null;
+const menuListeners = new Set<() => void>();
+
+function replaceContents<T extends object>(target: T, source: T) {
+  for (const k of Object.keys(target)) delete (target as Record<string, unknown>)[k];
+  Object.assign(target, source);
+}
+
+function applyMenuEdits(o: LiveMenuOverlay) {
+  const removed = new Set(o.removed);
+  for (const [meal, cats] of Object.entries(baseMenu) as Array<[MealName, Record<string, MenuItem[]>]>) {
+    const next: Record<string, MenuItem[]> = {};
+    for (const [category, items] of Object.entries(cats)) {
+      next[category] = items.filter((it) => !removed.has(it.id)).map((it) => (o.items[it.id] ? { ...it, ...o.items[it.id] } : it));
+    }
+    for (const a of o.added) if (a.meal === meal) (next[a.category] ??= []).push(a.item);
+    replaceContents(menu[meal], next);
+  }
+  catalog.length = 0;
+  for (const [meal, cats] of Object.entries(menu) as Array<[MealName, Record<string, MenuItem[]>]>) {
+    for (const [category, items] of Object.entries(cats)) for (const it of items) catalog.push({ ...it, meal, category });
+  }
+  indexCatalog();
+  modGroups.splice(0, modGroups.length, ...(o.modGroups ?? baseModGroups));
+  const rules = o.modifierRules ?? baseModifierRules;
+  replaceContents(modifierRules.groups, rules.groups);
+  replaceContents(modifierRules.items, rules.items);
+}
+
+function syncMenuEdits() {
+  const o = liveOverlay(menuEditsStore.get());
+  if (o === appliedOverlay) return;
+  appliedOverlay = o;
+  applyMenuEdits(o);
+  menuVersionNo++;
+  menuListeners.forEach((l) => l());
+}
+syncMenuEdits();
+menuEditsStore.subscribe(syncMenuEdits);
+
+/** Called after Back Office menu edits are applied to the menu. */
+export function subscribeMenu(listener: () => void): () => void {
+  menuListeners.add(listener);
+  return () => menuListeners.delete(listener);
+}
+
+/** Increases each time Back Office menu edits are applied. */
+export function menuVersion(): number {
+  return menuVersionNo;
+}
+
+/** Re-render a component when Back Office changes the menu; returns the version. */
+export function useMenuVersion(): number {
+  return useSyncExternalStore(subscribeMenu, menuVersion, menuVersion);
+}

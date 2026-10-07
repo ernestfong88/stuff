@@ -1,0 +1,13 @@
+.pic {
+  display: block;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--limestone);
+}
+.blank {
+  display: grid;
+  place-items: center;
+  color: #aeb7be;
+  box-shadow: inset 0 0 0 1px var(--hair);
+}

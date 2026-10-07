@@ -1,0 +1,55 @@
+.sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.back {
+  order: -1;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  height: 32px;
+  margin-bottom: -12px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--s500);
+}
+.back:hover {
+  color: var(--ink);
+}
+.warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.weekBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.showing {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.weekSel {
+  min-width: 280px;
+}
+.spacer {
+  flex: 1;
+}
+.copyNote {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: var(--s500);
+}
