@@ -1,58 +1,11 @@
 import { useState } from 'react';
 import { Check, Sparkles, TriangleAlert } from 'lucide-react';
-import { catalog } from '../../../../data';
-import { startOfToday } from '../../../../lib/clock';
-import { useDining } from '../../../../store/dining';
-import { Chip, Tabs, cx } from '../../../../ui';
-import { BoCaption, CHART, MeterBar } from '../../kit';
-import { SPECIALS_MADE, SPECIALS_SOLD_EARLIER } from '../../seed/dashboard';
-import { isoDate } from '../../../../domain/pickup';
+import { Tabs, cx } from '../../../../ui';
+import { BoCaption } from '../../kit';
 import { readComment, tallyDishes, themeOf } from './model/feedback';
-import { countSpecial, specialsToday } from './model/specials';
 import type { DashboardData } from './model/useDashboardData';
+import { PmixTodayCard } from './PmixTodayCard';
 import s from './dashboard.module.css';
-
-const SPECIALS = specialsToday(catalog);
-
-/** Today's specials: made against ordered so far. */
-function SpecialsMadeOrdered() {
-  const { orders, history, assocOrders } = useDining();
-  const checks = [...orders, ...history];
-  const opts = { todayStart: startOfToday(), todayIso: isoDate(0) };
-  return (
-    <section className={s.card} aria-label="Today's specials, made and ordered">
-      <h2 className={s.cardCap}>Today's specials · made and ordered so far</h2>
-      {SPECIALS.length === 0 && <p className={s.muted}>No specials on today's menu.</p>}
-      <ul className={s.specials}>
-        {SPECIALS.map((sp) => {
-          const c = countSpecial(sp, checks, assocOrders, { ...opts, made: SPECIALS_MADE[sp.id] ?? 30, earlier: SPECIALS_SOLD_EARLIER[sp.id] ?? 0 });
-          const tone = c.left < 0 ? 'danger' : c.left <= 5 ? 'warning' : 'success';
-          return (
-            <li key={sp.id} className={s.special}>
-              <div className={s.specialHead}>
-                <span className={s.specialName}>{sp.name}</span>
-                <span className={s.specialMeal}>{sp.meals}</span>
-                <span className={s.specialCount}>
-                  <span>
-                    <b>{c.total}</b> ordered of <b>{c.made}</b> made
-                  </span>
-                  <Chip size="xs" tone={tone}>
-                    {c.left < 0 ? `${-c.left} over` : c.left === 0 ? 'Sold out' : `${c.left} left`}
-                  </Chip>
-                </span>
-              </div>
-              <MeterBar value={c.total} max={c.made} color={c.left < 0 ? CHART.bad : c.left <= 5 ? CHART.watch : CHART.good} />
-              <div className={s.specialSplit}>
-                {c.dine} dining room · {c.pickupDelivery} pick up and delivery · {c.associates} {c.associates === 1 ? 'associate' : 'associates'}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      <p className={s.chartNote}>Made is the day's production count. Ordered counts every check rung in today and associate meals not cancelled.</p>
-    </section>
-  );
-}
 
 const dayTab = (a: number, today: boolean, i: number) =>
   today ? 'Today' : i === 1 ? 'Yesterday' : new Date(a).toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
@@ -172,13 +125,13 @@ function FeedbackByDay({ data }: { data: DashboardData }) {
   );
 }
 
-/** Below the trend cards: today's specials and today's feedback. */
-export function TodayPanel({ data }: { data: DashboardData }) {
+/** Below the trend cards: what was served today and today's feedback. */
+export function TodayPanel({ data, goto }: { data: DashboardData; goto: (pageId: string) => void }) {
   return (
     <div className={s.today}>
       <BoCaption>Today</BoCaption>
       <div className={s.todayGrid}>
-        <SpecialsMadeOrdered />
+        <PmixTodayCard goto={goto} />
         <FeedbackByDay data={data} />
       </div>
     </div>

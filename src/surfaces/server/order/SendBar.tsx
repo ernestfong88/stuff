@@ -13,7 +13,20 @@ import { rangeLabel } from './queue/pickupWindows';
 import s from './SendBar.module.css';
 
 /** The check's footer: Close & charge, and Send (which says what it will do). */
-export function SendBar({ order: o, justSent, onSend, onClose }: { order: Order; justSent: boolean; onSend: () => void; onClose: () => void }) {
+export function SendBar({
+  order: o,
+  justSent,
+  printNote,
+  onSend,
+  onClose,
+}: {
+  order: Order;
+  justSent: boolean;
+  /** Printer mode: where the tickets printed. */
+  printNote?: string;
+  onSend: () => void;
+  onClose: () => void;
+}) {
   const cfg = useConfig();
   const { orders, history, kitchenMode } = useDining();
   const unsent = hasUnsent(o);
@@ -25,7 +38,7 @@ export function SendBar({ order: o, justSent, onSend, onClose }: { order: Order;
     return (
       <footer className={s.bar}>
         <div className={s.sent} role="status">
-          <CircleCheck size={18} aria-hidden /> {kitchenMode === 'printers' ? 'Tickets printed at the Hot Line and Cold Pantry' : sentMessage(o)}
+          <CircleCheck size={18} aria-hidden /> {kitchenMode === 'printers' ? (printNote ?? 'Tickets printed') : sentMessage(o)}
         </div>
       </footer>
     );

@@ -220,6 +220,15 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Printer routing, Kiosk section, simpler pick up & delivery, P-Mix today
+- **What each printer prints.** In printer mode, each kitchen printer prints either the whole ticket or only some groups: Drinks, Starters, Entrées, Sides or Desserts. The demo sets the Hot Line to entrées and sides, Cold / Pantry to starters and desserts, and the Expo Receipt to the whole ticket. The setting is under *How orders reach the kitchen*. A warning shows when a kitchen has a group no printer prints.
+- **Send names the printers.** After Send, the check says where the tickets printed, for example "Printed at Hot Line (2 items) · Expo Receipt (whole ticket)". It warns when a printer can't be reached.
+- **Kiosk** has its own Back Office section (*Kiosk Settings*). It was a page under Dining Service.
+- **Billing Setup is now Meal Plans.** Its first tab is *Plan types*.
+- **Venue name on tablets.** The coloured venue chip now shows the venue's name ("Sequoia", or "Sequoia / Evergreen" on wide screens) instead of a two-letter code.
+- **Pick up & delivery, simplified.** The seven count tiles are replaced by pills for late, ready and out for delivery orders, shown only when the count is above zero. Each row now shows who, pick up or the apartment, the items, one status, one time and one button. The icons, avatars, progress bars and status sub-lines are gone (details show on hover), and Completed today is one summary line.
+- **Dashboard P-Mix today.** The specials made and ordered card is replaced by a small P-Mix of what was served today. It shows the top dishes with their count and share, an *Everything else* row and a link to the full P-Mix.
+
 ### Printers or kitchen screens, My Tables pick up & delivery, associate menu lock
 - **Printers or kitchen screens (KDS).** A new setting, *How orders reach the kitchen*, is at the top of *KDS Settings* and on the *Courses* tab of *Service Flow*. The demo still starts on Kitchen screens.
 - **Printer mode** sends the whole ticket when the server taps Send: every course goes at once and nothing is held or fired later. There are no kitchen statuses:
@@ -289,7 +298,7 @@ From Venues down, the Back Office menu had 22 pages. Related settings sat far ap
 | | **Kiosk** | (unchanged) | Featured on Kiosk |
 | Residents | **Residents** | Profiles · Allergies & diets · Trivia scoreboard | Resident Profiles, Allergies & Diets, Trivia Scoreboard |
 | Billing | Charge Approval, Order History | (unchanged) | |
-| | **Billing Setup** | Meal plans · Meal counts · Corkage | Meal Plans, Meal Counts, corkage from Delivery Options |
+| | **Meal Plans** (was Billing Setup) | Meal plans · Meal counts · Corkage | Meal Plans, Meal Counts, corkage from Delivery Options |
 | Associates & PINs, HO Settings | | (unchanged) | |
 
 - **Old links still work.** Bookmarks and links inside the app open the tab the page became; for example `#/backoffice/pricing` opens the first venue's Prices tab. Search still finds the old names: typing "pricing" or "floor plan" goes to the right tab.

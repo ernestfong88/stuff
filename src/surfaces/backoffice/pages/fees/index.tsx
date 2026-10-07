@@ -43,7 +43,7 @@ export default function DeliveryFeesTab(_props: Partial<BoPageProps>) {
   );
 }
 
-/** Corkage: the per-bottle fee for wine a resident brings in (a tab of Billing Setup). */
+/** Corkage: the per-bottle fee for wine a resident brings in (a tab of Meal Plans). */
 export function CorkageTab() {
   return (
     <BoPage title="Corkage">

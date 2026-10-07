@@ -4,7 +4,7 @@
  */
 import type { ComponentType, LazyExoticComponent } from 'react';
 import { lazy } from 'react';
-import { LayoutGrid, MonitorPlay, BookOpen, ClipboardList, Store, Timer, Users, CreditCard, ShieldCheck, Building2, type LucideIcon } from 'lucide-react';
+import { LayoutGrid, MonitorPlay, BookOpen, ClipboardList, Store, Timer, Users, CreditCard, ShieldCheck, Building2, TabletSmartphone, type LucideIcon } from 'lucide-react';
 
 export interface BoPageDef {
   id: string;
@@ -192,9 +192,16 @@ export const BO_SECTIONS: BoSectionDef[] = [
         keywords: 'sms text message template wording mobile phone cell no mobile broadcast alert announcement notice acknowledge',
         component: lazy(() => import('./pages/svcTexts')),
       },
+    ],
+  },
+  {
+    id: 'kiosk',
+    label: 'Kiosk',
+    icon: TabletSmartphone,
+    pages: [
       {
         id: 'svcKiosk',
-        label: 'Kiosk',
+        label: 'Kiosk Settings',
         blurb: 'The drinks and sides residents see first at the lobby kiosk',
         keywords: 'kiosk featured popular favorites drinks sides short list lobby order rotate screen',
         component: lazy(() => import('./pages/svcKiosk')),
@@ -237,7 +244,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
       },
       {
         id: 'plans',
-        label: 'Billing Setup',
+        label: 'Meal Plans',
         blurb: 'Meal plans, meal counts and corkage',
         keywords: 'plan monthly daily spend-down meal counts guest associate close corkage wine bottle',
         component: lazy(() => import('./pages/plans')),
@@ -339,8 +346,8 @@ export const BO_ALIASES: BoPageAlias[] = [
   { id: 'broadcasts', label: 'Broadcasts to staff', blurb: 'In Messages', keywords: 'broadcast notice announcement', to: ['svcTexts', 'broadcasts'] },
   { id: 'resDiets', label: 'Allergies & diets', blurb: 'In Residents', keywords: 'allergy diet texture', to: ['resProfiles', 'diets'] },
   { id: 'trivia', label: 'Trivia scoreboard', blurb: 'In Residents', keywords: 'trivia quiz score prize', to: ['resProfiles', 'trivia'] },
-  { id: 'mealdrops', label: 'Meal counts', blurb: 'In Billing Setup', keywords: 'meal counts guest associate close', to: ['plans', 'counts'] },
-  { id: 'corkage', label: 'Corkage', blurb: 'In Billing Setup', keywords: 'corkage wine bottle fee', to: ['plans', 'corkage'] },
+  { id: 'mealdrops', label: 'Meal counts', blurb: 'In Meal Plans', keywords: 'meal counts guest associate close', to: ['plans', 'counts'] },
+  { id: 'corkage', label: 'Corkage', blurb: 'In Meal Plans', keywords: 'corkage wine bottle fee', to: ['plans', 'corkage'] },
 ];
 
 export const DEFAULT_BO_PAGE = 'dashboard';

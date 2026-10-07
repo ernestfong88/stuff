@@ -41,7 +41,7 @@ export default function CulinaryDashboard({ goto }: BoPageProps) {
         <ServiceCard data={data} goto={goto} />
         <RevenueCard data={data} goto={goto} />
       </div>
-      <TodayPanel data={data} />
+      <TodayPanel data={data} goto={goto} />
     </BoPage>
   );
 }

@@ -854,3 +854,59 @@
   background: var(--paper);
   color: var(--s500);
 }
+
+/* P-Mix today: each dish's share of the plates served so far */
+.pmix {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.pmixRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 30px 38px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+.pmixSwatch {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+.pmixMain {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.pmixName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.pmixNote {
+  font-weight: 500;
+  color: var(--s400);
+}
+.pmixN {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--s500);
+}
+.pmixPct {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.pmixLegend {
+  display: flex;
+  gap: 14px;
+  font-size: 11.5px;
+  color: var(--s500);
+}

@@ -1,7 +1,7 @@
 import { Check, ChevronDown, LogOut, Maximize, Minimize, RotateCcw } from 'lucide-react';
 import { Fragment } from 'react';
 import { rooms } from '../data';
-import { Avatar, MenuDivider, MenuItem, Popover, useConfirm } from '../ui';
+import { Avatar, MenuDivider, MenuItem, Popover, useConfirm, useViewportWidth } from '../ui';
 import { cx } from '../ui/cx';
 import { useDemoActions } from './demoTools';
 import { enterFullscreen, exitFullscreen, useFullscreen } from './fullscreen';
@@ -112,6 +112,10 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
 /** Coloured venue code (SE, OB ...); tap to switch the dining room this device serves. */
 export function VenueChip() {
   const [venue, setVenue] = useVenue();
+  const wide = useViewportWidth() >= 1440;
+  const name = rooms[venue]?.name ?? venueCode(venue);
+  // The venue's name, not a two-letter code; narrow headers keep its first word.
+  const label = wide ? name : name.split(/[\s/]/)[0];
   return (
     <Popover
       align="left"
@@ -125,7 +129,8 @@ export function VenueChip() {
           aria-haspopup="menu"
           aria-expanded={open}
         >
-          {venueCode(venue)}
+          <span className={s.venueName}>{label}</span>
+          <ChevronDown size={13} strokeWidth={2.5} className={s.venueChev} aria-hidden />
         </button>
       )}
     >

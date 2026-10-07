@@ -1,13 +1,12 @@
 import { Fragment } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { clockLabel } from '../../../domain/pickup';
-import { EmptyState } from '../../../ui';
+import { EmptyState, cx } from '../../../ui';
 import {
   groupSlots,
   nowLineIndex,
   readyDeliveries,
   slotHeading,
-  slotSummary,
   statusCounts,
   type QueueActionKind,
   type QueueFilter,
@@ -17,7 +16,6 @@ import type { TextContext } from '../../../domain/pickupService/texts';
 import { DeliveryRun } from './DeliveryRun';
 import { NocMeals } from './NocMeals';
 import { QueueRowCard } from './QueueRowCard';
-import { SummaryTiles, type SummaryTile, type TileTone } from './SummaryTiles';
 import s from './OpenQueue.module.css';
 
 export interface OpenQueueProps {
@@ -32,25 +30,29 @@ export interface OpenQueueProps {
   onTakeAll: (rows: QueueRow[]) => void;
 }
 
-/** Open orders: status summary, one-trip suggestion, then each 15 minute range in order. */
+/** Open orders: what needs attention, one-trip suggestion, then each 15 minute range in order. */
 export function OpenQueue({ rows, filter, at, ctx, leadMinutes, tracksPickups, onOpen, onAction, onTakeAll }: OpenQueueProps) {
   const c = statusCounts(rows, at);
-  const tone = (v: number, t: TileTone): TileTone => (v > 0 ? t : 'off');
-  const tiles: SummaryTile[] = [
-    { value: c.late, label: 'late', tone: tone(c.late, 'danger') },
-    { value: c.ready, label: 'ready', tone: tone(c.ready, 'flora') },
-    { value: c.waiting, label: 'waiting at the counter', tone: tone(c.waiting, 'clay') },
-    { value: c.out, label: 'on the way', tone: tone(c.out, 'coast') },
-    { value: c.cooking, label: 'in the kitchen', tone: tone(c.cooking, 'clayDeep') },
-    { value: c.later, label: 'scheduled', tone: tone(c.later, 'ink') },
-    ...(c.draft ? [{ value: c.draft, label: 'not sent yet', tone: 'ink' as const }] : []),
-  ];
+  // Only what needs someone now; the rest is already on each row.
+  const attention = [
+    { n: c.late, label: 'late', tone: s.danger },
+    { n: c.ready, label: 'ready to go', tone: s.flora },
+    { n: c.out, label: 'out for delivery', tone: s.coast },
+  ].filter((a) => a.n > 0);
   const runs = filter === 'pickup' ? [] : readyDeliveries(rows);
   const slots = groupSlots(rows);
   const nowAt = nowLineIndex(slots, at);
   return (
     <>
-      <SummaryTiles tiles={tiles} label="Where orders are" />
+      {attention.length > 0 && (
+        <ul className={s.attention} aria-label="Needs attention">
+          {attention.map((a) => (
+            <li key={a.label} className={cx(s.pill, a.tone)}>
+              <b>{a.n}</b> {a.label}
+            </li>
+          ))}
+        </ul>
+      )}
       {runs.length > 1 && <DeliveryRun runs={runs} ctx={ctx} onTakeAll={() => onTakeAll(runs)} />}
       {rows.length === 0 && (
         <EmptyState icon={<ShoppingBag size={30} strokeWidth={1.5} />} title="No open orders">
@@ -66,10 +68,7 @@ export function OpenQueue({ rows, filter, at, ctx, leadMinutes, tracksPickups, o
             </div>
           )}
           <section className={s.slot} aria-label={slotHeading(slot)}>
-            <h2 className={s.slotHead}>
-              <span className={s.range}>{slotHeading(slot)}</span>
-              <span className={s.summary}>{slotSummary(slot.rows)}</span>
-            </h2>
+            <h2 className={s.slotHead}>{slotHeading(slot)}</h2>
             <div className={s.rows}>
               {slot.rows.map((r) => (
                 <QueueRowCard

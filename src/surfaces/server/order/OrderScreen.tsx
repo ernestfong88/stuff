@@ -4,10 +4,13 @@ import { getItem, getTable } from '../../../data';
 import { dinerName, findLine } from '../../../domain/orders';
 import type { Diner, Order, QueueType, Resident } from '../../../domain/types';
 import { now } from '../../../lib/clock';
+import { printerMode } from '../../../domain/config';
+import { printJobs, printSummary } from '../../../domain/printing';
 import { useConfig } from '../../../store/config';
+import { kitchenPrinters, venueSettingsStore } from '../../../store/venueSettings';
 import { useDining } from '../../../store/dining';
 import { useSession } from '../../../store/session';
-import { cx, useConfirm } from '../../../ui';
+import { cx, toast, useConfirm } from '../../../ui';
 import { ResidentProfileSheet } from '../features';
 import { TakeoverDialog } from '../takeover/TakeoverDialog';
 import { CloseScreen } from './close/CloseScreen';
@@ -81,6 +84,8 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
   const [editing, setEditing] = useState<{ dinerId: string; lineId: string } | null>(null);
   const [closing, setClosing] = useState<{ dinerIds: string[] | null } | null>(null);
   const [justSent, setJustSent] = useState(false);
+  // Printer mode: which printers this send printed at, for the confirmation.
+  const [printNote, setPrintNote] = useState<string | undefined>();
   const [tab, setTab] = useState<MenuTab>(startTab);
   const [sideWait, setSideWait] = useState<string | null>(null);
   const [profile, setProfile] = useState<string | null>(null);
@@ -135,6 +140,17 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
     else if (next.tab) setTab(next.tab);
   };
   const send = () => {
+    if (printerMode(cfg)) {
+      const items = o.diners
+        .flatMap((d) => d.items)
+        .filter((l) => !l.sent && !l.hold)
+        .map((l) => getItem(l.itemId))
+        .flatMap((it) => (it ? [{ name: it.name, category: it.category }] : []));
+      const jobs = printJobs(items, kitchenPrinters(venueSettingsStore.get(), o.room).filter((p) => p.active));
+      setPrintNote(printSummary(jobs));
+      const down = jobs.filter((j) => !j.printer.reachable).map((j) => j.printer.name);
+      if (down.length) toast(`${down.join(' and ')} can't be reached. Tell the kitchen what's on the ticket.`, { tone: 'danger' });
+    }
     dining.sendOrder(o.id);
     setJustSent(true);
     sentTimer.current = setTimeout(() => {
@@ -253,7 +269,7 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
           )}
         </section>
       </div>
-      <SendBar order={o} justSent={justSent} onSend={send} onClose={() => setClosing({ dinerIds: null })} />
+      <SendBar order={o} justSent={justSent} printNote={printNote} onSend={send} onClose={() => setClosing({ dinerIds: null })} />
       <ResidentProfileSheet residentId={profile} onClose={() => setProfile(null)} />
       {confirmDialog}
       <TakeoverDialog />

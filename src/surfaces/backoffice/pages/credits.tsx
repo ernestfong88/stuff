@@ -101,7 +101,7 @@ export default function Page({ goto }: BoPageProps) {
         <p className={s.foot}>
           {onCount.length ? `On at ${onCount.join(', ')}.` : 'Off at every community.'} Plan types and their meal counts are in{' '}
           <button className={s.link} onClick={() => goto('plans')}>
-            Billing Setup, Meal plans
+            Meal Plans
           </button>
           .
         </p>

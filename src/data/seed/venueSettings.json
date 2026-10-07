@@ -60,6 +60,7 @@
    "id": "p1",
    "name": "Hot Line",
    "type": "Kitchen",
+   "print": ["Entrées", "Sides"],
    "ip": "10.1.20.11",
    "active": true,
    "reachable": true
@@ -68,6 +69,7 @@
    "id": "p2",
    "name": "Cold / Pantry",
    "type": "Kitchen",
+   "print": ["Starters", "Desserts"],
    "ip": "10.1.20.12",
    "active": true,
    "reachable": true

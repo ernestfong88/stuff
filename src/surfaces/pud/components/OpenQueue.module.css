@@ -1,11 +1,45 @@
+.attention {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 4px;
+  padding: 0;
+  list-style: none;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 600;
+}
+.pill b {
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.flora {
+  background: var(--flora-100);
+  color: var(--flora);
+}
+.coast {
+  background: var(--ocean-100);
+  color: var(--coast);
+}
 .now {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 12px 0 2px;
+  margin: 14px 0 0;
 }
 .nowLabel {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.08em;
   color: var(--danger);
@@ -18,26 +52,13 @@
   background: var(--danger);
   opacity: 0.35;
 }
-.slot + .slot,
-.now + .slot {
-  margin-top: 4px;
-}
 .slotHead {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 2px 8px;
-  margin: 12px 2px 6px;
-}
-.range {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--ink);
-}
-.summary {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--s400);
+  margin: 14px 4px 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--s500);
+  font-variant-numeric: tabular-nums;
 }
 .rows {
   display: flex;

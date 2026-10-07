@@ -11,6 +11,7 @@
  * Persisted and synced across tabs, so a screen renamed in the Back Office
  * shows on the cook line straight away.
  */
+import type { PrintRoute } from '../domain/printing';
 import { rooms } from '../data';
 import { revive } from '../data/revive';
 import { createSharedStore, useShared } from '../lib/sharedStore';
@@ -58,6 +59,8 @@ export interface Printer {
   ip: string;
   active: boolean;
   reachable: boolean;
+  /** Printer mode: the whole ticket, or only some groups of items (see domain/printing). */
+  print?: PrintRoute;
 }
 
 export interface PrinterLink {
@@ -209,6 +212,11 @@ export function kitchenPrinters(s: VenueSettings, room: string): Printer[] {
   const venueIds = new Set(s.venues.filter((v) => v.active && v.room === room).map((v) => v.id));
   const ids = new Set(s.printerLinks.filter((l) => venueIds.has(l.venueId)).map((l) => l.printerId));
   return s.printers.filter((p) => ids.has(p.id));
+}
+
+/** Set what a printer prints: the whole ticket or only some groups. */
+export function setPrinterRoute(printerId: string, print: PrintRoute): void {
+  update((s) => ({ ...s, printers: s.printers.map((p) => (p.id === printerId ? { ...p, print } : p)) }));
 }
 
 export function linkPrinter(link: PrinterLink): void {

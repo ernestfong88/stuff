@@ -70,18 +70,18 @@ function MealPlansTab({ goto }: BoPageProps) {
 
 const HUB_TABS = ['plans', 'counts', 'corkage'] as const;
 
-/** Billing Setup: the lists billing uses, set up once and rarely changed. */
+/** Meal Plans: the lists billing uses, set up once and rarely changed. */
 export default function BillingSetupPage(props: BoPageProps) {
   const [tab, go] = useHubTab('plans', HUB_TABS);
   return (
     <BoTabbedPage
       page="plans"
-      title="Billing Setup"
+      title="Meal Plans"
       sub="Set up once and rarely changed: the meal plans residents can be on, the meal counts servers pick at close, and corkage."
       current={tab}
       onTab={go}
       tabs={[
-        { id: 'plans', label: 'Meal plans', render: () => <MealPlansTab {...props} /> },
+        { id: 'plans', label: 'Plan types', render: () => <MealPlansTab {...props} /> },
         { id: 'counts', label: 'Meal counts', render: () => <MealCountsPage {...props} /> },
         { id: 'corkage', label: 'Corkage', render: () => <CorkageTab /> },
       ]}
