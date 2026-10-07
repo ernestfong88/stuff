@@ -1,0 +1,15 @@
+{
+  "name": "Jordan Reyes",
+  "role": "Med Tech",
+  "shifts": [
+    { "offset": 0, "start": "10:30 AM", "end": "3:00 PM", "meal": "Lunch", "breakAt": "1:15 PM" },
+    { "offset": 1, "start": "2:00 PM", "end": "8:30 PM", "meal": "Dinner", "breakAt": "6:45 PM" },
+    { "offset": 2, "start": "10:00 PM", "end": "6:30 AM", "meal": "NOC", "breakAt": "2:00 AM" },
+    { "offset": 3, "start": "10:30 AM", "end": "3:00 PM", "meal": "Lunch", "breakAt": "11:15 AM" },
+    { "offset": 4, "start": "10:30 AM", "end": "7:00 PM", "meal": "Both", "breakAt": "2:30 PM" }
+  ],
+  "weeklyShifts": [
+    { "weekday": 2, "weeksAhead": 1, "start": "10:30 AM", "end": "3:00 PM", "meal": "Lunch", "breakAt": "12:15 PM" },
+    { "weekday": 2, "weeksAhead": 2, "start": "10:30 AM", "end": "3:00 PM", "meal": "Lunch", "breakAt": "12:15 PM" }
+  ]
+}

@@ -76,7 +76,8 @@ components so only they re-render each second.
   `useConfirm` ...). Extend the kit only if a piece is used by two or more
   surfaces.
 - Styling: one `*.module.css` per component, using the CSS variables in
-  `src/styles/tokens.css`. Use inline `style` only for computed values
+  `src/styles/tokens.css`. CSS Modules scope `@keyframes` names, so
+  declare keyframes in the module that animates. Use inline `style` only for computed values
   (per-server colours, floor plan positions). Don't hard-code hex values that
   already exist as tokens.
 - Type: Geist for UI text, and Fraunces (`.serif` / `var(--font-serif)`) for

@@ -21,6 +21,7 @@ import type {
   Room,
   StaffMember,
 } from '../domain/types';
+import { today } from '../lib/clock';
 import { revive } from './revive';
 
 import residentsJson from './seed/residents.json';
@@ -119,7 +120,21 @@ export const orderTypes = orderTypesJson as Array<{ id: string; label: string }>
 export const seedOrders = (): Order[] => revive(ordersJson as unknown as Order[]);
 /** Orders closed earlier today. */
 export const seedHistory = (): Order[] => revive(historyJson as unknown as Order[]);
-export const seedAssocMeals = (): AssocMeal[] => revive(assocMealsJson as unknown as AssocMeal[]);
+/** The calendar day the associate meal seeds were written for; dates are shifted onto the demo's today. */
+const ASSOC_SEED_DAY = '2026-10-07';
+
+function shiftIsoDate(iso: string, days: number): string {
+  const d = new Date(iso + 'T12:00:00');
+  d.setDate(d.getDate() + days);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+export const seedAssocMeals = (): AssocMeal[] => {
+  const t = today();
+  const todayIso = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  const offset = Math.round((new Date(todayIso + 'T12:00:00').getTime() - new Date(ASSOC_SEED_DAY + 'T12:00:00').getTime()) / 86_400_000);
+  return revive(assocMealsJson as unknown as AssocMeal[]).map((m) => ({ ...m, date: shiftIsoDate(m.date, offset) }));
+};
 export const seedBroadcasts = (): Broadcast[] => revive(broadcastsJson as unknown as Broadcast[]);
 
 // ─── Modifier ordering rules ─────────────────────────────────────────────

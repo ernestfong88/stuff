@@ -1,6 +1,129 @@
-import { getMode } from '../../shell/modes';
-import { Placeholder } from '../Placeholder';
+/**
+ * Production Prep, on the kitchen tablet. Six meals, today's and tomorrow's
+ * breakfast, lunch and dinner, opening on the meal being served. Specials
+ * come first, each with the amount the director set to make; until one is
+ * set the card shows a forecast from the venue's usual covers. Below them is
+ * the venue's own checklist from Back Office (Prep Checklist), showing only
+ * the items for the meal on screen. Every check records who and when for
+ * that venue, date and meal, so tomorrow starts fresh.
+ */
+import { useState } from 'react';
+import { ModeChip, TextZoom } from '../../shell/controls';
+import { useSignedIn } from '../../shell/session';
+import { isoDate } from '../../domain/pickup';
+import { today } from '../../lib/clock';
+import { useNow } from '../../ui';
+import {
+  checkMark,
+  checklistForMeal,
+  getProductionVenue,
+  preppedMark,
+  specialAmount,
+  specialsFor,
+  useProduction,
+  type ChecklistItem,
+  type PrepSpecial,
+} from '../../store/production';
+import { Checklist } from './Checklist';
+import { mealAt, signature } from './logic';
+import { MealPicker, type MealSelection } from './MealPicker';
+import { RecipeSheet } from './RecipeSheet';
+import { SpecialCard } from './SpecialCard';
+import { VenueTabs } from './VenueTabs';
+import { usePrepVenue } from './usePrepVenue';
+import s from './Prep.module.css';
 
-export default function Surface() {
-  return <Placeholder mode={getMode('prep')} />;
+/** The kitchen sign-in has no name behind it, so work here is signed as the prep cook unless someone signed in. */
+const PREP_COOK = 'L. Ortega';
+
+export default function ProductionPrep() {
+  const state = useProduction();
+  const nowMs = useNow(30_000);
+  const signedIn = useSignedIn();
+  const cook = signedIn ? signature(signedIn.name) : PREP_COOK;
+  const [venueId, setVenueId] = usePrepVenue();
+  const venue = getProductionVenue(venueId);
+  const [sel, setSel] = useState<MealSelection>(() => ({ offset: 0, meal: mealAt(today().getHours()) }));
+  const [openSlot, setOpenSlot] = useState<string | null>(null);
+
+  const iso = isoDate(sel.offset);
+  const meal = sel.meal;
+  const when = `${sel.offset ? "Tomorrow's" : "Today's"} ${meal.toLowerCase()}`;
+
+  const specials = specialsFor(state, venueId, sel.offset, meal);
+  const prepped = (sp: PrepSpecial) => preppedMark(state, venueId, iso, meal, sp.slot);
+  // Specials still to prep first; prepped ones drop to the end as grey lines.
+  const ordered = [...specials.filter((sp) => !prepped(sp)), ...specials.filter((sp) => prepped(sp))];
+  const opened = specials.find((sp) => sp.slot === openSlot) ?? null;
+
+  const groups = checklistForMeal(state, venueId, meal);
+  const markOf = (item: ChecklistItem) => checkMark(state, venueId, iso, meal, item, nowMs);
+  const total = groups.reduce((n, g) => n + g.items.length, 0);
+  const done = groups.reduce((n, g) => n + g.items.filter((it) => markOf(it)).length, 0);
+
+  return (
+    <div className={s.screen} data-prep={`${sel.offset}|${meal}`}>
+      <header className={s.header}>
+        <div className={s.topRow}>
+          <h1 className={s.title}>Prep · Production plan</h1>
+          <VenueTabs value={venueId} onChange={setVenueId} />
+          <span className={s.right}>
+            <span className={done === total && total > 0 ? s.tallyDone : s.tally} aria-label={`${done} of ${total} checklist items done`}>
+              {done}/{total} <small>done</small>
+            </span>
+            <TextZoom tall />
+            <ModeChip tall />
+          </span>
+        </div>
+        <MealPicker value={sel} onChange={setSel} base={new Date(nowMs)} />
+      </header>
+
+      <main className={s.body}>
+        <h2 className={s.capSpecials}>{when} specials · make this many</h2>
+        {specials.length > 0 ? (
+          <div className={s.specials}>
+            {ordered.map((sp) => (
+              <SpecialCard
+                key={sp.slot}
+                special={sp}
+                amount={specialAmount(state, venueId, iso, meal, sp)}
+                prepped={prepped(sp)}
+                venueId={venueId}
+                iso={iso}
+                meal={meal}
+                cook={cook}
+                onOpen={(x) => setOpenSlot(x.slot)}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className={s.empty}>
+            {venue.menu === 'cycle'
+              ? `No ${meal.toLowerCase()} specials on the cycle for ${sel.offset ? 'tomorrow' : 'today'}.`
+              : `${venue.fullName} serves the same menu every day, so there are no specials to prep.`}
+          </p>
+        )}
+
+        <div className={s.checklistHead}>
+          <h2 className={s.capChecklist}>{when} checklist</h2>
+          {total > 0 && (
+            <span className={s.checklistCount}>
+              {done} of {total} done
+            </span>
+          )}
+        </div>
+        {groups.length > 0 ? (
+          <Checklist groups={groups} markOf={markOf} venueId={venueId} iso={iso} meal={meal} cook={cook} />
+        ) : (
+          <p className={s.empty}>Nothing on the checklist for {meal.toLowerCase()}. Back Office sets it up under Prep Checklist.</p>
+        )}
+      </main>
+
+      <RecipeSheet
+        special={opened}
+        make={opened ? specialAmount(state, venueId, iso, meal, opened).n : 0}
+        onClose={() => setOpenSlot(null)}
+      />
+    </div>
+  );
 }

@@ -1,0 +1,25 @@
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.glass {
+  color: #3f7d3f;
+}
+.grow {
+  flex: 1;
+}
+.cook {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-lg);
+  background: var(--paper);
+}
+.cookTitle {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--s400);
+  margin-bottom: 4px;
+}

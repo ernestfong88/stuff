@@ -1,0 +1,44 @@
+.title {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.list {
+  margin: 4px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--hair);
+  font-size: 13.5px;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--s200);
+}
+.dotOn {
+  background: var(--flora);
+}
+.name {
+  font-weight: 600;
+  color: var(--ink);
+}
+.venue {
+  color: var(--s400);
+}
+.status {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--s400);
+}
+.online {
+  color: var(--flora);
+}

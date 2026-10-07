@@ -55,3 +55,15 @@
 .action:hover {
   background: rgba(255, 255, 255, 0.24);
 }
+
+/* CSS Modules scope animation names, so keyframes are declared in the module that uses them. */
+@keyframes k-slide-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
