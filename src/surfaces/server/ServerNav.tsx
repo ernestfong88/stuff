@@ -1,4 +1,4 @@
-import { ClipboardList, ListChecks, Users } from 'lucide-react';
+import { ClipboardList, ListChecks, ShoppingBag, Users } from 'lucide-react';
 import type { Order } from '../../domain/types';
 import { cx, useViewportWidth } from '../../ui';
 import { MenuReferenceButton, PointsChip, SideWorkChip } from './features';
@@ -9,12 +9,17 @@ export type ServerView = 'mine' | 'new' | 'check' | 'residents' | 'shift';
 /** Header row narrows to icons below this width rather than wrapping. */
 const NARROW = 1100;
 
-/** Left side of the header: My tables, points, side work and the other servers' tables. */
+/** What My tables shows: the table board, or pick up, delivery and associate orders. */
+export type MineShowing = 'tables' | 'away';
+
+/** Left side of the header: My tables (tables or pick up & delivery), points, side work and the other servers' tables. */
 export function ServerNavLeft({
   view,
   me,
   viewServer,
   live,
+  showing,
+  awayCount,
   onMine,
   onViewServer,
   onShift,
@@ -24,7 +29,10 @@ export function ServerNavLeft({
   viewServer: string;
   /** Open dine-in checks in this venue. */
   live: Order[];
-  onMine: () => void;
+  showing: MineShowing;
+  /** My open pick up, delivery and associate orders. */
+  awayCount: number;
+  onMine: (showing: MineShowing) => void;
   onViewServer: (server: string) => void;
   onShift: () => void;
 }) {
@@ -35,11 +43,28 @@ export function ServerNavLeft({
   const onMineView = (view === 'mine' || view === 'new') && viewServer === me;
   return (
     <>
-      <button className={cx(s.btn, onMineView && s.on)} onClick={onMine} title="My tables" aria-pressed={onMineView}>
-        <ClipboardList size={15} strokeWidth={2} aria-hidden />
-        {width >= 900 ? ' My tables' : <span className="sr-only">My tables</span>}
-        <span className={s.count}>{count(me)}</span>
-      </button>
+      <div className={cx(s.mine, onMineView && s.mineOn)} role="group" aria-label="My tables">
+        <button
+          className={cx(s.seg, onMineView && showing === 'tables' && s.segOn)}
+          onClick={() => onMine('tables')}
+          title="My tables: table map"
+          aria-pressed={onMineView && showing === 'tables'}
+        >
+          <ClipboardList size={15} strokeWidth={2} aria-hidden />
+          {width >= 900 ? ' My tables' : <span className="sr-only">My tables</span>}
+          <span className={s.count}>{count(me)}</span>
+        </button>
+        <button
+          className={cx(s.seg, onMineView && showing === 'away' && s.segOn)}
+          onClick={() => onMine('away')}
+          title="My pick up, delivery and associate orders"
+          aria-pressed={onMineView && showing === 'away'}
+        >
+          <ShoppingBag size={15} strokeWidth={2} aria-hidden />
+          {width >= 1000 ? ' P/U & delivery' : <span className="sr-only">Pick up and delivery</span>}
+          <span className={s.count}>{awayCount}</span>
+        </button>
+      </div>
       <PointsChip short={narrow} onOpen={onShift} />
       {width >= 900 && <SideWorkChip short={width < 1200} />}
       {view === 'mine' && (

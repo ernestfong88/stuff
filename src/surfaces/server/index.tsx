@@ -11,7 +11,7 @@ import { NoticesButton, ResidentsView, ShiftReviewView, VoiceButton } from './fe
 import { NewCheckView } from './newcheck/NewCheckView';
 import { OrderScreen } from './order';
 import { FullscreenLockButton, StartCheckButton } from './rail/RailButtons';
-import { ServerNavLeft, ServerNavRight, type ServerView } from './ServerNav';
+import { ServerNavLeft, ServerNavRight, type MineShowing, type ServerView } from './ServerNav';
 import { inVenue } from '../../domain/venue';
 import { TakeoverDialog } from './takeover/TakeoverDialog';
 
@@ -36,9 +36,10 @@ export default function ServerSurface() {
 
   const openCheck = (orderId: string, opts?: OpenCheckOptions) =>
     navigate('server', ['check', orderId], { query: opts?.category ? { cat: opts.category } : undefined });
-  const goMine = () => {
+  const showing: MineShowing = view === 'mine' && rest[0] === 'away' ? 'away' : 'tables';
+  const goMine = (to: MineShowing = 'tables') => {
     setViewServer(me);
-    setView('mine');
+    navigate('server', to === 'away' ? ['mine', 'away'] : ['mine'], { replace: view === 'mine' });
   };
 
   if (view === 'check' && rest[0]) {
@@ -63,10 +64,12 @@ export default function ServerSurface() {
           me={me}
           viewServer={viewServer}
           live={live}
+          showing={showing}
+          awayCount={orders.filter((o) => !!o.queueType && inVenue(o, venue) && o.server === me).length}
           onMine={goMine}
           onViewServer={(id) => {
             setViewServer(id);
-            setView('mine');
+            navigate('server', showing === 'away' ? ['mine', 'away'] : ['mine'], { replace: view === 'mine' });
           }}
           onShift={() => setView('shift')}
         />
@@ -82,18 +85,16 @@ export default function ServerSurface() {
       }
     >
       {view === 'new' ? (
-        <NewCheckView room={venue} me={me} onBack={goMine} onOpen={(id) => openCheck(id)} />
+        <NewCheckView room={venue} me={me} onBack={() => goMine()} onOpen={(id) => openCheck(id)} />
       ) : view === 'residents' ? (
         <ResidentsView />
       ) : view === 'shift' ? (
         <ShiftReviewView />
       ) : (
         <MineView
-          showing={rest[0] === 'away' ? 'away' : 'tables'}
-          onShow={(v) => navigate('server', v === 'away' ? ['mine', 'away'] : ['mine'], { replace: true })}
-          tables={live.filter((o) => o.server === viewServer).length}
+          showing={showing}
           away={away}
-          board={<MyTablesBoard room={venue} server={viewServer} me={me} onMine={goMine} onOpen={openCheck} />}
+          board={<MyTablesBoard room={venue} server={viewServer} me={me} onMine={() => goMine()} onOpen={openCheck} />}
           onOpen={(id) => openCheck(id)}
         />
       )}
