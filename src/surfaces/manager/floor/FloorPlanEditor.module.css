@@ -26,9 +26,19 @@
 .withPanel {
   grid-template-columns: minmax(0, 1fr) 260px;
 }
+/* Narrow screens: the selected item's controls sit above the plan in one row, so they stay in view. */
 @media (max-width: 1100px) {
   .withPanel {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .withPanel .panel {
+    order: -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+  .withPanel .panelCap {
+    flex-basis: 100%;
   }
 }
 .canvas {
@@ -148,4 +158,30 @@
 .section {
   font-size: 12px;
   color: var(--s500);
+}
+.status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 48px;
+  padding: 6px 8px 6px 14px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--ring);
+}
+.statusDirty {
+  background: var(--warning-bg);
+}
+.statusText {
+  flex: 1;
+  min-width: 200px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.bad {
+  box-shadow:
+    inset 0 0 0 2px var(--danger),
+    0 4px 12px -6px rgba(20, 35, 48, 0.25);
 }

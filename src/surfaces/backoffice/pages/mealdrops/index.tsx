@@ -5,6 +5,7 @@ import { BoCallout, BoPage, CrudTable, setBillingList, useBilling, useCrudEditin
 import type { BoPageProps } from '../../nav';
 import { MEAL_COUNT_FOR, type MealCountFor, type MealCountOption } from '../../seed/billing';
 import { duplicateNames } from './duplicates';
+import { RetiredList } from '../RetiredList';
 import s from './mealdrops.module.css';
 
 const COLUMNS: Array<CrudColumn<MealCountOption>> = [
@@ -42,21 +43,25 @@ export default function MealCountsPage(_props: BoPageProps) {
           disabled={editing.draft != null}
           onClick={() => editing.add({ id: uid('md'), text: 'New option', count: 0, amt: 0, isGuest: 0, isDefault: false, active: true })}
         >
-          Add
+          Add an option
         </Button>
       }
     >
+      <BoCallout tone="warning" title="The close screen doesn't use this list yet">
+        Servers still close checks with the standard choices. Changes here are saved and used once billing is connected.
+      </BoCallout>
       {dupes.length > 0 && (
         <BoCallout tone="warning">
           <span className={s.warn}>
             <AlertTriangle size={15} aria-hidden />
             <span>
-              Duplicate rows found ({dupes.map((g) => g.map((t) => `“${t}”`).join(' and ')).join('; ')}). The old editor could not edit a row, so typos were added again. Edit in place now and retire the duplicates.
+              Some options are on the list twice ({dupes.map((g) => g.map((t) => `“${t}”`).join(' and ')).join('; ')}), carried over from the old system. Keep one and retire the other with its bin button.
             </span>
           </span>
         </BoCallout>
       )}
       <CrudTable noun="option" rows={mealCounts} setRows={(fn) => setBillingList('mealCounts', fn)} columns={COLUMNS} editing={editing} />
+      <RetiredList noun="option" rows={mealCounts} setRows={(fn) => setBillingList('mealCounts', fn)} />
     </BoPage>
   );
 }

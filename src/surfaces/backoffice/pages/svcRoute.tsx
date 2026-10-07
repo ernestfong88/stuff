@@ -1,11 +1,11 @@
-import { RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import { rooms } from '../../../data';
 import { useConfig } from '../../../store/config';
-import { Button, Tabs, toast } from '../../../ui';
+import { Tabs } from '../../../ui';
 import { resetRouting, routingEdited, RoutingEditor } from '../../kitchen/admin/RoutingEditor';
 import { BoPage } from '../kit';
 import type { BoPageProps } from '../nav';
+import { ConfirmReset } from './ConfirmReset';
 
 /** Kitchen Routing: what skips the cook line in each venue. */
 export default function Page(_props: BoPageProps) {
@@ -15,19 +15,16 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Kitchen Routing"
-      sub="What skips the cook line in each venue. Everything else goes to the cook. Drinks go to the server or the bar."
+      sub="What skips the cook line in each kitchen. Pick a kitchen, then change an item's button."
       actions={
         routingEdited(cfg) && (
-          <Button
-            variant="ghost"
-            icon={<RotateCcw size={15} />}
-            onClick={() => {
-              resetRouting();
-              toast("Routing is back to each recipe's default");
-            }}
-          >
-            Reset to recipe defaults
-          </Button>
+          <ConfirmReset
+            label="Reset to recipe defaults"
+            onReset={resetRouting}
+            title="Put routing back to each recipe's default, in every kitchen?"
+            message="Every change on this page goes back, in every kitchen, and default sides show on the cook line again. Entree groups stay as they are."
+            done="Routing is back to each recipe's default"
+          />
         )
       }
     >

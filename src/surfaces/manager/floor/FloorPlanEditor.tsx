@@ -1,5 +1,5 @@
-import { useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { Circle, Minus, Plus, RotateCcw, Save, Square, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { Circle, Minus, Plus, RotateCcw, Save, Square, Trash2, Undo2 } from 'lucide-react';
 import { rooms } from '../../../data';
 import { uid } from '../../../lib/id';
 import { useShared } from '../../../lib/sharedStore';
@@ -7,6 +7,7 @@ import { Button, Tabs, TextField, toast, useConfirm, cx } from '../../../ui';
 import { planBox } from './FloorPlan';
 import { layoutStore, resetRoomLayout, roomPlan, saveRoomLayout, sectionAt, type PlanItem } from '../../../store/floorLayout';
 import { clampItem, moveItem, newItem, SNAP, type NewKind } from './planEdit';
+import { labelProblems } from './planCheck';
 import s from './FloorPlanEditor.module.css';
 
 const roomKeys = Object.keys(rooms);
@@ -36,6 +37,17 @@ export function FloorPlanEditor() {
   const dirty = !!drafts[room];
   const sel = items.find((t) => t.id === selected) ?? null;
   const edited = !!saved[room];
+  const problems = labelProblems(items);
+  const problemCount = Object.keys(problems).length;
+  const unsavedRooms = roomKeys.filter((k) => drafts[k]);
+
+  // Closing the tab with unsaved changes asks first.
+  useEffect(() => {
+    if (!unsavedRooms.length) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [unsavedRooms.length]);
 
   const change = (fn: (list: PlanItem[]) => PlanItem[]) => setDrafts((d) => ({ ...d, [room]: fn(d[room] ?? plan.items) }));
   const patch = (id: string, p: Partial<PlanItem>) => change((list) => list.map((t) => (t.id === id ? clampItem({ ...t, ...p }) : t)));
@@ -74,6 +86,7 @@ export function FloorPlanEditor() {
   };
 
   const save = () => {
+    if (problemCount) return;
     saveRoomLayout(room, items);
     setDrafts((d) => withoutKey(d, room));
     toast(`${plan.name} layout saved. The host and manager floors use it now.`, { tone: 'success' });
@@ -90,10 +103,24 @@ export function FloorPlanEditor() {
     setDrafts((d) => withoutKey(d, room));
     setSelected(null);
   };
+  const discard = async () => {
+    const ok = await confirm({
+      title: `Throw away your changes to ${plan.name}?`,
+      message: 'The plan goes back to how it was last saved.',
+      confirmLabel: 'Throw away changes',
+      tone: 'danger',
+    });
+    if (!ok) return;
+    setDrafts((d) => withoutKey(d, room));
+    setSelected(null);
+  };
   const remove = (it: PlanItem) => {
+    const at = items.findIndex((t) => t.id === it.id);
     change((list) => list.filter((t) => t.id !== it.id));
     setSelected(null);
-    toast(it.type === 'wall' ? 'Wall removed from the layout' : `${it.label} removed from the layout (kept for order history)`);
+    toast(it.type === 'wall' ? 'Wall removed. Save to keep the change.' : `${it.label} removed. Save to keep the change; order history keeps it.`, {
+      action: { label: 'Undo', onClick: () => change((list) => (list.some((t) => t.id === it.id) ? list : [...list.slice(0, at), it, ...list.slice(at)])) },
+    });
   };
 
   return (
@@ -108,28 +135,47 @@ export function FloorPlanEditor() {
             setSelected(null);
           }}
           aria-label="Room"
-          options={roomKeys.map((k) => ({ id: k, label: rooms[k].name }))}
+          options={roomKeys.map((k) => ({ id: k, label: drafts[k] ? `${rooms[k].name} (not saved)` : rooms[k].name }))}
         />
         <span className={s.grow} />
         <Button size="sm" icon={<Square size={14} />} onClick={() => add('table')}>
-          Table
+          Add table
         </Button>
         <Button size="sm" icon={<Circle size={14} />} onClick={() => add('round')}>
-          Round
+          Add round table
         </Button>
         <Button size="sm" icon={<Minus size={14} />} onClick={() => add('wall')}>
-          Wall
+          Add wall
         </Button>
-        {edited && (
+      </div>
+      <p className={s.help}>
+        Drag a table or wall to move it, or tap it to rename, resize or remove it. Arrow keys nudge the selected one; hold Shift for bigger steps. Nothing changes
+        on the floor until you save.
+      </p>
+      <div className={cx(s.status, dirty && s.statusDirty)} role="status">
+        <span className={s.statusText}>
+          {problemCount
+            ? `Fix ${problemCount === 1 ? 'one table name' : `${problemCount} table names`} before saving: each table needs its own name.`
+            : dirty
+              ? 'You have changes that are not saved yet.'
+              : edited
+                ? 'Saved. The host and manager floors use this layout.'
+                : 'This is the original layout.'}
+        </span>
+        {edited && !dirty && (
           <Button size="sm" variant="ghost" icon={<RotateCcw size={14} />} onClick={reset}>
-            Original layout
+            Go back to the original layout
           </Button>
         )}
-        <Button size="sm" variant="primary" icon={<Save size={14} />} disabled={!dirty} onClick={save}>
+        {dirty && (
+          <Button size="sm" variant="ghost" icon={<Undo2 size={14} />} onClick={discard}>
+            Throw away changes
+          </Button>
+        )}
+        <Button size="sm" variant="primary" icon={<Save size={14} />} disabled={!dirty || problemCount > 0} onClick={save}>
           Save layout
         </Button>
       </div>
-      <p className={s.help}>Drag to arrange. Tables snap into line, and the plan scales to any screen. Arrow keys nudge the selected table; hold Shift for bigger steps.</p>
 
       <div className={cx(s.layout, sel && s.withPanel)}>
         <div ref={canvas} className={s.canvas} onPointerDown={(e) => e.target === e.currentTarget && setSelected(null)}>
@@ -141,7 +187,7 @@ export function FloorPlanEditor() {
           {items.map((it) => (
             <button
               key={it.id}
-              className={cx(s.item, it.type === 'wall' && s.wall, it.shape === 'round' && s.round, it.id === selected && s.selected)}
+              className={cx(s.item, it.type === 'wall' && s.wall, it.shape === 'round' && s.round, problems[it.id] && s.bad, it.id === selected && s.selected)}
               style={planBox(it)}
               onPointerDown={(e) => down(e, it)}
               onPointerMove={move}
@@ -160,7 +206,15 @@ export function FloorPlanEditor() {
         {sel && (
           <aside className={s.panel} aria-label="Selected">
             <div className={s.panelCap}>Selected · {sel.type === 'wall' ? 'Wall' : sel.shape === 'round' ? 'Round table' : 'Table'}</div>
-            {sel.type === 'seat' && <TextField label="Label" value={sel.label} maxLength={12} onChange={(e) => patch(sel.id, { label: e.target.value })} />}
+            {sel.type === 'seat' && (
+              <TextField
+                label="Table name"
+                value={sel.label}
+                maxLength={12}
+                error={problems[sel.id] === 'blank' ? 'Give the table a name.' : problems[sel.id] === 'duplicate' ? 'Another table has this name.' : undefined}
+                onChange={(e) => patch(sel.id, { label: e.target.value })}
+              />
+            )}
             <div className={s.sizes}>
               <SizeStepper label="Width" value={sel.w} onChange={(w) => patch(sel.id, { w })} />
               <SizeStepper label="Height" value={sel.h} onChange={(h) => patch(sel.id, { h })} />
@@ -177,7 +231,7 @@ export function FloorPlanEditor() {
             )}
             {sel.type === 'seat' && sel.section && <div className={s.section}>Section: {sel.section}</div>}
             <Button size="sm" variant="softDanger" icon={<Trash2 size={14} />} onClick={() => remove(sel)}>
-              Remove
+              Remove {sel.type === 'wall' ? 'wall' : 'table'}
             </Button>
           </aside>
         )}

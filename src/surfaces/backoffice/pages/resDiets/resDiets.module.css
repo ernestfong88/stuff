@@ -116,3 +116,8 @@
 .level {
   text-decoration: none;
 }
+.person:hover .name {
+  color: var(--ocean);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

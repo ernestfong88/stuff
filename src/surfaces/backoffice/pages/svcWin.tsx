@@ -11,8 +11,8 @@ import type { MealName } from '../../../domain/types';
 import { now } from '../../../lib/clock';
 import { updateConfig, useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
-import { resetSettingsSection, setSetting } from '../../../store/serviceConfig';
-import { Button, Tabs, Toggle, cx, toast } from '../../../ui';
+import { setSetting } from '../../../store/serviceConfig';
+import { Tabs, Toggle, cx, toast } from '../../../ui';
 import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
 import {
   ASSOC_ROOM,
@@ -36,7 +36,13 @@ import {
 } from '../../../domain/pickupService/windows';
 import { BoPage, BoRow, BoSection, NumberBox } from '../kit';
 import type { BoPageProps } from '../nav';
+import { ConfirmReset } from './ConfirmReset';
+import { usePageTab } from './pageTab';
 import s from './svcWin.module.css';
+
+const TABS = ['ranges', 'capacity', 'timing'] as const;
+type WinTab = (typeof TABS)[number];
+const TAB_LABELS: Record<WinTab, string> = { ranges: 'Ranges offered', capacity: 'How many per range', timing: 'Timing' };
 
 const venueOptions = Object.entries(rooms).map(([id, r]) => ({ id, label: r.name }));
 const hourLabel = (h: number) => `${h % 12 || 12} ${h % 24 >= 12 ? 'PM' : 'AM'}`;
@@ -84,6 +90,14 @@ function RangesOffered({ win, venue, setVenue }: { win: WindowSettings; venue: s
   const grid = Object.fromEntries(WINDOW_TYPES.map((t) => [t.id, windowStarts(win, venue, t.id)])) as Record<WindowType, number[]>;
   const noc = nocStarts(win, venue);
   const put = (type: WindowType | 'noc', list: number[] | undefined) => setSetting(`win.grid.${venue}.${type}`, list);
+  /** Swap a whole column at once, with Undo, since one tap clears a day of ranges. */
+  const replaceAll = (type: WindowType, label: string, list: number[] | undefined) => {
+    const before = win.grid?.[venue]?.[type];
+    put(type, list);
+    toast(list ? `${label}: no ranges offered at ${rooms[venue]?.name}` : `${label}: back to the meal hours at ${rooms[venue]?.name}`, {
+      action: { label: 'Undo', onClick: () => put(type, before) },
+    });
+  };
   const flip = (list: number[], start: number) => (list.includes(start) ? list.filter((x) => x !== start) : [...list, start].sort((a, b) => a - b));
   const hours: number[] = [];
   for (let h = WINDOW_DAY[0] / 60; h < WINDOW_DAY[1] / 60; h++) hours.push(h);
@@ -92,7 +106,7 @@ function RangesOffered({ win, venue, setVenue }: { win: WindowSettings; venue: s
   return (
     <BoSection
       title="Ranges offered"
-      sub="Tap a quarter hour to offer or stop offering that range. A range shows under the meal it falls in."
+      sub="Tap a quarter hour to offer it (dark) or stop offering it (light). Meal hours puts back the standard ranges for each meal; None stops that order type booking at this venue."
       actions={<VenueTabs venue={venue} onChange={setVenue} />}
     >
       <div className={s.gridWrap}>
@@ -107,10 +121,10 @@ function RangesOffered({ win, venue, setVenue }: { win: WindowSettings; venue: s
                     <span className={s.muted}>
                       {grid[t.id].length} {grid[t.id].length === 1 ? 'range' : 'ranges'}
                     </span>
-                    <button className={s.link} onClick={() => put(t.id, undefined)}>
+                    <button className={s.link} onClick={() => replaceAll(t.id, t.label, undefined)}>
                       Meal hours
                     </button>
-                    <button className={s.link} onClick={() => put(t.id, [])}>
+                    <button className={s.link} onClick={() => replaceAll(t.id, t.label, [])}>
                       None
                     </button>
                   </div>
@@ -308,27 +322,26 @@ function Timing({ win }: { win: WindowSettings }) {
 export default function Page(_props: BoPageProps) {
   const win = windowSettings(useServiceSettings());
   const [venue, setVenue] = useState(venueOptions[0].id);
+  const [tab, setTab] = usePageTab<WinTab>('svcWin', TABS);
   return (
     <BoPage
       title="Pick Up Windows"
-      sub="Every booking is a 15 minute range, such as 5:00 to 5:15 PM. Tick the ranges each venue offers; residents and associates only see ranges that are ticked and still open."
+      sub="Every booking is a 15 minute range, such as 5:00 to 5:15 PM. Residents and associates only see the ranges a venue offers that are still open."
       actions={
-        <Button
-          variant="ghost"
-          onClick={() => {
-            resetSettingsSection('win');
-            updateConfig({ pickupPackMinutes: 5 });
-            toast('Pick up windows are back to the defaults');
-          }}
-        >
-          Reset to defaults
-        </Button>
+        <ConfirmReset
+          sections={['win']}
+          onReset={() => updateConfig({ pickupPackMinutes: 5 })}
+          title="Put pick up windows back to the default?"
+          message="Ranges, limits and timing at every venue go back to the standard."
+          done="Pick up windows are back to the defaults"
+        />
       }
     >
       <OrderTypes win={win} />
-      <RangesOffered win={win} venue={venue} setVenue={setVenue} />
-      <Capacity win={win} venue={venue} setVenue={setVenue} />
-      <Timing win={win} />
+      <Tabs aria-label="Pick up windows" variant="underline" value={tab} onChange={setTab} options={TABS.map((id) => ({ id, label: TAB_LABELS[id] }))} />
+      {tab === 'ranges' && <RangesOffered win={win} venue={venue} setVenue={setVenue} />}
+      {tab === 'capacity' && <Capacity win={win} venue={venue} setVenue={setVenue} />}
+      {tab === 'timing' && <Timing win={win} />}
     </BoPage>
   );
 }

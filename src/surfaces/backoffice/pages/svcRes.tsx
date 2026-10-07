@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Save } from 'lucide-react';
 import type { BoPageProps } from '../nav';
 import { BoPage } from '../kit';
@@ -11,7 +11,7 @@ import {
   useStoryEdits,
   type ResidentStory,
 } from '../../../store/residentStories';
-import { Button, Chip, SearchField, TextArea, TextField, cx, toast } from '../../../ui';
+import { Button, Chip, SearchField, TextArea, TextField, cx, toast, useConfirm } from '../../../ui';
 import { searchResidents } from '../../server/features/residents/residentInfo';
 import { storyPick } from '../../server/features/residents/storyPick';
 import s from './svcRes.module.css';
@@ -52,7 +52,7 @@ const fromDraft = (d: Draft): ResidentStory => ({
   question: d.question.trim(),
 });
 
-function StoryEditor({ residentId }: { residentId: string }) {
+function StoryEditor({ residentId, onDirty }: { residentId: string; onDirty: (dirty: boolean) => void }) {
   const edits = useStoryEdits();
   const resident = getResident(residentId)!;
   const current = storyFor(edits, residentId);
@@ -60,6 +60,8 @@ function StoryEditor({ residentId }: { residentId: string }) {
   const dirty = JSON.stringify(fromDraft(draft)) !== JSON.stringify(current);
   const edited = isStoryEdited(edits, residentId);
   const first = resident.name.split(' ')[0];
+  const [ask, dialog] = useConfirm();
+  useEffect(() => onDirty(dirty), [dirty, onDirty]);
   const field = (k: keyof Draft) => ({ value: draft[k], onChange: (e: { target: { value: string } }) => setDraft((d) => ({ ...d, [k]: e.target.value })) });
   return (
     <section className={s.editor}>
@@ -71,7 +73,14 @@ function StoryEditor({ residentId }: { residentId: string }) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
+            onClick={async () => {
+              const ok = await ask({
+                title: `Put ${first}'s story back to the original?`,
+                message: 'Everything written here for them is replaced by the original story.',
+                confirmLabel: 'Back to original',
+                tone: 'danger',
+              });
+              if (!ok) return;
               resetResidentStory(residentId);
               setDraft(toDraft(storyFor({}, residentId)));
               toast(`${first}'s profile is back to the original`);
@@ -93,6 +102,7 @@ function StoryEditor({ residentId }: { residentId: string }) {
           Save
         </Button>
       </header>
+      {dirty && <p className={s.unsaved}>Not saved yet. Servers see the change once you save.</p>}
       <TextArea label="Their story" rows={4} placeholder="Where they are from, what they did, family" {...field('background')} />
       <TextArea label="These days" rows={3} placeholder="What they are up to now" {...field('now')} />
       <TextField label="Loves" hint="Separate with commas. Shown as chips on the profile." placeholder="Golf, Book club" {...field('loves')} />
@@ -105,6 +115,7 @@ function StoryEditor({ residentId }: { residentId: string }) {
         {...field('goodToKnow')}
       />
       <TextField label="Question to ask tonight" placeholder="How is ... doing?" {...field('question')} />
+      {dialog}
     </section>
   );
 }
@@ -120,15 +131,31 @@ export default function Page(_props: BoPageProps) {
   useEffect(() => storyPick.set(null), []);
   const [query, setQuery] = useState('');
   const shown = searchResidents(residents, query);
+  const dirty = useRef(false);
+  const [ask, dialog] = useConfirm();
+  const onDirty = useCallback((d: boolean) => {
+    dirty.current = d;
+  }, []);
+  /** Switching residents with unsaved changes asks first, since the changes would be lost. */
+  const pick = async (id: string) => {
+    if (id === selected) return;
+    if (dirty.current) {
+      const name = getResident(selected)?.name.split(' ')[0] ?? 'this resident';
+      const ok = await ask({ title: `Leave ${name}'s story without saving?`, message: 'Your changes are not saved and will be lost.', confirmLabel: 'Leave without saving', tone: 'danger' });
+      if (!ok) return;
+    }
+    dirty.current = false;
+    setSelected(id);
+  };
   return (
-    <BoPage title="Conversation Profiles" sub="The story, conversation starters and Good to know notes servers see when they open a resident.">
+    <BoPage title="Conversation Profiles" sub="The story, conversation starters and Good to know notes servers see when they open a resident. Pick a resident, write, then Save.">
       <div className={s.layout}>
         <nav className={s.list} aria-label="Residents">
-          <SearchField value={query} onChange={setQuery} placeholder="Search residents" />
+          <SearchField value={query} onChange={setQuery} placeholder="Search residents" aria-label="Search residents" className={s.search} />
           <ul className={s.items}>
             {shown.map((r) => (
               <li key={r.id}>
-                <button type="button" className={cx(s.item, r.id === selected && s.itemOn)} aria-current={r.id === selected} onClick={() => setSelected(r.id)}>
+                <button type="button" className={cx(s.item, r.id === selected && s.itemOn)} aria-current={r.id === selected} onClick={() => void pick(r.id)}>
                   <span className={s.itemText}>
                     <span className={s.itemName}>{r.name}</span>
                     <span className={s.itemApt}>{r.apt ? `Apt ${r.apt}` : 'Resident'}</span>
@@ -144,8 +171,9 @@ export default function Page(_props: BoPageProps) {
             {!shown.length && <li className={s.none}>No resident matches that.</li>}
           </ul>
         </nav>
-        <StoryEditor key={selected} residentId={selected} />
+        <StoryEditor key={selected} residentId={selected} onDirty={onDirty} />
       </div>
+      {dialog}
     </BoPage>
   );
 }

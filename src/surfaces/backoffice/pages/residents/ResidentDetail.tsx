@@ -1,6 +1,7 @@
 import { ArrowLeft, Info } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import { formatTime } from '../../../../lib/format';
+import { navigate } from '../../../../shell/router';
 import { residentPref, updateResidentPref, useResidentPrefs } from '../../../../store/residentPrefs';
 import { Button, Chip, TextArea, toast } from '../../../../ui';
 import { BoCallout, BoField, BoPage, BoSection, BoSelect, NumberBox, updateResidentRecord, useBilling, useResidentRecords } from '../../kit';
@@ -36,11 +37,14 @@ export function ResidentDetail({ resident: r, onBack, goto }: { resident: BoResi
   return (
     <BoPage
       title={r.name}
-      sub={`Apt ${r.apt} · ${r.level}${spouse ? ` · spouse: ${spouse.name}` : ''}`}
+      sub={`Apt ${r.apt} · ${dining?.level ?? r.level}${spouse ? ` · spouse: ${spouse.name}` : ''}`}
       actions={
-        <Button variant="ghost" icon={<ArrowLeft size={16} />} onClick={onBack}>
-          All residents
-        </Button>
+        <>
+          <Button variant="ghost" icon={<ArrowLeft size={16} />} onClick={onBack}>
+            All residents
+          </Button>
+          {dining && <Button onClick={() => navigate('backoffice', ['resProfiles', r.id])}>Profile as servers see it</Button>}
+        </>
       }
     >
       <div className={s.grid}>

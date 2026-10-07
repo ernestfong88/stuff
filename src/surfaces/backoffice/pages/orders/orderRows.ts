@@ -19,6 +19,7 @@ export const PAYMENT_LABELS: Record<string, string> = {
 export const PAYMENT_CHOICES = Object.entries(PAYMENT_LABELS).map(([id, label]) => ({ id, label }));
 
 export type ChargeFilter = 'All' | 'apt' | 'other';
+export type StatusFilter = 'all' | 'open' | 'closed';
 
 export interface OrderRow {
   order: Order;
@@ -76,10 +77,12 @@ export function buildRows(open: Order[], closed: Order[], cfg: DiningConfig): Or
   return [...closed.map((o) => row(o, false)), ...open.filter((o) => o.diners.length > 0).map((o) => row(o, true))].sort((a, b) => recent(b.order) - recent(a.order));
 }
 
-export function filterRows(rows: OrderRow[], f: { query: string; server: string; charge: ChargeFilter }): OrderRow[] {
+export function filterRows(rows: OrderRow[], f: { query: string; server: string; charge: ChargeFilter; status?: StatusFilter }): OrderRow[] {
   const q = f.query.trim().toLowerCase();
+  const status = f.status ?? 'all';
   return rows.filter(
     (r) =>
+      (status === 'all' || r.open === (status === 'open')) &&
       (f.server === 'All' || r.order.server === f.server) &&
       (f.charge === 'All' || (f.charge === 'apt' ? r.apartment : r.charged > 0 && !r.apartment)) &&
       (!q || r.names.toLowerCase().includes(q)),

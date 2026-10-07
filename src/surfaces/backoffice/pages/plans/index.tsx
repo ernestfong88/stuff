@@ -4,6 +4,7 @@ import { Button } from '../../../../ui';
 import { BoCallout, BoPage, BoRow, BoSection, CrudTable, setBillingList, useBilling, useCrudEditing, type CrudColumn } from '../../kit';
 import type { BoPageProps } from '../../nav';
 import type { BoMealPlan } from '../../seed/billing';
+import { RetiredList } from '../RetiredList';
 import s from './plans.module.css';
 
 const PLAN_TYPES = [
@@ -31,24 +32,28 @@ export default function MealPlansPage({ goto }: BoPageProps) {
   return (
     <BoPage
       title="Meal Plans"
-      sub="The plan type drives the charge engine: meal counts (Monthly or Daily) or a dollar spend-down pooled across a couple (Monthly $)."
+      sub="The plans a resident can be on: a number of meals a month or a day, or a dollar spend-down shared by a couple (Monthly $). Choose a resident's plan in Dining Plans & Notes."
       actions={
         <Button variant="primary" icon={<Plus size={15} />} onClick={() => editing.add({ id: uid('pl'), text: 'New plan', amt: 30, type: 'Monthly', isDefault: false, active: true })} disabled={editing.draft != null}>
-          Add
+          Add a plan
         </Button>
       }
     >
+      <BoCallout tone="warning" title="Checkout doesn't use this list yet">
+        The tablets still count meals with the standard plans. Changes here are saved and used once billing is connected.
+      </BoCallout>
       {defaults.length > 1 && (
         <BoCallout tone="warning">
           <span className={s.warn}>
             <AlertTriangle size={15} aria-hidden />
             <span>
-              {defaults.length === 2 ? 'Two' : defaults.length} plans are marked default ({defaults.map((p) => p.text).join(' and ')}), carried over from the old system. Pick one; from now on only one plan can be the default.
+              {defaults.length === 2 ? 'Two' : defaults.length} plans are marked default ({defaults.map((p) => p.text).join(' and ')}), carried over from the old system. Tick the one new residents should start on.
             </span>
           </span>
         </BoCallout>
       )}
       <CrudTable noun="plan" rows={plans} setRows={(fn) => setBillingList('plans', fn)} columns={COLUMNS} editing={editing} />
+      <RetiredList noun="plan" rows={plans} setRows={(fn) => setBillingList('plans', fn)} detail={(p) => `${planAmount(p)}, ${p.type}`} />
       <BoSection title="Guest meals and what a credit covers" sub="Whether residents can use their meal credits for guests, and what one credit covers, are set in HO Settings.">
         <BoRow label="Meal credit rules">
           <Button size="sm" onClick={() => goto('credits')}>

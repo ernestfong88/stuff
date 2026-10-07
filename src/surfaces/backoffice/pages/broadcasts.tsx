@@ -24,6 +24,9 @@ const fromIsoDate = (iso: string, endOfDay = false) => {
   return endOfDay ? new Date(y, m - 1, d, 23, 59, 59, 999).getTime() : new Date(y, m - 1, d).getTime();
 };
 
+/** "Adriana" for "AA"; initials stay as they are for anyone not on the roster. */
+const firstName = (initials: string) => staff.find((x) => x.initials === initials)?.name.split(' ')[0] ?? initials;
+
 /** Who has acknowledged a notice, out of the servers who should. */
 function Acks({ notice, state, servers }: { notice: Broadcast; state: NoticesState; servers: string[] }) {
   const acks = state.acks[notice.id] ?? {};
@@ -33,10 +36,10 @@ function Acks({ notice, state, servers }: { notice: Broadcast; state: NoticesSta
   return (
     <div className={s.acks}>
       <span className={yes.length ? s.acksYes : s.acksNone}>
-        {yes.length} of {who.length} servers acknowledged
+        {yes.length} of {who.length} servers tapped Got it
       </span>
-      {yes.length > 0 && ` · ${yes.map((x) => `${x} ${formatTime(acks[x])}`).join(', ')}`}
-      {no.length > 0 && <span className={s.waiting}> · waiting on {no.join(', ')}</span>}
+      {yes.length > 0 && ` · ${yes.map((x) => `${firstName(x)} at ${formatTime(acks[x])}`).join(', ')}`}
+      {no.length > 0 && <span className={s.waiting}> · not yet: {no.map(firstName).join(', ')}</span>}
     </div>
   );
 }
@@ -93,17 +96,17 @@ export default function Page(_props: BoPageProps) {
                 <input type="date" className={s.date} value={from} onChange={(e) => setFrom(e.target.value)} />
               </label>
               <label className={s.field}>
-                <span>Expire by</span>
+                <span>Show until</span>
                 <input type="date" className={s.date} value={until} min={from} onChange={(e) => setUntil(e.target.value)} />
               </label>
             </div>
-            {badDates && <p className={s.error}>The expiry date is before the start date.</p>}
+            {badDates && <p className={s.error}>The last day is before the first day.</p>}
             <div>
               <Button variant="primary" icon={<Megaphone size={15} />} disabled={!message.trim() || badDates} onClick={publish}>
                 Publish broadcast
               </Button>
             </div>
-            <p className={s.note}>Broadcasts are scoped to {COMMUNITY_NAME}. Home Office broadcasts come from the home office and show at every community.</p>
+            <p className={s.note}>Your broadcasts show at {COMMUNITY_NAME} only. Home Office broadcasts show at every community and can only be removed by the home office.</p>
           </div>
         </BoSection>
         <BoSection title="Posted" sub={`${list.length} ${list.length === 1 ? 'broadcast' : 'broadcasts'}`}>
@@ -117,13 +120,12 @@ export default function Page(_props: BoPageProps) {
                   <div className={s.itemBody}>
                     <div className={s.message}>{b.message}</div>
                     <div className={s.range}>
-                      {formatDayShort(b.startDt)} → {formatDayShort(b.endDt)}
+                      Shows {formatDayShort(b.startDt)} to {formatDayShort(b.endDt)}
                     </div>
                     <Acks notice={b} state={state} servers={servers} />
                   </div>
-                  {b.scope === 'HO' ? (
-                    <Chip tone="warning">HO · all communities</Chip>
-                  ) : live ? (
+                  {b.scope === 'HO' && <Chip tone="warning">Home Office</Chip>}
+                  {live ? (
                     <Chip tone="success">Live</Chip>
                   ) : expired ? (
                     <Chip>Expired</Chip>

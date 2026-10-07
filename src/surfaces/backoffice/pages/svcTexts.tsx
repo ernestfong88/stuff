@@ -4,17 +4,19 @@
  * from the standard is saved, so the standard wording can change
  * underneath.
  */
-import { useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { COMMUNITY_NAME, residents, rooms } from '../../../data';
 import { formatTime } from '../../../lib/format';
 import { setSetting } from '../../../store/serviceConfig';
-import { Button, Chip, SearchField, TextArea, Toggle, cx, toast } from '../../../ui';
+import { Chip, SearchField, Tabs, TextArea, Toggle, cx, toast } from '../../../ui';
 import { useOutbox } from '../../../store/textOutbox';
 import { formatPhone, hasMobile, hasMobileByDefault, PHONES } from '../../../domain/pickupService/phones';
 import { mobileOverrides, textSettings, useServiceSettings, type TextSetting } from '../../../domain/pickupService/settings';
 import { fillText, smsParts, TEXT_DEFINITIONS, TEXT_TAG_LABELS, textBody, textOn, type TextDefinition, type TextKey, type TextTag } from '../../../domain/pickupService/texts';
 import { BoPage, BoSection } from '../kit';
+import { ConfirmReset } from './ConfirmReset';
+import { usePageTab } from './pageTab';
+import { insertTag, unknownTags } from './textTags';
 import type { BoPageProps } from '../nav';
 import s from './svcTexts.module.css';
 
@@ -43,12 +45,29 @@ function putText(key: TextKey, current: TextSetting | undefined, patch: TextSett
 }
 
 function TextCard({ def, own }: { def: TextDefinition; own: TextSetting | undefined }) {
+  const box = useRef<HTMLTextAreaElement>(null);
   const texts = { [def.key]: own };
   const on = textOn(texts, def.key);
   const body = textBody(texts, def.key);
-  const preview = fillText(body, SAMPLE);
+  // Fill only what this text really knows, so the preview never shows an apartment a pick up text can't have.
+  const preview = fillText(body, Object.fromEntries(def.tags.map((k) => [k, SAMPLE[k]])));
   const parts = smsParts(preview);
+  const unknown = unknownTags(body, def.tags);
   const setBody = (v: string) => putText(def.key, own, { body: v === def.body ? undefined : v });
+  const addTag = (tag: TextTag) => {
+    const el = box.current;
+    const next = insertTag(body, tag, el?.selectionStart ?? body.length, el?.selectionEnd ?? body.length);
+    setBody(next.body);
+    requestAnimationFrame(() => {
+      el?.focus();
+      el?.setSelectionRange(next.cursor, next.cursor);
+    });
+  };
+  const restoreStandard = () => {
+    const before = own?.body;
+    putText(def.key, own, { body: undefined });
+    toast(`${def.title} is back to the standard wording`, { action: { label: 'Undo', onClick: () => putText(def.key, { ...own, body: undefined }, { body: before }) } });
+  };
   return (
     <BoSection
       title={def.title}
@@ -65,22 +84,28 @@ function TextCard({ def, own }: { def: TextDefinition; own: TextSetting | undefi
       }
     >
       <div className={s.body}>
-        <TextArea value={body} rows={2} disabled={!on} aria-label={`${def.title} wording`} className={s.wording} onChange={(e) => setBody(e.target.value)} />
+        <TextArea ref={box} value={body} rows={2} disabled={!on} aria-label={`${def.title} wording`} className={s.wording} onChange={(e) => setBody(e.target.value)} />
         {on && (
           <>
             <div className={s.tags}>
               <span className={s.tagsLabel}>Add</span>
               {def.tags.map((t) => (
-                <button key={t} className={s.tag} title={`Adds {${t}}`} onClick={() => setBody(`${body.replace(/\s+$/, '')} {${t}}`.trim())}>
+                <button key={t} className={s.tag} title={`Adds {${t}}`} onClick={() => addTag(t)}>
                   {TEXT_TAG_LABELS[t]}
                 </button>
               ))}
               {body !== def.body && (
-                <button className={cx(s.tag, s.standard)} onClick={() => putText(def.key, own, { body: undefined })}>
+                <button className={cx(s.tag, s.standard)} onClick={restoreStandard}>
                   Use the standard wording
                 </button>
               )}
             </div>
+            {unknown.length > 0 && (
+              <p className={s.warn} role="status">
+                {unknown.map((u) => `{${u}}`).join(', ')} {unknown.length === 1 ? "isn't a detail" : "aren't details"} this text can fill in, so residents would see{' '}
+                {unknown.length === 1 ? 'it' : 'them'} as typed. Use the buttons above instead.
+              </p>
+            )}
             <div className={s.preview}>
               <div className={s.previewLabel}>What Eleanor would get</div>
               <div className={s.previewText}>{preview || '(empty)'}</div>
@@ -169,9 +194,17 @@ function Outbox() {
   );
 }
 
+const TABS = ['texts', 'mobile', 'sent'] as const;
+type TextsTab = (typeof TABS)[number];
+
 /** Text Messages: What residents and associates get by text. */
 export default function Page(_props: BoPageProps) {
-  const texts = textSettings(useServiceSettings());
+  const svc = useServiceSettings();
+  const texts = textSettings(svc);
+  const sent = useOutbox();
+  const mobile = mobileOverrides(svc);
+  const noMobile = residents.filter((r) => r.id && r.name && !hasMobile(mobile, r.id)).length;
+  const [tab, setTab] = usePageTab<TextsTab>('svcTexts', TABS);
   const edited = Object.values(texts).some((t) => t && (t.on === false || typeof t.body === 'string'));
   return (
     <BoPage
@@ -179,24 +212,37 @@ export default function Page(_props: BoPageProps) {
       sub={`What ${COMMUNITY_NAME} sends by text. Each community writes its own wording; a change goes out with the next text.`}
       actions={
         edited && (
-          <Button
-            variant="ghost"
-            icon={<RotateCcw size={14} />}
-            onClick={() => {
-              setSetting('texts', {});
-              toast('Every text is back to the standard wording and turned on');
-            }}
-          >
-            Reset to standard wording
-          </Button>
+          <ConfirmReset
+            label="Reset to standard wording"
+            onReset={() => setSetting('texts', {})}
+            title="Put every text back to the standard wording?"
+            message="Your own wording is replaced, and any text you turned off is turned back on."
+            done="Every text is back to the standard wording and turned on"
+          />
         )
       }
     >
-      {TEXT_DEFINITIONS.map((d) => (
-        <TextCard key={d.key} def={d} own={texts[d.key]} />
-      ))}
-      <NoMobile />
-      <Outbox />
+      <Tabs
+        aria-label="Text messages"
+        variant="underline"
+        value={tab}
+        onChange={setTab}
+        options={[
+          { id: 'texts', label: 'Wording', count: TEXT_DEFINITIONS.length },
+          { id: 'mobile', label: 'Residents without a mobile', count: noMobile },
+          { id: 'sent', label: 'Sent from this demo', count: sent.length },
+        ]}
+      />
+      {tab === 'texts' && (
+        <>
+          <p className={s.how}>Type the wording, then tap a button under it, such as First name, to add that detail where the cursor is. The switch turns a text off.</p>
+          {TEXT_DEFINITIONS.map((d) => (
+            <TextCard key={d.key} def={d} own={texts[d.key]} />
+          ))}
+        </>
+      )}
+      {tab === 'mobile' && <NoMobile />}
+      {tab === 'sent' && <Outbox />}
     </BoPage>
   );
 }

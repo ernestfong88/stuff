@@ -1,14 +1,15 @@
 import { useMemo, useState } from 'react';
 import { now } from '../../../../lib/clock';
 import type { Recipe } from '../../../../store/menuEdits';
-import { EmptyState, SearchField, Tabs, toast } from '../../../../ui';
+import { EmptyState, SearchField, Tabs, Toggle, toast } from '../../../../ui';
 import { BoCallout, BoPage } from '../../kit';
 import { updateBo, useBo } from '../data';
 import { CATEGORIES, dishLong } from '../model/categories';
 import { venuesAt } from '../../../../domain/menuCycle';
 import { DINING_VENUE_ID } from '../model/liveOverlay';
 import { menuPrices, orphanPrices, priceRow, recipesOnMenu, setPrice, type PriceField } from '../model/pricing';
-import { MoneyInput, Select, TableFrame, tableClass } from '../ui/controls';
+import { Select, TableFrame, tableClass } from '../ui/controls';
+import { PriceCell } from './PriceCell';
 import s from './PricingPage.module.css';
 
 const FIELDS: Array<[PriceField, string]> = [
@@ -24,6 +25,7 @@ export function PricingPage() {
   const [venueId, setVenueId] = useState(venues[0]?.id ?? '');
   const [cat, setCat] = useState('');
   const [q, setQ] = useState('');
+  const [changedOnly, setChangedOnly] = useState(false);
   const venue = venues.find((v) => v.id === venueId) ?? venues[0];
   const onMenu = useMemo(() => recipesOnMenu(bo, venue?.menuId ?? null), [bo, venue]);
   const byId = useMemo(() => new Map(bo.recipes.map((r) => [r.id, r])), [bo.recipes]);
@@ -31,7 +33,11 @@ export function PricingPage() {
   const rows = onMenu
     .map((id) => byId.get(id))
     .filter(
-      (r): r is Recipe => !!r && (!cat || r.cat === cat) && (!query || r.name.toLowerCase().includes(query) || dishLong(r.name).toLowerCase().includes(query)),
+      (r): r is Recipe =>
+        !!r &&
+        (!cat || r.cat === cat) &&
+        (!query || r.name.toLowerCase().includes(query) || dishLong(r.name).toLowerCase().includes(query)) &&
+        (!changedOnly || !!(venue && priceRow(bo.prices, venue.id, r.id))),
     )
     .sort((a, b) => CATEGORIES.indexOf(a.cat) - CATEGORIES.indexOf(b.cat) || a.name.localeCompare(b.name));
   const orphans = venue ? orphanPrices(bo.prices, venue.id, onMenu) : [];
@@ -45,11 +51,19 @@ export function PricingPage() {
   }
 
   const change = (r: Recipe, field: PriceField, v: number | null) => updateBo((st) => ({ prices: setPrice(st.prices, venue.id, r, field, v) }));
+  const changedCount = onMenu.filter((id) => priceRow(bo.prices, venue.id, id)).length;
+  const archiveOrphans = () => {
+    updateBo((st) => ({ prices: st.prices.filter((p) => !orphans.includes(p)) }));
+    toast(`${orphans.length === 1 ? 'Old price' : 'Old prices'} cleared`, {
+      tone: 'success',
+      action: { label: 'Undo', onClick: () => updateBo((st) => ({ prices: [...st.prices, ...orphans] })) },
+    });
+  };
 
   return (
     <BoPage
       title="Pricing"
-      sub="Prices for each recipe at this venue, across every menu it serves. The 86 list covers what is sold out, and KDS Screens in Venue Settings cover where tickets go."
+      sub="What each dish costs at a venue, for residents, guests and à la carte. Changes save as you type. A closed check keeps the price it was ordered at."
     >
       <div className={s.toolbar}>
         <Tabs variant="pills" size="md" value={venue.id} onChange={setVenueId} options={venues.map((v) => ({ id: v.id, label: v.name }))} aria-label="Venue" />
@@ -62,20 +76,18 @@ export function PricingPage() {
           emphasize
         />
         <SearchField value={q} onChange={setQ} placeholder="Filter recipes" className={s.search} />
+        <Toggle checked={changedOnly} onChange={setChangedOnly} label={`Only changed prices (${changedCount})`} />
       </div>
+      <p className={s.how}>
+        Each price starts as the menu&apos;s own price. Type a new one to change it for {venue.name} only; a changed price shows in blue with <b>Use menu price</b> under it.
+      </p>
 
       {orphans.length > 0 && (
         <BoCallout tone="warning">
-          {orphans.length} price {orphans.length === 1 ? 'row' : 'rows'} in {venue.name} {orphans.length === 1 ? 'belongs' : 'belong'} to recipes no longer on
-          its menu ({orphans.map((o) => byId.get(o.recipeId)?.name ?? o.recipeId).join(', ')}).{' '}
-          <button
-            className={s.inlineLink}
-            onClick={() => {
-              updateBo((st) => ({ prices: st.prices.filter((p) => !orphans.includes(p)) }));
-              toast('Orphaned prices archived', { tone: 'success' });
-            }}
-          >
-            Archive them
+          {venue.name} still has its own {orphans.length === 1 ? 'price' : 'prices'} for {orphans.length === 1 ? 'a dish' : 'dishes'} no longer on its menu (
+          {orphans.map((o) => byId.get(o.recipeId)?.name ?? o.recipeId).join(', ')}).{' '}
+          <button className={s.inlineLink} onClick={archiveOrphans}>
+            Clear {orphans.length === 1 ? 'it' : 'them'}
           </button>
         </BoCallout>
       )}
@@ -109,14 +121,13 @@ export function PricingPage() {
                     <div className={s.cat}>{r.cat}</div>
                   </td>
                   {FIELDS.map(([k, l]) => {
-                    const v = own?.[k] ?? base[k];
                     return (
                       <td key={k} className={s.num}>
-                        <MoneyInput
-                          value={v}
+                        <PriceCell
+                          value={own?.[k] ?? null}
+                          menuPrice={base[k]}
                           onChange={(x) => change(r, k, x)}
-                          aria-label={`${l} price for ${r.name}`}
-                          className={own?.[k] != null ? s.changed : undefined}
+                          label={`${l} price for ${r.name}`}
                         />
                       </td>
                     );
@@ -127,14 +138,17 @@ export function PricingPage() {
             {!rows.length && (
               <tr>
                 <td colSpan={4} className={s.empty}>
-                  {onMenu.length ? 'No recipes match. Try another word or category.' : `${venue.name}'s menu has nothing on it yet.`}
+                  {!onMenu.length
+                    ? `${venue.name}'s menu has nothing on it yet.`
+                    : changedOnly && !changedCount
+                      ? `No price has been changed at ${venue.name}. Every dish uses the menu price.`
+                      : 'No recipes match. Try another word or category.'}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </TableFrame>
-      <p className={s.foot}>Changes save as you type. A price change never alters a closed check: the check keeps the price it was ordered at.</p>
     </BoPage>
   );
 }

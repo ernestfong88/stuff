@@ -1,9 +1,10 @@
 import type { BoPageProps } from '../nav';
-import { BoPage, BoRow, BoSection, BoTable, type BoColumn } from '../kit';
+import { BoCallout, BoPage, BoRow, BoSection, BoTable, type BoColumn } from '../kit';
 import { setSetting, useSetting } from '../../../store/serviceConfig';
 import { Toggle } from '../../../ui';
 import { formatMetric, isScored, metricDefs, weekAverage, type MetricDef } from '../../../domain/metrics/shiftMetrics';
-import { Muted, NameAndNote, ResetButton, SettingNumber } from '../kit/SettingControls';
+import { Muted, NameAndNote, SettingNumber } from '../kit/SettingControls';
+import { ConfirmReset } from './ConfirmReset';
 
 /** Shift Metrics: how a shift is scored against the last seven. */
 export default function Page(_props: BoPageProps) {
@@ -58,8 +59,18 @@ export default function Page(_props: BoPageProps) {
     <BoPage
       title="Shift Metrics"
       sub="How a shift is scored against the last seven."
-      actions={<ResetButton sections={['met']} message="Shift metrics are back to the defaults" />}
+      actions={
+        <ConfirmReset
+          sections={['met']}
+          title="Put shift scoring back to the default?"
+          message="The margin, the metrics that count and any goals you typed go back to the standard."
+          done="Shift metrics are back to the defaults"
+        />
+      }
     >
+      <BoCallout tone="warning" title="Not used on the floor yet">
+        The manager tablet still scores a shift on its own step goals. These settings are saved here and take effect once Shift Review reads them.
+      </BoCallout>
       <BoSection title="Great shift" sub="A shift is great when enough scored metrics are ahead of the week average.">
         <BoRow label="Ahead means better than the week by" hint="Smaller numbers make it easier to be ahead, and to be behind.">
           <SettingNumber path="met.margin" label="Ahead by percent" unit="%" min={1} />

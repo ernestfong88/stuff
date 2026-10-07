@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { residents } from '../../../../data';
 import { Avatar, Button, SearchField, Tabs, cx } from '../../../../ui';
+import { navigate } from '../../../../shell/router';
 import { BoPage, BoStatRow, BoStatTile, BoTable, type BoColumn, type BoSort } from '../../kit';
 import type { BoPageProps } from '../../nav';
 import { dietRows, filterDietRows, tagCounts, tagKey, type DietRow, type DietSortKey, type Tag, type TagCategory } from './diets';
@@ -38,7 +39,7 @@ export default function AllergiesDietsPage(_props: BoPageProps) {
     setTag(null);
   };
   const toggleTag = (k: string) => setTag(tag === k ? null : k);
-  const filtered = query !== '' || cat !== 'all' || tag != null;
+  const filtered = query !== '' || cat !== 'all' || tag != null || includeNone;
   const tagName = tag ? counts.find((c) => c.key === tag)?.text : null;
 
   const columns: Array<BoColumn<DietRow>> = [
@@ -47,10 +48,10 @@ export default function AllergiesDietsPage(_props: BoPageProps) {
       header: 'Resident',
       sortable: true,
       render: (x) => (
-        <span className={s.person}>
+        <button className={s.person} onClick={() => navigate('backoffice', ['resProfiles', x.r.id])} title={`Open ${x.r.name}'s profile`}>
           <Avatar person={x.r} size={30} />
           <span className={s.name}>{x.r.name}</span>
-        </span>
+        </button>
       ),
     },
     { key: 'apt', header: 'Apt', sortable: true, width: 80, render: (x) => x.r.apt },
@@ -74,7 +75,10 @@ export default function AllergiesDietsPage(_props: BoPageProps) {
   ];
 
   return (
-    <BoPage title="Allergies & Diets" sub="Every resident with an allergy, diet or texture on file, tagged the way the kitchen ticket shows it.">
+    <BoPage
+      title="Allergies & Diets"
+      sub="Every resident with an allergy, diet or texture on file, tagged the way the kitchen ticket shows it. Tap a tag to see everyone with it, or a name to open the profile."
+    >
       <BoStatRow>
         <BoStatTile value={rows.filter((x) => x.tags.length).length} label="residents with something on file" active={cat === 'all'} onClick={() => pickCat('all')} />
         <BoStatTile value={per('allergy')} label="with an allergy" tone="danger" active={cat === 'allergy'} onClick={() => pickCat(cat === 'allergy' ? 'all' : 'allergy')} />
@@ -118,6 +122,7 @@ export default function AllergiesDietsPage(_props: BoPageProps) {
             onClick={() => {
               setQuery('');
               pickCat('all');
+              setIncludeNone(false);
             }}
           >
             Clear filters
