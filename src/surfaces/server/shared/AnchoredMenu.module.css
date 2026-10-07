@@ -1,0 +1,16 @@
+.anchor {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.panel {
+  position: fixed;
+  z-index: 450;
+  padding: 6px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow:
+    0 16px 36px -10px rgba(20, 35, 48, 0.35),
+    inset 0 0 0 1px rgba(20, 35, 48, 0.08);
+}

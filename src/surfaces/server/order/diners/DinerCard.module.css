@@ -1,0 +1,98 @@
+.card {
+  margin-bottom: 12px;
+  border-radius: var(--r-2xl);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.06);
+  overflow: hidden;
+}
+.selected {
+  box-shadow:
+    inset 0 0 0 2px var(--ocean),
+    0 4px 16px -6px rgba(20, 87, 133, 0.4);
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  cursor: pointer;
+}
+.face {
+  position: relative;
+  flex-shrink: 0;
+}
+.guestTag {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  padding: 1px 4px;
+  border-radius: 6px;
+  background: var(--clay);
+  color: #fff;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.who {
+  flex: 1;
+  min-width: 0;
+}
+.name {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+.apt {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ocean-700);
+  white-space: nowrap;
+}
+.kind {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--s400);
+}
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  flex-shrink: 0;
+  background: #e2e7ec;
+  color: var(--s400);
+}
+.addGuest {
+  background: var(--ocean-100);
+  color: var(--ocean-700);
+}
+.lines {
+  padding: 0 14px 10px;
+}
+.closeBar {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px;
+  border-top: 1px solid rgba(20, 35, 48, 0.06);
+  font-size: 13px;
+  font-weight: 800;
+}
+.closePlan {
+  background: var(--flora-100);
+  color: #3e5a2e;
+}
+.closeCharge {
+  background: #f6e7d6;
+  color: var(--clay-600);
+}

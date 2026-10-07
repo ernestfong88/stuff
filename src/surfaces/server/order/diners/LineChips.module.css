@@ -1,0 +1,152 @@
+.course,
+.drink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 7px;
+  border-radius: var(--r-sm);
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 900;
+}
+.courseEdit {
+  background: var(--coast);
+  color: #fff;
+}
+.courseSent {
+  background: #e8eef3;
+  color: var(--coast);
+}
+.courseOpen {
+  box-shadow: var(--focus);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 11px;
+  border-radius: var(--r-sm);
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--s700);
+}
+.option:hover:not(:disabled) {
+  background: var(--paper);
+}
+.option:disabled {
+  color: #b5bcc1;
+}
+.optionOn,
+.optionOn:hover:not(:disabled) {
+  background: var(--ocean-100);
+  color: var(--ocean-700);
+}
+.optionLabel {
+  flex: 1;
+}
+.divider {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--hair);
+}
+
+.drink {
+  font-size: 11px;
+}
+.drink:disabled {
+  cursor: default;
+}
+.drink_new {
+  background: #e4ecf3;
+  color: var(--coast);
+}
+.drink_pour {
+  background: #fbf1de;
+  color: #94621a;
+}
+.drink_bar {
+  background: #eee9f4;
+  color: #6a4f84;
+}
+.drink_up {
+  background: #e1f0e7;
+  color: #2e6b4f;
+}
+.drink_cleared {
+  background: var(--limestone);
+  color: var(--s400);
+}
+.drinkGo {
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: var(--r-pill);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sent,
+.served {
+  background: #e2e7ec;
+  color: var(--s500);
+}
+.cooking {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ready {
+  background: var(--flora-100);
+  color: var(--flora);
+}
+.held {
+  background: var(--clay-100);
+  color: var(--clay-600);
+}
+.newTag {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+
+.tag {
+  padding: 2px 7px;
+  border-radius: var(--r-pill);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tagComped {
+  background: #f6dfdb;
+  color: var(--danger);
+}
+.tagRush {
+  background: var(--danger);
+  color: #fff;
+}
+.tagCancelled {
+  background: var(--clay-600);
+  color: #fff;
+}
+.tagToGo {
+  background: var(--gold);
+  color: var(--night);
+}
