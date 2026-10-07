@@ -191,6 +191,19 @@ The final order is:
 - *Copy as a list* copies the split, section by section, to paste into an email or a ticket.
 - The split is saved in the browser and kept through *Reset demo data*. To make one split the default on every device, set `phase: 2` on those pages in `src/surfaces/backoffice/nav.ts`.
 
+**Venue Settings, easier to use** (Venues → Venue Settings)
+- Before, this was one long page of about 2,500px: a serving-now table, the payment terminals, then a stacked card per venue with its printers and every kitchen screen.
+- Now there is a list of venues on the left and the chosen venue on the right, with four tabs: **Menu**, **Printers & terminals**, **Kitchen screens** and **Name & kitchen**.
+- A **needs attention** list at the top collects every problem across venues: no menu, no start date, a printer that can't be reached, an offline card terminal. Each has a **Fix** link that opens the right venue on the right tab. The list and the tabs show a count of the problems in each venue.
+- **Menu** tab: what the venue serves today and its week in the cycle, *Change menu*, and *Up next*, where you schedule the next menu (by default the coming Monday) or cancel one.
+- **New venue** asks for a name and a kitchen, then opens the new venue's Menu tab.
+- **Name & kitchen**:
+  - The venue's name is now a labelled field. Before, it was an unlabelled heading you could edit by accident.
+  - You can now choose which kitchen a venue cooks in. Before, you couldn't, so a new venue never had a kitchen.
+  - Retiring a venue now asks you to confirm first. Retired venues are listed under *Retired venues*, with **Bring back**.
+- Card terminals are shown with the venue they belong to.
+- Each venue and tab has its own address, for example `#/backoffice/venues/v3/devices`.
+
 ### Wiring fixed (settings that did nothing in the mockup)
 - **Guest meal credit**: the toggle was saved in Back Office, but the floor never read it. The checkout now reads it.
 - **Apartment charges**: charges put on an apartment from the floor never reached *Charge Approval*. They now do, and Charge Approval looks up the resident's name.

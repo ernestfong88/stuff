@@ -68,7 +68,7 @@ Surfaces don't reach into each other's internals. They share through
   Manager and Host open it.
 - **`server/features`** is the contract for the server's panels (menu,
   residents, notices ...). Manager reuses it.
-- **Feature admin panels** (venue cards, routing editor, floor plan editor,
+- **Feature admin panels** (venue printers and terminals, KDS screens, routing editor, floor plan editor,
   side work assignment) live beside the feature they configure. The back
   office page imports them, so one component knows both the floor behaviour
   and its settings.

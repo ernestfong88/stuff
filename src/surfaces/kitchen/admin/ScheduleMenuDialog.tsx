@@ -8,18 +8,37 @@ import s from './ScheduleMenuDialog.module.css';
 
 const isoDay = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const fromIso = (v: string) => new Date(v + 'T00:00:00').getTime();
+const nextMonday = (d: Date) => {
+  const n = new Date(d);
+  n.setDate(n.getDate() + (((8 - n.getDay()) % 7) || 7));
+  return n;
+};
 
 /**
  * Start a menu on a venue, now or from a later day. The menu and its start
  * date save together: changing one without the other silently shifts what
  * gets served.
  */
-export function ScheduleMenuDialog({ settings, venueId, onClose }: { settings: VenueAdminView; venueId: string; onClose: () => void }) {
+export function ScheduleMenuDialog({
+  settings,
+  venueId,
+  onClose,
+  fixedVenue,
+  later,
+}: {
+  settings: VenueAdminView;
+  venueId: string;
+  onClose: () => void;
+  /** Opened from one venue: don't offer to switch venue. */
+  fixedVenue?: boolean;
+  /** Line up the next menu: no menu picked yet, starting next Monday. */
+  later?: boolean;
+}) {
   const active = settings.venues.filter((v) => v.active);
   const [vid, setVid] = useState(venueId);
   const venue = settings.venues.find((v) => v.id === vid) ?? active[0];
-  const [menuId, setMenuId] = useState(venue?.menuId ?? '');
-  const [date, setDate] = useState(isoDay(venue?.menuStartDt ? new Date(venue.menuStartDt) : today()));
+  const [menuId, setMenuId] = useState(later ? '' : (venue?.menuId ?? ''));
+  const [date, setDate] = useState(isoDay(later ? nextMonday(today()) : venue?.menuStartDt ? new Date(venue.menuStartDt) : today()));
   const menu = menuById(settings, menuId);
   const start = fromIso(date);
   const startsLater = start > today().getTime();
@@ -42,7 +61,7 @@ export function ScheduleMenuDialog({ settings, venueId, onClose }: { settings: V
     <Modal
       open
       onClose={onClose}
-      title={`Schedule a menu · ${venue?.name ?? ''}`}
+      title={`${later ? 'Schedule the next menu' : 'Choose a menu'} · ${venue?.name ?? ''}`}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
@@ -55,16 +74,18 @@ export function ScheduleMenuDialog({ settings, venueId, onClose }: { settings: V
       }
     >
       <div className={s.form}>
-        <label className={s.field} htmlFor={venueField}>
-          <span className={s.label}>Venue</span>
-          <select id={venueField} className={s.select} value={vid} onChange={(e) => setVid(e.target.value)}>
-            {active.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        {!fixedVenue && (
+          <label className={s.field} htmlFor={venueField}>
+            <span className={s.label}>Venue</span>
+            <select id={venueField} className={s.select} value={vid} onChange={(e) => setVid(e.target.value)}>
+              {active.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <label className={s.field} htmlFor={menuField}>
           <span className={s.label}>Menu</span>
           <select id={menuField} className={s.select} value={menuId} onChange={(e) => setMenuId(e.target.value)}>
@@ -80,8 +101,8 @@ export function ScheduleMenuDialog({ settings, venueId, onClose }: { settings: V
         </label>
         <TextField
           type="date"
-          label="Start date · required"
-          hint="Day 1 starts here. Menu and start date save together; changing one without the other silently shifts what gets served."
+          label="Start date"
+          hint={startsLater ? 'Day 1 of the menu. The venue switches to it on this day by itself.' : 'Day 1 of the menu. Today or earlier starts it now; a later day lines it up next.'}
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
