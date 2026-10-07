@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { AssocMeal, CatalogItem, Order, OrderLine } from '../../../../../domain/types';
-import { todayMix } from '../model/todayMix';
+import { categoryDishes, categoryTotals, todayMix, type MixDish } from '../model/todayMix';
 
 const TODAY = new Date(2026, 9, 7).getTime();
 const item = (id: string, name: string, category = 'Entrées', special = false) => ({ id, name, category, special }) as CatalogItem;
@@ -22,12 +22,11 @@ describe('todayMix', () => {
   it('counts plates served today with their share, best seller first, one row per dish', () => {
     const m = todayMix([check([line('b'), line('a'), line('a2'), line('c')])], [], { ...opts, earlier: { a: 4 } });
     expect(m.tot).toBe(8);
-    expect(m.top.map((r) => [r.name, r.n, r.pct, r.special])).toEqual([
-      ['Pot Roast', 6, 75, true],
-      ['Reuben', 1, 13, false],
-      ['Soup', 1, 13, false],
+    expect(m.dishes.map((r) => [r.name, r.category, r.n, r.special])).toEqual([
+      ['Pot Roast', 'Entrées', 6, true],
+      ['Reuben', 'Entrées', 1, false],
+      ['Soup', 'Starters', 1, false],
     ]);
-    expect(m.rest).toBeNull();
   });
   it('leaves out drinks, sides, unsent, cancelled lines and older checks', () => {
     const m = todayMix(
@@ -39,22 +38,15 @@ describe('todayMix', () => {
       opts,
     );
     expect(m.tot).toBe(0);
-    expect(m.top).toEqual([]);
+    expect(m.dishes).toEqual([]);
   });
-  it('adds associate meals for today by name', () => {
+  it('adds associate meals for today by name, as entrées when they are not on the menu', () => {
     const a = (item: string, date = '2026-10-07', status = 'Ready') => ({ item, date, status }) as AssocMeal;
-    const m = todayMix([], [a('reuben'), a('Reuben', '2026-10-06'), a('Reuben', '2026-10-07', 'Cancelled'), a('Soup & Salad Combo')], opts);
-    expect(m.top.map((r) => [r.name, r.n])).toEqual([
-      ['Reuben', 1],
-      ['Soup & Salad Combo', 1],
+    const m = todayMix([], [a('soup'), a('Reuben', '2026-10-06'), a('Reuben', '2026-10-07', 'Cancelled'), a('Soup & Salad Combo')], opts);
+    expect(m.dishes.map((r) => [r.name, r.category, r.n])).toEqual([
+      ['Soup', 'Starters', 1],
+      ['Soup & Salad Combo', 'Entrées', 1],
     ]);
-  });
-  it('rolls everything past the limit into one row, but never a single dish', () => {
-    const lines = ['a', 'a', 'a', 'b', 'b', 'c', 'd', 'e'].map((x) => line(x));
-    const m = todayMix([check(lines)], [], { ...opts, limit: 2 });
-    expect(m.top.map((r) => r.id)).toEqual(['a', 'b']);
-    expect(m.rest).toEqual({ n: 3, pct: 38, dishes: 3 });
-    expect(todayMix([check(lines)], [], { ...opts, limit: 4 }).rest).toBeNull();
   });
   it('filters to one meal and counts plates per meal from every source', () => {
     const cat = [
@@ -76,14 +68,14 @@ describe('todayMix', () => {
     expect(all.byMeal).toEqual({ Breakfast: 7, Lunch: 5, Dinner: 4 });
     const lunch = todayMix(checks, assoc, { ...o, meal: 'Lunch' });
     expect(lunch.tot).toBe(5);
-    expect(lunch.top.map((r) => [r.name, r.n, r.pct])).toEqual([
-      ['Reuben', 3, 60],
-      ['Cobb', 1, 20],
-      ['Soup', 1, 20],
+    expect(lunch.dishes.map((r) => [r.name, r.n])).toEqual([
+      ['Reuben', 3],
+      ['Cobb', 1],
+      ['Soup', 1],
     ]);
     expect(lunch.byMeal).toEqual(all.byMeal);
     // Untagged checks go by when they were opened; NOC associate meals count with dinner.
-    expect(todayMix(checks, assoc, { ...o, meal: 'Dinner' }).top.map((r) => [r.name, r.n])).toEqual([
+    expect(todayMix(checks, assoc, { ...o, meal: 'Dinner' }).dishes.map((r) => [r.name, r.n])).toEqual([
       ['Peach Chicken', 2],
       ['Cobb', 1],
       ['Pie', 1],
@@ -91,6 +83,60 @@ describe('todayMix', () => {
   });
   it('is empty for a meal with nothing served yet', () => {
     const m = todayMix([check([line('b')])], [], { ...opts, meal: 'Dinner' });
-    expect(m).toEqual({ tot: 0, top: [], rest: null, byMeal: { Breakfast: 1, Lunch: 0, Dinner: 0 } });
+    expect(m).toEqual({ tot: 0, dishes: [], byMeal: { Breakfast: 1, Lunch: 0, Dinner: 0 } });
+  });
+});
+
+const dish = (name: string, category: string, n: number, special = false): MixDish => ({ id: name, name, category, n, special });
+
+describe('categoryTotals', () => {
+  it('sums plates per category in course order with their share, empty ones left out', () => {
+    const t = categoryTotals([
+      dish('Cobb', 'Entrées', 5),
+      dish('Pie', 'Desserts', 2),
+      dish('Reuben', 'Entrées', 3),
+      dish('Mystery', 'Specials Board', 1),
+      dish('Soup', 'Starters', 1),
+      dish('Tart', 'Desserts', 0),
+    ]);
+    expect(t).toEqual([
+      { category: 'Starters', n: 1, pct: 8, dishes: 1 },
+      { category: 'Entrées', n: 8, pct: 67, dishes: 2 },
+      { category: 'Desserts', n: 2, pct: 17, dishes: 2 },
+      { category: 'Specials Board', n: 1, pct: 8, dishes: 1 },
+    ]);
+  });
+  it('is empty when nothing was served', () => {
+    expect(categoryTotals([])).toEqual([]);
+  });
+});
+
+describe('categoryDishes', () => {
+  const dishes = [
+    dish('Pot Roast', 'Entrées', 6, true),
+    dish('Reuben', 'Entrées', 4),
+    dish('Soup', 'Starters', 3),
+    dish('Cobb', 'Entrées', 2),
+    dish('Club', 'Entrées', 1),
+    dish('Melt', 'Entrées', 1),
+    dish('Wrap', 'Entrées', 1),
+  ];
+  it("keeps one category's best sellers with their share of it and rolls up the rest", () => {
+    const m = categoryDishes(dishes, 'Entrées', 2);
+    expect(m.tot).toBe(15);
+    expect(m.top.map((r) => [r.name, r.n, r.pct, r.special])).toEqual([
+      ['Pot Roast', 6, 40, true],
+      ['Reuben', 4, 27, false],
+    ]);
+    expect(m.rest).toEqual({ n: 5, pct: 33, dishes: 4 });
+  });
+  it('never rolls a single dish into the rest', () => {
+    const m = categoryDishes(dishes, 'Entrées', 5);
+    expect(m.top.map((r) => r.name)).toEqual(['Pot Roast', 'Reuben', 'Cobb', 'Club', 'Melt', 'Wrap']);
+    expect(m.rest).toBeNull();
+  });
+  it('covers every category when none is named, and is empty for one with nothing served', () => {
+    expect(categoryDishes(dishes, undefined, 1).top.map((r) => [r.name, r.pct])).toEqual([['Pot Roast', 33]]);
+    expect(categoryDishes(dishes, 'Desserts')).toEqual({ tot: 0, top: [], rest: null });
   });
 });
