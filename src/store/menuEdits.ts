@@ -152,6 +152,8 @@ export interface VenueSchedule {
   menuId: string | null;
   /** Day 1 of the cycle at this venue (ms). */
   menuStartDt: number | null;
+  /** The à la carte menu it serves. */
+  alcMenuId?: string | null;
   active: boolean;
   upcoming?: Array<{ menuId: string; startDt: number }>;
 }

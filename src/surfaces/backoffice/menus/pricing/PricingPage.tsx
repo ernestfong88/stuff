@@ -21,13 +21,13 @@ const FIELDS: Array<[PriceField, string]> = [
 /** Pricing: resident, guest and à la carte prices for each recipe at a venue. */
 export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) {
   const bo = useBo();
-  const venues = useMemo(() => venuesAt(bo.venues, now()).filter((v) => v.active && v.menuId), [bo.venues]);
+  const venues = useMemo(() => venuesAt(bo.venues, now()).filter((v) => v.active && (v.menuId || v.alcMenuId)), [bo.venues]);
   const [venueId, setVenueId] = useState(venues[0]?.id ?? '');
   const [cat, setCat] = useState('');
   const [q, setQ] = useState('');
   const [changedOnly, setChangedOnly] = useState(false);
   const venue = fixedVenue ? venues.find((v) => v.id === fixedVenue) : (venues.find((v) => v.id === venueId) ?? venues[0]);
-  const onMenu = useMemo(() => recipesOnMenu(bo, venue?.menuId ?? null), [bo, venue]);
+  const onMenu = useMemo(() => recipesOnMenu(bo, venue?.menuId ?? venue?.alcMenuId ?? null), [bo, venue]);
   const byId = useMemo(() => new Map(bo.recipes.map((r) => [r.id, r])), [bo.recipes]);
   const query = q.trim().toLowerCase();
   const rows = onMenu

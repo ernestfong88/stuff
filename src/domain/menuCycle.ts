@@ -86,7 +86,7 @@ export type MenuState = 'draft' | 'scheduled' | 'active' | 'archived';
 export function menuState(m: BoMenu | undefined, venues: VenueSchedule[]): MenuState {
   if (!m) return 'draft';
   if (m.status === 'archived') return 'archived';
-  if (venues.some((v) => v.menuId === m.id)) return 'active';
+  if (venues.some((v) => v.menuId === m.id || v.alcMenuId === m.id)) return 'active';
   if (venues.some((v) => (v.upcoming ?? []).some((u) => u.menuId === m.id))) return 'scheduled';
   return m.status === 'active' ? 'archived' : 'draft';
 }

@@ -9,8 +9,10 @@ export interface VenueMenus {
   id: string;
   name: string;
   active: boolean;
-  /** The menu served now, or null. */
+  /** The cycle menu served now, or null. */
   menuId: string | null;
+  /** The à la carte menu served, or null. */
+  alcMenuId?: string | null;
   /** Menus scheduled to take over, with their start (ms). */
   upcoming: Array<{ menuId: string; startDt: number }>;
 }
@@ -121,7 +123,7 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
       // Venue Settings schedules menus; open the venue when there is just one.
       goto: { page: 'venues', label: 'See the schedule', path: soon.length === 1 ? [soon[0].v.id, 'menu'] : undefined },
     });
-  const bare = x.venues.filter((v) => v.active && !v.menuId);
+  const bare = x.venues.filter((v) => v.active && !v.menuId && !v.alcMenuId);
   if (bare.length)
     items.push({
       kind: 'noMenu',

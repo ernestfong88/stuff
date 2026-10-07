@@ -223,6 +223,11 @@ The final order is:
 ### Less text in Back Office; Dining Service is now POS Settings
 - **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
 - **Dining Service is now POS Settings** in the Back Office menu.
+- **Venue menus are two choices.** A venue's Menu tab is now *Menu cycle*, with a *Week 1 started* date, and *À la carte menu*. Each is a dropdown with a "None" option, and the "Up next" scheduling is gone. The Bistro's à la carte menu moved to its à la carte choice. A venue needs at least one of the two.
+- **Default release phases.** Out of the box, before anyone changes Release Phases:
+  - **Phase 1:** Server, Manager, PU & Delivery and Back Office screens, and every Back Office page not listed below.
+  - **Phase 2:** Host, Bar, Cook, Expo and Associate Phone screens, and KDS Settings.
+  - **Phase 3:** Production Prep, Resident Kiosk and Specials Display screens, plus Menu Export, Production, Prep Checklist, Side Work Tasks, Assign Side Work and Kiosk Settings.
 - **Associate special of the week.** On Associate Meals, a *Special of the week* picker sets one dish for the chosen week. It's on the associate menu every day of that week, after the chef's special, on the server tablet, the Associate Phone and the manager's associate order form.
 - **Associate soup is always the soup of the day.** The associate soup is no longer picked by hand. It follows the dining room's soup of the day for that meal, and the Soup & Salad Combo uses it too. With no soup that day, both are left off. Associate Meals shows "Soup: always the soup of the day (today: …)".
 - **Status icons on the order screen.** Each line shows its state as a small coloured icon instead of a word: a blue dot for new, a send arrow for sent, a red chef's hat for cooking, a green tick for ready and a grey tick for served. Held lines show a pause icon and the minutes held. Drinks show a glass that changes colour, and the ones to fetch are outlined buttons. Each icon still has its name as a tooltip and for screen readers.

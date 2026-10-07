@@ -30,9 +30,12 @@ export interface Venue {
   name: string;
   /** Kitchen the venue cooks in (a key of rooms), or null when it has none. */
   room: string | null;
+  /** The cycle menu it serves (older saved venues may hold their à la carte menu here; see venueMenus). */
   menuId: string | null;
   /** Day 1 of the menu cycle (ms). */
   menuStartDt: number | null;
+  /** The à la carte menu it serves alongside (or instead of) the cycle. */
+  alcMenuId?: string | null;
   /** Retired venues are kept (layouts, prices and history) but hidden. */
   active: boolean;
   upcoming: UpcomingMenu[];
@@ -175,26 +178,48 @@ export function addVenue(venue: Venue): void {
   update((s) => ({ ...s, venues: [...s.venues, venue] }));
 }
 
-/** Start a menu on a venue now, or line it up to start on a later day. */
-export function scheduleMenu(venueId: string, menuId: string, startDt: number, startsLater: boolean): void {
+const isAlc = (m: MenuSummary | undefined) => !!m && (m.kind === 'alc' || m.cycleLen === 0);
+
+/**
+ * A venue's two menus: the cycle and the à la carte. Older saved venues kept
+ * an à la carte menu in menuId; it reads as the à la carte here.
+ */
+export function venueMenus(v: Pick<Venue, 'menuId' | 'alcMenuId'>, menus: MenuSummary[]): { cycle?: MenuSummary; alc?: MenuSummary } {
+  const first = menus.find((m) => m.id === v.menuId);
+  const alc = menus.find((m) => m.id === v.alcMenuId);
+  return isAlc(first) ? { alc: alc ?? first } : { cycle: first, alc };
+}
+
+/** Monday of this week, local time: where a newly chosen cycle starts. */
+function thisMonday(at: number): number {
+  const d = new Date(at);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d.getTime();
+}
+
+/** Choose a venue's cycle menu (null for none). A different cycle starts its week 1 this Monday; the start can be moved after. */
+export function setVenueCycle(venueId: string, menuId: string | null, at: number, menus: MenuSummary[]): void {
   update((s) => ({
     ...s,
     venues: s.venues.map((v) => {
       if (v.id !== venueId) return v;
-      if (!startsLater) return { ...v, menuId, menuStartDt: startDt };
-      const day = new Date(startDt).toDateString();
-      return {
-        ...v,
-        upcoming: [...v.upcoming.filter((u) => new Date(u.startDt).toDateString() !== day), { menuId, startDt }],
-      };
+      const { cycle, alc } = venueMenus(v, menus);
+      const same = cycle?.id === menuId;
+      return { ...v, menuId, alcMenuId: alc?.id ?? null, menuStartDt: !menuId ? null : same ? v.menuStartDt : thisMonday(at) };
     }),
   }));
 }
 
-export function removeUpcoming(venueId: string, startDt: number): void {
+/** Choose a venue's à la carte menu (null for none). */
+export function setVenueAlc(venueId: string, menuId: string | null, menus: MenuSummary[]): void {
   update((s) => ({
     ...s,
-    venues: s.venues.map((v) => (v.id === venueId ? { ...v, upcoming: v.upcoming.filter((u) => u.startDt !== startDt) } : v)),
+    venues: s.venues.map((v) => {
+      if (v.id !== venueId) return v;
+      const { cycle } = venueMenus(v, menus);
+      return { ...v, menuId: cycle?.id ?? null, menuStartDt: cycle ? v.menuStartDt : null, alcMenuId: menuId };
+    }),
   }));
 }
 

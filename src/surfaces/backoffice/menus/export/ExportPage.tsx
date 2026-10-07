@@ -28,7 +28,7 @@ export function ExportPage() {
   const bo = useBo();
   const winGrid = useSetting<unknown>('win.grid');
   const [at] = useState(now);
-  const venues = useMemo(() => venuesAt(bo.venues, at).filter((v) => v.active && v.menuId), [bo.venues, at]);
+  const venues = useMemo(() => venuesAt(bo.venues, at).filter((v) => v.active && (v.menuId || v.alcMenuId)), [bo.venues, at]);
   const [venueId, setVenueId] = useState(venues[0]?.id ?? '');
   const [kind, setKind] = useState<PrintKind>('daily');
   const [template, setTemplate] = useState<TemplateId>('classic');

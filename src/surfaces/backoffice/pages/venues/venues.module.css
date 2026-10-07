@@ -283,3 +283,12 @@
 .retireRow {
   padding-bottom: 16px;
 }
+.dateInput {
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--hair-2);
+  background: var(--surface, #fff);
+  font: inherit;
+  font-size: 13.5px;
+}

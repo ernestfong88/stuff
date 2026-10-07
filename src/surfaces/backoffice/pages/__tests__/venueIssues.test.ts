@@ -23,10 +23,12 @@ const base: VenueAdminView = {
 };
 
 describe('venue issues', () => {
-  it('flags a venue with no menu, or a cycle menu with no start date, on the Menu tab', () => {
+  it('flags a venue with no menu, or a cycle menu with no week 1 date, on the Menu tab', () => {
     expect(venueIssues(base, venue({ id: 'x', menuId: null }))).toEqual([{ venueId: 'x', tab: 'menu', tone: 'danger', text: 'No menu, so it serves nothing' }]);
-    expect(venueIssues(base, venue({ id: 'x', menuStartDt: null }))[0].text).toMatch(/no start date/);
+    expect(venueIssues(base, venue({ id: 'x', menuStartDt: null }))[0].text).toMatch(/no week 1 date/);
     expect(venueIssues(base, venue({ id: 'x', menuId: 'm2', menuStartDt: null }))).toEqual([]);
+    // Only an à la carte menu is enough.
+    expect(venueIssues(base, venue({ id: 'x', menuId: null, alcMenuId: 'm2' }))).toEqual([]);
   });
 
   it('flags printers that cannot be reached and terminals that are offline', () => {

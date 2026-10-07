@@ -5,7 +5,7 @@
  * Venue Settings that fixes it.
  */
 import { formatTime } from '../../../../lib/format';
-import { menuById, venuePrinters, type Venue, type VenueAdminView } from '../../../../store/venueSettings';
+import { venueMenus, venuePrinters, type Venue, type VenueAdminView } from '../../../../store/venueSettings';
 
 export type VenueTab = 'menu' | 'prices' | 'floor' | 'kitchen' | 'devices' | 'details';
 
@@ -19,9 +19,9 @@ export interface VenueIssue {
 export function venueIssues(settings: VenueAdminView, venue: Venue): VenueIssue[] {
   const out: VenueIssue[] = [];
   const add = (tab: VenueTab, tone: VenueIssue['tone'], text: string) => out.push({ venueId: venue.id, tab, tone, text });
-  const menu = menuById(settings, venue.menuId);
-  if (!menu) add('menu', 'danger', 'No menu, so it serves nothing');
-  else if (menu.cycleLen > 0 && !venue.menuStartDt) add('menu', 'danger', `${menu.name} has no start date, so the cycle day can't be worked out`);
+  const { cycle, alc } = venueMenus(venue, settings.menus);
+  if (!cycle && !alc) add('menu', 'danger', 'No menu, so it serves nothing');
+  else if (cycle && !venue.menuStartDt) add('menu', 'danger', `${cycle.name} has no week 1 date, so the cycle day can't be worked out`);
   for (const { printer } of venuePrinters(settings, venue.id)) {
     if (!printer.reachable) add('devices', 'warning', `${printer.name} printer can't be reached at ${printer.ip}`);
   }

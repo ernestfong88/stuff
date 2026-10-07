@@ -11,14 +11,14 @@ import { AlertTriangle, ChevronRight, Plus, RotateCcw } from 'lucide-react';
 import { navigate, useRoute } from '../../../shell/router';
 import { today } from '../../../lib/clock';
 import { Button, Tabs, cx, toast } from '../../../ui';
-import { cycleWeekLabel, isStaticMenu } from '../../kitchen/admin/menuCycle';
+import { cycleWeekLabel } from '../../kitchen/admin/menuCycle';
 import { VenueDevices } from '../../kitchen/admin/VenueDevices';
 import { resetRouting, routingEdited, RoutingEditor } from '../../kitchen/admin/RoutingEditor';
 import { FloorPlanEditor } from '../../manager/floor/FloorPlanEditor';
 import { useConfig } from '../../../store/config';
 import { PricingPage } from '../menus/pricing/PricingPage';
 import { ConfirmReset } from './ConfirmReset';
-import { menuById, patchVenue, useVenueSettings, venueSettingsStore, type Venue, type VenueAdminView } from '../../../store/venueSettings';
+import { patchVenue, useVenueSettings, venueMenus, venueSettingsStore, type Venue, type VenueAdminView } from '../../../store/venueSettings';
 import { cycleLenOf, refreshLiveMenu, useBo } from '../menus/data';
 import { BoEmbedded, BoPage, BoSection } from '../kit';
 import type { BoPageProps } from '../nav';
@@ -32,11 +32,11 @@ const TABS: VenueTab[] = ['menu', 'prices', 'floor', 'kitchen', 'devices', 'deta
 
 /** One line under a venue's name in the list: its menu and where it is in the cycle. */
 function menuLine(settings: VenueAdminView, v: Venue): string {
-  const m = menuById(settings, v.menuId);
-  if (!m) return 'No menu';
-  if (isStaticMenu(m)) return `${m.name} · every day`;
-  const week = cycleWeekLabel(v.menuStartDt, m, today().getTime());
-  return week ? `${m.name} · ${week.toLowerCase()}` : `${m.name} · no start date`;
+  const { cycle, alc } = venueMenus(v, settings.menus);
+  if (!cycle && !alc) return 'No menu';
+  const week = cycle && cycleWeekLabel(v.menuStartDt, cycle, today().getTime());
+  const parts = [cycle && (week ? `${cycle.name} · ${week.toLowerCase()}` : `${cycle.name} · no week 1 date`), alc?.name];
+  return parts.filter(Boolean).join(' + ');
 }
 
 export default function Page({ goto }: BoPageProps) {

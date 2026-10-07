@@ -331,7 +331,7 @@ export function useSideWork(): SideWorkState {
 }
 
 /** The Back Office pages that set up side work, with their standard phase (nav.ts). */
-export const SIDE_WORK_PAGES = { swLib: 1, swAssign: 1 } as const;
+export const SIDE_WORK_PAGES = { swLib: 3, swAssign: 3 } as const;
 
 /** Side work is in use while its pages' phase is switched on; otherwise servers never see it. */
 export const sideWorkOn = () => featureOn(SIDE_WORK_PAGES);

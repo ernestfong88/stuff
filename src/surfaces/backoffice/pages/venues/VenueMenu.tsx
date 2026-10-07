@@ -1,100 +1,72 @@
-import { CalendarClock, CalendarDays, X } from 'lucide-react';
-import { useState } from 'react';
 import { today } from '../../../../lib/clock';
-import { Button, toast } from '../../../../ui';
-import { menuById, removeUpcoming, type Venue, type VenueAdminView } from '../../../../store/venueSettings';
-import { cycleWeekLabel, isStaticMenu, menuQuarter } from '../../../kitchen/admin/menuCycle';
-import { QuarterBadge } from '../../../kitchen/admin/QuarterBadge';
-import { ScheduleMenuDialog } from '../../../kitchen/admin/ScheduleMenuDialog';
-import { BoSection } from '../../kit';
+import { patchVenue, setVenueAlc, setVenueCycle, venueMenus, type MenuSummary, type Venue, type VenueAdminView } from '../../../../store/venueSettings';
+import { toast } from '../../../../ui';
+import { cycleWeekLabel } from '../../../kitchen/admin/menuCycle';
+import { BoRow, BoSection } from '../../kit';
+import { SettingSelect } from '../../kit/SettingControls';
 import s from './venues.module.css';
 
-const longDate = (ts: number) => new Date(ts).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+const NONE = '__none';
+const isoDay = (ts: number) => {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 
-/** What a venue serves today, and the menus lined up after it. */
+/** The two menus a venue serves: its menu cycle and its à la carte menu. */
 export function VenueMenu({ settings, venue, goto }: { settings: VenueAdminView; venue: Venue; goto: (pageId: string) => void }) {
-  const [dialog, setDialog] = useState<'now' | 'later' | null>(null);
-  const menu = menuById(settings, venue.menuId);
-  const week = cycleWeekLabel(venue.menuStartDt, menu, today().getTime());
-  const upcoming = [...venue.upcoming].sort((a, b) => a.startDt - b.startDt);
+  const { cycle, alc } = venueMenus(venue, settings.menus);
+  // Archived menus aren't offered, unless the venue still serves one.
+  const offer = (kind: 'cycle' | 'alc', current?: MenuSummary) =>
+    settings.menus.filter((m) => (kind === 'alc' ? m.kind === 'alc' || m.cycleLen === 0 : m.kind !== 'alc' && m.cycleLen > 0) && (m.status !== 'archived' || m.id === current?.id));
+  const options = (list: MenuSummary[], none: string) => [{ id: NONE, label: none }, ...list.map((m) => ({ id: m.id, label: `${m.name} · ${m.quarter}` }))];
+  const week = cycle && cycleWeekLabel(venue.menuStartDt, cycle, today().getTime());
 
   return (
-    <>
-      <BoSection
-        title="Serving now"
-        actions={
-          <Button size="sm" variant={menu ? 'secondary' : 'primary'} icon={<CalendarDays size={14} />} onClick={() => setDialog('now')}>
-            {menu ? 'Change menu' : 'Choose a menu'}
-          </Button>
-        }
-      >
-        {menu ? (
-          <div className={s.now}>
-            <div className={s.nowName}>
-              {menu.name}
-              <QuarterBadge quarter={menuQuarter(menu)} />
-            </div>
-            <div className={s.nowMeta}>
-              {isStaticMenu(menu)
-                ? 'À la carte: the same menu every day'
-                : week
-                  ? `${week} today · started ${longDate(venue.menuStartDt!)}`
-                  : 'No start date yet. Change menu and pick the day it started.'}
-            </div>
-          </div>
-        ) : (
-          <p className={s.missing}>No menu yet, so nothing can be ordered here. Choose the menu this venue serves.</p>
-        )}
-      </BoSection>
-
-      <BoSection
-        title="Up next"
-        sub="A menu lined up here takes over by itself on its start date."
-        actions={
-          <Button size="sm" icon={<CalendarClock size={14} />} onClick={() => setDialog('later')}>
-            Schedule the next menu
-          </Button>
-        }
-      >
-        {upcoming.length ? (
-          <ul className={s.upList}>
-            {upcoming.map((u) => {
-              const m = menuById(settings, u.menuId);
-              return (
-                <li key={u.startDt} className={s.upRow}>
-                  <span className={s.upDate}>{longDate(u.startDt)}</span>
-                  <span className={s.upName}>{m?.name ?? 'A menu that no longer exists'}</span>
-                  {m && <QuarterBadge quarter={menuQuarter(m)} />}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    iconOnly
-                    icon={<X size={15} />}
-                    aria-label={`Cancel ${m?.name ?? 'menu'} on ${venue.name}`}
-                    title="Cancel this change"
-                    className={s.upRemove}
-                    onClick={() => {
-                      removeUpcoming(venue.id, u.startDt);
-                      toast(`${m?.name ?? 'The menu'} won't start on ${venue.name}`);
-                    }}
-                  />
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className={s.quiet}>Nothing lined up. {menu ? `${venue.name} keeps serving ${menu.name}.` : ''}</p>
-        )}
-        <p className={s.foot}>
-          Menus are built in{' '}
-          <button className={s.link} onClick={() => goto('menus')}>
-            Menu Cycle &amp; À la Carte
-          </button>
-          .
-        </p>
-      </BoSection>
-
-      {dialog && <ScheduleMenuDialog settings={settings} venueId={venue.id} fixedVenue later={dialog === 'later'} onClose={() => setDialog(null)} />}
-    </>
+    <BoSection title="Menus">
+      <BoRow label="Menu cycle" hint={cycle ? (week ? `${week} today` : 'Set the day week 1 started') : 'No cycle: only the à la carte menu is served'}>
+        <SettingSelect
+          label={`${venue.name} menu cycle`}
+          value={cycle?.id ?? NONE}
+          options={options(offer('cycle', cycle), 'No cycle menu')}
+          onChange={(id) => {
+            setVenueCycle(venue.id, id === NONE ? null : id, today().getTime(), settings.menus);
+            toast(id === NONE ? `${venue.name} has no menu cycle now` : `${venue.name} serves ${settings.menus.find((m) => m.id === id)?.name}`, { tone: 'success' });
+          }}
+        />
+      </BoRow>
+      {cycle && (
+        <BoRow label="Week 1 started" hint="The cycle day each date falls on counts from here.">
+          <input
+            type="date"
+            className={s.dateInput}
+            aria-label={`${venue.name} week 1 started`}
+            value={venue.menuStartDt ? isoDay(venue.menuStartDt) : ''}
+            onChange={(e) => {
+              const [y, mo, d] = e.target.value.split('-').map(Number);
+              if (y) patchVenue(venue.id, { menuStartDt: new Date(y, mo - 1, d).getTime() });
+            }}
+          />
+        </BoRow>
+      )}
+      <BoRow label="À la carte menu" hint={alc ? 'Served every day alongside the cycle' : 'No à la carte menu'}>
+        <SettingSelect
+          label={`${venue.name} à la carte menu`}
+          value={alc?.id ?? NONE}
+          options={options(offer('alc', alc), 'No à la carte menu')}
+          onChange={(id) => {
+            setVenueAlc(venue.id, id === NONE ? null : id, settings.menus);
+            toast(id === NONE ? `${venue.name} has no à la carte menu now` : `${venue.name} serves ${settings.menus.find((m) => m.id === id)?.name}`, { tone: 'success' });
+          }}
+        />
+      </BoRow>
+      {!cycle && !alc && <p className={s.missing}>No menu yet, so nothing can be ordered here.</p>}
+      <p className={s.foot}>
+        Menus are built in{' '}
+        <button className={s.link} onClick={() => goto('menus')}>
+          Menu Cycle &amp; À la Carte
+        </button>
+        .
+      </p>
+    </BoSection>
   );
 }

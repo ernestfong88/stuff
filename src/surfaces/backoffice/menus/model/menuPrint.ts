@@ -80,8 +80,8 @@ export function venueRoom(venueId: string | undefined): string {
 
 export function printContext(bo: BoState, o: PrintOptions, sidesOf: (menuId: string, day: number, recipeId: string) => string[]): PrintContext {
   const venues = venuesAt(bo.venues, o.at);
-  const v = venues.find((x) => x.id === o.venueId) ?? venues.find((x) => x.active && x.menuId === o.menuId) ?? venues.find((x) => x.active && x.menuId);
-  const menuId = o.menuId ?? v?.menuId ?? null;
+  const v = venues.find((x) => x.id === o.venueId) ?? venues.find((x) => x.active && (x.menuId === o.menuId || x.alcMenuId === o.menuId)) ?? venues.find((x) => x.active && (x.menuId || x.alcMenuId));
+  const menuId = o.menuId ?? v?.menuId ?? v?.alcMenuId ?? null;
   const menu = bo.menus.find((m) => m.id === menuId);
   let last = 0;
   for (const g of bo.grid) if (g.menuId === menuId && g.day > last) last = g.day;

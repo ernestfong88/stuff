@@ -54,8 +54,8 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
   const [added, setAdded] = useState(0);
   const [edit, setEdit] = useState<Recipe | null>(null);
   const venues = useMemo(() => venuesAt(bo.venues, now()), [bo.venues]);
-  const where = venues.filter((v) => v.menuId === m.id).map((v) => v.name);
-  const live = venues.some((v) => v.id === DINING_VENUE_ID && v.menuId === m.id);
+  const where = venues.filter((v) => v.menuId === m.id || v.alcMenuId === m.id).map((v) => v.name);
+  const live = venues.some((v) => v.id === DINING_VENUE_ID && (v.menuId === m.id || v.alcMenuId === m.id));
 
   const rows = useMemo(() => {
     const by = new Map<string, Row>();

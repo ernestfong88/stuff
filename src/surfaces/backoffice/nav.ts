@@ -89,6 +89,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
         label: 'Menu Export',
         blurb: 'Printable menus from marketing templates',
         keywords: 'pdf print template',
+        phase: 3,
         component: lazy(() => import('./pages/export')),
       },
       {
@@ -110,6 +111,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
         label: 'Production',
         blurb: 'How many to make, with recommendations',
         keywords: 'prep forecast counts print sheets',
+        phase: 3,
         component: lazy(() => import('./pages/production')),
       },
       {
@@ -117,6 +119,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
         label: 'Prep Checklist',
         blurb: 'What Production Prep checks off at each meal, per venue',
         keywords: 'prep checklist deli line reach-in reach in cleaning opening closing side work task stocked backup',
+        phase: 3,
         component: lazy(() => import('./pages/prepList')),
       },
       {
@@ -124,6 +127,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
         label: 'Side Work Tasks',
         blurb: "Each venue's side work library",
         keywords: 'side work sidework task library opening mid closing breakfast lunch dinner minutes',
+        phase: 3,
         component: lazy(() => import('./pages/swLib')),
       },
       {
@@ -131,6 +135,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
         label: 'Assign Side Work',
         blurb: "Today's side work for everyone on shift",
         keywords: 'side work sidework assign task shift today server roll silverware auto even',
+        phase: 3,
         component: lazy(() => import('./pages/swAssign')),
       },
     ],
@@ -204,6 +209,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
         label: 'Kiosk Settings',
         blurb: 'The drinks and sides residents see first at the lobby kiosk',
         keywords: 'kiosk featured popular favorites drinks sides short list lobby order rotate screen',
+        phase: 3,
         component: lazy(() => import('./pages/svcKiosk')),
       },
     ],

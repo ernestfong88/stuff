@@ -25,16 +25,16 @@ export interface Mode {
 export const MODES: Mode[] = [
   { id: 'server', label: 'Server', device: 'tablet', blurb: 'Tables, checks, menu and residents' },
   { id: 'manager', label: 'Manager', device: 'tablet', blurb: 'Triage, floor, metrics and the 86 list' },
-  { id: 'host', label: 'Host', device: 'tablet', blurb: 'Seat parties and manage reservations' },
-  { id: 'bar', label: 'Bar', device: 'tablet', blurb: 'Drinks sent to the bar' },
+  { id: 'host', label: 'Host', device: 'tablet', blurb: 'Seat parties and manage reservations', phase: 2 },
+  { id: 'bar', label: 'Bar', device: 'tablet', blurb: 'Drinks sent to the bar', phase: 2 },
   { id: 'pud', label: 'PU & Delivery', device: 'tablet', blurb: 'Pick up and delivery queue' },
   // Kitchen displays come in Phase 2: the kitchen starts on printed tickets.
   { id: 'cook', label: 'Cook', device: 'kitchen', dark: true, blurb: 'Kitchen display for the line', phase: KDS_DEFAULT_PHASE },
   { id: 'expo', label: 'Expo', device: 'kitchen', dark: true, blurb: 'Pass: course pacing and runs', phase: 2 },
-  { id: 'prep', label: 'Production Prep', device: 'kitchen', blurb: 'Production plan and checklists' },
-  { id: 'assocphone', label: 'Associate Phone', device: 'phone', blurb: 'Associates plan their shift meals' },
-  { id: 'kiosk', label: 'Resident Kiosk', device: 'kiosk', blurb: 'Residents order pick up or delivery' },
-  { id: 'display', label: 'Specials Display', device: 'display', dark: true, blurb: "Tonight's specials on the dining room TV" },
+  { id: 'prep', label: 'Production Prep', device: 'kitchen', blurb: 'Production plan and checklists', phase: 3 },
+  { id: 'assocphone', label: 'Associate Phone', device: 'phone', blurb: 'Associates plan their shift meals', phase: 2 },
+  { id: 'kiosk', label: 'Resident Kiosk', device: 'kiosk', blurb: 'Residents order pick up or delivery', phase: 3 },
+  { id: 'display', label: 'Specials Display', device: 'display', dark: true, blurb: "Tonight's specials on the dining room TV", phase: 3 },
   { id: 'backoffice', label: 'Back Office', device: 'desktop', blurb: 'Culinary back office' },
 ];
 

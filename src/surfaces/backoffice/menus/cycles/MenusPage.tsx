@@ -66,7 +66,7 @@ function MenuList() {
     return id;
   };
   const where = (m: BoMenu) =>
-    venues.filter((v) => v.menuId === m.id || (v.upcoming ?? []).some((u) => u.menuId === m.id)).map((v) => v.name.replace(/ Dining Room$/, ''));
+    venues.filter((v) => v.menuId === m.id || v.alcMenuId === m.id || (v.upcoming ?? []).some((u) => u.menuId === m.id)).map((v) => v.name.replace(/ Dining Room$/, ''));
   const items = (m: BoMenu) => new Set(bo.grid.filter((g) => g.menuId === m.id && g.day === 0).map((g) => g.recipeId)).size;
 
   return (

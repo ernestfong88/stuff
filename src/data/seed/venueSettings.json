@@ -16,7 +16,8 @@
       "$d": 4665600000
      }
     }
-   ]
+   ],
+   "alcMenuId": null
   },
   {
    "id": "v2",
@@ -34,16 +35,18 @@
       "$d": 4665600000
      }
     }
-   ]
+   ],
+   "alcMenuId": null
   },
   {
    "id": "v3",
    "name": "The Bistro",
    "room": "bistro",
-   "menuId": "m2",
+   "menuId": null,
    "menuStartDt": null,
    "active": true,
-   "upcoming": []
+   "upcoming": [],
+   "alcMenuId": "m2"
   },
   {
    "id": "v4",
@@ -52,7 +55,8 @@
    "menuId": null,
    "menuStartDt": null,
    "active": true,
-   "upcoming": []
+   "upcoming": [],
+   "alcMenuId": null
   }
  ],
  "printers": [
@@ -60,7 +64,10 @@
    "id": "p1",
    "name": "Hot Line",
    "type": "Kitchen",
-   "print": ["Entrées", "Sides"],
+   "print": [
+    "Entrées",
+    "Sides"
+   ],
    "ip": "10.1.20.11",
    "active": true,
    "reachable": true
@@ -69,7 +76,16 @@
    "id": "p2",
    "name": "Cold / Pantry",
    "type": "Kitchen",
-   "print": { "groups": ["Starters", "Desserts"], "subs": ["Entrées/Entrée Salad"], "recipes": [] },
+   "print": {
+    "groups": [
+     "Starters",
+     "Desserts"
+    ],
+    "subs": [
+     "Entrées/Entrée Salad"
+    ],
+    "recipes": []
+   },
    "ip": "10.1.20.12",
    "active": true,
    "reachable": true

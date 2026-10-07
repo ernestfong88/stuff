@@ -57,7 +57,7 @@ function seedMenus(at: number): BoMenu[] {
  * schedule; the menu pages only read it.
  */
 function schedulesOf(vs: VenueSettings): VenueSchedule[] {
-  return vs.venues.map((v) => ({ id: v.id, name: v.name, menuId: v.menuId, menuStartDt: v.menuStartDt, active: v.active, upcoming: v.upcoming }));
+  return vs.venues.map((v) => ({ id: v.id, name: v.name, menuId: v.menuId, menuStartDt: v.menuStartDt, alcMenuId: v.alcMenuId ?? null, active: v.active, upcoming: v.upcoming }));
 }
 
 function buildSeed(at: number): BoState {
