@@ -313,6 +313,14 @@ export const BO_MORE_PAGES: BoPageDef[] = [
     parent: 'resProfiles',
     component: lazy(() => import('./pages/residents')),
   },
+  {
+    id: 'svcRes',
+    label: 'Conversation Profiles',
+    blurb: 'Edit the story, Loves and Good to know notes servers see',
+    keywords: 'story loves good to know conversation profile bio family interests edit',
+    parent: 'resProfiles',
+    component: lazy(() => import('./pages/svcRes')),
+  },
 ];
 
 export const BO_PAGES: BoPageDef[] = BO_SECTIONS.flatMap((s) => s.pages);

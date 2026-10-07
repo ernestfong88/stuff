@@ -33,11 +33,13 @@ function SpecialsMadeOrdered() {
                 <span className={s.specialName}>{sp.name}</span>
                 <span className={s.specialMeal}>{sp.meals}</span>
                 <span className={s.specialCount}>
-                  <b>{c.total}</b> ordered of <b>{c.made}</b> made
+                  <span>
+                    <b>{c.total}</b> ordered of <b>{c.made}</b> made
+                  </span>
+                  <Chip size="xs" tone={tone}>
+                    {c.left < 0 ? `${-c.left} over` : c.left === 0 ? 'Sold out' : `${c.left} left`}
+                  </Chip>
                 </span>
-                <Chip size="xs" tone={tone}>
-                  {c.left < 0 ? `${-c.left} over` : c.left === 0 ? 'Sold out' : `${c.left} left`}
-                </Chip>
               </div>
               <MeterBar value={c.total} max={c.made} color={c.left < 0 ? CHART.bad : c.left <= 5 ? CHART.watch : CHART.good} />
               <div className={s.specialSplit}>

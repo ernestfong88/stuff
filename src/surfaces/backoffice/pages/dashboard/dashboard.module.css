@@ -652,6 +652,11 @@
   color: var(--s400);
 }
 .specialCount {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
   font-size: 12px;
   color: var(--s500);
 }
