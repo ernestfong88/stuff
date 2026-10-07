@@ -1,6 +1,7 @@
-import { getMode } from '../../shell/modes';
 import { Placeholder } from '../Placeholder';
+import { getMode } from '../../shell/modes';
 
-export default function Surface() {
+/** Back office shell: side nav, breadcrumb top bar, Ctrl K page search. */
+export default function BackOffice() {
   return <Placeholder mode={getMode('backoffice')} />;
 }

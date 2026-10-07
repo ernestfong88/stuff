@@ -1,0 +1,83 @@
+{
+ "t": {
+  "passLate": 5,
+  "floorCook": 20,
+  "closeLate": 30,
+  "seatLate": 0,
+  "eatLate": 0,
+  "checkInWake": 2,
+  "cookLate": 10,
+  "expoPass": 5,
+  "fireLate": 5
+ },
+ "ciMin": {},
+ "gap": {
+  "send": [
+   6,
+   8
+  ],
+  "ready": [
+   15,
+   18
+  ],
+  "run": [
+   2.5,
+   4
+  ],
+  "checkin": [
+   10,
+   0
+  ]
+ },
+ "flow": {
+  "checkIn": true,
+  "dessert": true,
+  "appToEntree": true,
+  "entreeNext": true,
+  "dessertNext": true,
+  "freeDeliveryComp": true,
+  "shortServer": true,
+  "shortKitchen": true,
+  "hideDefaults": true
+ },
+ "met": {
+  "margin": 8,
+  "need": 3,
+  "noneBehind": true,
+  "tableShorter": false,
+  "off": {},
+  "avg": {}
+ },
+ "short": {},
+ "res": {},
+ "venue": null,
+ "btype": {},
+ "names": {},
+ "menu": {
+  "off": {},
+  "on": {}
+ },
+ "recipes": {},
+ "texts": {},
+ "mobile": {},
+ "course": {},
+ "greet": {},
+ "am": {
+  "weeks": {}
+ },
+ "win": {
+  "cut": 45,
+  "pack": 5,
+  "types": {},
+  "grid": {}
+ },
+ "fees": {
+  "cork": {}
+ },
+ "pud": {
+  "track": {}
+ },
+ "dside": {},
+ "csub": {},
+ "ccat": {}
+}
