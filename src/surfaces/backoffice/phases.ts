@@ -4,27 +4,17 @@
  * Release Phases can move any page. Pages opened from another page share the
  * phase of the page they belong under.
  *
- * The plan is a decision, not demo data, so "Reset demo data" keeps it. So
- * does the side nav's "Phase 1 only" view, which is this device's choice.
+ * The store itself is shared (src/store/phases.ts) so the mode menu can
+ * phase the screens too; this file knows the Back Office pages.
+ *
+ * In the side nav, Phase 2 pages come after the Phase 1 pages of their
+ * section, and a section that is all Phase 2 comes after every other one.
  */
-import { createSharedStore, useShared } from '../../lib/sharedStore';
+import { byPhase, phasePlanStore, type Phase, type PhasePlan, type PhaseView } from '../../store/phases';
+import { MODES, modePhase } from '../../shell/modes';
 import { BO_MORE_PAGES, BO_PAGES, BO_SECTIONS, type BoPageDef, type BoSectionDef } from './nav';
 
-export type Phase = 1 | 2;
-export type PhaseView = 'all' | 'p1';
-export type PhasePlan = Record<string, Phase>;
-
-export const phasePlanStore = createSharedStore<PhasePlan>({}, {
-  persistKey: 'kisco_backoffice_phases',
-  channel: 'kisco-backoffice-phases',
-  deviceSetting: true,
-});
-
-export const phaseViewStore = createSharedStore<PhaseView>('all', {
-  persistKey: 'kisco_backoffice_phase_view',
-  channel: 'kisco-backoffice-phase-view',
-  deviceSetting: true,
-});
+export { phasePlanStore, resetPhases, setPhase, setPhaseView, usePhasePlan, usePhaseView, type Phase, type PhasePlan, type PhaseView } from '../../store/phases';
 
 /** A page's phase: the plan's call, else nav.ts, else Phase 1. */
 export function phaseOf(pageId: string, plan: PhasePlan = phasePlanStore.get()): Phase {
@@ -33,22 +23,24 @@ export function phaseOf(pageId: string, plan: PhasePlan = phasePlanStore.get()):
   return plan[pageId] ?? BO_PAGES.find((p) => p.id === pageId)?.phase ?? 1;
 }
 
-export function setPhase(pageId: string, phase: Phase): void {
-  phasePlanStore.set((plan) => ({ ...plan, [pageId]: phase }));
-}
-
-/** Back to the phases in nav.ts. */
-export function resetPhases(): void {
-  phasePlanStore.set({});
-}
-
 /**
  * The pages a section shows in the side nav. "Phase 1 only" hides Phase 2
  * pages, but never the page you are on.
  */
 export function visiblePages(section: BoSectionDef, view: PhaseView, plan: PhasePlan, currentId?: string): BoPageDef[] {
-  if (view === 'all') return section.pages;
-  return section.pages.filter((p) => p.id === currentId || phaseOf(p.id, plan) === 1);
+  const pages = byPhase(section.pages, (p) => phaseOf(p.id, plan));
+  if (view === 'all') return pages;
+  return pages.filter((p) => p.id === currentId || phaseOf(p.id, plan) === 1);
+}
+
+/** A section is Phase 2 when every page in it is. */
+export function sectionPhase(section: BoSectionDef, plan: PhasePlan): Phase {
+  return section.pages.every((p) => phaseOf(p.id, plan) === 2) ? 2 : 1;
+}
+
+/** The side nav's sections: those with any Phase 1 page first, then all-Phase 2 sections, each in nav order. */
+export function orderedSections(plan: PhasePlan): BoSectionDef[] {
+  return byPhase(BO_SECTIONS, (s) => sectionPhase(s, plan));
 }
 
 /** Phase 2 pages, in nav order. */
@@ -56,24 +48,15 @@ export function phaseTwoPages(plan: PhasePlan): BoPageDef[] {
   return BO_SECTIONS.flatMap((s) => s.pages).filter((p) => phaseOf(p.id, plan) === 2);
 }
 
-export function usePhasePlan(): PhasePlan {
-  return useShared(phasePlanStore);
-}
-
-export function usePhaseView(): PhaseView {
-  return useShared(phaseViewStore);
-}
-
-export function setPhaseView(view: PhaseView): void {
-  phaseViewStore.set(view);
-}
-
 /** The split as plain text, to paste into an email or a ticket. */
 export function phaseListText(plan: PhasePlan): string {
   return ([1, 2] as Phase[])
     .map((ph) => {
-      const lines = BO_SECTIONS.flatMap((sec) => sec.pages.filter((p) => phaseOf(p.id, plan) === ph).map((p) => `  ${sec.label} › ${p.label}`));
-      return `Phase ${ph} (${lines.length} page${lines.length === 1 ? '' : 's'})\n${lines.join('\n') || '  None'}`;
+      const lines = [
+        ...MODES.filter((m) => modePhase(m.id, plan) === ph).map((m) => `  Screen › ${m.label}`),
+        ...BO_SECTIONS.flatMap((sec) => sec.pages.filter((p) => phaseOf(p.id, plan) === ph).map((p) => `  Back Office › ${sec.label} › ${p.label}`)),
+      ];
+      return `Phase ${ph} (${lines.length} item${lines.length === 1 ? '' : 's'})\n${lines.join('\n') || '  None'}`;
     })
     .join('\n\n');
 }

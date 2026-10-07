@@ -1,10 +1,12 @@
 import { Check, ChevronDown, LogOut, Maximize, Minimize, RotateCcw } from 'lucide-react';
+import { Fragment } from 'react';
 import { rooms } from '../data';
 import { Avatar, MenuDivider, MenuItem, Popover, useConfirm } from '../ui';
 import { cx } from '../ui/cx';
 import { useDemoActions } from './demoTools';
 import { enterFullscreen, exitFullscreen, useFullscreen } from './fullscreen';
-import { MODES, getMode } from './modes';
+import { usePhasePlan, usePhaseView } from '../store/phases';
+import { getMode, modePhase, orderedModes } from './modes';
 import { navigate, useRoute } from './router';
 import { signOut, useMe, useVenue, venueCode, venueColor } from './session';
 import s from './controls.module.css';
@@ -32,6 +34,11 @@ export function TextZoom({ dark, tall }: { dark?: boolean; tall?: boolean }) {
 export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
   const { mode } = useRoute();
   const m = getMode(mode);
+  const plan = usePhasePlan();
+  const view = usePhaseView();
+  // Phase 2 screens sit below a divider, in their own colour; "Phase 1 only" hides them (except this one).
+  const modes = orderedModes(plan).filter((x) => view === 'all' || x.id === mode || modePhase(x.id, plan) === 1);
+  const firstLater = modes.findIndex((x) => modePhase(x.id, plan) === 2);
   return (
     <Popover
       minWidth={250}
@@ -50,19 +57,26 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
     >
       {({ close }) => (
         <>
-          {MODES.map((x, i) => (
-            <MenuItem
-              key={x.id}
-              active={x.id === mode}
-              icon={<span className={s.modeNum}>{i + 1}</span>}
-              end={x.id === mode ? <Check size={15} strokeWidth={2.5} /> : undefined}
-              onClick={() => {
-                close();
-                navigate(x.id);
-              }}
-            >
-              {x.label}
-            </MenuItem>
+          {modes.map((x, i) => (
+            <Fragment key={x.id}>
+              {i === firstLater && (
+                <>
+                  <MenuDivider />
+                  <div className={s.phaseHead}>Phase 2</div>
+                </>
+              )}
+              <MenuItem
+                active={x.id === mode}
+                icon={<span className={s.modeNum}>{i + 1}</span>}
+                end={x.id === mode ? <Check size={15} strokeWidth={2.5} /> : undefined}
+                onClick={() => {
+                  close();
+                  navigate(x.id);
+                }}
+              >
+                <span className={cx(i >= firstLater && firstLater >= 0 && s.phase2)}>{x.label}</span>
+              </MenuItem>
+            </Fragment>
           ))}
         </>
       )}

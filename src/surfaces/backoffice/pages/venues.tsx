@@ -11,7 +11,6 @@ import { AlertTriangle, ChevronRight, Plus, RotateCcw } from 'lucide-react';
 import { navigate, useRoute } from '../../../shell/router';
 import { today } from '../../../lib/clock';
 import { Button, Tabs, cx, toast } from '../../../ui';
-import { KdsScreensEditor } from '../../kitchen/admin/KdsScreensEditor';
 import { cycleWeekLabel, isStaticMenu } from '../../kitchen/admin/menuCycle';
 import { VenueDevices } from '../../kitchen/admin/VenueDevices';
 import { resetRouting, routingEdited, RoutingEditor } from '../../kitchen/admin/RoutingEditor';
@@ -80,7 +79,7 @@ export default function Page({ goto }: BoPageProps) {
   return (
     <BoPage
       title="Venue Settings"
-      sub="Everything about a venue in one place: what it serves, its prices, floor plan, kitchen, printers and name. Choose a venue on the left."
+      sub="Everything about a venue in one place: what it serves, its prices, floor plan, kitchen routing, printers and name. Choose a venue on the left. Kitchen screens are under KDS."
       actions={
         <Button variant="primary" icon={<Plus size={16} />} onClick={() => setAdding(true)}>
           New venue
@@ -218,7 +217,7 @@ function VenueDetail({
           { id: 'menu', label: 'Menu', count: count('menu'), countTone: 'danger' },
           { id: 'prices', label: 'Prices' },
           { id: 'floor', label: 'Floor plan' },
-          { id: 'kitchen', label: 'Kitchen' },
+          { id: 'kitchen', label: 'Kitchen routing' },
           { id: 'devices', label: 'Printers & terminals', count: count('devices') },
           { id: 'details', label: 'Details' },
         ]}
@@ -247,11 +246,8 @@ function VenueDetail({
         {tab === 'kitchen' &&
           (kitchen ? (
             <>
-              <BoSection>
-                <KdsScreensEditor settings={settings} room={kitchen.room} ownerName={kitchen.owner.id !== venue.id ? kitchen.owner.name : null} />
-              </BoSection>
               <BoSection
-                title="What skips the cook line"
+                title="What goes to the kitchen"
                 sub="Drinks, soups and anything else servers make themselves never go to a cook screen. Change an item's button to send it one way or the other."
                 actions={
                   routingEdited(cfg) && (
@@ -269,7 +265,7 @@ function VenueDetail({
               </BoSection>
             </>
           ) : (
-            <NoKitchen venue={venue} what="cook screens or routing" onTab={onTab} />
+            <NoKitchen venue={venue} what="kitchen routing" onTab={onTab} />
           ))}
         {tab === 'details' && <VenueDetails settings={settings} venue={venue} onRetired={onRetired} />}
       </div>

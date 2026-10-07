@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ChevronDown, Search, X } from 'lucide-react';
 import { Tabs, cx } from '../../../ui';
-import { BO_SECTIONS, navPageId, type BoSectionDef } from '../nav';
-import { phaseOf, setPhaseView, usePhasePlan, usePhaseView, visiblePages } from '../phases';
+import { navPageId, type BoSectionDef } from '../nav';
+import { orderedSections, phaseOf, sectionPhase, setPhaseView, usePhasePlan, usePhaseView, visiblePages } from '../phases';
 import { AccountCard } from './AccountCard';
 import { CommunitySwitcher } from './CommunitySwitcher';
 import { KiscoMark } from './KiscoMark';
@@ -61,18 +61,21 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
 
       <nav className={s.nav} aria-label="Back office pages">
         <ul className={s.sections}>
-          {BO_SECTIONS.map((sec) => {
+          {orderedSections(plan).map((sec, si, all) => {
             const pages = visiblePages(sec, view, plan, current);
             if (!pages.length) return null;
+            const laterSection = sectionPhase(sec, plan) === 2;
+            const firstLaterSection = laterSection && (si === 0 || sectionPhase(all[si - 1], plan) === 1);
             const Icon = sec.icon;
             const single = pages.length === 1;
             const isCurrent = sec.id === section.id;
             const isOpen = !single && open === sec.id;
             const listId = `bo-sec-${sec.id}`;
             return (
-              <li key={sec.id}>
+              <li key={sec.id} className={cx(firstLaterSection && s.laterStart)}>
+                {firstLaterSection && <div className={s.laterHead}>Phase 2</div>}
                 <button
-                  className={cx(s.sectionBtn, isCurrent && s.sectionCurrent, single && isCurrent && s.sectionOn)}
+                  className={cx(s.sectionBtn, laterSection && s.later, isCurrent && s.sectionCurrent, single && isCurrent && s.sectionOn)}
                   aria-expanded={single ? undefined : isOpen}
                   aria-controls={single ? undefined : listId}
                   aria-current={single && isCurrent ? 'page' : undefined}
@@ -87,7 +90,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
                 >
                   <Icon size={17} strokeWidth={1.9} className={s.sectionIcon} aria-hidden />
                   <span className={s.sectionLabel}>{sec.label}</span>
-                  {single && view === 'all' && phaseOf(pages[0].id, plan) === 2 && <PhaseTag />}
+                  {single && !laterSection && view === 'all' && phaseOf(pages[0].id, plan) === 2 && <PhaseTag />}
                   {!single && <ChevronDown size={14} className={cx(s.chev, isOpen && s.chevOpen)} aria-hidden />}
                 </button>
                 {isOpen && (
@@ -98,7 +101,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
                         <li key={p.id}>
                           <a
                             href={`#/backoffice/${p.id}`}
-                            className={cx(s.pageLink, on && s.pageOn)}
+                            className={cx(s.pageLink, phaseOf(p.id, plan) === 2 && s.later, on && s.pageOn)}
                             aria-current={on ? 'page' : undefined}
                             onClick={(e) => {
                               e.preventDefault();
@@ -106,7 +109,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
                             }}
                           >
                             <span className={s.pageLabel}>{p.label}</span>
-                            {view === 'all' && phaseOf(p.id, plan) === 2 && <PhaseTag />}
+                            {view === 'all' && !laterSection && phaseOf(p.id, plan) === 2 && <PhaseTag />}
                           </a>
                         </li>
                       );

@@ -126,6 +126,10 @@ components so only they re-render each second.
 - Inside a tab, a page's own `BoPage` drops its title. To show a page inside some other tab of your own, wrap it in `BoEmbedded`.
 - A page that becomes a tab goes into `BO_ALIASES` in `nav.ts`. Its old address then redirects to the tab, and search still finds it under its old name.
 
+### Release phases
+- The phase plan is in `src/store/phases.ts`. A Back Office page's standard phase is `phase` in `nav.ts`; a screen's is `phase` in `shell/modes.ts`. Items of either kind are moved in HO Settings → Release Phases.
+- To list items in phase order, use `orderedSections` (Back Office sections), `visiblePages` (the pages of a section) or `orderedModes` (screens). These keep Phase 1 first and Phase 2 last.
+
 ### Chrome
 - Tablet surfaces wrap themselves in `TabletShell` (`nav`, `actions` and
   `rail` slots).

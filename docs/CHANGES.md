@@ -220,6 +220,17 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Phasing: printers first, KDS later
+
+- **KDS has its own section.** The kitchen screens and the expo screen setting moved out of Venue Settings into **KDS → KDS Settings**, with one tab per kitchen. Venue Settings keeps what a printers-only kitchen needs. Its *Kitchen routing* tab still decides what goes to the kitchen at all, whether that ends up on a printer or a screen.
+- **The screens can be phased too.** HO Settings → Release Phases now lists every screen in the top-right screen menu as well as every Back Office page. **Cook** and **Expo** (the kitchen displays) and **KDS Settings** start in Phase 2; everything else starts in Phase 1.
+- **Phase 2 looks different and comes last:**
+  - Phase 2 items are purple and always listed after the Phase 1 items.
+  - In the screen menu, Phase 2 screens sit under a *Phase 2* divider.
+  - In the Back Office side menu, Phase 2 pages come after the Phase 1 pages of their section. A section that is all Phase 2 moves below every Phase 1 section, under a *Phase 2* divider.
+  - A Phase 2 page has a purple banner at the top.
+- **Phase 1 only** (the switch at the bottom of the side menu) now also hides Phase 2 screens from the screen menu. *Copy as a list* includes the screens.
+
 ### Back Office: fewer pages, from Venues down
 
 From Venues down, the Back Office menu had 22 pages. Related settings sat far apart: delivery fees were under Billing while pick up times were under Dining Service, and a venue's prices, floor plan and kitchen routing were three separate pages. Pages that belong together are now tabs of one page. The menu from Venues down is 14 pages, 10 of them outside HO Settings:

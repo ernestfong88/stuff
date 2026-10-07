@@ -98,8 +98,8 @@ export function KdsScreensEditor({ settings, room, ownerName }: { settings: Venu
         </p>
       )}
       <p className={s.footnote}>
-        A subcategory on two screens shows on both; the first screen to bump it marks it done. What the server makes (see What skips the cook line, below) never goes to
-        a cook screen. Each cook device picks its screen.
+        A subcategory on two screens shows on both; the first screen to bump it marks it done. What the server makes (set on each venue's Kitchen routing tab) never
+        goes to a cook screen. Each cook device picks its screen.
       </p>
     </div>
   );

@@ -4,7 +4,7 @@
  */
 import type { ComponentType, LazyExoticComponent } from 'react';
 import { lazy } from 'react';
-import { LayoutGrid, BookOpen, ClipboardList, Store, Timer, Users, CreditCard, ShieldCheck, Building2, type LucideIcon } from 'lucide-react';
+import { LayoutGrid, MonitorPlay, BookOpen, ClipboardList, Store, Timer, Users, CreditCard, ShieldCheck, Building2, type LucideIcon } from 'lucide-react';
 
 export interface BoPageDef {
   id: string;
@@ -143,10 +143,26 @@ export const BO_SECTIONS: BoSectionDef[] = [
       {
         id: 'venues',
         label: 'Venue Settings',
-        blurb: "Each venue's menu, prices, floor plan, kitchen screens and routing, printers and terminals",
+        blurb: "Each venue's menu, prices, floor plan, kitchen routing, printers and terminals",
         keywords:
-          'printer terminal square room kds screen cook hot cold station price pricing cost guest a la carte floor plan tables layout seating map kitchen routing expo bar route',
+          'printer terminal square room price pricing cost guest a la carte floor plan tables layout seating map kitchen routing bar route tickets',
         component: lazy(() => import('./pages/venues')),
+      },
+    ],
+  },
+  {
+    id: 'kds',
+    label: 'KDS',
+    icon: MonitorPlay,
+    pages: [
+      {
+        id: 'kds',
+        label: 'KDS Settings',
+        blurb: "Each kitchen's cook screens and expo screen",
+        keywords: 'kds kitchen display screen cook hot cold station expo subcategory bump',
+        // Kitchens start on printed tickets; screens come in Phase 2.
+        phase: 2,
+        component: lazy(() => import('./pages/kds')),
       },
     ],
   },

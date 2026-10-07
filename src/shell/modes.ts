@@ -3,6 +3,8 @@
  * of them; the URL hash picks which (#/cook, #/expo, #/server ...), so a
  * kitchen screen can be bookmarked straight to its surface.
  */
+import { byPhase, type Phase, type PhasePlan } from '../store/phases';
+
 export type ModeId =
   | 'server'
   | 'manager'
@@ -28,6 +30,8 @@ export interface Mode {
   dark?: boolean;
   /** One-line description for the mode menu and docs. */
   blurb: string;
+  /** Release phase; absent means Phase 1. HO Settings, Release Phases can move it. */
+  phase?: Phase;
 }
 
 export const MODES: Mode[] = [
@@ -36,8 +40,9 @@ export const MODES: Mode[] = [
   { id: 'host', label: 'Host', device: 'tablet', blurb: 'Seat parties and manage reservations' },
   { id: 'bar', label: 'Bar', device: 'tablet', blurb: 'Drinks sent to the bar' },
   { id: 'pud', label: 'PU & Delivery', device: 'tablet', blurb: 'Pick up and delivery queue' },
-  { id: 'cook', label: 'Cook', device: 'kitchen', dark: true, blurb: 'Kitchen display for the line' },
-  { id: 'expo', label: 'Expo', device: 'kitchen', dark: true, blurb: 'Pass: course pacing and runs' },
+  // Kitchen displays come in Phase 2: the kitchen starts on printed tickets.
+  { id: 'cook', label: 'Cook', device: 'kitchen', dark: true, blurb: 'Kitchen display for the line', phase: 2 },
+  { id: 'expo', label: 'Expo', device: 'kitchen', dark: true, blurb: 'Pass: course pacing and runs', phase: 2 },
   { id: 'prep', label: 'Production Prep', device: 'kitchen', blurb: 'Production plan and checklists' },
   { id: 'assocphone', label: 'Associate Phone', device: 'phone', blurb: 'Associates plan their shift meals' },
   { id: 'kiosk', label: 'Resident Kiosk', device: 'kiosk', blurb: 'Residents order pick up or delivery' },
@@ -46,6 +51,19 @@ export const MODES: Mode[] = [
 ];
 
 export const DEFAULT_MODE: ModeId = 'server';
+
+/** The key a screen's phase is kept under in the phase plan. */
+export const modePhaseKey = (id: ModeId) => `mode:${id}`;
+
+/** A screen's release phase: the plan's call, else its standard phase. */
+export function modePhase(id: ModeId, plan: PhasePlan): Phase {
+  return plan[modePhaseKey(id)] ?? MODES.find((m) => m.id === id)?.phase ?? 1;
+}
+
+/** The mode menu's order: Phase 1 screens, then Phase 2. */
+export function orderedModes(plan: PhasePlan): Mode[] {
+  return byPhase(MODES, (m) => modePhase(m.id, plan));
+}
 
 export function getMode(id: string | null | undefined): Mode {
   return MODES.find((m) => m.id === id) ?? MODES[0];
