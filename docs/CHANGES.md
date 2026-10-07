@@ -220,6 +220,12 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Kitchen screens: no undo pop-ups, a clock, and time in
+
+- **Cook and Expo no longer show an Undo message after a bump.** A cleared ticket stays cleared. If one goes by mistake, bring it back with **RECALL** (or the M key on the bump bar).
+- **Cook** has the same clock in its header as Expo.
+- **Table tickets show when the order first went in**, for example *IN 5:30 PM*, next to the running timer on Cook and Expo. Pick up and delivery tickets keep their pick up window instead.
+
 ### Phasing: printers first, KDS later
 
 - **KDS has its own section.** The kitchen screens and the expo screen setting moved out of Venue Settings into **KDS → KDS Settings**, with one tab per kitchen. Venue Settings keeps what a printers-only kitchen needs. Its *Kitchen routing* tab still decides what goes to the kitchen at all, whether that ends up on a printer or a screen.
@@ -269,7 +275,6 @@ Each screen was checked at tablet and desktop sizes, or phone size for the Assoc
   - Corkage was silently dropped when seat 1 was empty. It now shows a warning.
 - **Cook / Expo:**
   - Recall listed tickets that couldn't be brought back.
-  - Bumps and "Run course" had no undo.
   - The M key did nothing on Expo.
   - **Production Prep:** a stray tap unticked a finished prep item and lost who did it.
 - **Host:** walk-in visitors couldn't be seated.
@@ -299,7 +304,6 @@ Each screen was checked at tablet and desktop sizes, or phone size for the Assoc
   - Shift review says what is blocking sign-off.
 - **Cook:**
   - An **All day** strip of what this screen still has to make.
-  - Every bump shows "SQ 1 bumped · Undo".
 - **Expo:**
   - One Fire button per ticket.
   - Refire and print are in a labelled ⋮ menu.
