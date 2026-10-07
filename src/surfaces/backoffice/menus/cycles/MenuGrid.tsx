@@ -77,14 +77,13 @@ function lanesFor(groups: DayGroup[], hidden: string[] = []): Lane[] {
   const ne = Math.max(atLeast('entree'), filled);
   for (let i = 0; i < ne; i++) {
     out.push({ kind: 'entree', i, label: ne > 1 ? `Entrée ${i + 1}` : 'Entrée', cat: 'Entrees', removable: filled === 0 });
-    out.push({ kind: 'sides', i, label: 'Sides', sub: ne > 1 ? `with entrée ${i + 1}` : 'with the entrée', cat: 'Sides' });
+    out.push({ kind: 'sides', i, label: 'Sides', sub: ne > 1 ? `with entrée ${i + 1}` : undefined, cat: 'Sides' });
   }
   for (let i = 0; i < max((g) => g.looseSides.length); i++)
     out.push({
       kind: 'looseSides',
       i,
       label: 'Other sides',
-      sub: i ? '' : 'not tied to an entrée',
       cat: 'Sides',
     });
   const nd = max((g) => g.desserts.length);

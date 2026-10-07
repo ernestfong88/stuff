@@ -73,7 +73,6 @@ export function RecipesPage() {
   return (
     <BoPage
       title="Recipe Book"
-      sub={`${bo.recipes.length} in your master · Global Library managed by Home Office`}
       actions={
         <Button variant="primary" icon={<Plus size={16} />} onClick={() => setAdding(true)}>
           Add recipe
@@ -124,7 +123,8 @@ export function RecipesPage() {
 
       {global && (
         <p className={s.howTo}>
-          <strong>Add</strong> keeps the recipe linked: Home Office keeps it up to date and you can't edit it. <strong>Copy to edit</strong> makes your own version.
+          <strong>Add</strong> keeps the recipe linked: Home Office keeps it up to date and you can't edit it. <strong>Copy to edit</strong> makes
+          your own version.
         </p>
       )}
       {live ? (
@@ -144,7 +144,7 @@ export function RecipesPage() {
         <section className={s.find}>
           <div>
             <h2 className={s.findTitle}>Find a recipe</h2>
-            <p className={s.findSub}>Search or choose a filter above to see recipes. Or start with one of these.</p>
+            <p className={s.findSub}>Or start with one of these.</p>
           </div>
           <div className={s.picks}>
             {pick('Entrées', `${cnt('Entrees')} recipes`, () => set({ cat: 'Entrees' }))}

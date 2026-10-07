@@ -17,7 +17,17 @@ const AI_MS = 1400;
  * ingredients, method, nutrition and menu description, then the recipe is
  * placed and opens for review before anything prints.
  */
-export function AiRecipeDialog({ name, cat, onClose, onCreated }: { name: string; cat?: string; onClose: () => void; onCreated: (id: string) => void }) {
+export function AiRecipeDialog({
+  name,
+  cat,
+  onClose,
+  onCreated,
+}: {
+  name: string;
+  cat?: string;
+  onClose: () => void;
+  onCreated: (id: string) => void;
+}) {
   const [d, setD] = useState(() => {
     const c = cat ? normCategory(cat) : guessCategory(name);
     return {
@@ -78,9 +88,7 @@ export function AiRecipeDialog({ name, cat, onClose, onCreated }: { name: string
       }
     >
       <div className={s.form}>
-        <p className={s.intro}>
-          Tell AI a little about the dish. It drafts the ingredients, method, nutrition and menu description, then you review the recipe before anything prints.
-        </p>
+        <p className={s.intro}>AI drafts the ingredients, method, nutrition and menu description. You review the recipe before anything prints.</p>
         <div className={s.row}>
           <Field label="Menu name" className={s.wide}>
             <Input value={d.name} autoFocus onChange={(e) => setD({ ...d, name: e.target.value })} />
@@ -111,7 +119,7 @@ export function AiRecipeDialog({ name, cat, onClose, onCreated }: { name: string
             <MoneyInput value={d.price} placeholder="0" onChange={(price) => setD({ ...d, price })} width={110} />
           </Field>
         </div>
-        <Field label="What should AI know about it?" hint="What's in it, how it's cooked and served, anything to call out.">
+        <Field label="What should AI know about it?">
           <TextArea
             rows={3}
             value={d.about}

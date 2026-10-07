@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Printer } from 'lucide-react';
-import { COMMUNITY_NAME } from '../../../../data';
 import { now } from '../../../../lib/clock';
 import { useSetting } from '../../../../store/serviceConfig';
 import { Button, Chip, EmptyState, Tabs, cx, toast } from '../../../../ui';
@@ -58,7 +57,7 @@ export function ExportPage() {
 
   if (!venue) {
     return (
-      <BoPage title="Menu Export" sub="Letter-size menus for residents.">
+      <BoPage title="Menu Export">
         <EmptyState title="No venue serves a menu yet">Give a venue a menu in Venue Settings to print its menus.</EmptyState>
       </BoPage>
     );
@@ -69,14 +68,14 @@ export function ExportPage() {
   const weeks = Math.ceil(ctx.len / 7);
   const print = () => {
     printHtml(html);
-    const when = kind === 'daily' && day ? `, ${ctx.dateOf(day).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}` : '';
+    const when =
+      kind === 'daily' && day ? `, ${ctx.dateOf(day).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}` : '';
     toast(`${kindName}${when} sent to the printer · ${tpl.name} template`, { tone: 'success' });
   };
 
   return (
     <BoPage
       title="Menu Export"
-      sub={`Letter-size menus for residents with ${COMMUNITY_NAME} branding: the daily menu, the week, à la carte and the pick up order form. The menu builder prints them too.`}
       actions={
         <Button variant="primary" icon={<Printer size={16} />} onClick={print}>
           Print
@@ -94,7 +93,8 @@ export function ExportPage() {
                   setDayPick(null);
                   setWeekPick(null);
                 }}
-                options={venues.map((v) => ({ value: v.id, label: v.name }))} />
+                options={venues.map((v) => ({ value: v.id, label: v.name }))}
+              />
             </Field>
             <Tabs
               variant="segmented"
@@ -109,7 +109,13 @@ export function ExportPage() {
               <Field label="Day">
                 <div className={s.dayPicks} role="radiogroup" aria-label="Day">
                   {dayOptions.map((d) => (
-                    <button key={d} role="radio" aria-checked={d === day} className={cx(s.dayPick, d === day && s.dayPickOn)} onClick={() => setDayPick(d)}>
+                    <button
+                      key={d}
+                      role="radio"
+                      aria-checked={d === day}
+                      className={cx(s.dayPick, d === day && s.dayPickOn)}
+                      onClick={() => setDayPick(d)}
+                    >
                       {dayLabel(d - ctx.today, ctx.dateOf(d))}
                     </button>
                   ))}
@@ -134,7 +140,8 @@ export function ExportPage() {
                 <p className={s.hint}>
                   Week {week + 1} of the {weeks}-week cycle,{' '}
                   {ctx.dateOf(weekDays(ctx, week)[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} to{' '}
-                  {ctx.dateOf(weekDays(ctx, week).slice(-1)[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}. The menu builder prints any week.
+                  {ctx.dateOf(weekDays(ctx, week).slice(-1)[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}. The menu builder
+                  prints any week.
                 </p>
               </Field>
             )}
@@ -160,8 +167,8 @@ export function ExportPage() {
               ))}
             </div>
             <p className={s.hint}>
-              Marketing keeps these templates, and each one adds {venue.name}&apos;s logo. You choose one but can&apos;t edit it, so the brand stays right and typos stay off
-              the menu.
+              Marketing keeps these templates, and each one adds {venue.name}&apos;s logo. You choose one but can&apos;t edit it, so the brand stays
+              right and typos stay off the menu.
             </p>
           </section>
 

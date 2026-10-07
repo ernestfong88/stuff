@@ -44,7 +44,7 @@ export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) 
 
   if (!venue) {
     return (
-      <BoPage title="Pricing" sub="Prices for each recipe at this venue, across every menu it serves.">
+      <BoPage title="Pricing">
         {fixedVenue ? (
           <EmptyState title="No menu yet">Choose this venue's menu on its Menu tab, then set its prices here.</EmptyState>
         ) : (
@@ -65,13 +65,17 @@ export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) 
   };
 
   return (
-    <BoPage
-      title="Pricing"
-      sub="What each dish costs at a venue, for residents, guests and à la carte. Changes save as you type. A closed check keeps the price it was ordered at."
-    >
+    <BoPage title="Pricing" sub="Changes save as you type. A closed check keeps the price it was ordered at.">
       <div className={s.toolbar}>
         {!fixedVenue && (
-          <Tabs variant="pills" size="md" value={venue.id} onChange={setVenueId} options={venues.map((v) => ({ id: v.id, label: v.name }))} aria-label="Venue" />
+          <Tabs
+            variant="pills"
+            size="md"
+            value={venue.id}
+            onChange={setVenueId}
+            options={venues.map((v) => ({ id: v.id, label: v.name }))}
+            aria-label="Venue"
+          />
         )}
         <Select
           value={cat}
@@ -85,13 +89,14 @@ export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) 
         <Toggle checked={changedOnly} onChange={setChangedOnly} label={`Only changed prices (${changedCount})`} />
       </div>
       <p className={s.how}>
-        Each price starts as the menu&apos;s own price. Type a new one to change it for {venue.name} only; a changed price shows in blue with <b>Use menu price</b> under it.
+        Each price starts as the menu&apos;s own price. Type a new one to change it for {venue.name} only; a changed price shows in blue with{' '}
+        <b>Use menu price</b> under it.
       </p>
 
       {orphans.length > 0 && (
         <BoCallout tone="warning">
-          {venue.name} still has its own {orphans.length === 1 ? 'price' : 'prices'} for {orphans.length === 1 ? 'a dish' : 'dishes'} no longer on its menu (
-          {orphans.map((o) => byId.get(o.recipeId)?.name ?? o.recipeId).join(', ')}).{' '}
+          {venue.name} still has its own {orphans.length === 1 ? 'price' : 'prices'} for {orphans.length === 1 ? 'a dish' : 'dishes'} no longer on its
+          menu ({orphans.map((o) => byId.get(o.recipeId)?.name ?? o.recipeId).join(', ')}).{' '}
           <button className={s.inlineLink} onClick={archiveOrphans}>
             Clear {orphans.length === 1 ? 'it' : 'them'}
           </button>

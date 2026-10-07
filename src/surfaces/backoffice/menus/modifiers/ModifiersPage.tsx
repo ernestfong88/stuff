@@ -35,7 +35,8 @@ export function ModifiersPage() {
     });
   };
 
-  const update = (id: string, fn: (g: BoModGroup) => BoModGroup) => updateBo((st) => ({ modGroups: st.modGroups.map((g) => (g.id === id ? fn(g) : g)) }));
+  const update = (id: string, fn: (g: BoModGroup) => BoModGroup) =>
+    updateBo((st) => ({ modGroups: st.modGroups.map((g) => (g.id === id ? fn(g) : g)) }));
 
   const retire = (g: BoModGroup) => {
     update(g.id, (x) => ({ ...x, active: false }));
@@ -54,7 +55,6 @@ export function ModifiersPage() {
   return (
     <BoPage
       title="Modifiers"
-      sub="Choices servers add to an item, like breads, sides, toppings and cooking styles."
       actions={
         <Button icon={<Download size={15} />} onClick={() => setCopyOpen(true)}>
           Copy from another community

@@ -223,6 +223,7 @@ The final order is:
 ### Less text in Back Office; Dining Service is now POS Settings
 - **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
 - **Dining Service is now POS Settings** in the Back Office menu.
+- **Menu builder without repeated hints.** Instruction paragraphs, lines that restate a title or tab, per-row hints and duplicate tooltips are gone from the menus list, cycle builder, à la carte builder and their dialogs. The same goes for the Recipe Book, Modifiers, Menu Export and Pricing pages. Warnings, empty states and the menu-standard tooltip stay.
 - **Calmer dashboard.**
   - *Needs your attention* is one line per item: the action and a link to where it's handled. Tap the header to collapse it.
   - *P-Mix · served today* opens with one line and the share bar.

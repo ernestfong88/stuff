@@ -72,7 +72,6 @@ function MenuList() {
   return (
     <BoPage
       title="Menu Cycle & À la Carte"
-      sub="Every quarter needs a weekly menu cycle and an à la carte menu. Past menus stay in the Archive for reference."
       actions={
         <Button variant="primary" icon={<Plus size={16} />} onClick={() => navigate('backoffice', ['menus', blankMenu(target, tab)])}>
           {tab === 'alc' ? 'New à la carte menu' : 'New menu cycle'}
@@ -82,13 +81,12 @@ function MenuList() {
       <div className={s.tabs} role="tablist">
         {(
           [
-            ['cycle', 'Menu cycles', 'Weekly menus that rotate'],
-            ['alc', 'À la carte menus', 'The standing menu, every day'],
+            ['cycle', 'Menu cycles'],
+            ['alc', 'À la carte menus'],
           ] as const
-        ).map(([k, label, sub]) => (
+        ).map(([k, label]) => (
           <button key={k} role="tab" aria-selected={tab === k} className={cx(s.tab, tab === k && s.tabOn)} onClick={() => setTab(k)}>
             <span className={s.tabLabel}>{label}</span>
-            <span className={s.tabSub}>{sub}</span>
           </button>
         ))}
       </div>
@@ -191,9 +189,7 @@ function MenuList() {
                         </span>
                       )}
                     </div>
-                    <div className={s.muted}>
-                      {r.everyDay ? `Served every day alongside the ${m.name} cycle` : w.length ? 'Served at ' + w.join(', ') : 'Not on a venue yet'}
-                    </div>
+                    {!r.everyDay && <div className={s.muted}>{w.length ? 'Served at ' + w.join(', ') : 'Not on a venue yet'}</div>}
                   </td>
                   <td>
                     {!r.everyDay && (

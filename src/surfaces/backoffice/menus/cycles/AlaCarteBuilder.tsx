@@ -15,7 +15,7 @@ import type { BuilderMeal } from '../model/types';
 import { RecipeDialog } from '../recipes/RecipeDialog';
 import { QuarterBadge, QuarterPick, StateChip } from '../ui/menuBits';
 import { ApprovalStatus, LockBanner, LockButton } from '../ui/MenuLock';
-import { ALC_RULE, AlcCounter, alcWarnings } from './AlcCounter';
+import { AlcCounter, alcWarnings } from './AlcCounter';
 import { SlotSearch } from './SlotSearch';
 import s from './AlaCarteBuilder.module.css';
 
@@ -124,10 +124,7 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
         <span className={s.sub}>
           {everyDay ? <QuarterBadge q={m.quarter} big /> : <QuarterPick menu={m} at={now()} readOnly={readOnly} />}
           <StateChip state={menuState(m, venues)} />
-          <span>
-            {everyDay ? `Served every day alongside the ${m.name} cycle` : 'The same menu every day'}
-            {where.length ? ` · served at ${where.join(', ')}` : ' · not on a venue yet'}
-          </span>
+          <span>{where.length ? `Served at ${where.join(', ')}` : 'Not on a venue yet'}</span>
           {!everyDay && <ApprovalStatus menu={m} />}
         </span>
       }
@@ -163,21 +160,9 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
           }))}
           aria-label="Meal period"
         />
-        {meal !== 'All' && (
-          <span className={s.mealHint}>
-            Only what is offered at {meal.toLowerCase()}.{readOnly ? '' : ` Dishes you add go on ${meal.toLowerCase()}.`}
-          </span>
-        )}
+        {meal !== 'All' && !readOnly && <span className={s.mealHint}>Dishes you add go on {meal.toLowerCase()}.</span>}
       </div>
-      <p className={s.liveNote}>
-        {readOnly
-          ? 'Each dish shows the meals it is offered at. Click a dish to open its recipe.'
-          : 'Breakfast, Lunch and Dinner on each dish choose when it is offered: dark means on. Click a dish to open its recipe.'}
-        {live ? ' Sequoia and Evergreen servers order from this list, so a change shows on their tablets right away.' : ''}
-        {standard
-          ? ` Menu standard: ${tally.limitItems} menu items, at most ${tally.limitSides} sides. ${ALC_RULE.replace('the 20', `the ${tally.limitItems}`)}`
-          : ''}
-      </p>
+      {live && <p className={s.liveNote}>Servers order from this list, so a change shows on their tablets right away.</p>}
 
       <div className={s.sections}>
         {SECTIONS.map(([ck, label]) => {

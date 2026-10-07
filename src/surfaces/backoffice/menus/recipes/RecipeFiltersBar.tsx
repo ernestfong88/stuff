@@ -112,9 +112,7 @@ export function RecipeFiltersBar({
           <span>
             <b className={s.count}>{count}</b> {count === 1 ? 'recipe' : 'recipes'}
           </span>
-        ) : (
-          <span className={s.muted}>Choose a filter to see recipes</span>
-        )}
+        ) : null}
         {showAll && activeCount === 0 && (
           <button className={s.link} onClick={onHide}>
             Hide list

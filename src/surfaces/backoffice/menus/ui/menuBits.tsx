@@ -62,7 +62,7 @@ export function planClass(cat: string): string {
   return s[`plan_${normCategory(cat)}`];
 }
 
-export function PlanLegend({ note }: { note: string }) {
+export function PlanLegend() {
   return (
     <div className={s.legend}>
       {['Starters', 'Entrees', 'Sides', 'Desserts', 'Drinks'].map((k) => (
@@ -71,7 +71,6 @@ export function PlanLegend({ note }: { note: string }) {
           {PLAN_LABEL[k]}
         </span>
       ))}
-      <span className={s.legendNote}>{note}</span>
     </div>
   );
 }

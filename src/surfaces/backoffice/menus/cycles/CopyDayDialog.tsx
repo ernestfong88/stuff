@@ -165,7 +165,9 @@ export function CopyDayDialog({
 
       <p className={s.lead}>
         {swap
-          ? `Everything on ${fromName} (${plural(fromCount, 'dish', 'dishes')}) and the day you pick trades places, every meal, sides included.`
+          ? targets.length === 1
+            ? `${fromName} (${fromCount}) and ${name(targets[0])} (${toCount}) trade places, every meal, sides included.`
+            : `Everything on ${fromName} (${plural(fromCount, 'dish', 'dishes')}) and the day you pick trades places, every meal, sides included.`
           : fromCount
             ? `${fromCount === 1 ? 'The 1 dish' : `All ${fromCount} dishes`} from ${mealOf ? `${fromName} ${mealOf.toLowerCase()}` : fromName} go onto the days you tick.`
             : `${fromName} has no ${what} yet, so there is nothing to copy.`}
@@ -202,7 +204,6 @@ export function CopyDayDialog({
                       className={cx(s.day, on && s.dayOn, warn && s.dayWarn, self && s.daySelf)}
                       disabled={self}
                       aria-pressed={on}
-                      title={self ? `The day you are ${swap ? 'swapping' : 'copying'}` : has ? `${has} ${what} there now` : 'Nothing there yet'}
                       onClick={() => pick(d)}
                     >
                       <span className={s.dayName}>{dayTitle(anchor, d)}</span>
@@ -237,13 +238,6 @@ export function CopyDayDialog({
               </>
             )}{' '}
             You can undo right after.
-          </BoCallout>
-        </div>
-      )}
-      {swap && targets.length === 1 && (
-        <div className={s.warnBox}>
-          <BoCallout tone="info">
-            <b>{name(from)}</b> ({fromCount}) and <b>{name(targets[0])}</b> ({toCount}) trade places.
           </BoCallout>
         </div>
       )}

@@ -22,10 +22,6 @@
 .tabOn .tabLabel {
   color: var(--ink);
 }
-.tabSub {
-  font-size: 11.5px;
-  color: var(--s400);
-}
 .toolbar {
   display: flex;
   align-items: center;

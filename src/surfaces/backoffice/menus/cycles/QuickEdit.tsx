@@ -18,7 +18,19 @@ const isAddOn = (id: string) => tabletIds(id).some((t) => tabletIndex().placeOf.
  * Quick edit from the menu builder: this week's catch for a Catch of the
  * Day, and the default sides this placement comes with.
  */
-export function QuickEdit({ menuId, day, recipe, onClose, onFull }: { menuId: string; day: number; recipe: Recipe; onClose: () => void; onFull: () => void }) {
+export function QuickEdit({
+  menuId,
+  day,
+  recipe,
+  onClose,
+  onFull,
+}: {
+  menuId: string;
+  day: number;
+  recipe: Recipe;
+  onClose: () => void;
+  onFull: () => void;
+}) {
   const bo = useBo();
   const cfg = useConfig();
   const r = bo.recipes.find((x) => x.id === recipe.id) ?? recipe;
@@ -78,7 +90,7 @@ export function QuickEdit({ menuId, day, recipe, onClose, onFull }: { menuId: st
                 Rename
               </Button>
             </div>
-            <p className={s.note}>Change it when the fish changes. Servers, the cook line and Expo see the new name right away.</p>
+            <p className={s.note}>Servers, the cook line and Expo see the new name right away.</p>
           </div>
         )}
         {entree ? (
@@ -115,8 +127,7 @@ export function QuickEdit({ menuId, day, recipe, onClose, onFull }: { menuId: st
             </div>
             <p className={s.note}>
               {day ? `Only this special on Day ${day} uses these. ` : 'The same entrée on another menu keeps its own. '}
-              The side goes on the check when the server adds the entrée, and they can remove or swap it for free. The cook line only calls out sides that
-              differ. With no default, the tablet opens Sides and picking one is optional.
+              Servers can remove or swap a default side for free.
             </p>
             {changed && (
               <button className={s.link} onClick={() => setPlacementSides(menuId, day, r.id, null)}>
@@ -124,9 +135,7 @@ export function QuickEdit({ menuId, day, recipe, onClose, onFull }: { menuId: st
               </button>
             )}
           </div>
-        ) : (
-          <p className={s.note}>Default sides are for entrées. Open the full recipe for everything else about this item.</p>
-        )}
+        ) : null}
       </div>
     </Modal>
   );

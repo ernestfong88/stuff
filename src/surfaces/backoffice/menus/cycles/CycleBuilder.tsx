@@ -81,11 +81,6 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
         <span className={s.sub}>
           <QuarterPick menu={m} at={at} readOnly={readOnly} />
           <StateChip state={menuState(m, venues)} />
-          {anchor?.live && weeks > 0 && (
-            <span>
-              Today is week {Math.ceil((anchor.today ?? 1) / 7)} of {weeks}
-            </span>
-          )}
           <ApprovalStatus menu={m} />
         </span>
       }
@@ -131,8 +126,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
 
       {!readOnly && len > 0 && empty.length === len && (
         <BoCallout tone="info">
-          A new menu starts empty. Click a <b>+</b> slot to add a dish, use <b>Fill from recipe book</b> below to fill every empty slot at once, or go
-          back and copy last season&apos;s menu instead.
+          This menu is empty. <b>Fill from recipe book</b> fills every empty slot at once, or go back and copy last season&apos;s menu.
         </BoCallout>
       )}
 
@@ -207,13 +201,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
             )}
           </div>
 
-          <PlanLegend
-            note={
-              readOnly
-                ? 'Click a dish to open its recipe.'
-                : 'Click + and type a dish name to add it. Click a dish to change its sides, or × to take it off. An empty row has an × by its name to drop it from that meal. Each date has a menu to copy, swap or clear the day.'
-            }
-          />
+          <PlanLegend />
 
           <MenuGrid
             menu={m}
@@ -227,10 +215,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
           />
         </>
       ) : (
-        <EmptyState title="Choose how many weeks this cycle runs">
-          Pick 4 to 10 weeks with Cycle length at the top right, and the weeks appear here to fill in. Dishes served every day are on the À la carte
-          menus tab, under this menu's every-day items.
-        </EmptyState>
+        <EmptyState title="Choose how many weeks this cycle runs">Pick 4 to 10 weeks with Cycle length at the top right.</EmptyState>
       )}
 
       {dayAct && !readOnly && (

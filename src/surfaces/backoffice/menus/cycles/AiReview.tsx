@@ -28,7 +28,11 @@ const TYPES: Record<string, [string, string]> = {
   variety: ['Variety', 'success'],
   holidayTiming: ['Holiday', 'warning'],
 };
-const SEV: Record<string, ['danger' | 'warning' | 'neutral', string]> = { high: ['danger', 'High'], medium: ['warning', 'Medium'], low: ['neutral', 'Low'] };
+const SEV: Record<string, ['danger' | 'warning' | 'neutral', string]> = {
+  high: ['danger', 'High'],
+  medium: ['warning', 'Medium'],
+  low: ['neutral', 'Low'],
+};
 
 function statsText(st: Record<string, unknown> | undefined): string[] {
   if (!st) return [];
@@ -425,9 +429,7 @@ export function AiReview({ menu: m, len, onGo }: { menu: BoMenu; len: number; on
   } else if (tab === 'fb') {
     body = fbRows.length ? (
       <>
-        <p className={s.muted}>
-          What residents said about dishes on this menu, linked from servers&apos; voice notes, quick feedback on the check and ratings. Lowest scores first.
-        </p>
+        <p className={s.muted}>Lowest scores first.</p>
         {fbRows.map((x) => {
           const q = (x.sc.score < 3.5 && x.sc.feedback.find((f) => f.sent === 'neg')) || x.sc.feedback[0];
           return row(
@@ -537,7 +539,7 @@ export function AiReview({ menu: m, len, onGo }: { menu: BoMenu; len: number; on
     );
   }
 
-  const head = vt ? AI.summary.headline : 'Variety check, season notes and recipe book fill for this menu.';
+  const head = vt ? AI.summary.headline : '';
   return (
     <section className={s.card} aria-label="AI menu review">
       <div className={s.top}>
@@ -553,7 +555,13 @@ export function AiReview({ menu: m, len, onGo }: { menu: BoMenu; len: number; on
           </Chip>
         )}
         <span className={s.head}>{open ? '' : head}</span>
-        <Select size="sm" value={season} onChange={(v) => setSeason(v as Season)} options={SEASONS.map((x) => ({ value: x, label: x }))} aria-label="Season" />
+        <Select
+          size="sm"
+          value={season}
+          onChange={(v) => setSeason(v as Season)}
+          options={SEASONS.map((x) => ({ value: x, label: x }))}
+          aria-label="Season"
+        />
         <Button size="sm" onClick={fill}>
           Fill from recipe book
         </Button>
@@ -568,10 +576,11 @@ export function AiReview({ menu: m, len, onGo }: { menu: BoMenu; len: number; on
       </div>
       {open && (
         <>
-          <p className={s.headline}>
-            {head}
-            {vt ? ' ' + AI.disclaimer : ''}
-          </p>
+          {vt && (
+            <p className={s.headline}>
+              {head} {AI.disclaimer}
+            </p>
+          )}
           <div className={s.tabs} role="tablist">
             {tabs.map(([k, t, c]) => (
               <button key={k} role="tab" aria-selected={tab === k} className={cx(s.tab, tab === k && s.tabOn)} onClick={() => setTab(k)}>
