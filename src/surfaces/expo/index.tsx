@@ -21,9 +21,7 @@ import { KitchenUnavailable } from '../kitchen/KitchenUnavailable';
 import { MenuReference } from '../kitchen/MenuReference';
 import type { TextSettings } from '../kitchen/orderTexts';
 import { RecallMenu } from '../kitchen/RecallMenu';
-import { snapshotLines } from '../kitchen/lineSnapshot';
 import { useBumpBar } from '../kitchen/useBumpBar';
-import { useBumpUndo } from '../kitchen/useBumpUndo';
 import { useThreshold } from '../kitchen/useThreshold';
 import { kitchenPrinters, useVenueSettings } from '../../store/venueSettings';
 import { assocTickets, plannedToday, type AssocStage } from './assocTickets';
@@ -75,7 +73,6 @@ function ExpoPass() {
   const [keysOpen, setKeysOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const closeKeys = useCallback(() => setKeysOpen(false), []);
-  const undoToast = useBumpUndo();
 
   const tickets = useMemo(() => buildExpoTickets(orders), [orders]);
   const lists = filterTickets(tickets, clock);
@@ -90,26 +87,14 @@ function ExpoPass() {
 
   const recallLabel = (o: ExpoTicket['order']) => (o.queueType ? `${tableName(o)} · ${o.diners[0] ? dinerName(o.diners[0]).split(' ')[0] : ''}` : tableName(o));
 
-  /** Run course c to the table, with an Undo in case it was the wrong ticket. */
-  const runCourse = (orderId: string, c: number) => {
-    const o = orders.find((x) => x.id === orderId);
-    const before = o ? snapshotLines(o) : [];
-    dining.clearCourse(orderId, c);
-    if (o) undoToast(orderId, before, `${recallLabel(o)}: course ${c} ran`);
-  };
+  /** Run course c to the table. A ticket cleared by mistake comes back from RECALL. */
+  const runCourse = (orderId: string, c: number) => dining.clearCourse(orderId, c);
 
   /** The last course goes out: the ticket leaves the pass. */
-  const bumpOrder = (orderId: string) => {
-    const o = orders.find((x) => x.id === orderId);
-    const before = o ? snapshotLines(o) : [];
-    dining.clearOrder(orderId);
-    if (o) undoToast(orderId, before, `${recallLabel(o)} cleared from the pass`);
-  };
+  const bumpOrder = (orderId: string) => dining.clearOrder(orderId);
 
   const handOff = (t: ExpoTicket) => {
-    const before = snapshotLines(t.order);
     dining.clearOrder(t.order.id);
-    undoToast(t.order.id, before, `${recallLabel(t.order)} ${t.order.queueType === 'delivery' ? 'on its way' : 'picked up'}`);
     if (t.order.queueType === 'pickup' && !tracksPickup(t.order.room)) {
       dining.patchOrder(t.order.id, { setOut: true });
       dining.markDelivered(t.order.id);

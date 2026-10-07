@@ -6,6 +6,7 @@ import { kitchenItemName } from '../../domain/menu';
 import { dinerName, dinerPerson } from '../../domain/orders';
 import { serverName } from '../../domain/servers';
 import { formatElapsed, formatTime } from '../../lib/format';
+import { firstSend } from '../../domain/courses';
 import { itemReminders } from '../../store/menuEdits';
 import { Popover, cx, toast } from '../../ui';
 import { DinerPills } from '../kitchen/DinerPills';
@@ -114,7 +115,12 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
             </span>
           )}
           {allToGo && <span className={s.togo}>TO GO</span>}
-          <span className={cx(s.clock, s.clockPushed)}>{formatElapsed(now - t.firedAt)}</span>
+          {!o.queueType && (
+            <span className={cx(s.inAt, s.clockPushed)} title="When the table's order first went to the kitchen">
+              IN {formatTime(firstSend(o) ?? t.firedAt)}
+            </span>
+          )}
+          <span className={cx(s.clock, !o.queueType ? undefined : s.clockPushed)}>{formatElapsed(now - t.firedAt)}</span>
         </div>
         <div className={s.headRow}>
           {o.readyAt && <span className={s.window}>{o.readyAt === 'ASAP' ? 'ASAP' : pickupWindow(o.readyAt)}</span>}
