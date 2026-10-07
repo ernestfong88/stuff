@@ -8,6 +8,7 @@ import { Keyboard, ListOrdered } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { now } from '../../lib/clock';
 import { safeStorage } from '../../lib/storage';
+import { formatTime } from '../../lib/format';
 import { useConfig } from '../../store/config';
 import { useDining } from '../../store/dining';
 import { useSetting } from '../../store/serviceConfig';
@@ -23,9 +24,7 @@ import { KitchenUnavailable } from '../kitchen/KitchenUnavailable';
 import { MenuReference } from '../kitchen/MenuReference';
 import { RecallMenu } from '../kitchen/RecallMenu';
 import type { SubcategoryChoices } from '../../domain/subcategories';
-import { snapshotLines } from '../kitchen/lineSnapshot';
 import { useBumpBar } from '../kitchen/useBumpBar';
-import { useBumpUndo } from '../kitchen/useBumpUndo';
 import { useThreshold } from '../kitchen/useThreshold';
 import { kitchenPrinters, kitchenScreens, screenOptions, useDeviceScreen, useVenueSettings } from '../../store/venueSettings';
 import { AllDayBar } from './AllDayBar';
@@ -63,7 +62,6 @@ function CookLine() {
   const [keysOpen, setKeysOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [allDay, setAllDay] = useState(() => safeStorage.get(ALL_DAY_KEY) === '1');
-  const undoToast = useBumpUndo();
   const closeKeys = useCallback(() => setKeysOpen(false), []);
 
   const screensOf = useCallback(
@@ -98,21 +96,14 @@ function CookLine() {
   };
 
   /** Picked up, without an expo station: the course leaves the line. */
-  const clearTicket = (t: CookTicket) => {
-    const before = snapshotLines(t.order, t.lines.flatMap((l) => [l.id, ...l.sideLines.map((x) => x.id)]));
-    dining.clearCourse(t.orderId, t.course);
-    undoToast(t.orderId, before, `${tableName(t.order)} cleared`);
-  };
+  const clearTicket = (t: CookTicket) => dining.clearCourse(t.orderId, t.course);
 
   const bumpTicket = (t: CookTicket) => {
     const st = ticketStatus(t, screen.key);
     if (st.onlyCancelled) return clearCancelled(t);
     if (st.allReady && !expoActive) return clearTicket(t);
-    const ids = bumpLineIds(t, screen.key, screensOf);
-    const before = snapshotLines(t.order, [...ids, ...st.cancelled.map((l) => l.id)]);
-    dining.markCourseReady(t.orderId, t.course, ids);
+    dining.markCourseReady(t.orderId, t.course, bumpLineIds(t, screen.key, screensOf));
     clearCancelled(t);
-    undoToast(t.orderId, before, `${tableName(t.order)} bumped`);
   };
 
   const recallLast = () => {
@@ -147,6 +138,9 @@ function CookLine() {
         subtitle={screen.roomName}
         actions={
           <>
+            <span className={s.clock} aria-label="Time">
+              {formatTime(clock)}
+            </span>
             <HeaderButton
               icon={<ListOrdered size={15} strokeWidth={2.5} />}
               on={allDay}

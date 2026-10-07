@@ -5,7 +5,8 @@ import type { DiningConfig } from '../../domain/config';
 import { kitchenItemName } from '../../domain/menu';
 import { dinerName, tableName } from '../../domain/orders';
 import { serverName } from '../../domain/servers';
-import { formatElapsed } from '../../lib/format';
+import { formatElapsed, formatTime } from '../../lib/format';
+import { firstSend } from '../../domain/courses';
 import { cx } from '../../ui';
 import { DinerPills } from '../kitchen/DinerPills';
 import { linesByDiner, plateDetails, ticketStatus, type CookLine, type CookTicket } from './cookTickets';
@@ -62,6 +63,11 @@ export function CookTicketCard(p: CookTicketCardProps) {
         </span>
         {toGo && <span className={s.togo}>TO GO</span>}
         <span className={s.course}>{o.queueType ? 'ALL' : 'C' + t.course}</span>
+        {!o.queueType && (
+          <span className={s.inAt} title="When the table's order first went to the kitchen">
+            IN {formatTime(firstSend(o) ?? t.firedAt)}
+          </span>
+        )}
         <span className={s.timer}>{formatElapsed(p.now - t.firedAt)}</span>
       </header>
 
