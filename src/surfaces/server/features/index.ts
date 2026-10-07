@@ -7,6 +7,7 @@ export { ResidentsView } from './residents/ResidentsView';
 export { ResidentProfileSheet } from './residents/ResidentProfileSheet';
 export { ShiftReviewView } from './shift/ShiftReviewView';
 export { SideWorkChip } from './sidework/SideWorkChip';
+export { SideWorkManager } from './sidework/SideWorkManager';
 export { PointsChip } from './points/PointsChip';
 export { NoticesButton } from './notices/NoticesButton';
 export { VoiceButton } from './voice/VoiceButton';
