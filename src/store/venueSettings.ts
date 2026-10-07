@@ -11,7 +11,7 @@
  * Persisted and synced across tabs, so a screen renamed in the Back Office
  * shows on the cook line straight away.
  */
-import type { PrintRoute } from '../domain/printing';
+import type { PrintGroup, PrintRoute } from '../domain/printing';
 import { rooms } from '../data';
 import { revive } from '../data/revive';
 import { createSharedStore, useShared } from '../lib/sharedStore';
@@ -60,7 +60,7 @@ export interface Printer {
   active: boolean;
   reachable: boolean;
   /** Printer mode: the whole ticket, or only some groups of items (see domain/printing). */
-  print?: PrintRoute;
+  print?: PrintRoute | PrintGroup[];
 }
 
 export interface PrinterLink {

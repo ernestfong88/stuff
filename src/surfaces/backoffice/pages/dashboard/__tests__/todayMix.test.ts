@@ -56,4 +56,41 @@ describe('todayMix', () => {
     expect(m.rest).toEqual({ n: 3, pct: 38, dishes: 3 });
     expect(todayMix([check(lines)], [], { ...opts, limit: 4 }).rest).toBeNull();
   });
+  it('filters to one meal and counts plates per meal from every source', () => {
+    const cat = [
+      ...catalog,
+      { ...item('bp', 'Pancakes', 'Entrées', true), meal: 'Breakfast' } as CatalogItem,
+      { ...item('dp', 'Peach Chicken', 'Entrées', true), meal: 'Dinner' } as CatalogItem,
+    ];
+    const meal = (m: Order['meal'], lines: OrderLine[]) => ({ ...check(lines), meal: m }) as Order;
+    const a = (item: string, m: string, readyAt?: number) => ({ item, date: '2026-10-07', status: 'Ready', meal: m, readyAt }) as AssocMeal;
+    const checks = [
+      meal('Breakfast', [line('b'), line('c')]),
+      meal('Lunch', [line('b'), line('b'), line('e')]),
+      check([line('d')], TODAY + 19 * 3600_000),
+    ];
+    const assoc = [a('Reuben', 'Lunch'), a('Cobb', 'NOC'), a('Soup', '', TODAY + 12 * 3600_000)];
+    const o = { ...opts, catalog: cat, earlier: { bp: 5, dp: 2 } };
+    const all = todayMix(checks, assoc, o);
+    expect(all.tot).toBe(16);
+    expect(all.byMeal).toEqual({ Breakfast: 7, Lunch: 5, Dinner: 4 });
+    const lunch = todayMix(checks, assoc, { ...o, meal: 'Lunch' });
+    expect(lunch.tot).toBe(5);
+    expect(lunch.top.map((r) => [r.name, r.n, r.pct])).toEqual([
+      ['Reuben', 3, 60],
+      ['Cobb', 1, 20],
+      ['Soup', 1, 20],
+    ]);
+    expect(lunch.byMeal).toEqual(all.byMeal);
+    // Untagged checks go by when they were opened; NOC associate meals count with dinner.
+    expect(todayMix(checks, assoc, { ...o, meal: 'Dinner' }).top.map((r) => [r.name, r.n])).toEqual([
+      ['Peach Chicken', 2],
+      ['Cobb', 1],
+      ['Pie', 1],
+    ]);
+  });
+  it('is empty for a meal with nothing served yet', () => {
+    const m = todayMix([check([line('b')])], [], { ...opts, meal: 'Dinner' });
+    expect(m).toEqual({ tot: 0, top: [], rest: null, byMeal: { Breakfast: 1, Lunch: 0, Dinner: 0 } });
+  });
 });

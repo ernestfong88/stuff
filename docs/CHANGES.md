@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Printers by category or recipe, drinks split, P-Mix by meal
+- **Printers by group, category or recipe.** In *Only some items* mode, each printer can take:
+  - whole groups;
+  - Recipe Book categories (Soup, Sandwiches, Entrée Salad, Wine and so on);
+  - single recipes (the burger to the grill).
+
+  To add a category or recipe, type in *Add a category or recipe* under the printer. The most specific setting wins: a recipe or category picked for one printer prints there instead of at the printer that takes its whole group. Whole-ticket printers still print everything. The demo sends entrée salads to Cold / Pantry.
+- **Drinks split into Beverages and Alcohol.** Wine, beer, spirits and cocktails are Alcohol, and every other drink is a Beverage, so the bar printer can take alcohol only. A printer saved with the old Drinks group takes both.
+- **P-Mix today by meal.** The dashboard's P-Mix card has an All · Breakfast · Lunch · Dinner filter with a plate count for each meal. A meal with nothing served yet can't be picked.
+
 ### Phases switched on or off for the whole system
 - **Side work follows its phase.** The side work chip on My tables and the side work reminder at sign-off only show while the phase of *Side Work Tasks* / *Assign Side Work* is switched on.
 - **Phase 2 and Phase 3 switches.** They are at the bottom of the Back Office side menu and on *Release Phases* (HO Settings). Phase 1 is always on. Turning Phase 2 off also turns Phase 3 off, and turning Phase 3 on also turns Phase 2 on. The switches are saved and survive a demo reset. They replace the old *All pages / Phase 1 only* view.

@@ -1,10 +1,12 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { catalog } from '../../../../data';
 import { isoDate } from '../../../../domain/pickup';
+import { MEALS } from '../../../../domain/pickupService/meals';
+import type { MealName } from '../../../../domain/types';
 import { startOfToday } from '../../../../lib/clock';
 import { useDining } from '../../../../store/dining';
-import { Button } from '../../../../ui';
+import { Button, Tabs } from '../../../../ui';
 import { CHART, MeterBar, ShareBar } from '../../kit';
 import { SPECIALS_SOLD_EARLIER } from '../../seed/dashboard';
 import { todayMix, type MixRow } from './model/todayMix';
@@ -23,10 +25,19 @@ function shades(rows: MixRow[]): string[] {
 export function PmixTodayCard({ goto }: { goto: (pageId: string) => void }) {
   const { orders, history, assocOrders } = useDining();
   const todayStart = startOfToday();
+  const [meal, setMeal] = useState<MealName | 'All'>('All');
   const mix = useMemo(
-    () => todayMix([...orders, ...history], assocOrders, { todayStart, todayIso: isoDate(0), catalog, earlier: SPECIALS_SOLD_EARLIER }),
-    [orders, history, assocOrders, todayStart],
+    () =>
+      todayMix([...orders, ...history], assocOrders, {
+        todayStart,
+        todayIso: isoDate(0),
+        catalog,
+        earlier: SPECIALS_SOLD_EARLIER,
+        meal: meal === 'All' ? undefined : meal,
+      }),
+    [orders, history, assocOrders, todayStart, meal],
   );
+  const dayTot = MEALS.reduce((q, m) => q + mix.byMeal[m], 0);
   const colors = shades(mix.top);
   const max = Math.max(mix.top[0]?.n ?? 0, mix.rest?.n ?? 0);
   const rows = [
@@ -43,12 +54,27 @@ export function PmixTodayCard({ goto }: { goto: (pageId: string) => void }) {
           Full P-Mix
         </Button>
       </header>
+      {dayTot > 0 && (
+        <Tabs
+          variant="segmented"
+          size="sm"
+          className={s.pmixMeals}
+          value={meal}
+          onChange={setMeal}
+          aria-label="Meal"
+          options={[
+            { id: 'All' as const, label: 'All' },
+            // A meal with nothing served yet (dinner in the morning) cannot be picked.
+            ...MEALS.map((m) => ({ id: m, label: m, count: mix.byMeal[m] || undefined, disabled: !mix.byMeal[m] })),
+          ]}
+        />
+      )}
       {mix.tot === 0 ? (
-        <p className={s.muted}>Nothing served yet today.</p>
+        <p className={s.muted}>{meal === 'All' ? 'Nothing served yet today.' : `Nothing served at ${meal.toLowerCase()} yet.`}</p>
       ) : (
         <>
           <p className={s.cardLine}>
-            <b>{mix.tot}</b> plates served so far
+            <b>{mix.tot}</b> plates served so far{meal !== 'All' && ` at ${meal.toLowerCase()}`}
           </p>
           <ShareBar
             label="Share of today's plates"

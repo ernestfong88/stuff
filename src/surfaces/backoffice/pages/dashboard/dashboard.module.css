@@ -910,3 +910,6 @@
   font-size: 11.5px;
   color: var(--s500);
 }
+.pmixMeals {
+  align-self: flex-start;
+}

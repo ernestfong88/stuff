@@ -7,6 +7,7 @@ import { now } from '../../../lib/clock';
 import { printerMode } from '../../../domain/config';
 import { printJobs, printSummary } from '../../../domain/printing';
 import { useConfig } from '../../../store/config';
+import { printItemsFor } from '../../../store/printing';
 import { kitchenPrinters, venueSettingsStore } from '../../../store/venueSettings';
 import { useDining } from '../../../store/dining';
 import { useSession } from '../../../store/session';
@@ -141,11 +142,12 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
   };
   const send = () => {
     if (printerMode(cfg)) {
-      const items = o.diners
-        .flatMap((d) => d.items)
-        .filter((l) => !l.sent && !l.hold)
-        .map((l) => getItem(l.itemId))
-        .flatMap((it) => (it ? [{ name: it.name, category: it.category }] : []));
+      const items = printItemsFor(
+        o.diners
+          .flatMap((d) => d.items)
+          .filter((l) => !l.sent && !l.hold)
+          .map((l) => l.itemId),
+      );
       const jobs = printJobs(items, kitchenPrinters(venueSettingsStore.get(), o.room).filter((p) => p.active));
       setPrintNote(printSummary(jobs));
       const down = jobs.filter((j) => !j.printer.reachable).map((j) => j.printer.name);

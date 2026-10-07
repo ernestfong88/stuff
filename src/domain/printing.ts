@@ -1,60 +1,134 @@
 /**
  * Printer mode: which printer prints which items. A printer prints the whole
- * ticket, or only the groups it is set to (the hot line gets entrées and
- * sides, the pantry gets starters and desserts). Every printer that has
+ * ticket, or only what it is set to, at three levels:
+ *
+ * - groups: Beverages, Alcohol, Starters, Entrées, Sides, Desserts;
+ * - categories: a Recipe Book subcategory within a group ("Entrées/Sandwiches");
+ * - recipes: one dish.
+ *
+ * The most specific setting wins: a recipe picked for a printer prints there
+ * and not at the printers that take its category or group, and a category
+ * picked for a printer prints there and not at the printers that take its
+ * group. Whole-ticket printers always print everything. Every printer with
  * something to print gets one ticket when the server sends.
  */
 
 /** The groups a printer can be set to, in menu order. */
-export const PRINT_GROUPS = ['Drinks', 'Starters', 'Entrées', 'Sides', 'Desserts'] as const;
+export const PRINT_GROUPS = ['Beverages', 'Alcohol', 'Starters', 'Entrées', 'Sides', 'Desserts'] as const;
 export type PrintGroup = (typeof PRINT_GROUPS)[number];
 
-/** What a printer prints: 'all' for the whole ticket, or a list of groups (empty prints nothing). */
-export type PrintRoute = 'all' | PrintGroup[];
+/** Recipe Book drink subcategories that are alcohol; every other drink is a beverage. */
+export const ALCOHOL_SUBS = ['Wine', 'Beer', 'Spirits / Liquor', 'Cocktails'];
 
-/** The printer fields this needs. */
+/** The first version had one Drinks group; a saved pick of it means both. */
+const LEGACY: Record<string, PrintGroup[]> = { Drinks: ['Beverages', 'Alcohol'] };
+const upgradeGroups = (gs: readonly string[]): PrintGroup[] =>
+  PRINT_GROUPS.filter((g) => gs.includes(g) || gs.some((x) => LEGACY[x]?.includes(g)));
+
+/** What a printer prints when it doesn't take the whole ticket. */
+export interface PrintPick {
+  groups: PrintGroup[];
+  /** Category keys: "<group>/<subcategory>", e.g. "Entrées/Sandwiches". */
+  subs: string[];
+  /** Recipe ids. */
+  recipes: string[];
+}
+
+/** What a printer prints: 'all' for the whole ticket, or its picks (all empty prints nothing). */
+export type PrintRoute = 'all' | PrintPick;
+
+/** The printer fields this needs. A saved list of groups (the first version) still reads. */
 export interface RoutedPrinter {
   id: string;
   name: string;
   type: string;
   reachable: boolean;
-  print?: PrintRoute;
+  print?: PrintRoute | string[];
 }
 
-/** Menu category (as the tablet menu lists it) → print group. */
+/** One item on a ticket, as routing sees it. */
+export interface PrintItem {
+  name: string;
+  group: PrintGroup;
+  /** Its category key ("Entrées/Soup"), when its recipe has a subcategory. */
+  sub?: string;
+  recipeId?: string;
+}
+
+export const EMPTY_PICK: PrintPick = { groups: [], subs: [], recipes: [] };
+
+/** Menu category (as the tablet menu lists it) or Recipe Book category → print group. */
 const GROUP_OF: Record<string, PrintGroup> = {
-  Drinks: 'Drinks',
-  Beverages: 'Drinks',
-  Alcohol: 'Drinks',
-  Cocktails: 'Drinks',
+  Drinks: 'Beverages',
+  Beverages: 'Beverages',
+  Alcohol: 'Alcohol',
+  Cocktails: 'Alcohol',
   Starters: 'Starters',
   Specials: 'Entrées',
   Entrées: 'Entrées',
   Entrees: 'Entrées',
+  Snacks: 'Entrées',
   Sides: 'Sides',
   'Add-Ons': 'Sides',
   Desserts: 'Desserts',
 };
 
-/** The print group of a menu category; anything unknown counts as an entrée. */
-export const printGroupOf = (category: string | undefined): PrintGroup => (category && GROUP_OF[category]) || 'Entrées';
+/**
+ * The print group of a category; anything unknown counts as an entrée. A
+ * Recipe Book drink is alcohol when its subcategory is wine, beer, spirits or
+ * a cocktail.
+ */
+export function printGroupOf(category: string | undefined, sub?: string): PrintGroup {
+  const g = (category && GROUP_OF[category]) || 'Entrées';
+  return g === 'Beverages' && sub && ALCOHOL_SUBS.includes(sub) ? 'Alcohol' : g;
+}
 
-/** What a printer prints when nobody has set it: kitchen and receipt printers the whole ticket, label printers nothing. */
+/** "Entrées/Sandwiches" */
+export const subKey = (group: PrintGroup, sub: string) => `${group}/${sub}`;
+/** "Sandwiches" from "Entrées/Sandwiches" */
+export const subLabel = (key: string) => key.slice(key.indexOf('/') + 1);
+
+/** What a printer prints; when nobody has set it, kitchen and receipt printers print the whole ticket and label printers nothing. */
 export function printRoute(p: RoutedPrinter): PrintRoute {
-  return p.print ?? (p.type === 'Label' ? [] : 'all');
+  const r = p.print;
+  if (r === 'all') return 'all';
+  if (Array.isArray(r)) return { ...EMPTY_PICK, groups: upgradeGroups(r) };
+  if (r) return { groups: upgradeGroups(r.groups ?? []), subs: r.subs ?? [], recipes: r.recipes ?? [] };
+  return p.type === 'Label' ? EMPTY_PICK : 'all';
 }
 
 export const printsWhole = (p: RoutedPrinter) => printRoute(p) === 'all';
 
-/** Does this printer print items of this group? */
-export function printsGroup(p: RoutedPrinter, g: PrintGroup): boolean {
-  const r = printRoute(p);
-  return r === 'all' || r.includes(g);
+/** How specifically a printer takes an item: 3 by recipe, 2 by category, 1 by group, 0 not at all. */
+function level(pick: PrintPick, item: PrintItem): number {
+  if (item.recipeId && pick.recipes.includes(item.recipeId)) return 3;
+  if (item.sub && pick.subs.includes(item.sub)) return 2;
+  return pick.groups.includes(item.group) ? 1 : 0;
 }
 
-/** Groups no printer prints, so those items would never reach the kitchen on paper. */
-export function unprintedGroups(printers: RoutedPrinter[]): PrintGroup[] {
-  return PRINT_GROUPS.filter((g) => !printers.some((p) => printsGroup(p, g)));
+/** The printers an item prints at: every whole-ticket printer, plus the most specific of the rest. */
+export function printersFor(item: PrintItem, printers: RoutedPrinter[]): RoutedPrinter[] {
+  const scored = printers.map((p) => {
+    const r = printRoute(p);
+    return { p, whole: r === 'all', lv: r === 'all' ? 0 : level(r, item) };
+  });
+  const best = Math.max(0, ...scored.map((x) => x.lv));
+  return scored.filter((x) => x.whole || (best > 0 && x.lv === best)).map((x) => x.p);
+}
+
+/** Groups no printer takes whole: their items print only where a category or recipe of theirs is picked. */
+export function unprintedGroups(
+  printers: RoutedPrinter[],
+  /** Each picked recipe's group, so a recipe only counts for its own group. */
+  recipeGroup: (recipeId: string) => PrintGroup | undefined = () => undefined,
+): Array<{ group: PrintGroup; partly: boolean }> {
+  const routes = printers.map(printRoute);
+  if (routes.includes('all')) return [];
+  const picks = routes as PrintPick[];
+  return PRINT_GROUPS.filter((g) => !picks.some((r) => r.groups.includes(g))).map((g) => ({
+    group: g,
+    partly: picks.some((r) => r.subs.some((k) => k.startsWith(g + '/')) || r.recipes.some((id) => recipeGroup(id) === g)),
+  }));
 }
 
 export interface PrintJob {
@@ -64,15 +138,17 @@ export interface PrintJob {
   whole: boolean;
 }
 
-/** The tickets one send prints: one per printer with something on it. */
-export function printJobs(items: Array<{ name: string; category?: string }>, printers: RoutedPrinter[]): PrintJob[] {
+/** The tickets one send prints: one per printer with something on it, in printer order. */
+export function printJobs(items: PrintItem[], printers: RoutedPrinter[]): PrintJob[] {
+  const at = new Map<string, string[]>();
+  for (const it of items) for (const p of printersFor(it, printers)) at.set(p.id, [...(at.get(p.id) ?? []), it.name]);
   return printers.flatMap((printer) => {
-    const mine = items.filter((it) => printsGroup(printer, printGroupOf(it.category)));
-    return mine.length ? [{ printer, items: mine.map((it) => it.name), whole: printsWhole(printer) }] : [];
+    const mine = at.get(printer.id);
+    return mine ? [{ printer, items: mine, whole: printsWhole(printer) }] : [];
   });
 }
 
-/** "Hot Line: 2 items · Expo Receipt: whole ticket", for the confirmation after Send. */
+/** "Printed at Hot Line (2 items) · Expo Receipt (whole ticket)", for the confirmation after Send. */
 export function printSummary(jobs: PrintJob[]): string {
   if (!jobs.length) return 'Nothing printed: no printer is set to print these items';
   return (

@@ -69,7 +69,7 @@
    "id": "p2",
    "name": "Cold / Pantry",
    "type": "Kitchen",
-   "print": ["Starters", "Desserts"],
+   "print": { "groups": ["Starters", "Desserts"], "subs": ["Entrées/Entrée Salad"], "recipes": [] },
    "ip": "10.1.20.12",
    "active": true,
    "reachable": true
