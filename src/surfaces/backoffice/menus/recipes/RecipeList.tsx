@@ -18,6 +18,8 @@ export interface RecipeListProps {
   onOpen: (r: Recipe) => void;
   onAddLinked: (r: Recipe) => void;
   onCopy: (r: Recipe) => void;
+  /** Your recipe made from this Global Library recipe, if you already added it. */
+  ownedFrom?: (r: Recipe) => Recipe | undefined;
 }
 
 function Sold({ sc }: { sc: RecipeScore | null }) {
@@ -48,21 +50,44 @@ function Status({ r, global, onMenu, pins }: { r: Recipe; global: boolean; onMen
   );
 }
 
-function GlobalActions({ r, onAddLinked, onCopy }: { r: Recipe; onAddLinked: (r: Recipe) => void; onCopy: (r: Recipe) => void }) {
+function GlobalActions({
+  r,
+  owned,
+  onAddLinked,
+  onCopy,
+  onOpen,
+}: {
+  r: Recipe;
+  owned?: Recipe;
+  onAddLinked: (r: Recipe) => void;
+  onCopy: (r: Recipe) => void;
+  onOpen: (r: Recipe) => void;
+}) {
   return (
     <span className={s.globalActs} onClick={(e) => e.stopPropagation()}>
-      <Button size="sm" onClick={() => onAddLinked(r)}>
-        Add linked
-      </Button>
-      <Button size="sm" icon={<Copy size={13} />} onClick={() => onCopy(r)}>
-        Copy as mine
-      </Button>
+      {owned ? (
+        <>
+          <Chip tone="success">In your recipes</Chip>
+          <Button size="sm" onClick={() => onOpen(owned)}>
+            Open
+          </Button>
+        </>
+      ) : (
+        <>
+          <Button size="sm" onClick={() => onAddLinked(r)} title="Home Office keeps it up to date. You can't edit it.">
+            Add
+          </Button>
+          <Button size="sm" icon={<Copy size={13} />} onClick={() => onCopy(r)} title="Your own copy to change. Home Office updates don't reach it.">
+            Copy to edit
+          </Button>
+        </>
+      )}
     </span>
   );
 }
 
 /** Recipes as a table or as photo cards. */
-export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOpen, onAddLinked, onCopy }: RecipeListProps) {
+export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOpen, onAddLinked, onCopy, ownedFrom }: RecipeListProps) {
   if (!list.length) return <div className={s.none}>No recipes match these filters.</div>;
 
   if (view === 'cards') {
@@ -97,7 +122,7 @@ export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOp
                 </div>
                 {(r.dietFlags ?? []).length > 0 && <DietChips r={r} />}
                 <Status r={r} global={global} onMenu={onMenu.has(r.id)} pins={pinCount(r.id)} />
-                {global && <GlobalActions r={r} onAddLinked={onAddLinked} onCopy={onCopy} />}
+                {global && <GlobalActions r={r} owned={ownedFrom?.(r)} onAddLinked={onAddLinked} onCopy={onCopy} onOpen={onOpen} />}
               </div>
             </article>
           );
@@ -153,7 +178,7 @@ export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOp
                   <Sold sc={sc} />
                 </td>
                 <td className={s.end}>
-                  {global ? <GlobalActions r={r} onAddLinked={onAddLinked} onCopy={onCopy} /> : <ChevronRight size={18} aria-hidden className={s.chev} />}
+                  {global ? <GlobalActions r={r} owned={ownedFrom?.(r)} onAddLinked={onAddLinked} onCopy={onCopy} onOpen={onOpen} /> : <ChevronRight size={18} aria-hidden className={s.chev} />}
                 </td>
               </tr>
             );

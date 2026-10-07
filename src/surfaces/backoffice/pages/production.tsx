@@ -18,6 +18,7 @@ import {
   prepTasks,
   productionCount,
   productionDay,
+  productionStore,
   setPrepTasks,
   specialsMadeAndOrdered,
   updateProductionCounts,
@@ -279,7 +280,7 @@ function MealCounts({ meal, rows, day, dayLabel, venueId, state, preordered }: M
       <tr key={r.id} className={c.ok ? s.confirmedRow : undefined}>
         <td>
           <div className={s.item}>{r.name}</div>
-          <div className={s.itemSub}>{r.kind === 'anyDay' ? 'Any Day · always available' : r.category}</div>
+          <div className={s.itemSub}>{r.kind === 'anyDay' ? 'Always available' : r.category}</div>
         </td>
         <td className={s.basis}>{r.basis}</td>
         <td className={s.num}>
@@ -297,7 +298,7 @@ function MealCounts({ meal, rows, day, dayLabel, venueId, state, preordered }: M
                 onChange={(v) => updateProductionCounts(venueId, day.iso, [r], { make: v ?? 0 })}
               />
               <div className={cx(s.rec, c.make !== r.recommended && s.recChanged)}>
-                {r.unit ? `${r.unit} · ` : ''}rec {r.recommended}
+                {r.unit ? `${r.unit} · ` : ''}suggested {r.recommended}
               </div>
             </>
           )}
@@ -317,7 +318,7 @@ function MealCounts({ meal, rows, day, dayLabel, venueId, state, preordered }: M
                 aria-label={`Associate meals of ${r.name}`}
                 onChange={(v) => updateProductionCounts(venueId, day.iso, [r], { assoc: v })}
               />
-              <div className={cx(s.rec, pre > 0 && s.recChanged)}>{pre ? `${pre} preordered` : "chef's count"}</div>
+              <div className={cx(s.rec, pre > 0 && s.recChanged)}>{pre ? `${pre} preordered` : 'none preordered'}</div>
             </>
           )}
         </td>
@@ -372,7 +373,7 @@ function MealCounts({ meal, rows, day, dayLabel, venueId, state, preordered }: M
           <thead>
             <tr>
               <th>Item</th>
-              <th>Basis</th>
+              <th>Based on</th>
               <th className={s.num}>Make</th>
               <th className={s.num}>Associates</th>
               <th aria-label="Status" />
@@ -422,7 +423,17 @@ function PrepTasks({ state, day, dayLabel }: { state: ProductionState; day: Prod
                 {t.note && <span className={s.taskNote}> · {t.note}</span>}
               </span>
             </label>
-            <Button variant="ghost" size="sm" iconOnly aria-label={`Delete ${t.text}`} icon={<X size={15} />} onClick={() => setPrepTasks(all.filter((x) => x.id !== t.id))} />
+            <Button
+              variant="ghost"
+              size="sm"
+              iconOnly
+              aria-label={`Delete ${t.text}`}
+              icon={<X size={15} />}
+              onClick={() => {
+                setPrepTasks(all.filter((x) => x.id !== t.id));
+                toast(`${t.text} deleted`, { action: { label: 'Undo', onClick: () => setPrepTasks([...prepTasks(productionStore.get()).filter((x) => x.id !== t.id), t]) } });
+              }}
+            />
           </li>
         ))}
       </ul>

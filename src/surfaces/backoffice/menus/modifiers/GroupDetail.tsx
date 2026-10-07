@@ -94,7 +94,16 @@ export function GroupDetail({
                   }))
                 }
               />
-              <button className={s.remove} aria-label={`Remove ${m.n}`} onClick={() => onChange((x) => ({ ...x, mods: x.mods.filter((_, j) => j !== i) }))}>
+              <button
+                className={s.remove}
+                aria-label={`Remove ${m.n}`}
+                onClick={() => {
+                  onChange((x) => ({ ...x, mods: x.mods.filter((_, j) => j !== i) }));
+                  toast(`${m.n || 'Choice'} removed from ${g.name}`, {
+                    action: { label: 'Undo', onClick: () => onChange((x) => ({ ...x, mods: [...x.mods.slice(0, i), m, ...x.mods.slice(i)] })) },
+                  });
+                }}
+              >
                 <X size={14} />
               </button>
             </li>
@@ -132,7 +141,13 @@ export function GroupDetail({
           {g.pinned.map((id) => (
             <span key={id} className={s.pin}>
               {nameOf(id)}
-              <button aria-label={`Unpin ${nameOf(id)}`} onClick={() => onChange((x) => ({ ...x, pinned: x.pinned.filter((p) => p !== id) }))}>
+              <button
+                aria-label={`Unpin ${nameOf(id)}`}
+                onClick={() => {
+                  onChange((x) => ({ ...x, pinned: x.pinned.filter((p) => p !== id) }));
+                  toast(`Unpinned from ${nameOf(id)}`, { action: { label: 'Undo', onClick: () => onChange((x) => ({ ...x, pinned: [...x.pinned, id] })) } });
+                }}
+              >
                 <X size={12} />
               </button>
             </span>
@@ -233,7 +248,7 @@ function RulesCard({ group: g }: { group: BoModGroup }) {
           />
         </label>
         <label className={s.ruleField}>
-          <span>Then each</span>
+          <span>Each extra costs</span>
           <MoneyInput
             value={rule.extra || null}
             placeholder="Free"
@@ -254,7 +269,7 @@ function RulesCard({ group: g }: { group: BoModGroup }) {
         </label>
       </div>
       <p className={s.note}>
-        The kiosk asks each pinned group as its own step and the server&apos;s Modify screen holds to the same rules. A group with no rule stays free and open.
+        The kiosk asks each pinned group as its own step, and the server&apos;s Modify screen follows the same rules. A group with no rules is free and optional.
       </p>
     </section>
   );

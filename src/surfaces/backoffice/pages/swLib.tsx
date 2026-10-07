@@ -15,7 +15,7 @@ import {
   type SideWorkTask,
   type SideWorkWhen,
 } from '../../../store/sideWork';
-import { Button, Tabs, toast } from '../../../ui';
+import { Button, Tabs, toast, useConfirm } from '../../../ui';
 import s from './swLib.module.css';
 
 function WhenSelect({ value, onChange, label }: { value: SideWorkWhen; onChange: (v: SideWorkWhen) => void; label: string }) {
@@ -73,6 +73,7 @@ export default function Page(_props: BoPageProps) {
   const venues = sideWorkVenues();
   const [venue, setVenue] = useState(venues[0]?.id ?? 'sequoia');
   const [draft, setDraft] = useState({ name: '', note: '', when: 'close' as SideWorkWhen, mins: '' });
+  const [ask, dialog] = useConfirm();
   const library = libraryFor(state, venue);
   const vname = venues.find((v) => v.id === venue)?.name ?? venue;
   const total = library.reduce((a, t) => a + (t.mins ?? 0), 0);
@@ -97,12 +98,19 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Side Work Tasks"
-      sub="Each venue's side work. Opening, Mid and Closing go with a shift; Breakfast, Lunch and Dinner go with whoever works that meal. Minutes are optional and add up to each person's load. Hand them out each day under Assign Side Work."
+      sub="Each venue's side work, in the order servers see it. Hand it out each day under Assign Side Work."
       actions={
         isLibraryEdited(state, venue) && (
           <Button
             variant="ghost"
-            onClick={() => {
+            onClick={async () => {
+              const ok = await ask({
+                title: 'Reset to the starter list?',
+                message: `${vname}'s own tasks, times and instructions are replaced by the starter side work.`,
+                confirmLabel: 'Reset',
+                tone: 'danger',
+              });
+              if (!ok) return;
               resetSideWorkLibrary(venue);
               toast(`${vname} is back to the starter list`);
             }}
@@ -119,6 +127,10 @@ export default function Page(_props: BoPageProps) {
         title={`${vname} side work`}
         sub={`${library.length} ${library.length === 1 ? 'task' : 'tasks'}${total ? ` · about ${total} min in all` : ''}`}
       >
+        <p className={s.howTo}>
+          Opening, Mid and Closing tasks go to whoever works that shift. Breakfast, Lunch and Dinner tasks go to whoever works that meal. Minutes are optional and add up to
+          each person's load.
+        </p>
         <div className={s.head} aria-hidden>
           <span>Task and short instruction</span>
           <span className={s.headRight}>Shift or meal · minutes</span>
@@ -220,6 +232,7 @@ export default function Page(_props: BoPageProps) {
           </div>
         </div>
       </BoSection>
+      {dialog}
     </BoPage>
   );
 }

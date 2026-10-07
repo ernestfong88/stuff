@@ -84,3 +84,29 @@
 .addInput {
   flex: 1 1 260px;
 }
+
+.howTo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--s500);
+}
+.legend {
+  display: inline-flex;
+  gap: 3px;
+  flex: none;
+}
+.legend .meal {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+}
+.hidden {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--danger);
+}

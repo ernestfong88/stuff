@@ -14,3 +14,16 @@
   color: var(--s500);
   margin: 0 0 14px;
 }
+.plan {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  display: grid;
+  gap: 4px;
+}
+.planLine {
+  margin: 0;
+  font-size: 13px;
+  color: var(--s700);
+}

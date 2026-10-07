@@ -144,3 +144,14 @@
   min-width: 180px;
   max-width: 280px;
 }
+
+.weekBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+.weekText {
+  font-size: 13px;
+  color: var(--s700);
+}

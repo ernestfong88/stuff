@@ -8,6 +8,7 @@ import { useConfig } from '../../../../store/config';
 import { itemsOut, use86 } from '../../../../store/eightySix';
 import { threshold, useSetting } from '../../../../store/serviceConfig';
 import { useDining } from '../../../../store/dining';
+import { navigate } from '../../../../shell/router';
 import { cx } from '../../../../ui';
 import { BoCaption, amountToReview, chargesToReview, useBilling, useCommunity } from '../../kit';
 import { useVenueSettings } from '../../../../store/venueSettings';
@@ -88,7 +89,7 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
             </>
           );
           return it.goto ? (
-            <button key={it.kind} className={cx(s.attCard, s.attButton)} onClick={() => goto(it.goto!.page)}>
+            <button key={it.kind} className={cx(s.attCard, s.attButton)} onClick={() => (it.goto!.path ? navigate('backoffice', [it.goto!.page, ...it.goto!.path]) : goto(it.goto!.page))}>
               {body}
             </button>
           ) : (

@@ -58,8 +58,12 @@ export function RecipeDetail({ recipe, mine, onBack }: { recipe: Recipe; mine: b
               variant={r.retired ? 'secondary' : 'softDanger'}
               icon={r.retired ? <RotateCcw size={14} /> : <Archive size={14} />}
               onClick={() => {
-                updateRecipe(r.id, { retired: r.retired ? undefined : true });
-                toast(r.retired ? 'Restored. It can go on menus again.' : 'Retired. It stays on menus it is already on.', { tone: 'success' });
+                const was = r.retired;
+                updateRecipe(r.id, { retired: was ? undefined : true });
+                toast(was ? 'Restored. It can go on menus again.' : 'Retired. It stays on menus it is already on.', {
+                  tone: 'success',
+                  action: { label: 'Undo', onClick: () => updateRecipe(r.id, { retired: was }) },
+                });
               }}
             >
               {r.retired ? 'Restore' : 'Retire'}

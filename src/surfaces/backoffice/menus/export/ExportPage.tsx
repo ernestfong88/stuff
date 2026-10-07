@@ -11,6 +11,7 @@ import { alaCarteItems, menuHtml, printContext, printWeek, TEMPLATES, weekDays, 
 import { Field, Select } from '../ui/controls';
 import { PagePreview } from '../ui/PagePreview';
 import { printHtml } from '../ui/printFrame';
+import { dayLabel, exportDays, exportWeeks } from './exportDays';
 import s from './ExportPage.module.css';
 
 const KINDS: Array<{ id: PrintKind; label: string; name: string }> = [
@@ -34,19 +35,26 @@ export function ExportPage() {
   const [template, setTemplate] = useState<TemplateId>('classic');
   const [diet, setDiet] = useState(true);
   const [snacks, setSnacks] = useState(false);
+  // The day or week to print; null follows today.
+  const [dayPick, setDayPick] = useState<number | null>(null);
+  const [weekPick, setWeekPick] = useState<number | null>(null);
   const venue = venues.find((v) => v.id === venueId) ?? venues[0];
 
   const ctx = useMemo(
     () => printContext(bo, { venueId: venue?.id, template, diet, snacks, winGrid, at }, (m, d, r) => placementSides(bo, m, d, r).sides),
     [bo, venue, template, diet, snacks, winGrid, at],
   );
-  const html = useMemo(() => menuHtml(kind, ctx), [kind, ctx]);
+  const dayOptions = exportDays(ctx.today, ctx.len);
+  const day = dayPick != null && dayOptions.includes(dayPick) ? dayPick : ctx.today;
+  const weekOptions = exportWeeks(printWeek(ctx), ctx.len);
+  const week = weekPick != null && weekOptions.includes(weekPick) ? weekPick : printWeek(ctx);
+  const html = useMemo(() => menuHtml(kind, ctx, { day, week }), [kind, ctx, day, week]);
   const count = useMemo(() => {
     if (kind === 'alacarte') return alaCarteItems(ctx).length;
-    const days = kind === 'daily' ? [0, ctx.today || 1] : weekDays(ctx, printWeek(ctx));
+    const days = kind === 'daily' ? [0, day || 1] : weekDays(ctx, week);
     const lines = days.flatMap((d) => ctx.at(d)).filter((x) => (kind === 'order' ? x.c !== 'Sides' && x.g.day > 0 : true));
     return new Set(lines.map((x) => x.r.id)).size;
-  }, [kind, ctx]);
+  }, [kind, ctx, day, week]);
 
   if (!venue) {
     return (
@@ -61,7 +69,8 @@ export function ExportPage() {
   const weeks = Math.ceil(ctx.len / 7);
   const print = () => {
     printHtml(html);
-    toast(`${kindName} sent to the printer · ${tpl.name} template, ${venue.name} header`, { tone: 'success' });
+    const when = kind === 'daily' && day ? `, ${ctx.dateOf(day).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}` : '';
+    toast(`${kindName}${when} sent to the printer · ${tpl.name} template`, { tone: 'success' });
   };
 
   return (
@@ -78,7 +87,14 @@ export function ExportPage() {
         <div className={s.side}>
           <section className={s.card}>
             <Field label="Venue">
-              <Select value={venue.id} onChange={setVenueId} options={venues.map((v) => ({ value: v.id, label: v.name }))} />
+              <Select
+                value={venue.id}
+                onChange={(v) => {
+                  setVenueId(v);
+                  setDayPick(null);
+                  setWeekPick(null);
+                }}
+                options={venues.map((v) => ({ value: v.id, label: v.name }))} />
             </Field>
             <Tabs
               variant="segmented"
@@ -89,15 +105,38 @@ export function ExportPage() {
               aria-label="Printout"
               className={s.kinds}
             />
-            {kind === 'daily' && weeks > 0 && ctx.today > 0 && (
-              <p className={s.hint}>
-                Today is week {Math.ceil(ctx.today / 7)} of the {weeks}-week cycle. The export follows it automatically.
-              </p>
+            {kind === 'daily' && dayOptions.length > 0 && (
+              <Field label="Day">
+                <div className={s.dayPicks} role="radiogroup" aria-label="Day">
+                  {dayOptions.map((d) => (
+                    <button key={d} role="radio" aria-checked={d === day} className={cx(s.dayPick, d === day && s.dayPickOn)} onClick={() => setDayPick(d)}>
+                      {dayLabel(d - ctx.today, ctx.dateOf(d))}
+                    </button>
+                  ))}
+                </div>
+                <p className={s.hint}>
+                  Day {day} of the {weeks}-week cycle.
+                </p>
+              </Field>
             )}
             {(kind === 'week' || kind === 'order') && weeks > 0 && (
-              <p className={s.hint}>
-                Prints week {printWeek(ctx) + 1} of the {weeks}-week cycle, the one running now. The menu builder prints any week.
-              </p>
+              <Field label="Week">
+                {weekOptions.length > 1 && (
+                  <Tabs
+                    variant="segmented"
+                    size="sm"
+                    aria-label="Week"
+                    value={String(week)}
+                    onChange={(w) => setWeekPick(Number(w))}
+                    options={weekOptions.map((w, i) => ({ id: String(w), label: i === 0 ? 'This week' : 'Next week' }))}
+                  />
+                )}
+                <p className={s.hint}>
+                  Week {week + 1} of the {weeks}-week cycle,{' '}
+                  {ctx.dateOf(weekDays(ctx, week)[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} to{' '}
+                  {ctx.dateOf(weekDays(ctx, week).slice(-1)[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}. The menu builder prints any week.
+                </p>
+              </Field>
             )}
             {kind !== 'alacarte' && weeks === 0 && (
               <p className={s.hint}>{venue.name} serves an à la carte menu, so the printout lists what it offers every day.</p>
@@ -105,7 +144,7 @@ export function ExportPage() {
           </section>
 
           <section className={s.card}>
-            <div className={s.label}>Template · maintained by marketing, HO managed</div>
+            <div className={s.label}>Template</div>
             <div className={s.templates} role="radiogroup" aria-label="Template">
               {TEMPLATES.map((t) => (
                 <button
@@ -121,7 +160,8 @@ export function ExportPage() {
               ))}
             </div>
             <p className={s.hint}>
-              Every template drops in {venue.name}&apos;s logo automatically. Communities pick, never edit: that keeps the brand and keeps typos off the menu.
+              Marketing keeps these templates, and each one adds {venue.name}&apos;s logo. You choose one but can&apos;t edit it, so the brand stays right and typos stay off
+              the menu.
             </p>
           </section>
 
@@ -132,9 +172,9 @@ export function ExportPage() {
             </label>
             <label className={s.check}>
               <input type="checkbox" checked={snacks} onChange={(e) => setSnacks(e.target.checked)} />
-              Snacks section, dietitian copy only, hidden from residents
+              Snacks section (for the dietitian&apos;s copy, not for residents)
             </label>
-            <p className={s.hint}>The raw-food consumption notice prints on every export automatically, including à la carte. It is not optional.</p>
+            <p className={s.hint}>The notice about raw or undercooked food always prints, on every menu.</p>
           </section>
         </div>
 
