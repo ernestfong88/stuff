@@ -49,7 +49,7 @@ const sameTarget = (a: SlotTarget | null, b: SlotTarget) =>
   !!a.allWeek === !!b.allWeek &&
   !!a.more === !!b.more;
 
-type LaneKind = 'starters' | 'entree' | 'sides' | 'looseSides' | 'desserts' | 'drinks' | 'other';
+type LaneKind = 'starters' | 'entree' | 'sides' | 'looseSides' | 'desserts' | 'drinks' | 'other' | 'snacks';
 
 interface Lane {
   kind: LaneKind;
@@ -66,6 +66,11 @@ interface Lane {
  * with its sides under it. Soup or starter, Entrée and Dessert always show one
  * empty row to fill, unless the menu has taken that row off this meal.
  */
+/** Snacks is its own list: one Snack row per snack on the busiest day, never starters, entrées, sides or desserts. */
+function snackLanes(counts: number[]): Lane[] {
+  return Array.from({ length: Math.max(1, ...counts) }, (_, i) => ({ kind: 'snacks' as const, i, label: 'Snack', cat: 'Snacks' as RecipeCategory }));
+}
+
 function lanesFor(groups: DayGroup[], hidden: string[] = []): Lane[] {
   const max = (f: (g: DayGroup) => number) => Math.max(0, ...groups.map(f));
   const atLeast = (kind: DefaultLane) => (hidden.includes(kind) ? 0 : 1);
@@ -228,9 +233,11 @@ export function MenuGrid({
         </thead>
         <tbody>
           {BUILDER_MEALS.map((meal) => {
-            const groups = days.map((d) => groupDay(placementsAt(bo.grid, m.id, d, meal), (rid) => placementSides(bo, m.id, d, rid).sides, nameOf));
-            const hidden = hiddenLanes(meal);
-            const lanes = lanesFor(groups, hidden);
+            const snacks = meal === 'Snacks';
+            const atDay = days.map((d) => placementsAt(bo.grid, m.id, d, meal));
+            const groups = days.map((d, i) => groupDay(atDay[i], (rid) => placementSides(bo, m.id, d, rid).sides, nameOf));
+            const hidden = snacks ? [] : hiddenLanes(meal);
+            const lanes = snacks ? snackLanes(atDay.map((x) => x.length)) : lanesFor(groups, hidden);
             const allWeek: SlotTarget = { day: 0, meal, cat: null, allWeek: true };
             const hi = (d: number) =>
               !!highlight && highlight.day === d && (!highlight.meal || highlight.meal === meal || !/^(Lunch|Dinner)$/.test(highlight.meal));
@@ -288,7 +295,11 @@ export function MenuGrid({
                     {days.map((d, di) => {
                       const g = groups[di];
                       let content: React.ReactNode = null;
-                      if (ln.kind === 'entree') {
+                      if (ln.kind === 'snacks') {
+                        // Any recipe can be a snack; the row shows them in the order they were added.
+                        const it = atDay[di][ln.i];
+                        content = it ? card(it, d) : ln.i === atDay[di].length ? slot({ day: d, meal, cat: null }, 'Snack') : null;
+                      } else if (ln.kind === 'entree') {
                         const e = g.entrees[ln.i];
                         content = e ? card(e.entree, d) : slot({ day: d, meal, cat: 'Entrees' }, PLAN_LABEL.Entrees);
                       } else if (ln.kind === 'sides') {
@@ -324,7 +335,7 @@ export function MenuGrid({
                       return (
                         <td key={d} className={cx(s.optCell, today === d && s.todayCol)}>
                           {more ? (
-                            search(more, `Type ${MORE_LABEL[more.cat ?? 'Entrees']}`)
+                            search(more, `Type ${snacks ? 'another snack' : MORE_LABEL[more.cat ?? 'Entrees']}`)
                           ) : (
                             <span className={s.optRow}>
                               <Popover
@@ -339,26 +350,38 @@ export function MenuGrid({
                                 {({ close }) => (
                                   <>
                                     <div className={s.popHead}>Add to {meal.toLowerCase()}</div>
-                                    {(
-                                      [
-                                        ['Entrees', 'Another entrée'],
-                                        ['Starters', 'Another soup or starter'],
-                                        ['Sides', 'A side on its own'],
-                                        ['Desserts', 'Another dessert'],
-                                        ['Drinks', 'A drink'],
-                                      ] as Array<[RecipeCategory, string]>
-                                    ).map(([c, label]) => (
+                                    {snacks && (
                                       <MenuItem
-                                        key={c}
-                                        icon={<span className={cx(swatchClass, planClass(c))} />}
+                                        icon={<span className={cx(swatchClass, planClass('Snacks'))} />}
                                         onClick={() => {
                                           close();
-                                          setTyping({ day: d, meal, cat: c, more: true });
+                                          setTyping({ day: d, meal, cat: null, more: true });
                                         }}
                                       >
-                                        {label}
+                                        Another snack
                                       </MenuItem>
-                                    ))}
+                                    )}
+                                    {!snacks &&
+                                      (
+                                        [
+                                          ['Entrees', 'Another entrée'],
+                                          ['Starters', 'Another soup or starter'],
+                                          ['Sides', 'A side on its own'],
+                                          ['Desserts', 'Another dessert'],
+                                          ['Drinks', 'A drink'],
+                                        ] as Array<[RecipeCategory, string]>
+                                      ).map(([c, label]) => (
+                                        <MenuItem
+                                          key={c}
+                                          icon={<span className={cx(swatchClass, planClass(c))} />}
+                                          onClick={() => {
+                                            close();
+                                            setTyping({ day: d, meal, cat: c, more: true });
+                                          }}
+                                        >
+                                          {label}
+                                        </MenuItem>
+                                      ))}
                                   </>
                                 )}
                               </Popover>

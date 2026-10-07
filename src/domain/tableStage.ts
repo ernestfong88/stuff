@@ -26,17 +26,16 @@ export interface TableStage {
 export interface Lane {
   key: StageKey;
   label: string;
-  hint: string;
 }
 
 /** Lanes in meal order. Empty lanes are not shown, so the stages that matter get the room. */
 export const LANES: readonly Lane[] = [
-  { key: 'seat', label: 'Just seated', hint: 'no order yet' },
-  { key: 'order', label: 'Ordering', hint: 'drinks and orders going in' },
-  { key: 'cook', label: 'Fired', hint: 'in the kitchen' },
-  { key: 'run', label: 'Ready to run', hint: 'plates are up at the pass' },
-  { key: 'eat', label: 'Eating', hint: 'check in, then dessert' },
-  { key: 'check', label: 'Ready to close', hint: 'everything served' },
+  { key: 'seat', label: 'Just seated' },
+  { key: 'order', label: 'Ordering' },
+  { key: 'cook', label: 'Fired' },
+  { key: 'run', label: 'Ready to run' },
+  { key: 'eat', label: 'Eating' },
+  { key: 'check', label: 'Ready to close' },
 ];
 
 const servedAt = (o: Order, lines: OrderLine[]) => Math.max(o.openedAt, ...lines.map((i) => i.clearedAt || i.firedAt || o.openedAt));

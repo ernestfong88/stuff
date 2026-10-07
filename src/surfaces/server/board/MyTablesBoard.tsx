@@ -90,7 +90,6 @@ export function MyTablesBoard({
           <h2 className={s.laneHead}>
             <span className={s.dot} aria-hidden />
             Open checks
-            <span className={s.hint}>tickets print in the kitchen when you send</span>
           </h2>
           <div className={s.grid}>
             {list.map((r) => (
@@ -113,7 +112,6 @@ export function MyTablesBoard({
             <h2 className={s.laneHead}>
               <span className={s.dot} aria-hidden />
               {lane.label}
-              <span className={s.hint}>{lane.hint}</span>
             </h2>
             <div className={s.grid}>
               {list.map((r) => (

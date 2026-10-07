@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import type { BoPageProps } from '../nav';
-import { BoCallout, BoPage, BoRow, BoSection, BoTable, type BoColumn } from '../kit';
+import { BoCallout, BoPage, BoSection } from '../kit';
 import { setSetting, useSetting } from '../../../store/serviceConfig';
-import { Toggle } from '../../../ui';
+import { Toggle, cx } from '../../../ui';
 import { formatMetric, isScored, metricDefs, weekAverage, type MetricDef } from '../../../domain/metrics/shiftMetrics';
-import { Muted, NameAndNote, SettingNumber } from '../kit/SettingControls';
+import { Muted, SettingNumber } from '../kit/SettingControls';
 import { ConfirmReset } from './ConfirmReset';
+import s from './svcMetrics.module.css';
 
 /** Shift Metrics: how a shift is scored against the last seven. */
 export default function Page(_props: BoPageProps) {
@@ -13,47 +15,6 @@ export default function Page(_props: BoPageProps) {
   const off = useSetting<Record<string, boolean | undefined>>('met.off') ?? {};
   const defs = metricDefs(tableShorter);
   const scored = defs.filter((m) => isScored(m) && !off[m.k]).length;
-
-  const columns: Array<BoColumn<MetricDef>> = [
-    {
-      key: 'metric',
-      header: 'Metric',
-      render: (m) => <NameAndNote name={m.label} note={m.note} />,
-    },
-    { key: 'better', header: 'Better when', render: (m) => (!m.better ? 'Context only' : m.better === 'up' ? 'Higher' : 'Lower') },
-    { key: 'avg', header: 'Week average', render: (m) => formatMetric(m, weekAverage(m.k)) },
-    {
-      key: 'goal',
-      header: 'Compare against',
-      render: (m) => {
-        const avg = weekAverage(m.k) ?? 0;
-        const pct = m.fmt === '%';
-        return (
-          <SettingNumber
-            path={`met.avg.${m.k}`}
-            label={`Week average for ${m.label}`}
-            unit={pct ? '%' : m.fmt === 'm' ? 'min' : ''}
-            step={pct ? 1 : 0.1}
-            width={78}
-            placeholder={pct ? String(Math.round(avg * 100)) : String(Math.round(avg * 10) / 10)}
-            toStored={pct ? (v) => v / 100 : undefined}
-            fromStored={pct ? (v) => Math.round(v * 1000) / 10 : undefined}
-            clearRemoves
-          />
-        );
-      },
-    },
-    {
-      key: 'counts',
-      header: 'Counts toward great shift',
-      render: (m) =>
-        isScored(m) ? (
-          <Toggle checked={!off[m.k]} onChange={(v) => setSetting(`met.off.${m.k}`, v ? undefined : true)} label={<span className="sr-only">Count {m.label}</span>} />
-        ) : (
-          <Muted>{m.count ? 'Shown as a count' : 'Not scored'}</Muted>
-        ),
-    },
-  ];
 
   return (
     <BoPage
@@ -67,30 +28,124 @@ export default function Page(_props: BoPageProps) {
         />
       }
     >
-      <BoCallout tone="warning" title="Not used on the floor yet">
-        The manager tablet still scores a shift on its own step goals. These settings are saved here and take effect once Shift Review reads them.
-      </BoCallout>
-      <BoSection title="Great shift" sub="A shift is great when enough scored metrics are ahead of the week average.">
-        <BoRow label="Ahead means better than the week by" hint="Smaller numbers make it easier to be ahead, and to be behind.">
-          <SettingNumber path="met.margin" label="Ahead by percent" unit="%" min={1} />
-        </BoRow>
-        <BoRow label="Metrics that must be ahead">
-          <SettingNumber path="met.need" label="Metrics that must be ahead" unit={`of ${scored}`} min={1} />
-        </BoRow>
-        <BoRow label="None can be behind" hint="Off counts a shift as great even if one metric is behind.">
-          <Toggle checked={noneBehind} onChange={(v) => setSetting('met.noneBehind', v)} />
-        </BoRow>
-        <BoRow label="Score table time: shorter is better" hint="Off keeps table time for context only, since a longer visit is not always a worse one.">
-          <Toggle checked={tableShorter} onChange={(v) => setSetting('met.tableShorter', v)} />
-        </BoRow>
+      <BoCallout tone="warning">Shift Review doesn't use these yet; they take effect once it does.</BoCallout>
+      <BoSection title="When is a shift great?">
+        <p className={s.rule}>
+          A shift is great when{' '}
+          <span className={s.box}>
+            <SettingNumber path="met.need" label={`Measures that must beat the last 7 shifts, of ${scored}`} unit="" min={1} width={46} />
+          </span>{' '}
+          of {scored} measures beat the last 7 shifts by at least{' '}
+          <span className={s.box}>
+            <SettingNumber path="met.margin" label="Percent better than the last 7 shifts" unit="" min={1} width={46} />
+          </span>
+          %{' '}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={noneBehind}
+            className={cx(s.chip, noneBehind && s.chipOn)}
+            onClick={() => setSetting('met.noneBehind', !noneBehind)}
+          >
+            <span className={s.chipSwitch} aria-hidden />
+            and none falls behind
+          </button>
+          .
+        </p>
       </BoSection>
-      <BoSection
-        flush
-        title="What is measured"
-        sub="The week average is the last seven shifts. Type a number to compare against your own goal instead; leave it blank to use the real average."
-      >
-        <BoTable columns={columns} rows={defs} rowKey={(m) => m.k} />
+      <BoSection flush title="What is measured" sub="Each measure is compared with its average over the last 7 shifts.">
+        <ul className={s.list}>
+          {defs.map((m) => (
+            <MeasureRow key={m.k} m={m} counts={!off[m.k]} tableShorter={tableShorter} />
+          ))}
+        </ul>
       </BoSection>
     </BoPage>
+  );
+}
+
+function MeasureRow({ m, counts, tableShorter }: { m: MetricDef; counts: boolean; tableShorter: boolean }) {
+  const path = `met.avg.${m.k}`;
+  const goal = useSetting<number | null | undefined>(path);
+  const hasGoal = goal != null && (goal as unknown) !== '';
+  const [editing, setEditing] = useState(false);
+  const avg = weekAverage(m.k);
+  const pct = m.fmt === '%';
+
+  return (
+    <li className={s.item}>
+      <div className={s.what}>
+        <div className={s.name}>{m.label}</div>
+        <div className={s.goal}>
+          <span className={s.note}>{m.note}</span>
+          <span className={s.dot} aria-hidden>
+            ·
+          </span>
+          {editing ? (
+            <>
+              <SettingNumber
+                path={path}
+                label={`Goal for ${m.label}`}
+                unit={pct ? '%' : m.fmt === 'm' ? 'min' : ''}
+                step={pct ? 1 : 0.1}
+                width={64}
+                placeholder={avg == null ? '' : pct ? String(Math.round(avg * 100)) : String(Math.round(avg * 10) / 10)}
+                toStored={pct ? (v) => v / 100 : undefined}
+                fromStored={pct ? (v) => Math.round(v * 1000) / 10 : undefined}
+                clearRemoves
+              />
+              <button type="button" className={s.link} onClick={() => setEditing(false)}>
+                Done
+              </button>
+            </>
+          ) : hasGoal ? (
+            <>
+              <button type="button" className={s.goalSet} aria-label={`Change goal for ${m.label}`} onClick={() => setEditing(true)}>
+                Goal {formatMetric(m, Number(goal))}
+              </button>
+              <span className={s.dot} aria-hidden>
+                ·
+              </span>
+              <button type="button" className={s.link} aria-label={`Clear goal for ${m.label}`} onClick={() => setSetting(path, undefined)}>
+                Clear
+              </button>
+            </>
+          ) : (
+            <button type="button" className={s.link} aria-label={`Use my own goal for ${m.label}`} onClick={() => setEditing(true)}>
+              Use my own goal
+            </button>
+          )}
+        </div>
+        {m.k === 'table' && (
+          <div className={s.extra}>
+            <Toggle
+              checked={tableShorter}
+              onChange={(v) => setSetting('met.tableShorter', v)}
+              label={<span className={s.small}>Score it: shorter is better</span>}
+            />
+          </div>
+        )}
+      </div>
+      <div className={s.better}>{!m.better ? 'For context' : m.better === 'up' ? 'Higher is better' : 'Lower is better'}</div>
+      <div className={s.avg}>
+        {formatMetric(m, avg)} <span className={s.small}>avg</span>
+      </div>
+      <div className={s.counts}>
+        {isScored(m) ? (
+          <Toggle
+            checked={counts}
+            onChange={(v) => setSetting(`met.off.${m.k}`, v ? undefined : true)}
+            label={
+              <span className={s.small}>
+                <span aria-hidden>Counts</span>
+                <span className="sr-only">Count {m.label}</span>
+              </span>
+            }
+          />
+        ) : (
+          <Muted>{m.count ? 'Shown as a count' : 'Not scored'}</Muted>
+        )}
+      </div>
+    </li>
   );
 }
