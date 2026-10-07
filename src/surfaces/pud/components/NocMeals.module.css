@@ -1,0 +1,107 @@
+.wrap {
+  margin-top: 20px;
+}
+.head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0 2px 6px;
+}
+.title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--s400);
+}
+.card {
+  margin-bottom: 6px;
+  padding: 10px 14px 4px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.noc {
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  background: #e7e3f4;
+  color: #4b3f8f;
+}
+.count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--s400);
+}
+.meal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 6px 0;
+  border-top: 1px solid var(--hair);
+}
+.mealText {
+  flex: 1;
+  min-width: 0;
+}
+.who {
+  font-size: 14px;
+  font-weight: 800;
+}
+.item {
+  font-size: 12.5px;
+  color: var(--s500);
+}
+.setOut {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--flora);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.setOut:hover {
+  filter: brightness(1.08);
+}
+.done {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--flora);
+}
+.undo {
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--s500);
+  text-decoration: underline;
+}
+.undo:hover {
+  background: var(--sunken);
+}

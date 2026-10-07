@@ -1,0 +1,16 @@
+.icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-md);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+.pickup {
+  background: var(--clay-100);
+  color: var(--clay-600);
+}
+.delivery {
+  background: rgba(77, 112, 147, 0.13);
+  color: var(--coast);
+}

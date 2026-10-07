@@ -1,0 +1,108 @@
+.special {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--k) * 30);
+  padding: calc(var(--k) * 24);
+  border-radius: calc(var(--k) * 32);
+}
+.specialPic {
+  flex: 1 1 calc(var(--k) * 340);
+  max-width: calc(var(--k) * 460);
+}
+.specialText {
+  flex: 1 1 calc(var(--k) * 340);
+  min-width: 0;
+}
+.specialName {
+  font-family: var(--font-serif);
+  font-size: calc(var(--k) * 44);
+  font-weight: 600;
+  line-height: 1.12;
+}
+.specialDesc {
+  margin-top: calc(var(--k) * 12);
+  font-size: calc(var(--k) * 28);
+  line-height: 1.35;
+  color: var(--kk-mute);
+}
+.specialSides {
+  margin-top: calc(var(--k) * 14);
+  font-size: calc(var(--k) * 28);
+  font-weight: 700;
+  color: var(--kk-deep);
+}
+.offerActions {
+  margin-top: calc(var(--k) * 24);
+}
+.yes,
+.no {
+  min-height: calc(var(--k) * 108);
+  font-size: calc(var(--k) * 36);
+}
+.offerActions > .yes {
+  flex: 2 1 calc(var(--k) * 340);
+}
+.offerActions > .no {
+  flex: 1 1 calc(var(--k) * 240);
+}
+
+.byo {
+  margin-bottom: calc(var(--k) * 28);
+  padding: calc(var(--k) * 20) calc(var(--k) * 22) calc(var(--k) * 22);
+}
+.byoTitle {
+  font-family: var(--font-serif);
+  font-size: calc(var(--k) * 36);
+  font-weight: 600;
+}
+.byoSub {
+  margin: calc(var(--k) * 4) 0 calc(var(--k) * 16);
+  font-size: calc(var(--k) * 26);
+  color: var(--kk-mute);
+}
+.byoTile {
+  gap: calc(var(--k) * 10);
+  min-height: calc(var(--k) * 140);
+  padding: calc(var(--k) * 14) calc(var(--k) * 10);
+  border-radius: calc(var(--k) * 24);
+  font-size: calc(var(--k) * 27);
+  font-weight: 800;
+  line-height: 1.15;
+}
+.byoTile:not([aria-pressed='true']) {
+  background: var(--kk-pale);
+}
+
+.group {
+  margin-bottom: calc(var(--k) * 26);
+}
+.dish {
+  gap: calc(var(--k) * 16);
+  min-height: calc(var(--k) * 100);
+  padding: calc(var(--k) * 10) calc(var(--k) * 18) calc(var(--k) * 10) calc(var(--k) * 10);
+  border-radius: calc(var(--k) * 24);
+}
+.dishText {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--k) * 4);
+  min-width: 0;
+}
+.dishName {
+  font-size: calc(var(--k) * 29);
+  font-weight: 800;
+  line-height: 1.15;
+}
+.dishDesc {
+  font-size: calc(var(--k) * 24);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--kk-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+[aria-pressed='true'] .dishDesc {
+  color: rgba(255, 255, 255, 0.88);
+}

@@ -1,0 +1,17 @@
+.person {
+  padding: calc(var(--k) * 26) calc(var(--k) * 20);
+  gap: calc(var(--k) * 14);
+  border-radius: calc(var(--k) * 30);
+}
+.first {
+  font-size: calc(var(--k) * 40);
+  font-weight: 800;
+}
+.full {
+  font-size: calc(var(--k) * 26);
+  font-weight: 500;
+  color: var(--kk-mute);
+}
+.yes {
+  margin-top: calc(var(--k) * 24);
+}

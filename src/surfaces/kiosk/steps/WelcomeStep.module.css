@@ -1,0 +1,37 @@
+.welcome {
+  min-height: 60cqh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--k) * 30);
+  text-align: center;
+}
+.badge {
+  width: calc(var(--k) * 150);
+  height: calc(var(--k) * 150);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--kk-blue);
+  box-shadow: inset 0 0 0 calc(var(--k) * 4) var(--kk-soft);
+}
+.title {
+  max-width: calc(var(--k) * 860);
+  font-family: var(--font-serif);
+  font-size: calc(var(--k) * 62);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.sub {
+  font-size: calc(var(--k) * 30);
+  color: var(--kk-mute);
+}
+.start {
+  min-width: calc(var(--k) * 440);
+  min-height: calc(var(--k) * 124);
+  border-radius: calc(var(--k) * 32);
+  font-size: calc(var(--k) * 46);
+}

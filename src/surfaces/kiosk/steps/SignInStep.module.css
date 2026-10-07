@@ -1,0 +1,94 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--k) * 26);
+  max-width: calc(var(--k) * 640);
+  margin: 0 auto;
+}
+.display {
+  height: calc(var(--k) * 130);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(var(--k) * 26);
+  background: #fff;
+  box-shadow: inset 0 0 0 calc(var(--k) * 4) var(--kk-soft);
+  font-size: calc(var(--k) * 80);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: var(--kk-ink);
+}
+.displayEmpty {
+  color: #b8c4ce;
+}
+.displayMiss {
+  box-shadow: inset 0 0 0 calc(var(--k) * 4) var(--skies);
+}
+.hint {
+  margin-top: calc(var(--k) * 20);
+  font-size: calc(var(--k) * 28);
+  color: var(--kk-mute);
+}
+.miss {
+  margin-top: calc(var(--k) * 20);
+  padding: calc(var(--k) * 18) calc(var(--k) * 22);
+  border-radius: calc(var(--k) * 22);
+  background: var(--kk-pale);
+  box-shadow: inset 0 0 0 calc(var(--k) * 2) var(--kk-soft);
+  font-size: calc(var(--k) * 30);
+  line-height: 1.35;
+}
+.pads {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--k) * 14);
+}
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: calc(var(--k) * 14);
+}
+.padTight {
+  gap: calc(var(--k) * 12);
+}
+.key {
+  min-height: calc(var(--k) * 96);
+  padding: 0;
+  font-size: calc(var(--k) * 48);
+}
+.padTight .key,
+.letter {
+  min-height: calc(var(--k) * 80);
+}
+.keyWord {
+  font-size: calc(var(--k) * 30);
+}
+.letters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(calc(var(--k) * 88), 1fr));
+  gap: calc(var(--k) * 12);
+}
+.letter {
+  background: var(--kk-pale);
+}
+.switch {
+  margin-top: calc(var(--k) * 8);
+  min-height: calc(var(--k) * 80);
+  font-size: calc(var(--k) * 28);
+  color: var(--kk-deep);
+}
+
+/* A landscape kiosk puts the pad beside what was typed. */
+@container (orientation: landscape) {
+  .wrap {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: calc(var(--k) * 40);
+    max-width: calc(var(--k) * 1400);
+  }
+  .wrap > * {
+    flex: 1;
+    min-width: 0;
+  }
+}

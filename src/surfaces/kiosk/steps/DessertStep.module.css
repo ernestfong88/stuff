@@ -1,0 +1,29 @@
+.special {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--k) * 28);
+  margin-bottom: calc(var(--k) * 24);
+  padding: calc(var(--k) * 24);
+  border-radius: calc(var(--k) * 32);
+}
+.pic {
+  flex: 0 1 calc(var(--k) * 300);
+}
+.desc {
+  flex: 1 1 calc(var(--k) * 300);
+  font-size: calc(var(--k) * 30);
+  line-height: 1.35;
+  color: var(--kk-mute);
+}
+.answers > .answer {
+  flex: 1 1 calc(var(--k) * 240);
+  min-height: calc(var(--k) * 108);
+  font-size: calc(var(--k) * 36);
+}
+.dessert {
+  font-size: calc(var(--k) * 30);
+}
+.noDessert {
+  margin-top: calc(var(--k) * 22);
+}

@@ -1,0 +1,89 @@
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.active {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide {
+    transition: none;
+  }
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center;
+}
+.fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(8, 12, 16, 0.88) 0%, rgba(8, 12, 16, 0.55) 28%, rgba(8, 12, 16, 0) 58%);
+}
+
+/* No photo: a warm spotlight on a drawn place setting. */
+.plain {
+  background:
+    radial-gradient(ellipse 60% 70% at 74% 44%, rgba(243, 217, 164, 0.09) 0%, rgba(243, 217, 164, 0) 60%),
+    radial-gradient(ellipse at 74% 44%, #24303a 0%, #141c23 46%, var(--night) 78%);
+}
+.plate {
+  position: absolute;
+  top: 50%;
+  right: 5vw;
+  width: min(84vh, 42vw);
+  transform: translateY(-54%);
+  color: rgba(243, 217, 164, 0.3);
+  filter: drop-shadow(0 0 30px rgba(243, 217, 164, 0.1));
+}
+
+.text {
+  position: absolute;
+  left: 5vw;
+  right: 5vw;
+  bottom: 7vh;
+}
+.plain .text {
+  right: auto;
+  max-width: 46vw;
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.label {
+  margin-bottom: 1.4vh;
+  font-size: clamp(15px, 1.5vw, 28px);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #f3d9a4;
+}
+.name {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 5.6vw, 108px);
+  font-weight: 600;
+  line-height: 1.03;
+  letter-spacing: -0.01em;
+  color: #fff;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+}
+.desc {
+  margin-top: 1.8vh;
+  max-width: 60ch;
+  font-size: clamp(17px, 1.9vw, 36px);
+  line-height: 1.32;
+  color: rgba(255, 255, 255, 0.9);
+}
+.sides {
+  margin-top: 1.4vh;
+  font-size: clamp(15px, 1.5vw, 28px);
+  font-weight: 600;
+  color: rgba(243, 217, 164, 0.85);
+}

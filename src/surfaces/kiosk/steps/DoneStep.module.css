@@ -1,0 +1,66 @@
+.done {
+  min-height: 60cqh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--k) * 26);
+  text-align: center;
+}
+.badge {
+  width: calc(var(--k) * 150);
+  height: calc(var(--k) * 150);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--kk-blue);
+  color: #fff;
+}
+.title {
+  font-family: var(--font-serif);
+  font-size: calc(var(--k) * 62);
+  font-weight: 600;
+}
+.when {
+  max-width: calc(var(--k) * 880);
+  font-size: calc(var(--k) * 36);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.texted {
+  font-size: calc(var(--k) * 32);
+  font-weight: 700;
+  color: var(--kk-deep);
+}
+.later {
+  font-size: calc(var(--k) * 32);
+  color: var(--kk-mute);
+}
+.see {
+  min-width: calc(var(--k) * 360);
+  min-height: calc(var(--k) * 84);
+  font-size: calc(var(--k) * 30);
+}
+.text {
+  width: 100%;
+  max-width: calc(var(--k) * 620);
+  padding: calc(var(--k) * 18) calc(var(--k) * 22) calc(var(--k) * 22);
+  border-radius: calc(var(--k) * 28);
+  text-align: left;
+}
+.textCaption {
+  margin-bottom: calc(var(--k) * 10);
+  font-size: calc(var(--k) * 22);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--kk-mute);
+}
+.bubble {
+  padding: calc(var(--k) * 16) calc(var(--k) * 20);
+  border-radius: calc(var(--k) * 26) calc(var(--k) * 26) calc(var(--k) * 26) calc(var(--k) * 8);
+  background: #e9edf1;
+  font-size: calc(var(--k) * 26);
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
