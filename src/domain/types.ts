@@ -313,6 +313,8 @@ export interface AssocMeal {
   status: string;
   note: string;
   log: unknown[];
+  /** When the meal was marked ready for pickup (ms epoch). */
+  readyAt?: number | null;
   mods?: Record<string, unknown>;
 }
 

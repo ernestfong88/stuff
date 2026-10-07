@@ -6,7 +6,7 @@
 import { parseClockTime } from '../../domain/pickup';
 import type { AssocMeal } from '../../domain/types';
 
-export type AssocStage = { firedAt?: number; readyAt?: number; pickedAt?: number };
+export type AssocStage = { firedAt?: number; readyAt?: number | null; pickedAt?: number };
 export type AssocTicketMeal = AssocMeal & AssocStage;
 
 export type AssocState = 'late' | 'ready' | 'holding' | 'fired';
