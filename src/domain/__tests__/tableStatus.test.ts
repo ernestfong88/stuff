@@ -69,5 +69,6 @@ describe('addCheck', () => {
   it('names tables and queue orders', () => {
     expect(tableName(order([], { tableId: 't_sq3', checkTag: 'B' }))).toMatch(/B$/);
     expect(tableName(order([], { tableId: undefined, queueType: 'delivery' }))).toBe('Delivery');
+    expect(tableName(order([], { tableId: undefined, queueType: 'pickup', assoc: true }))).toBe('Associate Meal');
   });
 });

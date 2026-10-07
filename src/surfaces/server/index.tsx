@@ -3,6 +3,7 @@ import { navigate, useRoute, useView } from '../../shell/router';
 import { useMe, useVenue } from '../../shell/session';
 import { TabletShell } from '../../shell/TabletShell';
 import { useDining } from '../../store/dining';
+import { toast } from '../../ui';
 import { MyTablesBoard } from './board/MyTablesBoard';
 import type { OpenCheckOptions } from './board/TableCard';
 import { NoticesButton, ResidentsView, ShiftReviewView, VoiceButton } from './features';
@@ -26,7 +27,7 @@ export default function ServerSurface() {
   const view: ServerView = VIEWS.includes(rawView) ? rawView : 'mine';
   const me = useMe().initials;
   const [venue] = useVenue();
-  const { orders } = useDining();
+  const { orders, closeOrder } = useDining();
   const [viewServer, setViewServer] = useState(me);
   const live = orders.filter((o) => !o.queueType && inVenue(o, venue));
 
@@ -38,7 +39,16 @@ export default function ServerSurface() {
   };
 
   if (view === 'check' && rest[0]) {
-    return <OrderScreen orderId={rest[0]} initialCategory={query.get('cat') ?? undefined} onClose={() => setView('mine')} />;
+    // A pick up, delivery or associate meal left with nothing on it doesn't leave an empty order behind.
+    const leave = () => {
+      const o = orders.find((x) => x.id === rest[0]);
+      setView('mine');
+      if (o?.queueType && !o.diners.some((d) => d.items.length > 0)) {
+        closeOrder(o.id);
+        toast('Nothing was ordered, so the empty order was removed.');
+      }
+    };
+    return <OrderScreen orderId={rest[0]} initialCategory={query.get('cat') ?? undefined} onClose={leave} />;
   }
 
   return (

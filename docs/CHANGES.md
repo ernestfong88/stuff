@@ -220,6 +220,12 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### New check: pick up, delivery or an associate meal from the table map
+
+- When a server starts a new check, the table map now has **Not at a table?** buttons above it: **Pick up**, **Delivery** and **Associate meal**. Each opens a new order on the server's own name, straight on the order screen.
+- **Associate meal** opens the Add diner panel on the associate list. The first associate added names the order, and it shows as *Associate Meal* on the pick up screen and the kitchen screens.
+- Leaving one of these with nothing ordered removes the empty order, the same as on the PU & Delivery screen.
+
 ### Kitchen screens: no undo pop-ups, a clock, and time in
 
 - **Cook and Expo no longer show an Undo message after a bump.** A cleared ticket stays cleared. If one goes by mistake, bring it back with **RECALL** (or the M key on the bump bar).

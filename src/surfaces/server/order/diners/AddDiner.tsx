@@ -27,8 +27,9 @@ export function AddDiner({
   onClose: () => void;
   onAdded: (dinerId: string) => void;
 }) {
-  const { addDiner } = useDining();
-  const [kind, setKind] = useState<Kind>(guestHost ? 'guest' : 'resident');
+  const { addDiner, patchOrder } = useDining();
+  // An associate meal starts on the associate list.
+  const [kind, setKind] = useState<Kind>(guestHost ? 'guest' : order.assoc ? 'associate' : 'resident');
   const [q, setQ] = useState('');
   const [host, setHost] = useState<Resident | null>(guestHost);
   const [guestName, setGuestName] = useState('');
@@ -46,6 +47,11 @@ export function AddDiner({
       return;
     }
     const added = addDiner(order.id, kind === 'associate' ? 'associate' : 'resident', id, false);
+    // The first associate on an associate meal names the order, as Expo and Pick up show it.
+    if (added && order.assoc && kind === 'associate' && !order.assocName) {
+      const a = associates.find((x) => x.id === id);
+      if (a) patchOrder(order.id, { assocName: a.name });
+    }
     if (added) onAdded(added);
   };
   const addGuest = (c: Contact | null) => {

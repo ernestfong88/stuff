@@ -155,13 +155,13 @@ export function addCheck(list: Order[], o: Order): Order[] {
 export const QUEUE_TYPE_LABELS: Record<QueueType | 'associate', string> = {
   delivery: 'Delivery',
   pickup: 'Pick Up',
-  associate: 'Associate',
+  associate: 'Associate Meal',
 };
 
-/** __kTableName: "SQ 7B", or "Pick Up" / "Delivery". */
+/** __kTableName: "SQ 7B", or "Pick Up" / "Delivery" / "Associate Meal". */
 export function tableName(o: Order | null | undefined): string {
   if (!o) return '';
-  if (o.queueType) return QUEUE_TYPE_LABELS[o.queueType];
+  if (o.queueType) return QUEUE_TYPE_LABELS[o.assoc ? 'associate' : o.queueType];
   return (getTable(o.tableId)?.label || 'Table') + (o.checkTag || '');
 }
 
