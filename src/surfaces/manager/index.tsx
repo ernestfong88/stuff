@@ -41,7 +41,7 @@ export default function ManagerSurface() {
       ) : view === 'metrics' ? (
         <MetricsView onOpen={open} />
       ) : view === 'shift' ? (
-        <ShiftView />
+        <ShiftView onOpen={open} />
       ) : view === 'associates' ? (
         <AssociatesView />
       ) : view === '86' ? (

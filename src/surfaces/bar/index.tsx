@@ -12,7 +12,7 @@ import { useVenue } from '../../shell/session';
 import { TabletShell } from '../../shell/TabletShell';
 import { useConfig } from '../../store/config';
 import { useDining } from '../../store/dining';
-import { Button, EmptyState, Eyebrow, cx, useNow } from '../../ui';
+import { Button, EmptyState, Eyebrow, cx, toast, useNow } from '../../ui';
 import { inPlan, useRoomPlan, useTableName } from '../../store/floorLayout';
 import { BAR_LATE_MIN, barQueue, roomHasBar, type BarTicket } from './barQueue';
 import s from './Bar.module.css';
@@ -35,7 +35,7 @@ export default function BarSurface() {
             {roomName} · {q.make.length} to make, {q.waiting.length} waiting for pickup
           </span>
         </div>
-        {!roomHasBar(venue, cfg) && (
+        {!roomHasBar(venue, cfg) && !q.make.length && !q.waiting.length && (
           <p className={s.note}>Servers pour their own drinks at {roomName}. A manager can send any drink to the bar in Back Office, Kitchen Routing.</p>
         )}
 
@@ -68,12 +68,23 @@ export default function BarSurface() {
 }
 
 function Ticket({ ticket, at, done }: { ticket: BarTicket; at: number; done?: boolean }) {
-  const { markBarUp, serveDrinks } = useDining();
+  const { markBarUp, serveDrinks, setItemKitchenState } = useDining();
   const cfg = useConfig();
   const name = useTableName();
   const { order, lines } = ticket;
   const mins = Math.max(0, Math.floor((at - ticket.since) / MINUTE));
   const late = !done && mins >= BAR_LATE_MIN;
+  const ids = lines.map((l) => l.id);
+  /** A slip on a busy bar costs nothing: each tap can be undone from the toast. */
+  const undoTo = (state: 'bar' | 'up') => ({ label: 'Undo', onClick: () => ids.forEach((id) => setItemKitchenState(order.id, id, state)) });
+  const ready = () => {
+    markBarUp(order.id);
+    toast(`${name(order)} drinks are ready for pickup`, { tone: 'success', action: undoTo('bar') });
+  };
+  const pickedUp = () => {
+    serveDrinks(order.id, ids);
+    toast(`${name(order)} drinks picked up`, { action: undoTo('up') });
+  };
   return (
     <article className={cx(s.ticket, late && s.late, done && s.done)} aria-label={`${name(order)}, ${lines.length} drinks`}>
       <div className={s.ticketHead}>
@@ -91,7 +102,7 @@ function Ticket({ ticket, at, done }: { ticket: BarTicket; at: number; done?: bo
           const extra = modsText(l.mods, l.note);
           return (
             <li key={l.id} className={s.line}>
-              <span className={s.seat}>S{l.diner.seat || ''}</span>
+              {l.diner.seat ? <span className={s.seat}>S{l.diner.seat}</span> : null}
               <span className={s.drink}>
                 <span className={s.drinkName}>{it ? kitchenItemName(it.name, cfg) : 'Drink'}</span>
                 {extra && <span className={s.mods}>{extra}</span>}
@@ -104,12 +115,12 @@ function Ticket({ ticket, at, done }: { ticket: BarTicket; at: number; done?: bo
       {done ? (
         <div className={s.foot}>
           <span className={s.readyText}>Ready. Waiting for {serverName(order.server) || 'the server'}.</span>
-          <Button variant="soft" size="lg" onClick={() => serveDrinks(order.id, lines.map((l) => l.id))}>
-            Handed off
+          <Button variant="soft" size="lg" onClick={pickedUp}>
+            Picked up
           </Button>
         </div>
       ) : (
-        <Button variant="success" size="lg" block onClick={() => markBarUp(order.id)}>
+        <Button variant="success" size="lg" block onClick={ready}>
           Ready for pickup
         </Button>
       )}

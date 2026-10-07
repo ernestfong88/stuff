@@ -193,3 +193,35 @@ export function compareOrders(menuList: AssocMenuItem[]) {
 export function assocTextsOn(): boolean {
   return getSetting<{ on?: boolean } | undefined>('texts.assocChange')?.on !== false;
 }
+
+export interface OrderFormState {
+  /** Changing an existing order, so the name and meal are already set. */
+  editing: boolean;
+  name: string;
+  item: string;
+  /** The associate already has this meal today. */
+  taken: boolean;
+  /** The first choice group still to pick, e.g. "Side". */
+  missingGroup?: string | null;
+  overCutoff: boolean;
+  reason: string;
+}
+
+/**
+ * What still stops the order form from saving, in the order the manager
+ * fills it in, or null when nothing is left to fill in. A name that already
+ * has the meal gets its own warning, so it says nothing here.
+ */
+export function orderFormTodo(f: OrderFormState): string | null {
+  if (!f.editing && !f.name.trim()) return 'Type the associate’s name.';
+  if (!f.editing && f.taken) return null;
+  if (!f.item) return 'Pick a meal.';
+  if (f.missingGroup) return `Pick a ${f.missingGroup.toLowerCase()}.`;
+  if (f.overCutoff && !f.reason.trim()) return 'Add a reason for the override.';
+  return null;
+}
+
+/** The form can save once nothing is left to fill in and the name is free. */
+export function orderFormReady(f: OrderFormState): boolean {
+  return !orderFormTodo(f) && (f.editing || !f.taken);
+}

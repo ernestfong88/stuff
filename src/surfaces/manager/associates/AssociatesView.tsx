@@ -119,7 +119,7 @@ export function AssociatesView() {
             const c = (m.cap ?? 0) - (itemsLeft(all, date, m) ?? 0);
             return (
               <span key={m.id}>
-                {m.id === 'am_special_lunch' ? 'Lunch' : 'Dinner'}: {m.name} <b className={cx(c >= (m.cap ?? 0) ? s.red : s.green)}>{`${c}/${m.cap}`}</b>
+                {m.id === 'am_special_lunch' ? 'Lunch' : 'Dinner'} special: {m.name} · <b className={cx(c >= (m.cap ?? 0) ? s.red : s.green)}>{`${c} of ${m.cap}`}</b> ordered
               </span>
             );
           })}
@@ -141,6 +141,7 @@ export function AssociatesView() {
             .map((x) => (
               <option key={x.w} value={x.w}>
                 {x.meal === 'NOC' ? 'Overnight' : x.meal} · {rangeLabel(x.w)}
+                {windowOpen(date, x.w, t) ? '' : ' · past cutoff'}
               </option>
             ))}
         </select>

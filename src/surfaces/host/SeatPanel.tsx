@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, UserPlus } from 'lucide-react';
 import { residents } from '../../data';
 import { namesOf } from '../../domain/orders';
 import { serverColor, serverName, type ServerOnFloor } from '../../domain/servers';
@@ -41,7 +41,8 @@ interface Props {
  * Seating a party: pick their server (the suggestion is preselected), type
  * names or apartments, and seat. Tapping a table goes straight to typing a
  * name; Enter or a tap on a name seats that resident and puts the cursor
- * back for the next one.
+ * back for the next one. A name that is not a resident seats as a guest, so
+ * a walk-in party of visitors is never stuck.
  */
 export function SeatPanel(p: Props) {
   const [q, setQ] = useState('');
@@ -54,11 +55,18 @@ export function SeatPanel(p: Props) {
     input.current?.focus();
   }, [p.table.id]);
 
-  const add = (residentId: string, name: string) => {
-    p.onSeats([...p.seats, { name, residentId }]);
+  const push = (seat: SeatEntry) => {
+    p.onSeats([...p.seats, seat]);
     setQ('');
     input.current?.focus();
   };
+  const add = (residentId: string, name: string) => push({ name, residentId });
+  /** A guest sits against the first resident at the table, if there is one, when the party is seated. */
+  const addGuest = (typed: string) => {
+    const name = typed.trim().slice(0, 40) || 'Guest';
+    push({ name, residentId: null, guest: { name, rel: 'Guest' } });
+  };
+  const typed = q.trim();
 
   return (
     <aside className={s.panel} aria-label={`Seat a party at ${p.table.label}`}>
@@ -110,22 +118,23 @@ export function SeatPanel(p: Props) {
         })}
       </div>
 
+      <div className={s.caption}>Who is sitting down</div>
       <input
         ref={input}
         className={s.search}
         value={q}
         onChange={(e) => setQ(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' && hits.length) {
-            e.preventDefault();
-            add(hits[0].id, hits[0].name);
-          }
+          if (e.key !== 'Enter' || !typed) return;
+          e.preventDefault();
+          if (hits.length) add(hits[0].id, hits[0].name);
+          else addGuest(typed);
         }}
         enterKeyHint="done"
         aria-label="Resident name or apartment"
-        placeholder="Type a name or apartment number"
+        placeholder="Name or apartment number"
       />
-      {hits.length > 0 && (
+      {typed ? (
         <div className={s.hits}>
           {hits.map((r, i) => (
             <button key={r.id} className={s.hit} onClick={() => add(r.id, r.name)} title={i === 0 ? 'Enter adds this resident' : undefined}>
@@ -140,7 +149,19 @@ export function SeatPanel(p: Props) {
               <Plus size={16} strokeWidth={2.5} className={s.hitPlus} />
             </button>
           ))}
+          <button className={cx(s.hit, s.guestHit)} onClick={() => addGuest(typed)} title={hits.length ? undefined : 'Enter adds this guest'}>
+            <UserPlus size={16} strokeWidth={2.2} />
+            <span className={s.hitText}>
+              <span className={s.hitName}>Add “{typed}” as a guest</span>
+              {!hits.length && <span className={s.hitApt}>No resident matches</span>}
+            </span>
+          </button>
         </div>
+      ) : (
+        <button className={s.guestLink} onClick={() => addGuest('')}>
+          <UserPlus size={15} strokeWidth={2.2} />
+          Add a guest without a name
+        </button>
       )}
 
       {p.seats.length > 0 && (
@@ -150,7 +171,7 @@ export function SeatPanel(p: Props) {
               <span className={s.seatNo}>S{i + 1}</span>
               <span className={s.seatName}>
                 {x.name}
-                {x.guest ? ` (${x.guest.rel && x.guest.rel !== 'Guest' ? x.guest.rel : 'guest'})` : ''}
+                {x.guest && x.name !== 'Guest' ? ` (${x.guest.rel && x.guest.rel !== 'Guest' ? x.guest.rel : 'guest'})` : ''}
               </span>
               <Button variant="ghost" onClick={() => p.onSeats(p.seats.filter((_, j) => j !== i))}>
                 Remove

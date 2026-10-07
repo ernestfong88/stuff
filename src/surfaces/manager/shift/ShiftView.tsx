@@ -3,7 +3,7 @@ import { CheckCircle2, Download } from 'lucide-react';
 import { serverName } from '../../../domain/servers';
 import type { Order } from '../../../domain/types';
 import { now, startOfToday } from '../../../lib/clock';
-import { formatDayLong, formatMoneyShort, formatTime, plural } from '../../../lib/format';
+import { firstName, formatDayLong, formatMoneyShort, formatTime, plural } from '../../../lib/format';
 import { isoDate } from '../../../domain/pickup';
 import { useMe } from '../../../shell/session';
 import { useConfig } from '../../../store/config';
@@ -18,7 +18,7 @@ import { SignaturePad } from './SignaturePad';
 import s from './ShiftView.module.css';
 
 /** __KMgrShift: one closing report for the whole shift, signed off by the manager. */
-export function ShiftView() {
+export function ShiftView({ onOpen }: { onOpen: (o: Order) => void }) {
   const { orders, history } = useDining();
   const cfg = useConfig();
   const notes = useNotes();
@@ -70,6 +70,9 @@ export function ShiftView() {
           <h2 className={s.title}>Closing report</h2>
           <span className={s.sub}>
             {formatDayLong(now())} · {meal} · {servers.map(serverName).join(', ')}
+          </span>
+          <span className={cx(s.state, signed ? s.stateDone : open.length ? s.stateOpen : s.stateReady)} role="status">
+            {signed ? `Signed off by ${firstName(signed.by)}` : open.length ? `${plural(open.length, 'table')} still open` : 'Ready to sign off'}
           </span>
         </div>
 
@@ -155,17 +158,22 @@ export function ShiftView() {
               <p className={s.blockedText}>
                 {open.length === 1 ? 'This table needs' : `These ${open.length} tables need`} to be closed before this shift can be signed off.
               </p>
+              <p className={s.how}>Tap a table to open its check.</p>
               <ul className={s.openList}>
                 {open.map((o: Order) => (
-                  <li key={o.id} className={s.openChip}>
-                    {name(o)}
-                    <span className={s.openServer}>{serverName(o.server)}</span>
+                  <li key={o.id}>
+                    <button className={s.openChip} onClick={() => onOpen(o)}>
+                      {name(o)}
+                      <span className={s.openServer}>{serverName(o.server)}</span>
+                    </button>
                   </li>
                 ))}
               </ul>
-              <Button size="lg" disabled>
-                Sign off locked until every table is closed
-              </Button>
+              <div className={s.signActions}>
+                <Button size="lg" icon={<Download size={16} />} onClick={exportCopy}>
+                  Export a copy so far
+                </Button>
+              </div>
             </>
           ) : (
             <>

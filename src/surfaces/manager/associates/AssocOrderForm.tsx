@@ -1,10 +1,10 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import type { AssocMeal } from '../../../domain/types';
 import { now } from '../../../lib/clock';
-import { Button, TextField } from '../../../ui';
+import { Button, TextField, useConfirm } from '../../../ui';
 import { itemsLeft, missingChoice } from '../../../domain/assocMeals/menu';
 import { assocMenuFor, useAssocMenuSettings } from '../../../store/assocMenu';
-import { CUTOFF_MIN, PROGRAM_NAMES, isLive, mealOfWindow, orderChoices, rangeLabel, windowOpen, type AssocWindow } from './assocProgram';
+import { CUTOFF_MIN, PROGRAM_NAMES, isLive, mealOfWindow, orderChoices, orderFormReady, orderFormTodo, rangeLabel, windowOpen, type AssocWindow } from './assocProgram';
 import s from './AssocOrderForm.module.css';
 
 export interface AssocFormValue {
@@ -32,6 +32,10 @@ interface Props {
 /** Add or change an associate's meal, with the app's limits and a reason after the cutoff. */
 export function AssocOrderForm({ date, all, windows, window: from, editing, onSave, onCancelOrder, onBack }: Props) {
   const listId = useId();
+  const box = useRef<HTMLDivElement>(null);
+  const [ask, confirmDialog] = useConfirm();
+  // The form opens inside its pickup card, which can be far down the page.
+  useEffect(() => box.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), []);
   const [v, setV] = useState<AssocFormValue>(() => ({
     associate: editing?.associate ?? '',
     item: editing?.item ?? '',
@@ -50,12 +54,35 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
   const name = v.associate.trim().toLowerCase();
   const dayOrders = all.filter((o) => o.date === date);
   const taken = !editing && !!name && dayOrders.some((o) => isLive(o) && o.associate.toLowerCase() === name && o.meal === mealOfWindow(v.window));
-  const ok = (editing || (name && v.item && !taken)) && (!overCutoff || v.reason.trim()) && (!item || !missingChoice(item, v.mods));
+  const form = {
+    editing: !!editing,
+    name,
+    item: v.item,
+    taken,
+    missingGroup: item ? missingChoice(item, v.mods)?.group : null,
+    overCutoff,
+    reason: v.reason,
+  };
+  // A change that moves lunch to dinner clears the meal, so an edit needs one picked too.
+  const ok = orderFormReady(form);
+  // Say what still stops the save, so a grey button is never a mystery.
+  const todo = orderFormTodo(form);
+  const cancelOrder = async () => {
+    if (!editing || !onCancelOrder) return;
+    const yes = await ask({
+      title: `Cancel ${editing.associate}’s ${editing.item}?`,
+      message: 'The order comes off the pickup list and the change is logged with your name.',
+      confirmLabel: 'Cancel order',
+      cancelLabel: 'Keep it',
+      tone: 'danger',
+    });
+    if (yes) onCancelOrder(v.reason);
+  };
   const canCancel = windowOpen(date, from, at) || !!v.reason.trim();
   const names = PROGRAM_NAMES.filter((n) => !dayOrders.some((o) => isLive(o) && o.associate === n && o.meal === mealOfWindow(v.window)));
 
   return (
-    <div className={s.form}>
+    <div className={s.form} ref={box}>
       {editing ? (
         <div className={s.who}>{editing.associate}</div>
       ) : (
@@ -121,12 +148,13 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
         </div>
       )}
 
+      {todo && <div className={s.todo}>{todo}</div>}
       <div className={s.actions}>
         <Button variant="primary" className={s.grow} disabled={!ok} onClick={() => onSave(v, overCutoff)}>
           {editing ? 'Save change' : 'Place order'}
         </Button>
         {editing && onCancelOrder && (
-          <Button variant="softDanger" disabled={!canCancel} onClick={() => onCancelOrder(v.reason)}>
+          <Button variant="softDanger" disabled={!canCancel} onClick={cancelOrder} title={canCancel ? undefined : 'Add a reason for the override first'}>
             Cancel order
           </Button>
         )}
@@ -134,6 +162,7 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
           Back
         </Button>
       </div>
+      {confirmDialog}
     </div>
   );
 }
