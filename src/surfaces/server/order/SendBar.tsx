@@ -7,7 +7,7 @@ import { now } from '../../../lib/clock';
 import { useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
 import { cx } from '../../../ui';
-import { VoiceButton } from '../features';
+import { MicButton } from '../features';
 import { sendableLines, sendLabel, sentMessage } from './checkLines';
 import { rangeLabel } from './queue/pickupWindows';
 import s from './SendBar.module.css';
@@ -58,7 +58,7 @@ export function SendBar({
         <Send size={16} aria-hidden /> <span className={s.sendLabel}>{label}</span>
       </button>
       <span className={s.voice}>
-        <VoiceButton />
+        <MicButton order={o} />
       </span>
     </footer>
   );

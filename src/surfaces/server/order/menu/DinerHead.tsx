@@ -1,14 +1,12 @@
-import { Sparkles } from 'lucide-react';
 import { mealPlans } from '../../../../data';
 import { dinerName, dinerPerson } from '../../../../domain/orders';
 import type { Diner, Resident } from '../../../../domain/types';
 import { isOnHospice } from '../../../../domain/waivers';
 import { today } from '../../../../lib/clock';
 import { useConfig } from '../../../../store/config';
-import { useNotes } from '../../../../store/notes';
 import { residentPref, useResidentPrefs } from '../../../../store/residentPrefs';
 import { Avatar, Chip } from '../../../../ui';
-import { goodToKnow } from '../../seed';
+import { GoodToKnow } from '../../features';
 import { dinerFace } from '../diners/DinerCard';
 import s from './DinerHead.module.css';
 
@@ -61,7 +59,7 @@ export function DinerHead({ diner, onProfile }: { diner: Diner; onProfile: (resi
               <div className={s.prefText}>{pref}</div>
             </div>
           ) : (
-            <GoodToKnowCard resident={r} />
+            <GoodToKnow resident={r} />
           )}
         </div>
       </div>
@@ -80,43 +78,6 @@ export function DinerHead({ diner, onProfile }: { diner: Diner; onProfile: (resi
         <div className={s.smallName}>{dinerName(diner)}</div>
         <div className={s.smallSub}>{sub}</div>
       </div>
-    </div>
-  );
-}
-
-/** "Good to know": what servers noticed lately, the little things, and a question to open with. */
-function GoodToKnowCard({ resident }: { resident: Resident }) {
-  const notes = useNotes();
-  const contact = resident.contacts?.[0];
-  const base =
-    goodToKnow[resident.id] ??
-    (contact ? { k: [], q: `How is your ${contact.rel.toLowerCase()} ${contact.name.split(' ')[0]} doing?` } : null);
-  const key = (t: string) =>
-    t
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
-  const seen = new Set<string>();
-  const once = (t: string) => !seen.has(key(t)) && !!seen.add(key(t));
-  const recent = notes
-    .filter((n) => n.rid === resident.id && (n.kind === 'know' || n.kind === 'obs'))
-    .sort((a, b) => b.at - a.at)
-    .map((n) => n.text)
-    .filter(once);
-  if (!base && !recent.length) return null;
-  const lines = [...recent, ...(base ? base.k.filter(once) : [])].slice(0, 3);
-  return (
-    <div className={s.know}>
-      <div className={s.knowLabel}>
-        <Sparkles size={12} aria-hidden /> Good to know
-      </div>
-      {lines.map((t, i) => (
-        <div key={i} className={s.knowLine}>
-          {i < recent.length && <span className={s.newTag}>New</span>}
-          {t}
-        </div>
-      ))}
-      {base?.q && <div className={s.question}>“{base.q}”</div>}
     </div>
   );
 }

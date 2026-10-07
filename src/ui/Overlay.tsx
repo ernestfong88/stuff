@@ -29,8 +29,10 @@ function useOverlayBehaviour(open: boolean, onClose: () => void, panel: React.Re
       }
     };
     window.addEventListener('keydown', onKey);
-    const focusable = panel.current?.querySelector<HTMLElement>('[data-autofocus], input, textarea, select');
-    (focusable ?? panel.current)?.focus({ preventScroll: true });
+    // Only an explicit data-autofocus takes focus: focusing an input on open
+    // would pop the on-screen keyboard over the sheet on tablets.
+    const target = panel.current?.querySelector<HTMLElement>('[data-autofocus]');
+    (target ?? panel.current)?.focus({ preventScroll: true });
     return () => {
       openCount--;
       window.removeEventListener('keydown', onKey);

@@ -136,3 +136,9 @@
   background: var(--night-3);
   color: var(--night-ink);
 }
+
+/* A coloured count on the dark "on" pill would be unreadable; keep it light. */
+.pills .on .count[class*='count_'] {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
