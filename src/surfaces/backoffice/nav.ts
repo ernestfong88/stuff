@@ -4,7 +4,7 @@
  */
 import type { ComponentType, LazyExoticComponent } from 'react';
 import { lazy } from 'react';
-import { LayoutGrid, BookOpen, Store, Timer, Users, CreditCard, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { LayoutGrid, BookOpen, ClipboardList, Store, Timer, Users, CreditCard, ShieldCheck, Building2, type LucideIcon } from 'lucide-react';
 
 export interface BoPageDef {
   id: string;
@@ -83,6 +83,27 @@ export const BO_SECTIONS: BoSectionDef[] = [
         component: lazy(() => import('./pages/modifiers')),
       },
       {
+        id: 'export',
+        label: 'Menu Export',
+        blurb: 'Printable menus from marketing templates',
+        keywords: 'pdf print template',
+        component: lazy(() => import('./pages/export')),
+      },
+      {
+        id: 'assoc',
+        label: 'Associate Meals',
+        blurb: 'Meals for staff by shift',
+        keywords: 'staff employee associate',
+        component: lazy(() => import('./pages/assoc')),
+      },
+    ],
+  },
+  {
+    id: 'prodlists',
+    label: 'Productions and Checklists',
+    icon: ClipboardList,
+    pages: [
+      {
         id: 'production',
         label: 'Production',
         blurb: 'How many to make, with recommendations',
@@ -97,18 +118,18 @@ export const BO_SECTIONS: BoSectionDef[] = [
         component: lazy(() => import('./pages/prepList')),
       },
       {
-        id: 'export',
-        label: 'Menu Export',
-        blurb: 'Printable menus from marketing templates',
-        keywords: 'pdf print template',
-        component: lazy(() => import('./pages/export')),
+        id: 'swLib',
+        label: 'Side Work Tasks',
+        blurb: "Each venue's side work library",
+        keywords: 'side work sidework task library opening mid closing breakfast lunch dinner minutes',
+        component: lazy(() => import('./pages/swLib')),
       },
       {
-        id: 'assoc',
-        label: 'Associate Meals',
-        blurb: 'Meals for staff by shift',
-        keywords: 'staff employee associate',
-        component: lazy(() => import('./pages/assoc')),
+        id: 'swAssign',
+        label: 'Assign Side Work',
+        blurb: "Today's side work for everyone on shift",
+        keywords: 'side work sidework assign task shift today server roll silverware auto even',
+        component: lazy(() => import('./pages/swAssign')),
       },
     ],
   },
@@ -153,13 +174,6 @@ export const BO_SECTIONS: BoSectionDef[] = [
     icon: Timer,
     pages: [
       {
-        id: 'svcAlerts',
-        label: 'Alerts & Timing',
-        blurb: 'When tables and tickets turn red',
-        keywords: 'red late timer threshold warning tables',
-        component: lazy(() => import('./pages/svcAlerts')),
-      },
-      {
         id: 'svcFlow',
         label: 'Service Flow',
         blurb: 'Check-in, dessert and ordering steps',
@@ -172,13 +186,6 @@ export const BO_SECTIONS: BoSectionDef[] = [
         blurb: 'The 15 minute ranges each venue offers',
         keywords: 'pick up delivery window range time slot associate schedule cutoff',
         component: lazy(() => import('./pages/svcWin')),
-      },
-      {
-        id: 'svcMetrics',
-        label: 'Shift Metrics',
-        blurb: 'How a great shift is scored',
-        keywords: 'great shift goals kpi scoring',
-        component: lazy(() => import('./pages/svcMetrics')),
       },
       {
         id: 'svcTexts',
@@ -200,20 +207,6 @@ export const BO_SECTIONS: BoSectionDef[] = [
         blurb: 'Notices servers open and acknowledge',
         keywords: 'message alert announcement notice acknowledge',
         component: lazy(() => import('./pages/broadcasts')),
-      },
-      {
-        id: 'swAssign',
-        label: 'Assign Side Work',
-        blurb: "Today's side work for everyone on shift",
-        keywords: 'side work sidework assign task shift today server roll silverware auto even',
-        component: lazy(() => import('./pages/swAssign')),
-      },
-      {
-        id: 'swLib',
-        label: 'Side Work Tasks',
-        blurb: "Each venue's side work library",
-        keywords: 'side work sidework task library opening mid closing breakfast lunch dinner minutes',
-        component: lazy(() => import('./pages/swLib')),
       },
     ],
   },
@@ -298,6 +291,27 @@ export const BO_SECTIONS: BoSectionDef[] = [
         blurb: 'Everyone from ADP and their Culinary App PIN',
         keywords: 'associates staff employees adp pin reset login sign in windows access roles permissions users',
         component: lazy(() => import('./pages/access')),
+      },
+    ],
+  },
+  {
+    id: 'ho',
+    label: 'HO Settings',
+    icon: Building2,
+    pages: [
+      {
+        id: 'svcAlerts',
+        label: 'Alerts & Timing',
+        blurb: 'When tables and tickets turn red',
+        keywords: 'red late timer threshold warning tables',
+        component: lazy(() => import('./pages/svcAlerts')),
+      },
+      {
+        id: 'svcMetrics',
+        label: 'Shift Metrics',
+        blurb: 'How a great shift is scored',
+        keywords: 'great shift goals kpi scoring',
+        component: lazy(() => import('./pages/svcMetrics')),
       },
     ],
   },
