@@ -4,11 +4,13 @@
  */
 import { getItem } from '../../../data';
 import { linePrice } from '../../../domain/billing';
-import { DEFAULT_CONFIG, type DiningConfig } from '../../../domain/config';
+import { DEFAULT_CONFIG, mealCreditRules, type DiningConfig, type MealCreditRules } from '../../../domain/config';
 import { isDrink, isSide, itemCourse } from '../../../domain/menu';
 import { lineCourse } from '../../../domain/orders';
 import { drinkRoute } from '../../../domain/routing';
 import type { Diner, Order, OrderLine } from '../../../domain/types';
+import { ordinal } from '../../../lib/format';
+import { getConfig } from '../../../store/config';
 
 /**
  * __kSideOrder: sides read as belonging to their entrée but stay their own
@@ -37,8 +39,9 @@ export function sideParentFor(itemId: string, diner: Diner): string | undefined 
 export type CreditKind = 'app' | 'entree' | 'side' | 'dessert';
 
 /**
- * __kCreditKind: one meal credit is 1 starter, 1 entrée, 2 sides and 1
- * dessert. Proteins added to a salad are upcharges and never sit on the credit.
+ * __kCreditKind: which part of a meal credit a dish uses (HO Settings,
+ * Meal Credits, says how many of each one credit covers). Proteins added
+ * to a salad are upcharges and never sit on the credit.
  */
 export function creditKind(itemId: string): CreditKind | null {
   const it = getItem(itemId);
@@ -49,10 +52,14 @@ export function creditKind(itemId: string): CreditKind | null {
   return c === 'Desserts' ? 'dessert' : /side/i.test(c) ? 'side' : c === 'Starters' || c === 'Salads' ? 'app' : null;
 }
 
-/** __kXSide: a resident's third side onward is charged à la carte. Swapping a default side keeps the count. */
-export function isExtraSide(diner: Diner, line: OrderLine): boolean {
-  if (diner.isGuest || diner.kind !== 'resident' || line.comped || creditKind(line.itemId) !== 'side') return false;
-  return diner.items.filter((x) => !x.comped && creditKind(x.itemId) === 'side').indexOf(line) >= 2;
+/**
+ * __kXSide: a resident's sides past the credit's allowance (a third side,
+ * by default) are charged à la carte, when HO Settings says so. Swapping a
+ * default side keeps the count.
+ */
+export function isExtraSide(diner: Diner, line: OrderLine, rules: MealCreditRules = mealCreditRules(getConfig())): boolean {
+  if (!rules.extraSidesAla || diner.isGuest || diner.kind !== 'resident' || line.comped || creditKind(line.itemId) !== 'side') return false;
+  return diner.items.filter((x) => !x.comped && creditKind(x.itemId) === 'side').indexOf(line) >= rules.sides;
 }
 
 /** __kAlaOf */
@@ -68,7 +75,7 @@ export function shownPrice(line: OrderLine, diner: Diner): number {
 
 /** "3rd side" or "Add-on" under a price that is charged on top of the meal credit. */
 export function priceTag(line: OrderLine, diner: Diner): string | null {
-  if (isExtraSide(diner, line)) return '3rd side';
+  if (isExtraSide(diner, line)) return `${ordinal(mealCreditRules(getConfig()).sides + 1)} side`;
   return getItem(line.itemId)?.upcharge && !diner.isGuest ? 'Add-on' : null;
 }
 

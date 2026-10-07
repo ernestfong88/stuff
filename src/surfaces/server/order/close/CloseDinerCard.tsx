@@ -1,6 +1,7 @@
 import { Check, CreditCard, Home, Printer } from 'lucide-react';
 import { getItem } from '../../../../data';
 import { corkageAmount, queueFee } from '../../../../domain/billing';
+import { mealCreditRules, mealCreditText } from '../../../../domain/config';
 import { dinerName } from '../../../../domain/orders';
 import type { Order } from '../../../../domain/types';
 import { hospiceOnOrder, isHospiceDiner } from '../../../../domain/waivers';
@@ -129,7 +130,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
                   </span>
                 )}
                 <span className={s.rule}>
-                  1 starter + 1 entrée + 2 sides + 1 dessert per credit · a 3rd side and added proteins are à la carte · side swaps are free
+                  {mealCreditText(mealCreditRules(cfg))}
                 </span>
                 <button className={s.link} onClick={() => p.onMode(p.mode === 'alacarte' ? 'count' : 'alacarte')}>
                   {p.mode === 'alacarte' ? 'use credits instead' : 'all à la carte instead'}
@@ -175,7 +176,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
       <div className={s.lines}>
         {d.items.map((line) => {
           const ala =
-            p.mode === 'alacarte' || (!!p.use?.overflow.some((x) => x.id === line.id) && overflowIsAla(d, line, p.overflowChoice));
+            p.mode === 'alacarte' || (!!p.use?.overflow.some((x) => x.id === line.id) && overflowIsAla(d, line, p.overflowChoice, cfg));
           const price = closeLinePrice(line, d, c, ala);
           return (
             <div key={line.id} className={s.line}>

@@ -1,0 +1,29 @@
+.preview {
+  margin: 4px 0 14px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  font-size: 13px;
+  color: var(--s700);
+  line-height: 1.45;
+}
+.previewLabel {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.foot {
+  padding: 4px 0 14px;
+  font-size: 12.5px;
+  color: var(--s500);
+}
+.link {
+  font-weight: 700;
+  color: var(--ocean);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

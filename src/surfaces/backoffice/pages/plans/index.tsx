@@ -1,11 +1,9 @@
 import { AlertTriangle, Plus } from 'lucide-react';
 import { uid } from '../../../../lib/id';
-import { Button, Toggle } from '../../../../ui';
-import { BoCallout, BoPage, BoRow, BoSection, CrudTable, setBillingList, useBilling, useCommunity, useCrudEditing, type CrudColumn } from '../../kit';
+import { Button } from '../../../../ui';
+import { BoCallout, BoPage, BoRow, BoSection, CrudTable, setBillingList, useBilling, useCrudEditing, type CrudColumn } from '../../kit';
 import type { BoPageProps } from '../../nav';
-import { ALL_COMMUNITIES } from '../../seed/shell';
 import type { BoMealPlan } from '../../seed/billing';
-import { communitiesWithGuestCredit, guestCreditOn, setGuestCredit, useGuestCreditSettings } from './guestCredit';
 import s from './plans.module.css';
 
 const PLAN_TYPES = [
@@ -26,7 +24,7 @@ const COLUMNS: Array<CrudColumn<BoMealPlan>> = [
 ];
 
 /** Meal Plans: the plan types the charge engine uses, and guest meal credits. */
-export default function MealPlansPage(_props: BoPageProps) {
+export default function MealPlansPage({ goto }: BoPageProps) {
   const { plans } = useBilling();
   const editing = useCrudEditing<BoMealPlan>();
   const defaults = plans.filter((p) => p.active && p.isDefault);
@@ -51,29 +49,13 @@ export default function MealPlansPage(_props: BoPageProps) {
         </BoCallout>
       )}
       <CrudTable noun="plan" rows={plans} setRows={(fn) => setBillingList('plans', fn)} columns={COLUMNS} editing={editing} />
-      <GuestMeals />
+      <BoSection title="Guest meals and what a credit covers" sub="Whether residents can use their meal credits for guests, and what one credit covers, are set in HO Settings.">
+        <BoRow label="Meal credit rules">
+          <Button size="sm" onClick={() => goto('credits')}>
+            Open Meal Credits
+          </Button>
+        </BoRow>
+      </BoSection>
     </BoPage>
-  );
-}
-
-function GuestMeals() {
-  const community = useCommunity();
-  const settings = useGuestCreditSettings();
-  const on = guestCreditOn(settings, community);
-  const everywhere = communitiesWithGuestCredit(settings, ALL_COMMUNITIES);
-  return (
-    <BoSection title="Guest meals" sub={`Some communities let a resident put a guest's meal on their own meal plan. This setting is for ${community}.`}>
-      <BoRow
-        label="Residents can use their meal credits for guests"
-        hint={
-          on
-            ? "On: at close the server can put a guest's meal on the host's plan. It uses one of the host's meals."
-            : "Off: guests pay à la carte on the host's account. Comping a guest still needs a manager PIN."
-        }
-      >
-        <Toggle checked={on} onChange={(v) => setGuestCredit(community, v)} label={<span className="sr-only">Residents can use their meal credits for guests at {community}</span>} />
-      </BoRow>
-      <p className={s.foot}>{everywhere.length ? `On at ${everywhere.join(', ')}.` : 'Off at every community.'}</p>
-    </BoSection>
   );
 }

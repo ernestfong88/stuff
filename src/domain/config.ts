@@ -70,7 +70,28 @@ export interface DiningConfig {
   shortNames: Record<string, string>;
   /** Minutes to pack a pick up / delivery, added to the ticket time for the fire lead. */
   pickupPackMinutes: number;
+  /** What one meal credit covers and how extras are charged (HO Settings, Meal Credits). */
+  mealCredit: MealCreditRules;
+  /** Residents can put a guest's meal on their own meal credit, per community. */
+  guestCredit: Record<string, boolean>;
 }
+
+/** What one meal credit covers. */
+export interface MealCreditRules {
+  starters: number;
+  entrees: number;
+  sides: number;
+  desserts: number;
+  /** Sides past the allowance are always charged à la carte (else they can use another credit). */
+  extraSidesAla: boolean;
+  /** Other items past one credit: use another credit, or charge à la carte. The server can change it per line. */
+  overflow: 'credit' | 'ala';
+}
+
+export const DEFAULT_MEAL_CREDIT: MealCreditRules = { starters: 1, entrees: 1, sides: 2, desserts: 1, extraSidesAla: true, overflow: 'credit' };
+
+/** Communities where guest meal credits are on until someone changes it. */
+const GUEST_CREDIT_DEFAULT_ON: readonly string[] = ['The Fountains'];
 
 export const DEFAULT_CONFIG: DiningConfig = {
   flow: {},
@@ -82,7 +103,32 @@ export const DEFAULT_CONFIG: DiningConfig = {
   hospice: {},
   shortNames: {},
   pickupPackMinutes: 5,
+  mealCredit: DEFAULT_MEAL_CREDIT,
+  guestCredit: {},
 };
+
+/** The meal credit rules, with defaults for anything a saved copy lacks. */
+export function mealCreditRules(cfg: DiningConfig = DEFAULT_CONFIG): MealCreditRules {
+  return { ...DEFAULT_MEAL_CREDIT, ...cfg.mealCredit };
+}
+
+/** Residents at a community can use their meal credits for guests. */
+export function guestCreditOn(cfg: DiningConfig, community: string): boolean {
+  return cfg.guestCredit?.[community] ?? GUEST_CREDIT_DEFAULT_ON.includes(community);
+}
+
+const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+/** "1 starter + 1 entrée + 2 sides + 1 dessert per credit · a 3rd side and added proteins are à la carte" */
+export function mealCreditText(r: MealCreditRules): string {
+  const parts = [count(r.starters, 'starter', 'starters'), count(r.entrees, 'entrée', 'entrées'), count(r.sides, 'side', 'sides'), count(r.desserts, 'dessert', 'desserts')].filter(
+    (t) => !t.startsWith('0 '),
+  );
+  const nth = r.sides + 1;
+  const ord = nth === 1 ? '1st' : nth === 2 ? '2nd' : nth === 3 ? '3rd' : `${nth}th`;
+  const extras = r.extraSidesAla ? `a ${ord} side and added proteins are à la carte` : 'added proteins are à la carte';
+  return `${parts.join(' + ')} per credit · ${extras} · side swaps are free`;
+}
 
 /** __kF: a flow flag is on unless it was switched off. */
 export function flag(cfg: DiningConfig, key: FlowFlag): boolean {

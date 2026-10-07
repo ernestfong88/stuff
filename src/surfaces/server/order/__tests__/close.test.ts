@@ -13,6 +13,7 @@ import {
   type CloseRow,
 } from '../close/closeMath';
 import { labelMinutes, loadTag, rangeLabel, windowLoad, windowsFor } from '../queue/pickupWindows';
+import { DEFAULT_CONFIG, DEFAULT_MEAL_CREDIT, mealCreditRules } from '../../../../domain/config';
 import { dinerPerson } from '../../../../domain/orders';
 import type { Diner, Order, Resident } from '../../../../domain/types';
 
@@ -82,6 +83,21 @@ describe('close math', () => {
     const o = order([d]);
     const r = row(d, inputs(o, { overflowChoice: { [second.id]: 'ala' } }));
     expect(r.charge.outOfPlan).toBe(16);
+  });
+
+  it('follows the meal credit rules set in HO Settings', () => {
+    const d = diner([line('d_peach'), line('d_shells'), line('d_mashed'), line('d_greenbeans'), line('d_bakedpot')], { refId: 'r1' });
+    const third = d.items[4];
+    // Standard: a second entrée uses another credit, a third side is à la carte.
+    expect(creditUse(d, {})).toMatchObject({ credits: 2, ala: 1 });
+    // Two entrées and three sides per credit, extras start à la carte.
+    const roomy = { ...DEFAULT_CONFIG, mealCredit: { ...DEFAULT_MEAL_CREDIT, entrees: 2, sides: 3, overflow: 'ala' as const } };
+    expect(creditUse(d, {}, roomy)).toMatchObject({ credits: 1, ala: 0 });
+    expect(isExtraSide(d, third, mealCreditRules(roomy))).toBe(false);
+    // Extra sides allowed on another credit, and extras start à la carte.
+    const lean = { ...DEFAULT_CONFIG, mealCredit: { ...DEFAULT_MEAL_CREDIT, extraSidesAla: false, overflow: 'ala' as const } };
+    expect(creditUse(d, {}, lean)).toMatchObject({ credits: 1, ala: 2 });
+    expect(creditUse(d, { [third.id]: 'credit' }, lean)).toMatchObject({ credits: 2, ala: 1 });
   });
 
   it('charges a guest à la carte to the host’s account', () => {

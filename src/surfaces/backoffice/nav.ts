@@ -313,6 +313,13 @@ export const BO_SECTIONS: BoSectionDef[] = [
         keywords: 'great shift goals kpi scoring',
         component: lazy(() => import('./pages/svcMetrics')),
       },
+      {
+        id: 'credits',
+        label: 'Meal Credits',
+        blurb: 'What one meal credit covers, extras past it, and guest meals on a resident\'s credit',
+        keywords: 'meal credit plan starter entree side dessert extra third side a la carte guest host allowance',
+        component: lazy(() => import('./pages/credits')),
+      },
     ],
   },
 ];

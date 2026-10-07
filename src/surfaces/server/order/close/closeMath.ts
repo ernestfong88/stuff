@@ -8,7 +8,7 @@
  */
 import { getItem, mealPlans } from '../../../../data';
 import { alaCarteTotal, dinerBilling, linePrice, type DinerBilling } from '../../../../domain/billing';
-import { DEFAULT_CONFIG, type DiningConfig } from '../../../../domain/config';
+import { DEFAULT_CONFIG, mealCreditRules, type DiningConfig, type MealCreditRules } from '../../../../domain/config';
 import { dinerName, dinerPerson } from '../../../../domain/orders';
 import type { Diner, Order, OrderLine, Resident } from '../../../../domain/types';
 import { isHospiceDiner } from '../../../../domain/waivers';
@@ -31,7 +31,10 @@ export type PayHow = 'apt' | 'card';
 /** How the table pays by card. */
 export type TablePay = 'each' | 'one' | 'split';
 
-const PER_CREDIT: Record<CreditKind, number> = { app: 1, entree: 1, side: 2, dessert: 1 };
+/** How many of each kind one credit covers. */
+function perCredit(r: MealCreditRules): Record<CreditKind, number> {
+  return { app: r.starters, entree: r.entrees, side: r.sides, dessert: r.desserts };
+}
 
 export interface CreditUse {
   diner: Diner;
@@ -46,25 +49,29 @@ export interface CreditUse {
 /**
  * A diner's lines against the meal credit: anything past one credit's
  * worth either uses another credit or is charged à la carte (the server
- * chooses per line); a third side is always à la carte.
+ * chooses per line, starting from the HO Settings default); sides past the
+ * allowance are always à la carte when HO Settings says so.
  */
-export function creditUse(diner: Diner, overflowChoice: Record<string, 'credit' | 'ala'>): CreditUse | null {
+export function creditUse(diner: Diner, overflowChoice: Record<string, 'credit' | 'ala'>, cfg: DiningConfig = DEFAULT_CONFIG): CreditUse | null {
+  const rules = mealCreditRules(cfg);
+  const per = perCredit(rules);
   const counted = diner.items.filter((i) => !i.comped && creditKind(i.itemId));
   if (!counted.length) return null;
   const used: Record<CreditKind, number> = { app: 0, entree: 0, side: 0, dessert: 0 };
   const overflow: OrderLine[] = [];
   for (const line of counted) {
     const k = creditKind(line.itemId)!;
-    if (used[k] < PER_CREDIT[k]) used[k] += 1;
+    if (used[k] < per[k]) used[k] += 1;
     else overflow.push(line);
   }
-  const extraCredits = overflow.filter((l) => !isExtraSide(diner, l) && (overflowChoice[l.id] ?? 'credit') === 'credit').length;
+  const extraCredits = overflow.filter((l) => !overflowIsAla(diner, l, overflowChoice, cfg)).length;
   return { diner, overflow, credits: 1 + extraCredits, ala: overflow.length - extraCredits };
 }
 
 /** A line beyond the credit that is charged à la carte. */
-export function overflowIsAla(diner: Diner, line: OrderLine, overflowChoice: Record<string, 'credit' | 'ala'>): boolean {
-  return isExtraSide(diner, line) || (overflowChoice[line.id] ?? 'credit') === 'ala';
+export function overflowIsAla(diner: Diner, line: OrderLine, overflowChoice: Record<string, 'credit' | 'ala'>, cfg: DiningConfig = DEFAULT_CONFIG): boolean {
+  const rules = mealCreditRules(cfg);
+  return isExtraSide(diner, line, rules) || (overflowChoice[line.id] ?? rules.overflow) === 'ala';
 }
 
 export function defaultPlanMode(d: Diner): PlanMode {
@@ -109,9 +116,9 @@ export function closeCharge(d: Diner, x: CloseInputs): CloseCharge {
     const amt = alaCarteTotal(d) + base.delivery;
     return { ...base, outOfPlan: amt, needsDrop: amt > 0, covered: false, comped: false, hostCredit: false };
   }
-  const use = creditUse(d, x.overflowChoice);
+  const use = creditUse(d, x.overflowChoice, cfg);
   const extra = use
-    ? use.overflow.filter((l) => overflowIsAla(d, l, x.overflowChoice)).reduce((s, l) => s + (getItem(l.itemId)?.alaPrice ?? 0), 0)
+    ? use.overflow.filter((l) => overflowIsAla(d, l, x.overflowChoice, cfg)).reduce((s, l) => s + (getItem(l.itemId)?.alaPrice ?? 0), 0)
     : 0;
   if (d.isGuest && x.guestOnHost[d.id] && x.guestCreditOn) {
     const amt = (base.delivery || 0) + extra;

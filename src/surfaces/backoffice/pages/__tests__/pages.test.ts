@@ -13,7 +13,7 @@ import { waiverUseByResident, waiverUseText } from '../fees/sickWaivers';
 import { duplicateNames } from '../mealdrops/duplicates';
 import { buildRows, feedbackTag, filterRows } from '../orders/orderRows';
 import { mixFor, visibleItems } from '../pmix/mix';
-import { communitiesWithGuestCredit, guestCreditOn } from '../plans/guestCredit';
+import { guestCreditOn, mealCreditText, DEFAULT_MEAL_CREDIT } from '../../../../domain/config';
 import { dietRows, filterDietRows, tagCounts } from '../resDiets/diets';
 
 const DAY = 86_400_000;
@@ -47,9 +47,15 @@ describe('meal counts', () => {
 
 describe('guest meal credits', () => {
   it('is on at The Fountains unless switched off', () => {
-    expect(guestCreditOn({}, 'The Fountains')).toBe(true);
-    expect(guestCreditOn({}, 'Valencia Terrace')).toBe(false);
-    expect(communitiesWithGuestCredit({ 'The Fountains': false, 'Valencia Terrace': true }, ['The Fountains', 'Valencia Terrace'])).toEqual(['Valencia Terrace']);
+    expect(guestCreditOn(DEFAULT_CONFIG, 'The Fountains')).toBe(true);
+    expect(guestCreditOn(DEFAULT_CONFIG, 'Valencia Terrace')).toBe(false);
+    const cfg = { ...DEFAULT_CONFIG, guestCredit: { 'The Fountains': false, 'Valencia Terrace': true } };
+    expect([guestCreditOn(cfg, 'The Fountains'), guestCreditOn(cfg, 'Valencia Terrace')]).toEqual([false, true]);
+  });
+
+  it('describes what one credit covers', () => {
+    expect(mealCreditText(DEFAULT_MEAL_CREDIT)).toBe('1 starter + 1 entrée + 2 sides + 1 dessert per credit · a 3rd side and added proteins are à la carte · side swaps are free');
+    expect(mealCreditText({ ...DEFAULT_MEAL_CREDIT, starters: 0, sides: 3, extraSidesAla: false })).toBe('1 entrée + 3 sides + 1 dessert per credit · added proteins are à la carte · side swaps are free');
   });
 });
 

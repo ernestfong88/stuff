@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AlertCircle, Check, ChevronLeft, Printer } from 'lucide-react';
 import { COMMUNITY_NAME } from '../../../../data';
+import { guestCreditOn as guestCreditAllowed } from '../../../../domain/config';
 import { automaticComp, isHospiceDiner } from '../../../../domain/waivers';
 import { dinerName, dinerPerson, tableName } from '../../../../domain/orders';
 import { queueFee } from '../../../../domain/billing';
@@ -8,7 +9,6 @@ import type { Order, Resident } from '../../../../domain/types';
 import { ModeChip, TextZoom } from '../../../../shell/controls';
 import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
-import { useSetting } from '../../../../store/serviceConfig';
 import { cx } from '../../../../ui';
 import { CompDialog } from '../../shared/ManagerPin';
 import { CloseDinerCard } from './CloseDinerCard';
@@ -35,9 +35,6 @@ import { TablePayment, type TerminalState } from './Payment';
 /** How long "Printed" shows on a receipt button. */
 const PRINTED_MS = 1800;
 
-/** Communities where residents can put a guest's meal on their plan unless Back Office says otherwise. */
-const GUEST_CREDIT_COMMUNITIES: readonly string[] = ['The Fountains'];
-
 const cardRef = () => 'sq_' + Math.random().toString(36).slice(2, 7).toUpperCase();
 
 /**
@@ -58,8 +55,7 @@ export function CloseScreen({
 }) {
   const cfg = useConfig();
   const { closeOrder, closeDiner } = useDining();
-  const guestCreditOn =
-    useSetting<boolean | undefined>(`guestCredit.${COMMUNITY_NAME}`) ?? GUEST_CREDIT_COMMUNITIES.includes(COMMUNITY_NAME);
+  const guestCreditOn = guestCreditAllowed(cfg, COMMUNITY_NAME);
   const [closing, setClosing] = useState<string[]>(() => dinerIds ?? o.diners.map((d) => d.id));
   const [printed, setPrinted] = useState<Record<string, boolean>>({});
   const [how, setHow] = useState<Record<string, PayHow>>({});
@@ -86,7 +82,7 @@ export function CloseScreen({
   const rows: CloseRow[] = o.diners
     .filter((d) => closing.includes(d.id))
     .map((d) => ({ diner: d, person: dinerPerson(d) as Resident | undefined, charge: closeCharge(d, inputs) }));
-  const uses = o.diners.map((d) => creditUse(d, overflowChoice));
+  const uses = o.diners.map((d) => creditUse(d, overflowChoice, cfg));
   const useOf = (id: string) => uses.find((u) => u?.diner.id === id) ?? null;
   const pu = planUse(rows, mode, uses);
   const howOf = (id: string): PayHow => how[id] ?? 'apt';
