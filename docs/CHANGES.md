@@ -223,6 +223,13 @@ The final order is:
 ### Less text in Back Office; Dining Service is now POS Settings
 - **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
 - **Dining Service is now POS Settings** in the Back Office menu.
+- **Copy or swap a meal.** Each day's meal in the cycle builder has a ⋯ next to *Add more* with *Copy this lunch to…*, *Swap with…* and *Clear this lunch*.
+  - **Any meal to any meal:** pick the target meal (Breakfast, Lunch or Dinner) and the day or days, so Monday lunch can go onto Wednesday dinner, or swap with Monday dinner.
+  - **Copy:** replaces what's there or adds to it, and warns before replacing.
+  - **What comes along:** sides stay with their entrée and keep their choices. Both copy and swap have Undo.
+  - **Day header:** the whole-day Copy and Swap are gone, leaving *Clear this day* and *Change the dates shown*.
+  - **Locked menus:** the active menu is signed by the dietitian, so these only show once it's unlocked.
+- **Dashboard card titles stand out.** *Resident meal sentiment*, *Steps of Service*, *Revenue*, *P-Mix* and *Resident feedback* are larger and darker instead of small grey capitals.
 - **Simpler pick up ranges.** *Ranges offered* (Pick Up & Delivery) shows one order type at a time, and each meal is one line: on or off, the times in words ("7:30 – 9:30 AM · 8 ranges"), and From / Until. *Fine-tune* opens that meal's quarter hours for gaps, *Back to meal hours* resets an order type, and every change has Undo. The NOC shift sits under Associate pick up.
 - **P-Mix wheel.** The dashboard's P-Mix card is a small wheel of today's plates by category (Starters, Entrées, Desserts), with the total in the middle and the Breakfast / Lunch / Dinner filter above. Tap a category to see its top dishes and their share; *All categories* goes back.
 - **Real-time clock.** The app runs on the device's real time instead of a demo clock pinned to 5:45 PM. To show a particular service, open the app with `?clock=18:15` (every tab follows it that day); `?clock=real` goes back.
@@ -235,7 +242,7 @@ The final order is:
   - Each has *Show details* for the rest, and the dashboard remembers what you opened or collapsed.
 
 ### Menu builder: copy or swap days, à la carte item counter; phase switches in the demo box
-- **Copy or swap a day.** Each day's menu in the cycle builder has *Copy this day to…* and *Swap with…*.
+- **Copy or swap a day** (since replaced by copy or swap a meal, above). Each day's menu in the cycle builder has *Copy this day to…* and *Swap with…*.
   - **Copy:** pick all meals or one meal, then whether to replace what's on the target days or add to it, then one or more days from the week grid.
   - **Warning:** when dishes will be replaced, the dialog says which days and how many dishes.
   - **Swap:** two days trade places across every meal, sides included.

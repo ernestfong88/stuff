@@ -331,3 +331,22 @@
   width: 300px;
   max-width: 60vw;
 }
+.optRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.mealMore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-pill);
+  color: var(--s500);
+}
+.mealMore:hover,
+.mealMore[aria-expanded='true'] {
+  background: var(--paper);
+  color: var(--ink);
+}

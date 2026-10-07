@@ -4,21 +4,22 @@ import { dayTitle, type CycleAnchor } from '../../../../domain/menuCycle';
 import { Button, Modal, Tabs, cx, toast } from '../../../../ui';
 import { BoCallout } from '../../kit';
 import { useBo } from '../data';
-import { copyDay, restoreDays, swapDays, type DaySnapshot } from '../menuActions';
+import { copyMeal, restoreDays, swapMeals, type DaySnapshot } from '../menuActions';
 import { sameWeekday } from '../model/dayGroup';
-import { dayCount } from '../model/dayOps';
+import { mealCount, type MealSlot } from '../model/dayOps';
 import { BUILDER_MEALS, type BuilderMeal } from '../model/types';
-import s from './CopyDayDialog.module.css';
+import s from './CopyMealDialog.module.css';
 
-export type DayAction = 'copy' | 'swap';
+export type MealAction = 'copy' | 'swap';
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 /**
- * Copy one day of the cycle onto others (every meal or one, replacing what
- * is there or adding to it), or swap it with another day.
+ * Copy one meal of the cycle onto other meals, on any days (Monday lunch onto
+ * Wednesday dinner), replacing what is there or adding to it; or swap it with
+ * another meal.
  */
-export function CopyDayDialog({
+export function CopyMealDialog({
   menuId,
   from,
   len,
@@ -27,29 +28,29 @@ export function CopyDayDialog({
   onClose,
 }: {
   menuId: string;
-  from: number;
+  from: MealSlot;
   len: number;
   anchor: CycleAnchor | null;
-  action?: DayAction;
+  action?: MealAction;
   onClose: () => void;
 }) {
   const bo = useBo();
-  const [action, setAction] = useState<DayAction>(initial);
+  const [action, setAction] = useState<MealAction>(initial);
+  const [toMeal, setToMeal] = useState<BuilderMeal>(from.meal as BuilderMeal);
   const [picked, setPicked] = useState<Set<number>>(new Set());
-  const [meal, setMeal] = useState<'all' | BuilderMeal>('all');
   const [mode, setMode] = useState<'replace' | 'add'>('replace');
   const weeks = Math.ceil(len / 7);
   const swap = action === 'swap';
-  const mealOf = swap || meal === 'all' ? undefined : meal;
-  const count = (d: number, ml = mealOf) => dayCount(bo.grid, menuId, d, ml);
-  const fromName = dayTitle(anchor, from);
+  const count = (day: number, meal: string = toMeal) => mealCount(bo.grid, menuId, { day, meal });
+  const lower = (m: string) => m.toLowerCase();
+  const slotName = (day: number, meal: string) => `${dayTitle(anchor, day)} ${lower(meal)}`;
+  const fromName = slotName(from.day, from.meal);
   const weekOf = (d: number) => (weeks > 1 ? `Week ${Math.ceil(d / 7)} · ` : '');
-  const name = (d: number) => weekOf(d) + dayTitle(anchor, d);
-  const fromCount = count(from);
-  const meals = BUILDER_MEALS.filter((ml) => ml !== 'Snacks' || count(from, ml) > 0);
-  const what = mealOf ? mealOf.toLowerCase() : 'dishes';
-  const targets = [...picked].sort((a, b) => a - b);
+  const fromCount = count(from.day, from.meal);
+  const self = (d: number) => d === from.day && toMeal === from.meal;
+  const targets = [...picked].filter((d) => !self(d)).sort((a, b) => a - b);
   const replaced = !swap && mode === 'replace' ? targets.filter((d) => count(d) > 0) : [];
+  const meals = BUILDER_MEALS.filter((m) => m !== 'Snacks' || from.meal === 'Snacks');
 
   const pick = (d: number) =>
     setPicked((p) => {
@@ -59,14 +60,14 @@ export function CopyDayDialog({
       else n.add(d);
       return n;
     });
-  const changeAction = (a: DayAction) => {
+  const changeAction = (a: MealAction) => {
     setAction(a);
     if (a === 'swap' && picked.size > 1) setPicked(new Set([targets[0]]));
   };
 
   const undoToast = (msg: string, snap: DaySnapshot | null) => {
     if (!snap) {
-      toast('This menu is locked, so its days cannot change', { tone: 'danger' });
+      toast('This menu is locked, so its meals cannot change', { tone: 'danger' });
       return;
     }
     toast(msg, { tone: 'success', action: { label: 'Undo', onClick: () => restoreDays(snap) } });
@@ -74,12 +75,19 @@ export function CopyDayDialog({
 
   const run = () => {
     if (swap) {
-      const to = targets[0];
-      undoToast(`Swapped ${fromName} and ${dayTitle(anchor, to)}`, swapDays(menuId, from, to));
+      const to = { day: targets[0], meal: toMeal };
+      undoToast(`Swapped ${fromName} and ${slotName(to.day, to.meal)}`, swapMeals(menuId, from, to));
     } else {
-      const where = targets.length === 1 ? dayTitle(anchor, targets[0]) : plural(targets.length, 'day');
-      const which = mealOf ? `${fromName} ${mealOf.toLowerCase()}` : fromName;
-      undoToast(`Copied ${which} to ${where}`, copyDay(menuId, from, targets, { meal: mealOf, mode }));
+      const where = targets.length === 1 ? slotName(targets[0], toMeal) : `${lower(toMeal)} on ${plural(targets.length, 'day')}`;
+      undoToast(
+        `Copied ${fromName} to ${where}`,
+        copyMeal(
+          menuId,
+          from,
+          targets.map((day) => ({ day, meal: toMeal })),
+          mode,
+        ),
+      );
     }
     onClose();
   };
@@ -88,10 +96,10 @@ export function CopyDayDialog({
   const ready = swap ? targets.length === 1 && fromCount + toCount > 0 : targets.length > 0 && fromCount > 0;
   const label = swap
     ? targets.length
-      ? `Swap with ${dayTitle(anchor, targets[0])}`
+      ? `Swap with ${slotName(targets[0], toMeal)}`
       : 'Pick a day to swap with'
     : targets.length
-      ? `Copy to ${plural(targets.length, 'day')}`
+      ? `Copy to ${targets.length === 1 ? slotName(targets[0], toMeal) : plural(targets.length, 'day')}`
       : 'Pick days to copy to';
 
   return (
@@ -110,7 +118,7 @@ export function CopyDayDialog({
             icon={swap ? <ArrowLeftRight size={15} /> : <Copy size={15} />}
             disabled={!ready}
             onClick={run}
-            data-testid="day-action-go"
+            data-testid="meal-action-go"
           >
             {label}
           </Button>
@@ -125,27 +133,27 @@ export function CopyDayDialog({
         onChange={changeAction}
         aria-label="Copy or swap"
         options={[
-          { id: 'copy', label: 'Copy to other days', icon: <Copy size={14} /> },
-          { id: 'swap', label: 'Swap with a day', icon: <ArrowLeftRight size={14} /> },
+          { id: 'copy', label: 'Copy to other meals', icon: <Copy size={14} /> },
+          { id: 'swap', label: 'Swap with a meal', icon: <ArrowLeftRight size={14} /> },
         ]}
       />
 
-      {!swap && (
-        <div className={s.opts}>
-          <div className={s.opt}>
-            <span className={s.optLabel}>Meals</span>
-            <Tabs
-              variant="segmented"
-              size="sm"
-              value={meal}
-              onChange={setMeal}
-              aria-label="Which meals to copy"
-              options={[
-                { id: 'all', label: 'All meals', count: count(from, undefined) },
-                ...meals.map((ml) => ({ id: ml, label: ml, count: count(from, ml), disabled: !count(from, ml) })),
-              ]}
-            />
-          </div>
+      <div className={s.opts}>
+        <div className={s.opt}>
+          <span className={s.optLabel}>{swap ? 'Swap with' : 'Copy to'}</span>
+          <Tabs
+            variant="segmented"
+            size="sm"
+            value={toMeal}
+            onChange={(m) => {
+              setToMeal(m);
+              if (m === from.meal) setPicked((p) => new Set([...p].filter((d) => d !== from.day)));
+            }}
+            aria-label={swap ? 'Meal to swap with' : 'Meal to copy to'}
+            options={meals.map((m) => ({ id: m, label: m }))}
+          />
+        </div>
+        {!swap && (
           <div className={s.opt}>
             <span className={s.optLabel}>Dishes already there</span>
             <Tabs
@@ -160,23 +168,23 @@ export function CopyDayDialog({
               ]}
             />
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <p className={s.lead}>
-        {swap
-          ? targets.length === 1
-            ? `${fromName} (${fromCount}) and ${name(targets[0])} (${toCount}) trade places, every meal, sides included.`
-            : `Everything on ${fromName} (${plural(fromCount, 'dish', 'dishes')}) and the day you pick trades places, every meal, sides included.`
-          : fromCount
-            ? `${fromCount === 1 ? 'The 1 dish' : `All ${fromCount} dishes`} from ${mealOf ? `${fromName} ${mealOf.toLowerCase()}` : fromName} go onto the days you tick.`
-            : `${fromName} has no ${what} yet, so there is nothing to copy.`}
+        {!fromCount && !swap
+          ? `${fromName} has no dishes yet, so there is nothing to copy.`
+          : swap
+            ? targets.length === 1
+              ? `${fromName} (${fromCount}) and ${slotName(targets[0], toMeal)} (${toCount}) trade places, sides included.`
+              : `Pick the day whose ${lower(toMeal)} trades places with ${fromName}.`
+            : `${fromCount === 1 ? 'The 1 dish' : `All ${fromCount} dishes`} from ${fromName} go onto ${lower(toMeal)} on the days you tick.`}
       </p>
 
       {!swap && weeks > 1 && (
         <div className={s.quick}>
-          <Button size="sm" onClick={() => setPicked(new Set(sameWeekday(from, len)))}>
-            {anchor ? `Every ${fromName.split(' ')[0]} in the cycle` : 'Same day in every week'}
+          <Button size="sm" onClick={() => setPicked(new Set(sameWeekday(from.day, len)))}>
+            {anchor ? `Every ${dayTitle(anchor, from.day).split(' ')[0]} in the cycle` : 'Same day in every week'}
           </Button>
           {picked.size > 0 && (
             <Button size="sm" variant="ghost" onClick={() => setPicked(new Set())}>
@@ -194,22 +202,19 @@ export function CopyDayDialog({
               {Array.from({ length: 7 }, (_, i) => w * 7 + i + 1)
                 .filter((d) => d <= len)
                 .map((d) => {
-                  const on = picked.has(d);
-                  const self = d === from;
+                  const on = picked.has(d) && !self(d);
                   const has = count(d);
                   const warn = on && !swap && mode === 'replace' && has > 0;
                   return (
                     <button
                       key={d}
-                      className={cx(s.day, on && s.dayOn, warn && s.dayWarn, self && s.daySelf)}
-                      disabled={self}
+                      className={cx(s.day, on && s.dayOn, warn && s.dayWarn, self(d) && s.daySelf)}
+                      disabled={self(d)}
                       aria-pressed={on}
                       onClick={() => pick(d)}
                     >
                       <span className={s.dayName}>{dayTitle(anchor, d)}</span>
-                      <span className={s.dayNote}>
-                        {self ? (swap ? 'Swapping' : 'Copying') : has ? `${has} ${mealOf ? 'here' : 'dishes'}` : 'Empty'}
-                      </span>
+                      <span className={s.dayNote}>{self(d) ? 'This meal' : has ? `${has} at ${lower(toMeal)}` : 'Empty'}</span>
                     </button>
                   );
                 })}
@@ -223,16 +228,15 @@ export function CopyDayDialog({
           <BoCallout tone="warning">
             {replaced.length === 1 ? (
               <>
-                <b>{name(replaced[0])}</b> has{' '}
-                {plural(count(replaced[0]), mealOf ? `${mealOf.toLowerCase()} dish` : 'dish', mealOf ? `${mealOf.toLowerCase()} dishes` : 'dishes')};
-                they will be replaced.
+                <b>{weekOf(replaced[0]) + slotName(replaced[0], toMeal)}</b> has {plural(count(replaced[0]), 'dish', 'dishes')}; they will be
+                replaced.
               </>
             ) : (
               <>
-                {plural(replaced.length, 'day')} already have {what} that will be replaced:{' '}
+                {plural(replaced.length, 'day')} already have {lower(toMeal)} dishes that will be replaced:{' '}
                 {replaced
                   .slice(0, 5)
-                  .map((d) => `${name(d)} (${count(d)})`)
+                  .map((d) => `${dayTitle(anchor, d)} (${count(d)})`)
                   .join(', ')}
                 {replaced.length > 5 ? ` and ${replaced.length - 5} more` : ''}.
               </>

@@ -1,5 +1,5 @@
 import { Fragment, useMemo, useState } from 'react';
-import { ArrowLeftRight, CalendarDays, ChevronDown, Copy, Eraser, Plus, X } from 'lucide-react';
+import { ArrowLeftRight, CalendarDays, ChevronDown, Copy, Eraser, MoreHorizontal, Plus, X } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import type { BoMenu, GridEntry, Recipe, RecipeCategory } from '../../../../store/menuEdits';
 import { MenuDivider, MenuItem, Popover, cx, toast } from '../../../../ui';
@@ -101,7 +101,7 @@ export function MenuGrid({
   highlight,
   onPlace,
   onQuick,
-  onCopyDay,
+  onMealAction,
   readOnly,
 }: {
   menu: BoMenu;
@@ -111,7 +111,8 @@ export function MenuGrid({
   /** A recipe typed into a slot goes there. */
   onPlace: (recipeId: string, t: SlotTarget) => void;
   onQuick: (r: Recipe, day: number) => void;
-  onCopyDay: (day: number, action: 'copy' | 'swap') => void;
+  /** Copy or swap one day's meal (opens the meal dialog). */
+  onMealAction: (day: number, meal: BuilderMeal, action: 'copy' | 'swap') => void;
   /** A locked menu: dishes show, but nothing can be added, moved or removed. */
   readOnly?: boolean;
 }) {
@@ -205,8 +206,6 @@ export function MenuGrid({
                     isToday={today === d}
                     readOnly={readOnly}
                     hasItems={bo.grid.some((x) => x.menuId === m.id && x.day === d)}
-                    onCopy={() => onCopyDay(d, 'copy')}
-                    onSwap={() => onCopyDay(d, 'swap')}
                     onClear={() => {
                       const removed = bo.grid.filter((x) => x.menuId === m.id && x.day === d);
                       removePlacements((x) => removed.includes(x));
@@ -327,63 +326,54 @@ export function MenuGrid({
                           {more ? (
                             search(more, `Type ${MORE_LABEL[more.cat ?? 'Entrees']}`)
                           ) : (
-                            <Popover
-                              align="center"
-                              minWidth={220}
-                              trigger={({ toggle }) => (
-                                <button className={s.options} onClick={toggle} aria-label={`Add more to ${meal.toLowerCase()} on day ${d}`}>
-                                  <Plus size={13} aria-hidden /> Add more
-                                </button>
-                              )}
-                            >
-                              {({ close }) => (
-                                <>
-                                  <div className={s.popHead}>Add to {meal.toLowerCase()}</div>
-                                  {(
-                                    [
-                                      ['Entrees', 'Another entrée'],
-                                      ['Starters', 'Another soup or starter'],
-                                      ['Sides', 'A side on its own'],
-                                      ['Desserts', 'Another dessert'],
-                                      ['Drinks', 'A drink'],
-                                    ] as Array<[RecipeCategory, string]>
-                                  ).map(([c, label]) => (
-                                    <MenuItem
-                                      key={c}
-                                      icon={<span className={cx(swatchClass, planClass(c))} />}
-                                      onClick={() => {
-                                        close();
-                                        setTyping({ day: d, meal, cat: c, more: true });
-                                      }}
-                                    >
-                                      {label}
-                                    </MenuItem>
-                                  ))}
-                                  {has && (
-                                    <>
-                                      <MenuDivider />
+                            <span className={s.optRow}>
+                              <Popover
+                                align="center"
+                                minWidth={220}
+                                trigger={({ toggle }) => (
+                                  <button className={s.options} onClick={toggle} aria-label={`Add more to ${meal.toLowerCase()} on day ${d}`}>
+                                    <Plus size={13} aria-hidden /> Add more
+                                  </button>
+                                )}
+                              >
+                                {({ close }) => (
+                                  <>
+                                    <div className={s.popHead}>Add to {meal.toLowerCase()}</div>
+                                    {(
+                                      [
+                                        ['Entrees', 'Another entrée'],
+                                        ['Starters', 'Another soup or starter'],
+                                        ['Sides', 'A side on its own'],
+                                        ['Desserts', 'Another dessert'],
+                                        ['Drinks', 'A drink'],
+                                      ] as Array<[RecipeCategory, string]>
+                                    ).map(([c, label]) => (
                                       <MenuItem
-                                        danger
-                                        icon={<Eraser size={15} />}
+                                        key={c}
+                                        icon={<span className={cx(swatchClass, planClass(c))} />}
                                         onClick={() => {
-                                          const removed = bo.grid.filter((x) => x.menuId === m.id && x.day === d && x.meal === meal);
-                                          removePlacements((x) => removed.includes(x));
                                           close();
-                                          toast(`Cleared ${meal.toLowerCase()}`, {
-                                            action: {
-                                              label: 'Undo',
-                                              onClick: () => restorePlacements(removed),
-                                            },
-                                          });
+                                          setTyping({ day: d, meal, cat: c, more: true });
                                         }}
                                       >
-                                        Clear {meal.toLowerCase()} on this day
+                                        {label}
                                       </MenuItem>
-                                    </>
-                                  )}
-                                </>
-                              )}
-                            </Popover>
+                                    ))}
+                                  </>
+                                )}
+                              </Popover>
+                              <MealMenu
+                                meal={meal}
+                                has={has}
+                                onCopy={() => onMealAction(d, meal, 'copy')}
+                                onSwap={() => onMealAction(d, meal, 'swap')}
+                                onClear={() => {
+                                  const removed = bo.grid.filter((x) => x.menuId === m.id && x.day === d && x.meal === meal);
+                                  removePlacements((x) => removed.includes(x));
+                                  toast(`Cleared ${meal.toLowerCase()}`, { action: { label: 'Undo', onClick: () => restorePlacements(removed) } });
+                                }}
+                              />
+                            </span>
                           )}
                         </td>
                       );
@@ -409,8 +399,6 @@ function DayMenu({
   isToday,
   readOnly,
   hasItems,
-  onCopy,
-  onSwap,
   onClear,
   onDate,
 }: {
@@ -419,8 +407,6 @@ function DayMenu({
   isToday: boolean;
   readOnly?: boolean;
   hasItems: boolean;
-  onCopy: () => void;
-  onSwap: () => void;
   onClear: () => void;
   onDate: (d: Date) => void;
 }) {
@@ -492,24 +478,6 @@ function DayMenu({
             </div>
           ) : (
             <>
-              <MenuItem
-                icon={<Copy size={15} />}
-                onClick={() => {
-                  close();
-                  onCopy();
-                }}
-              >
-                Copy this day to…
-              </MenuItem>
-              <MenuItem
-                icon={<ArrowLeftRight size={15} />}
-                onClick={() => {
-                  close();
-                  onSwap();
-                }}
-              >
-                Swap with…
-              </MenuItem>
               {hasItems && (
                 <MenuItem
                   danger
@@ -531,5 +499,79 @@ function DayMenu({
         }
       </Popover>
     </span>
+  );
+}
+
+/** The ⋯ on one day's meal: copy it or swap it with any other day and meal, or clear it. */
+function MealMenu({
+  meal,
+  has,
+  onCopy,
+  onSwap,
+  onClear,
+}: {
+  meal: string;
+  has: boolean;
+  onCopy: () => void;
+  onSwap: () => void;
+  onClear: () => void;
+}) {
+  const name = meal.toLowerCase();
+  return (
+    <Popover
+      align="right"
+      minWidth={220}
+      trigger={({ toggle, open }) => (
+        <button
+          className={s.mealMore}
+          onClick={toggle}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={`Copy, swap or clear this ${name}`}
+          title={`Copy, swap or clear this ${name}`}
+        >
+          <MoreHorizontal size={15} aria-hidden />
+        </button>
+      )}
+    >
+      {({ close }) => (
+        <>
+          <MenuItem
+            icon={<Copy size={15} />}
+            disabled={!has}
+            onClick={() => {
+              close();
+              onCopy();
+            }}
+          >
+            Copy this {name} to…
+          </MenuItem>
+          <MenuItem
+            icon={<ArrowLeftRight size={15} />}
+            onClick={() => {
+              close();
+              onSwap();
+            }}
+          >
+            Swap with…
+          </MenuItem>
+          {has && (
+            <>
+              <MenuDivider />
+              <MenuItem
+                danger
+                icon={<Eraser size={15} />}
+                onClick={() => {
+                  close();
+                  onClear();
+                }}
+              >
+                Clear this {name}
+              </MenuItem>
+            </>
+          )}
+        </>
+      )}
+    </Popover>
   );
 }

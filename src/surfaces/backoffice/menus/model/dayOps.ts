@@ -1,56 +1,61 @@
 /**
- * Copying and swapping whole cycle days in the menu builder. Pure: each
- * function takes the grid (and side choices) and returns new ones. Any Day
- * (day 0) and other menus are never touched.
+ * Copying and swapping meals in the menu builder: one meal on one day onto
+ * any other day and meal. Pure: each function takes the grid (and side
+ * choices) and returns new ones. Any Day (day 0) and other menus are never
+ * touched.
  */
 import type { GridEntry, SideOverrides } from '../../../../store/menuEdits';
 
-export interface CopyDayOptions {
-  /** One meal, or every meal when left out. */
-  meal?: string;
-  /** replace: the target day's dishes (for those meals) go; add: they stay. */
+/** One meal on one cycle day: Monday lunch is { day: 1, meal: 'Lunch' }. */
+export interface MealSlot {
+  day: number;
+  meal: string;
+}
+
+export interface CopyMealOptions {
+  /** replace: what the target meal has goes; add: it stays. */
   mode: 'replace' | 'add';
   /** Fresh placement ids (tests pass a counter). */
   newId: () => string;
 }
 
-const onDay = (g: GridEntry, menuId: string, day: number, meal?: string) => g.menuId === menuId && g.day === day && (!meal || g.meal === meal);
-
+const inSlot = (g: GridEntry, menuId: string, x: MealSlot) => g.menuId === menuId && g.day === x.day && g.meal === x.meal;
+const sameSlot = (a: MealSlot, b: MealSlot) => a.day === b.day && a.meal === b.meal;
 const validDay = (d: number) => Number.isInteger(d) && d >= 1;
 
-/** Dishes on a cycle day (for one meal, or all). */
-export function dayCount(grid: GridEntry[], menuId: string, day: number, meal?: string): number {
-  return grid.filter((g) => onDay(g, menuId, day, meal)).length;
+/** Dishes on one meal of a cycle day. */
+export function mealCount(grid: GridEntry[], menuId: string, x: MealSlot): number {
+  return grid.filter((g) => inSlot(g, menuId, x)).length;
 }
 
 /**
- * Copy what is on one cycle day onto other days: fresh ids, sides still tied
- * to their copied entrée. With mode replace, what was on the target days for
- * those meals is taken off first.
+ * Copy one meal onto other meals, on any days: Monday lunch onto Wednesday
+ * dinner. Fresh ids, sides still tied to their copied entrée. With replace,
+ * what the target meals had is taken off first.
  */
-export function copyDay(grid: GridEntry[], menuId: string, from: number, to: number | number[], opts: CopyDayOptions): GridEntry[] {
-  const targets = [...new Set(Array.isArray(to) ? to : [to])].filter((d) => validDay(d) && d !== from);
-  if (!validDay(from) || !targets.length) return grid;
-  const src = grid.filter((g) => onDay(g, menuId, from, opts.meal)).sort((a, b) => a.sort - b.sort);
-  const kept = opts.mode === 'replace' ? grid.filter((g) => !targets.some((d) => onDay(g, menuId, d, opts.meal))) : grid;
+export function copyMeal(grid: GridEntry[], menuId: string, from: MealSlot, to: MealSlot[], opts: CopyMealOptions): GridEntry[] {
+  const targets = to.filter((x, i) => validDay(x.day) && !sameSlot(x, from) && to.findIndex((y) => sameSlot(x, y)) === i);
+  if (!validDay(from.day) || !targets.length) return grid;
+  const src = grid.filter((g) => inSlot(g, menuId, from)).sort((a, b) => a.sort - b.sort);
+  const kept = opts.mode === 'replace' ? grid.filter((g) => !targets.some((x) => inSlot(g, menuId, x))) : grid;
   let sort = grid.reduce((a, g) => Math.max(a, g.sort), 0) + 1;
-  const added = targets.flatMap((d) => {
+  const added = targets.flatMap((x) => {
     const ids = new Map<string, string>();
     const copies = src.map((g) => {
       const id = opts.newId();
       ids.set(g.id, id);
-      return { ...g, id, day: d, sort: sort++ };
+      return { ...g, id, day: x.day, meal: x.meal as GridEntry['meal'], sort: sort++ };
     });
-    // A side tied to an entrée that was not copied (another meal) stays loose.
     return copies.map((g) => (g.with ? { ...g, with: ids.get(g.with) } : g));
   });
   return [...kept, ...added];
 }
 
-/** Trade everything on two cycle days, every meal. */
-export function swapDays(grid: GridEntry[], menuId: string, a: number, b: number): GridEntry[] {
-  if (!validDay(a) || !validDay(b) || a === b) return grid;
-  return grid.map((g) => (g.menuId !== menuId ? g : g.day === a ? { ...g, day: b } : g.day === b ? { ...g, day: a } : g));
+/** Trade two meals, on the same day or different days: Monday lunch and Wednesday dinner change places. */
+export function swapMeals(grid: GridEntry[], menuId: string, a: MealSlot, b: MealSlot): GridEntry[] {
+  if (!validDay(a.day) || !validDay(b.day) || sameSlot(a, b)) return grid;
+  const to = (x: MealSlot) => ({ day: x.day, meal: x.meal as GridEntry['meal'] });
+  return grid.map((g) => (inSlot(g, menuId, a) ? { ...g, ...to(b) } : inSlot(g, menuId, b) ? { ...g, ...to(a) } : g));
 }
 
 type DaySides = Record<string, string[]>;
@@ -91,19 +96,4 @@ export function copyDaySides(
     if (changed) out = withDay(out, menuId, d, own);
   }
   return out;
-}
-
-/** Trade the side choices of two days (each written out in full). */
-export function swapDaySides(sides: SideOverrides, seed: SideOverrides, menuId: string, a: number, b: number): SideOverrides {
-  if (!validDay(a) || !validDay(b) || a === b) return sides;
-  const ea = effective(sides, seed, menuId, a);
-  const eb = effective(sides, seed, menuId, b);
-  if (!Object.keys(ea).length && !Object.keys(eb).length) return sides;
-  // Recipes the seed sets on a day but the other day lacks still need an entry, or the seed shows through.
-  const fill = (mine: DaySides, other: DaySides) => {
-    const out = { ...mine };
-    for (const r of Object.keys(other)) if (!(r in out)) out[r] = [];
-    return out;
-  };
-  return withDay(withDay(sides, menuId, a, fill(eb, ea)), menuId, b, fill(ea, eb));
 }

@@ -13,7 +13,8 @@ import { Field, Select } from '../ui/controls';
 import { ApprovalStatus, LockBanner, LockButton } from '../ui/MenuLock';
 import { PlanLegend, QuarterPick, StateChip } from '../ui/menuBits';
 import { AiReview, type AiHighlight } from './AiReview';
-import { CopyDayDialog, type DayAction } from './CopyDayDialog';
+import { CopyMealDialog, type MealAction } from './CopyMealDialog';
+import type { BuilderMeal } from '../model/types';
 import { MenuGrid, type SlotTarget } from './MenuGrid';
 import { PrintMenus } from './PrintMenus';
 import { QuickEdit } from './QuickEdit';
@@ -35,7 +36,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
   const [confirmClear, setConfirmClear] = useState(false);
   const clearTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(clearTimer.current), []);
-  const [dayAct, setDayAct] = useState<{ day: number; action: DayAction } | null>(null);
+  const [mealAct, setMealAct] = useState<{ day: number; meal: BuilderMeal; action: MealAction } | null>(null);
   const [quick, setQuick] = useState<{ r: Recipe; day: number } | null>(null);
   const [full, setFull] = useState<Recipe | null>(null);
   const [highlight, setHighlight] = useState<AiHighlight | null>(null);
@@ -211,15 +212,22 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
             readOnly={readOnly}
             onPlace={place}
             onQuick={(r, day) => (readOnly ? setFull(r) : setQuick({ r, day }))}
-            onCopyDay={(day, action) => setDayAct({ day, action })}
+            onMealAction={(day, meal, action) => setMealAct({ day, meal, action })}
           />
         </>
       ) : (
         <EmptyState title="Choose how many weeks this cycle runs">Pick 4 to 10 weeks with Cycle length at the top right.</EmptyState>
       )}
 
-      {dayAct && !readOnly && (
-        <CopyDayDialog menuId={m.id} from={dayAct.day} action={dayAct.action} len={len} anchor={anchor} onClose={() => setDayAct(null)} />
+      {mealAct && !readOnly && (
+        <CopyMealDialog
+          menuId={m.id}
+          from={{ day: mealAct.day, meal: mealAct.meal }}
+          action={mealAct.action}
+          len={len}
+          anchor={anchor}
+          onClose={() => setMealAct(null)}
+        />
       )}
       {quick && (
         <QuickEdit
