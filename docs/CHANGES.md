@@ -223,6 +223,7 @@ The final order is:
 ### Less text in Back Office; Dining Service is now POS Settings
 - **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
 - **Dining Service is now POS Settings** in the Back Office menu.
+- **Real-time clock.** The app runs on the device's real time instead of a demo clock pinned to 5:45 PM. To show a particular service, open the app with `?clock=18:15` (every tab follows it that day); `?clock=real` goes back.
 - **Coursing in kitchen terms.** The coursing options are now *Fire all*, *Fire on drop* (the default), *Auto-fire +5*, *Auto-fire +8* and *Manual fire*. A one-line key sits under Coursing on Service Flow, and the check's pacing log uses the same words. How each option works is unchanged.
 - **Menu builder without repeated hints.** Instruction paragraphs, lines that restate a title or tab, per-row hints and duplicate tooltips are gone from the menus list, cycle builder, à la carte builder and their dialogs. The same goes for the Recipe Book, Modifiers, Menu Export and Pricing pages. Warnings, empty states and the menu-standard tooltip stay.
 - **Calmer dashboard.**

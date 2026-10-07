@@ -1,22 +1,20 @@
 /**
- * Demo clock.
+ * The app's clock. It runs on the device's real time.
  *
  * The seed data is written relative to "now" (a check opened 12 minutes ago,
- * a pick up due in 16 minutes). The original mockup used the real wall clock,
- * so opening it at 4 AM showed a dinner service at 4 AM. Here the app runs on
- * a clock that is anchored to a believable service time on today's date and
- * then ticks forward in real time.
+ * a pick up due in 16 minutes), so it looks right at any hour. To show a
+ * particular service, pin the clock with the URL:
  *
- *   ?clock=real        use the device clock
- *   ?clock=18:15       anchor the service clock at 6:15 PM today
+ *   ?clock=18:15       run the clock from 6:15 PM today
+ *   ?clock=real        the device clock (the default)
  *
- * The offset is kept in localStorage per calendar day so every open tab (the
- * server tablet, the kitchen screen, expo) agrees on the time.
+ * A pinned clock is kept in localStorage per calendar day so every open tab
+ * (the server tablet, the kitchen screen, expo) agrees on the time; opening
+ * the app with ?clock=real goes back to real time.
  */
 import { safeStorage } from './storage';
 
 const KEY = 'kisco_clock_offset';
-const DEFAULT_ANCHOR = '17:45';
 
 function anchorFromUrl(): string | null {
   try {
@@ -28,20 +26,24 @@ function anchorFromUrl(): string | null {
 
 function computeOffset(): number {
   const param = anchorFromUrl();
-  if (param === 'real') return 0;
   const real = Date.now();
   const today = new Date(real).toDateString();
-  const anchor = param ?? DEFAULT_ANCHOR;
-  if (!param) {
-    const saved = safeStorage.getJSON<{ day: string; offset: number }>(KEY);
-    if (saved && saved.day === today) return saved.offset;
+  if (param === 'real') {
+    safeStorage.remove(KEY);
+    return 0;
   }
-  const m = /^(\d{1,2}):(\d{2})$/.exec(anchor);
+  if (!param) {
+    // Another tab pinned the clock today: keep in step with it.
+    // (Offsets saved before the clock went real-time have no `pinned` and are ignored.)
+    const saved = safeStorage.getJSON<{ day: string; offset: number; pinned?: boolean }>(KEY);
+    return saved?.pinned && saved.day === today ? saved.offset : 0;
+  }
+  const m = /^(\d{1,2}):(\d{2})$/.exec(param);
   if (!m) return 0;
   const target = new Date(real);
   target.setHours(+m[1], +m[2], 0, 0);
   const offset = target.getTime() - real;
-  if (!param) safeStorage.setJSON(KEY, { day: today, offset });
+  safeStorage.setJSON(KEY, { day: today, offset, pinned: true });
   return offset;
 }
 
