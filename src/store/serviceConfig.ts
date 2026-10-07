@@ -1,10 +1,16 @@
 /**
- * Service settings. The Culinary Back Office edits these (alert thresholds,
- * service flow, pick up windows, texts ...) and every dining screen reads
- * them, so a change shows on the floor right away, in every open tab.
+ * Service settings that screens display or alert on: alert thresholds, check
+ * timeline gaps, shift metrics, pick up windows, text messages, kiosk
+ * features and so on. The Culinary Back Office edits them and every dining
+ * screen reads them, so a change shows on the floor right away, in every
+ * open tab.
  *
- * Paths are dot separated, e.g. getConfig('t.passLate') or
- * setConfig('flow.checkIn', false).
+ * Settings the order logic itself depends on (service flow, coursing,
+ * routing, corkage, sick waivers, hospice, short names) live in the dining
+ * config instead: src/store/config.ts.
+ *
+ * Paths are dot separated, e.g. getSetting('t.passLate') or
+ * setSetting('win.cut', 30).
  */
 import defaults from '../data/seed/serviceConfig.json';
 import { createSharedStore, useShared } from '../lib/sharedStore';
@@ -28,18 +34,18 @@ function readPath(obj: unknown, path: string): unknown {
 }
 
 /** Current value at a path, falling back to the default. */
-export function getConfig<T = unknown>(path: string): T {
+export function getSetting<T = unknown>(path: string): T {
   const v = readPath(serviceConfig.get(), path);
   return (v === undefined ? readPath(DEFAULT_CONFIG, path) : v) as T;
 }
 
 /** Default value at a path (for "Reset to defaults" and placeholders). */
-export function getDefault<T = unknown>(path: string): T {
+export function getSettingDefault<T = unknown>(path: string): T {
   return readPath(DEFAULT_CONFIG, path) as T;
 }
 
 /** Set (or with undefined, remove) the value at a path. */
-export function setConfig(path: string, value: unknown): void {
+export function setSetting(path: string, value: unknown): void {
   serviceConfig.set((cfg) => {
     const next = clone(cfg) as Record<string, unknown>;
     const keys = path.split('.');
@@ -56,18 +62,18 @@ export function setConfig(path: string, value: unknown): void {
 }
 
 /** Restore one top-level section (e.g. 't' or 'flow') to its defaults. */
-export function resetConfigSection(section: string): void {
-  setConfig(section, clone((DEFAULT_CONFIG as Record<string, unknown>)[section]));
+export function resetSettingsSection(section: string): void {
+  setSetting(section, clone((DEFAULT_CONFIG as Record<string, unknown>)[section]));
 }
 
 /** Minutes before an alert turns red; Infinity when the alert is off. */
 export function threshold(key: ThresholdKey): number {
-  const v = Number(getConfig(`t.${key}`));
+  const v = Number(getSetting(`t.${key}`));
   return v > 0 ? v : Infinity;
 }
 
 /** Read a config path in a component; re-renders when it changes. */
-export function useConfig<T = unknown>(path: string): T {
+export function useSetting<T = unknown>(path: string): T {
   useShared(serviceConfig);
-  return getConfig<T>(path);
+  return getSetting<T>(path);
 }
