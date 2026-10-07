@@ -147,12 +147,19 @@ export interface Room {
 
 // ─── Orders ──────────────────────────────────────────────────────────────
 
-export type KitchenState = 'scheduled' | 'cooking' | 'ready' | 'cleared' | 'bar' | 'pour' | null;
+/**
+ * Where a sent line is. Food: scheduled (held for its course) → cooking →
+ * ready (at the pass) → cleared (on the table). Drinks: pour (the server
+ * makes it) or bar (being made) → up (ready at the bar) → cleared.
+ */
+export type KitchenState = 'scheduled' | 'cooking' | 'ready' | 'cleared' | 'bar' | 'pour' | 'up' | null;
+
+export type ModSelection = Record<string, string | string[]>;
 
 export interface OrderLine {
   id: string;
   itemId: string;
-  mods: Record<string, string | string[]>;
+  mods: ModSelection;
   note: string;
   sent: boolean;
   kitchenState: KitchenState;
@@ -169,10 +176,15 @@ export interface OrderLine {
   rush?: boolean;
   toGo?: boolean;
   cancelled?: boolean;
+  cancelledAt?: number;
   comped?: boolean;
   hold?: boolean;
   holdAt?: number | null;
   drink?: boolean;
+  /** When a bar drink came up. */
+  upAt?: number;
+  /** Server reminders dismissed for this line. */
+  rmOff?: string[];
   [k: string]: unknown;
 }
 
@@ -201,6 +213,38 @@ export interface CheckIn {
 
 export type QueueType = 'pickup' | 'delivery';
 
+/** Manager comp on a whole check. */
+export interface OrderComp {
+  reason: string;
+  at?: number;
+}
+
+/** A sick-tray delivery fee waiver granted on a delivery order. */
+export interface SickTray {
+  /** Resident the waiver counts against. */
+  rid: string;
+  /** Waiver number this period, fixed when granted. */
+  n: number;
+  by: string;
+  at: number;
+  /** Granted past the allowance with a manager PIN. */
+  mgr?: boolean;
+}
+
+/** One entry of a check's activity trail. */
+export interface OrderLogEvent {
+  at: number;
+  /** Event kind: open, seat, add, send, fire, ready, run ... */
+  k: string;
+  by: string;
+  what: string;
+  /** Course the event refers to, when there is one. */
+  c?: number;
+}
+
+/** Course pacing chosen on a check (setOrderPacing). */
+export type FireMode = 'timer' | 'manual' | 'served' | string;
+
 export interface Order {
   id: string;
   /** Dine-in table; absent for pick up and delivery orders. */
@@ -214,25 +258,46 @@ export interface Order {
   queueType?: QueueType;
   /** Pick up / delivery window start, "4:15 PM". */
   readyAt?: string;
+  /** Pick up / delivery booked for a later day, "YYYY-MM-DD". */
+  forDate?: string;
   deliveryFeeId?: string;
   sentAt?: number;
   drinksAt?: number;
+  /** Pick up / delivery: when the scheduled lines fire on their own. */
   fireAtTs?: number;
+  /** When every live plate reached the pass (cleared when one goes back). */
   readyStampAt?: number | null;
   notified?: boolean;
   notifiedAt?: number;
+  remindedAt?: number;
+  pickedUpAt?: number;
+  textedOnWayAt?: number;
   deliveredAt?: number;
   checkIns?: CheckIn[];
   noDessert?: boolean;
-  sickTray?: unknown;
+  sickTray?: SickTray | null;
+  /** Hospice fee waiver switched off for this order. */
+  hospiceOff?: { by: string; at: number } | null;
   assoc?: boolean;
   assocName?: string;
   hostSeated?: boolean;
   greetedAt?: number;
   closedAt?: number;
   closedBy?: string;
-  comp?: unknown;
+  comp?: OrderComp | null;
   feeComped?: boolean;
+  /** Letter for a second (third ...) check at the same table. */
+  checkTag?: string;
+  /** Bottles brought in; charged per venue on seat 1. */
+  corkage?: number;
+  /** Table asked for its server (ms) or not. */
+  askedFor?: number;
+  fireMode?: FireMode;
+  fireTimerMin?: number;
+  takenFrom?: string;
+  takenAt?: number;
+  source?: string;
+  log?: OrderLogEvent[];
   [k: string]: unknown;
 }
 
@@ -261,4 +326,28 @@ export interface Broadcast {
   startDt: number;
   endDt: number;
   createdOn: number;
+}
+
+// ─── Resident notes ──────────────────────────────────────────────────────
+
+/**
+ * What a server noticed about a resident: "know" (good to know, hospitality
+ * only), "obs" (an observation for the care team), "pref" (a dining
+ * preference change) or "fb" (dining feedback for the culinary team).
+ */
+export type ResidentNoteKind = 'know' | 'obs' | 'pref' | 'fb';
+
+export interface ResidentNote {
+  id: string;
+  kind: ResidentNoteKind;
+  /** Resident id. */
+  rid: string;
+  text: string;
+  at: number;
+  /** Staff initials of who added it. */
+  by?: string;
+  /** Table label it was added at. */
+  table?: string;
+  edited?: boolean;
+  [k: string]: unknown;
 }
