@@ -29,8 +29,11 @@ export interface AttentionItem {
   n: number;
   title: string;
   detail: string;
-  /** Page to open, with its link text; absent when the fix is made elsewhere. */
-  goto?: { page: string; label: string };
+  /**
+   * Page to open, with its link text; absent when the fix is made elsewhere.
+   * `path` goes deeper into the page, e.g. a venue's Menu tab in Venue Settings.
+   */
+  goto?: { page: string; label: string; path?: string[] };
   /** Shown instead of a link. */
   note?: string;
 }
@@ -103,7 +106,8 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
       detail:
         soon.map((u) => `${u.m!.name} at ${u.v.name.replace(/ Dining Room$/, '')} on ${new Date(u.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`).join(', ') +
         (soon.length === 1 ? '. It goes live on its own that day.' : '. Each goes live on its own start date.'),
-      goto: { page: 'menus', label: 'Open menus' },
+      // Venue Settings schedules menus; open the venue when there is just one.
+      goto: { page: 'venues', label: 'See the schedule', path: soon.length === 1 ? [soon[0].v.id, 'menu'] : undefined },
     });
   const bare = x.venues.filter((v) => v.active && !v.menuId);
   if (bare.length)
@@ -113,7 +117,7 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
       n: bare.length,
       title: bare.length === 1 ? 'venue has no menu' : 'venues have no menu',
       detail: `${bare.map((v) => v.name).join(', ')} cannot take orders yet.`,
-      goto: { page: 'menus', label: 'Schedule a menu' },
+      goto: { page: 'venues', label: bare.length === 1 ? 'Give it a menu' : 'Give them menus', path: [bare[0].id, 'menu'] },
     });
   return items;
 }

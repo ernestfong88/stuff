@@ -54,7 +54,7 @@ export default function PmixPage(_props: BoPageProps) {
     if (w in PRESETS) {
       setFrom(PRESETS[w as keyof typeof PRESETS]);
       setTo(1);
-    } else if (w === 'day') setTo(from);
+    } else if (w === 'day') setFrom(to); // the most recent day of the range shown, not its oldest
   };
   const minIso = isoDaysBack(PMIX_OLDEST);
   const maxIso = isoDaysBack(1);

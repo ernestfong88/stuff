@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { uid } from '../../../../lib/id';
 import { Download } from 'lucide-react';
 import { Button, EmptyState, Modal, toast } from '../../../../ui';
 import type { BoModGroup } from '../../../../store/menuEdits';
@@ -7,9 +8,11 @@ import { updateBo, useBo } from '../data';
 import { Field, Select } from '../ui/controls';
 import { GroupDetail } from './GroupDetail';
 import { GroupList } from './GroupList';
+import { OTHER_COMMUNITY_MODS, planCopy } from './copyGroups';
+import { andList } from '../model/menuPrint';
 import s from './ModifiersPage.module.css';
 
-const COMMUNITIES = ['Cypress Court (template)', 'Cardinal at North Hills', 'La Posada'];
+const COMMUNITIES = Object.keys(OTHER_COMMUNITY_MODS);
 
 /** Modifiers: groups of choices servers add to an item, their rules and pins. */
 export function ModifiersPage() {
@@ -19,6 +22,18 @@ export function ModifiersPage() {
   const [copyOpen, setCopyOpen] = useState(false);
   const [from, setFrom] = useState(COMMUNITIES[0]);
   const sel = bo.modGroups.find((g) => g.id === selId && g.active) ?? active[0];
+  const plan = planCopy(bo.modGroups, OTHER_COMMUNITY_MODS[from] ?? [], () => uid('g'));
+  const changes = plan.added.length + plan.extended.length;
+
+  const copy = () => {
+    const before = bo.modGroups;
+    updateBo(() => ({ modGroups: plan.groups }));
+    setCopyOpen(false);
+    toast(`Copied from ${from}: ${plan.added.length} new ${plan.added.length === 1 ? 'group' : 'groups'}, ${plan.extended.length} updated.`, {
+      tone: 'success',
+      action: { label: 'Undo', onClick: () => updateBo(() => ({ modGroups: before })) },
+    });
+  };
 
   const update = (id: string, fn: (g: BoModGroup) => BoModGroup) => updateBo((st) => ({ modGroups: st.modGroups.map((g) => (g.id === id ? fn(g) : g)) }));
 
@@ -81,23 +96,29 @@ export function ModifiersPage() {
             <Button variant="ghost" onClick={() => setCopyOpen(false)}>
               Cancel
             </Button>
-            <Button
-              variant="primary"
-              icon={<Download size={15} />}
-              onClick={() => {
-                setCopyOpen(false);
-                toast(`Modifiers copied from ${from.replace(/ \(template\)$/, '')}. Review before publishing.`, { tone: 'success' });
-              }}
-            >
+            <Button variant="primary" icon={<Download size={15} />} disabled={!changes} onClick={copy}>
               Copy modifiers
             </Button>
           </>
         }
       >
-        <p className={s.dialogText}>Copies every group and choice from the chosen community into this one.</p>
+        <p className={s.dialogText}>Adds the groups and choices you don't have yet. Nothing here is removed or renamed.</p>
         <Field label="Copy from">
           <Select value={from} onChange={setFrom} options={COMMUNITIES.map((c) => ({ value: c, label: c }))} />
         </Field>
+        <div className={s.plan} aria-live="polite">
+          {!changes && <p className={s.planLine}>You already have everything {from} has.</p>}
+          {plan.added.length > 0 && (
+            <p className={s.planLine}>
+              <strong>New {plan.added.length === 1 ? 'group' : 'groups'}:</strong> {andList(plan.added)}
+            </p>
+          )}
+          {plan.extended.map((x) => (
+            <p key={x.name} className={s.planLine}>
+              <strong>{x.name} gains</strong> {andList(x.choices)}
+            </p>
+          ))}
+        </div>
       </Modal>
     </BoPage>
   );

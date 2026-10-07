@@ -13,7 +13,7 @@ import { setSetting } from '../../../store/serviceConfig';
 import { Button, Chip, Stat, Tabs, toast } from '../../../ui';
 import { STANDING_SLOTS, addDays, itemsLeft, menuWeek, mondayOf, weekState, type WeekState } from '../../../domain/assocMeals/menu';
 import { useAssocSettings } from '../../../domain/assocMeals/settings';
-import { assocWindows, isLive, rangeLabel, windowMinutes, type AssocMealName } from '../../../domain/assocMeals/windows';
+import { assocWindows, isLive, windowMinutes, type AssocMealName } from '../../../domain/assocMeals/windows';
 import {
   assocMenuFor,
   daySpecial,
@@ -28,12 +28,15 @@ import {
 import { recipesIn } from '../../../store/recipes';
 import { BoPage, BoRow, BoSection, NumberBox } from '../kit';
 import type { BoPageProps } from '../nav';
+import { spansText } from './assocRanges';
 import s from './assoc.module.css';
 
-const STATE_CHIP: Record<WeekState, { label: string; tone: 'success' | 'info' | 'warning' }> = {
-  active: { label: 'Active', tone: 'success' },
-  scheduled: { label: 'Scheduled', tone: 'info' },
-  draft: { label: 'Draft', tone: 'warning' },
+
+/** What each week state means for associates, in plain words. */
+const WEEK_TEXT: Record<WeekState, string> = {
+  active: 'Live. Associates are planning meals from it.',
+  scheduled: 'Scheduled. Associates can plan it now.',
+  draft: "Draft. Associates can't plan it until you schedule it.",
 };
 
 const shortDay = (iso: string) => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -60,10 +63,10 @@ export default function Page({ goto }: BoPageProps) {
     }),
   ).length;
 
-  const rangesFor = (meal: AssocMealName) => assocWindows(settings.grid, meal, '', []).map((w) => rangeLabel(windowMinutes(w) ?? 0));
+  const rangesFor = (meal: AssocMealName) => spansText(assocWindows(settings.grid, meal, '', []).map((w) => windowMinutes(w) ?? 0));
 
   return (
-    <BoPage title="Associate Meals" sub="Associates plan meals by shift in the Associate App · one venue per community serves them">
+    <BoPage title="Associate Meals" sub="What associates can order for their shifts in the Associate App, and when they pick it up.">
       <MenuSection settings={menuSettings} todayIso={todayIso} />
       <StandingChoices settings={menuSettings} />
 
@@ -84,22 +87,23 @@ export default function Page({ goto }: BoPageProps) {
             ))}
           </select>
         </BoRow>
-        <BoRow label="Ordering closes" hint="Minutes before a pickup range starts. NOC orders close this long before the dinner line closes.">
+        <BoRow label="Ordering closes" hint="Minutes before a pick up range starts. NOC orders close this long before the dinner line closes.">
           <NumberBox value={settings.cutoffMin} min={0} unit="min" aria-label="Ordering closes, minutes before pickup" onChange={(v) => v != null && v >= 0 && setSetting('am.cut', Math.floor(v))} />
         </BoRow>
         <BoRow
           align="start"
-          label="Pickup times"
+          label="Pick up times"
           hint={
             <span className={s.ranges}>
-              <span>Lunch: {rangesFor('Lunch').join(', ') || 'none'}</span>
-              <span>Dinner: {rangesFor('Dinner').join(', ') || 'none'}</span>
-              <span>NOC: {rangesFor('NOC').join(', ') || 'none'}</span>
+              <span>Lunch: {rangesFor('Lunch')}</span>
+              <span>Dinner: {rangesFor('Dinner')}</span>
+              <span>Overnight (NOC): {rangesFor('NOC')}</span>
+              <span>Associates pick a 15 minute range within these times.</span>
             </span>
           }
         >
           <Button size="sm" onClick={() => goto('svcWin')}>
-            Change in Pick Up Windows
+            Change pick up times
           </Button>
         </BoRow>
         <p className={s.note}>
@@ -129,15 +133,12 @@ function MenuSection({ settings, todayIso }: { settings: AssocMenuSettings; toda
   return (
     <BoSection
       title="Associate menu"
-      sub="The same menu in every community. Each meal period gets one chef special from that day's menu cycle, with a daily limit, first come, first served; overnight (NOC) meals get the dinner special, made on the dinner line. The standing choices below are always on. A week is a draft until you schedule it; associates can plan scheduled and active weeks, up to the end of next week."
+      sub="Each lunch and dinner gets one chef special from that day's menu cycle, first come, first served up to the daily limit. Overnight (NOC) meals get the dinner special."
       actions={
         <span className={s.status}>
-          <Chip tone={STATE_CHIP[state].tone} size="xs">
-            {STATE_CHIP[state].label}
-          </Chip>
           {!week.sched ? (
             <Button size="sm" variant="primary" onClick={() => schedule(true)}>
-              Schedule week
+              Schedule {isNext ? 'next week' : 'this week'}
             </Button>
           ) : (
             state === 'scheduled' && (
@@ -149,17 +150,20 @@ function MenuSection({ settings, todayIso }: { settings: AssocMenuSettings; toda
         </span>
       }
     >
-      <Tabs
-        variant="segmented"
-        size="sm"
-        aria-label="Week"
-        value={isNext ? 'next' : 'this'}
-        onChange={(w) => setMonday(w === 'next' ? addDays(current, 7) : current)}
-        options={[
-          { id: 'this', label: `This week · ${weekLabel(current)}` },
-          { id: 'next', label: `Next week · ${weekLabel(addDays(current, 7))}` },
-        ]}
-      />
+      <div className={s.weekBar}>
+        <Tabs
+          variant="segmented"
+          size="sm"
+          aria-label="Week"
+          value={isNext ? 'next' : 'this'}
+          onChange={(w) => setMonday(w === 'next' ? addDays(current, 7) : current)}
+          options={[
+            { id: 'this', label: `This week · ${weekLabel(current)}` },
+            { id: 'next', label: `Next week · ${weekLabel(addDays(current, 7))}` },
+          ]}
+        />
+        <span className={s.weekText}>{WEEK_TEXT[state]}</span>
+      </div>
       <div className={s.tableWrap}>
         <table className={s.table}>
           <thead>
@@ -231,7 +235,10 @@ function SpecialPicker({ date, period, settings, past }: { date: string; period:
 function StandingChoices({ settings }: { settings: AssocMenuSettings }) {
   const soup = standingRecipe(STANDING_SLOTS.find((x) => x.id === 'am_soup')!, settings);
   return (
-    <BoSection title="Standing choices · always on" sub="The standard associate menu. Each choice is a recipe from the Recipe Book, so the kitchen, allergens and production counts line up; swap the recipe as the month's sandwich or the week's soup changes.">
+    <BoSection
+      title="Standing choices · always on"
+      sub="Each choice is a Recipe Book recipe, so allergens and production counts match. Change the recipe when the sandwich of the month or soup of the week changes."
+    >
       <div className={s.choices}>
         {STANDING_SLOTS.map((slot) => {
           const r = standingRecipe(slot, settings);

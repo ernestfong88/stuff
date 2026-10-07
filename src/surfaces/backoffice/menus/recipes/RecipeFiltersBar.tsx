@@ -48,7 +48,7 @@ export function RecipeFiltersBar({
             size="sm"
             value={f.cat || 'All'}
             onChange={(c) => set({ cat: c === 'All' ? '' : c, sub: '', ...(c !== 'All' && c !== 'Entrees' ? { protein: '' } : {}) })}
-            options={['All', ...categories].map((c) => ({ id: c, label: c }))}
+            options={['All', ...categories].map((c) => ({ id: c, label: c === 'Entrees' ? 'Entrées' : c }))}
             aria-label="Category"
           />
         </Field>

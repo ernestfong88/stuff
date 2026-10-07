@@ -45,11 +45,13 @@ export function RecipesPage() {
   }, [global, live, bo.recipes, bo.favorites, f, scoreOf, onMenu, cfg]);
 
   const open = (r: Recipe) => navigate('backoffice', ['recipes', r.id]);
+  // A Global Library recipe you already added, linked or as a copy, so it isn't added twice.
+  const ownedFrom = (g: Recipe) => bo.recipes.find((x) => x.globalId === g.id || x.name.toLowerCase() === g.name.toLowerCase());
   const addCopy = (src: Recipe, linked: boolean) => {
     const id = uid('rc');
     const copy: Recipe = { ...src, id, scope: linked ? 'linked' : 'mine', globalId: linked ? src.id : undefined };
     updateBo((st) => ({ recipes: [copy, ...st.recipes] }));
-    toast(linked ? 'Added as linked. Home Office keeps managing it.' : 'Copied. This one is yours now, no linkage.', { tone: 'success' });
+    toast(linked ? `${src.name} added. Home Office keeps it up to date.` : `${src.name} copied. It's yours to change.`, { tone: 'success' });
     return id;
   };
 
@@ -120,6 +122,11 @@ export function RecipesPage() {
         }}
       />
 
+      {global && (
+        <p className={s.howTo}>
+          <strong>Add</strong> keeps the recipe linked: Home Office keeps it up to date and you can't edit it. <strong>Copy to edit</strong> makes your own version.
+        </p>
+      )}
       {live ? (
         <RecipeList
           list={list}
@@ -131,6 +138,7 @@ export function RecipesPage() {
           onOpen={open}
           onAddLinked={(r) => addCopy(r, true)}
           onCopy={(r) => addCopy(r, false)}
+          ownedFrom={ownedFrom}
         />
       ) : (
         <section className={s.find}>
@@ -140,7 +148,7 @@ export function RecipesPage() {
           </div>
           <div className={s.picks}>
             {pick('Entrées', `${cnt('Entrees')} recipes`, () => set({ cat: 'Entrees' }))}
-            {pick('Soups and starters', `${cnt('Starters')} recipes`, () => set({ cat: 'Starters' }))}
+            {pick('Starters', `${cnt('Starters')} recipes`, () => set({ cat: 'Starters' }))}
             {pick('Sides', `${cnt('Sides')} recipes`, () => set({ cat: 'Sides' }))}
             {pick('Desserts', `${cnt('Desserts')} recipes`, () => set({ cat: 'Desserts' }))}
             {pick('★ Favorites', favCount ? `${favCount} starred` : 'None starred yet', () => set({ favorites: true }))}
@@ -160,8 +168,13 @@ export function RecipesPage() {
         <AddRecipeDialog
           onClose={() => setAdding(false)}
           onAddGlobal={(r, linked) => {
-            addCopy(r, linked);
+            const id = addCopy(r, linked);
             setAdding(false);
+            navigate('backoffice', ['recipes', id]);
+          }}
+          onOpen={(r) => {
+            setAdding(false);
+            open(r);
           }}
           onCreated={(id) => {
             setAdding(false);

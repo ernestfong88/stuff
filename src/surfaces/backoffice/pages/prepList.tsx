@@ -1,10 +1,11 @@
 /**
  * Prep Checklist: each venue's subcategories and items, in the order
  * Production Prep shows them below the specials, with B, L and D for the
- * meals that show each one. Names save when the box loses focus.
+ * meals that show each one. Names save when the box loses focus. Deletes
+ * can be undone from the toast.
  */
 import { useState } from 'react';
-import { ArrowDown, ArrowUp, Plus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { uid } from '../../../lib/id';
 import {
   PREP_MEALS,
@@ -57,7 +58,6 @@ export default function Page(_props: BoPageProps) {
   const [venueId, setVenueId] = useState(PRODUCTION_VENUES[0].id);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [newGroup, setNewGroup] = useState('');
-  const [deleting, setDeleting] = useState<string | null>(null);
   const [ask, dialog] = useConfirm();
   const venue = getProductionVenue(venueId);
   const groups = checklistFor(state, venueId);
@@ -90,7 +90,7 @@ export default function Page(_props: BoPageProps) {
   return (
     <BoPage
       title="Prep Checklist"
-      sub="What Production Prep checks off below the specials, for each venue. B, L and D choose the meals that show an item. Checks are kept for each date and meal, so tomorrow starts fresh. Items marked Stocked or backup offer Stocked and Made a backup instead of a plain check."
+      sub="What the Production Prep tablet checks off below the specials, for each venue. Checks start fresh each day and meal."
       actions={
         isChecklistEdited(state, venueId) && (
           <Button
@@ -115,13 +115,21 @@ export default function Page(_props: BoPageProps) {
         variant="segmented"
         aria-label="Venue"
         value={venueId}
-        onChange={(id) => {
-          setVenueId(id);
-          setDeleting(null);
-        }}
+        onChange={setVenueId}
         options={PRODUCTION_VENUES.map((v) => ({ id: v.id, label: v.name }))}
         className={s.venues}
       />
+      <p className={s.howTo}>
+        <span className={s.legend} aria-hidden>
+          <span className={cx(s.meal, s.meal_Breakfast)}>B</span>
+          <span className={cx(s.meal, s.meal_Lunch)}>L</span>
+          <span className={cx(s.meal, s.meal_Dinner)}>D</span>
+        </span>
+        <span>
+          Tap B, L or D to choose the meals that show an item. Turn on <strong>Stock check</strong> when the cook should mark it Stocked or Made a backup
+          instead of a plain tick.
+        </span>
+      </p>
 
       {groups.map((g, gi) => (
         <BoSection
@@ -129,29 +137,38 @@ export default function Page(_props: BoPageProps) {
           title={<NameBox value={g.name} label="Subcategory name" bold onSave={(name) => updateGroup(g.id, (x) => ({ ...x, name }))} />}
           actions={
             <>
-              <Button size="sm" variant="ghost" disabled={gi === 0} onClick={() => save(move(groups, gi, -1))} aria-label={`Move ${g.name} up`}>
-                Up
+              <Button
+                size="sm"
+                variant="ghost"
+                iconOnly
+                icon={<ArrowUp size={15} />}
+                disabled={gi === 0}
+                onClick={() => save(move(groups, gi, -1))}
+                aria-label={`Move ${g.name} up`}
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                iconOnly
+                icon={<ArrowDown size={15} />}
+                disabled={gi === groups.length - 1}
+                onClick={() => save(move(groups, gi, 1))}
+                aria-label={`Move ${g.name} down`}
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                icon={<Trash2 size={14} />}
+                aria-label={`Delete ${g.name}`}
+                onClick={() => {
+                  save(groups.filter((x) => x.id !== g.id));
+                  toast(`${g.name} deleted${g.items.length ? ` with its ${g.items.length} ${g.items.length === 1 ? 'item' : 'items'}` : ''}`, {
+                    action: { label: 'Undo', onClick: () => save(groups) },
+                  });
+                }}
+              >
+                Delete
               </Button>
-              <Button size="sm" variant="ghost" disabled={gi === groups.length - 1} onClick={() => save(move(groups, gi, 1))} aria-label={`Move ${g.name} down`}>
-                Down
-              </Button>
-              {deleting === g.id ? (
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => {
-                    save(groups.filter((x) => x.id !== g.id));
-                    setDeleting(null);
-                    toast(`${g.name} deleted`);
-                  }}
-                >
-                  {g.items.length ? `Delete it and ${g.items.length} item${g.items.length === 1 ? '' : 's'}` : 'Delete it'}
-                </Button>
-              ) : (
-                <Button size="sm" variant="ghost" onClick={() => setDeleting(g.id)}>
-                  Delete
-                </Button>
-              )}
             </>
           }
         >
@@ -159,6 +176,7 @@ export default function Page(_props: BoPageProps) {
           {g.items.map((it, ii) => (
             <div key={it.id} className={s.item}>
               <NameBox value={it.text} label="Item" onSave={(text) => updateItem(g.id, it.id, (x) => ({ ...x, text }))} />
+              {!it.meals.length && <span className={s.hidden}>Not shown at any meal</span>}
               <span className={s.controls}>
                 <span className={s.meals} role="group" aria-label={`Meals for ${it.text}`}>
                   {PREP_MEALS.map((m) => {
@@ -178,7 +196,7 @@ export default function Page(_props: BoPageProps) {
                   })}
                 </span>
                 <span className={s.stock}>
-                  <Toggle checked={it.stock} onChange={(stock) => updateItem(g.id, it.id, (x) => ({ ...x, stock }))} label="Stocked or backup" />
+                  <Toggle checked={it.stock} onChange={(stock) => updateItem(g.id, it.id, (x) => ({ ...x, stock }))} label="Stock check" />
                 </span>
                 <Button
                   size="sm"
@@ -201,14 +219,14 @@ export default function Page(_props: BoPageProps) {
                 <Button
                   size="sm"
                   variant="softDanger"
+                  iconOnly
+                  icon={<Trash2 size={14} />}
                   aria-label={`Delete ${it.text}`}
                   onClick={() => {
                     updateGroup(g.id, (x) => ({ ...x, items: x.items.filter((y) => y.id !== it.id) }));
-                    toast(`${it.text} deleted`);
+                    toast(`${it.text} deleted`, { action: { label: 'Undo', onClick: () => save(groups) } });
                   }}
-                >
-                  Delete
-                </Button>
+                />
               </span>
             </div>
           ))}

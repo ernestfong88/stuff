@@ -7,6 +7,7 @@ import { ADP_ASSOCIATES } from '../../seed/associates';
 import { PMIX_DAYS, PMIX_RECIPES, PMIX_SIDES } from '../../seed/pmix';
 import { addedText, currentPin, filterAssociates, isGuessable, newPin } from '../access/pins';
 import { approveAll, chargesFor, toggleApproval } from '../chargeReview/charges';
+import { rangeSpans, spansText } from '../assocRanges';
 import { attentionItems } from '../dashboard/model/attention';
 import { countSpecial } from '../dashboard/model/specials';
 import { waiverUseByResident, waiverUseText } from '../fees/sickWaivers';
@@ -174,8 +175,10 @@ describe('dashboard attention', () => {
     const items = attentionItems({ ...base, chargesToReview: 5, amountToReview: 70, venues: [{ id: 'v', name: 'Catering', active: true, menuId: null, upcoming: [] }] });
     expect(items.map((i) => [i.title, i.goto?.page])).toEqual([
       ['charges to review', 'chargeReview'],
-      ['venue has no menu', 'menus'],
+      ['venue has no menu', 'venues'],
     ]);
+    // Menus are scheduled in Venue Settings, so the card opens that venue's Menu tab.
+    expect(items[1].goto?.path).toEqual(['v', 'menu']);
     expect(items[0].detail).toBe('$70.00 waiting for approval before billing.');
   });
 });
@@ -190,5 +193,19 @@ describe('specials made and ordered', () => {
     const assoc = [{ id: 'a', date: '2026-10-07', meal: 'Dinner', window: '', associate: 'x', item: 'Peach Glazed Chicken Breast', status: 'Placed', note: '', log: [] }];
     const c = countSpecial({ id: 'd_peach', name: 'Peach Glazed Chicken Breast', meals: 'Dinner', category: 'Entrées' }, checks, assoc, { todayStart: 0, todayIso: '2026-10-07', made: 40, earlier: 12 });
     expect(c).toEqual({ made: 40, dine: 13, pickupDelivery: 1, associates: 1, total: 15, left: 25 });
+  });
+});
+
+describe('associate pick up times', () => {
+  it('joins back to back 15 minute ranges into spans', () => {
+    expect(rangeSpans([660, 675, 690, 990, 1005])).toEqual([
+      [660, 705],
+      [990, 1020],
+    ]);
+    expect(spansText([660, 675, 690, 705, 720, 735, 750, 765, 780, 795])).toBe('11:00 AM to 1:30 PM');
+    expect(spansText([])).toBe('None');
+  });
+  it('keeps overnight ranges in the order given', () => {
+    expect(spansText([1380, 1560])).toBe('11:00 PM to 11:15 PM, 2:00 AM to 2:15 AM');
   });
 });

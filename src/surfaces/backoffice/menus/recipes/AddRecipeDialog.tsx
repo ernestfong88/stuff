@@ -22,10 +22,12 @@ export function AddRecipeDialog({
   onClose,
   onAddGlobal,
   onCreated,
+  onOpen,
 }: {
   onClose: () => void;
   onAddGlobal: (r: Recipe, linked: boolean) => void;
   onCreated: (id: string) => void;
+  onOpen: (r: Recipe) => void;
 }) {
   const bo = useBo();
   const [q, setQ] = useState('');
@@ -40,6 +42,7 @@ export function AddRecipeDialog({
   const glob = k ? GLOBAL_LIBRARY.filter((r) => r.name.toLowerCase().includes(k) || r.desc.toLowerCase().includes(k)).slice(0, 4) : [];
   const others = k ? OTHER_COMMUNITIES.filter((r) => r.name.toLowerCase().includes(k)).slice(0, 4) : [];
   const name = q.trim();
+  const have = (g: Recipe) => bo.recipes.some((x) => x.globalId === g.id || x.name.toLowerCase() === g.name.toLowerCase());
 
   const draft = () => {
     setBusy(true);
@@ -102,7 +105,16 @@ export function AddRecipeDialog({
           {mine.length > 0 && (
             <Group label="Already in your recipes">
               {mine.map((r) => (
-                <Hit key={r.id} title={dishLong(r.name)} sub={r.cat} actions={<Chip tone="success">You have this</Chip>} />
+                <Hit
+                  key={r.id}
+                  title={dishLong(r.name)}
+                  sub={r.cat}
+                  actions={
+                    <Button size="sm" onClick={() => onOpen(r)}>
+                      Open
+                    </Button>
+                  }
+                />
               ))}
             </Group>
           )}
@@ -114,14 +126,18 @@ export function AddRecipeDialog({
                   title={r.name}
                   sub={r.desc}
                   actions={
-                    <>
-                      <Button size="sm" onClick={() => onAddGlobal(r, true)}>
-                        Add linked
-                      </Button>
-                      <Button size="sm" icon={<Copy size={13} />} onClick={() => onAddGlobal(r, false)}>
-                        Copy
-                      </Button>
-                    </>
+                    have(r) ? (
+                      <Chip tone="success">You have this</Chip>
+                    ) : (
+                      <>
+                        <Button size="sm" onClick={() => onAddGlobal(r, true)} title="Home Office keeps it up to date. You can't edit it.">
+                          Add
+                        </Button>
+                        <Button size="sm" icon={<Copy size={13} />} onClick={() => onAddGlobal(r, false)} title="Your own copy to change.">
+                          Copy to edit
+                        </Button>
+                      </>
+                    )
                   }
                 />
               ))}
@@ -144,7 +160,7 @@ export function AddRecipeDialog({
                         onCreated(id);
                       }}
                     >
-                      Copy as mine
+                      Copy to edit
                     </Button>
                   }
                 />
