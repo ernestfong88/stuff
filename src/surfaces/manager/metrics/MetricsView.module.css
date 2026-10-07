@@ -227,3 +227,58 @@
   color: #a3acb2;
   margin-top: 10px;
 }
+
+/* Average table time: the headline number, with a small trend beside it */
+.hero {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 10px;
+  padding: 16px 18px;
+  border-radius: var(--r-2xl);
+  background: var(--surface);
+  box-shadow: var(--ring);
+}
+.heroMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.heroValue {
+  font-family: var(--font-serif);
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.heroUnit {
+  font-size: 20px;
+}
+.trendChip {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 5px;
+  margin-bottom: 26px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 700;
+}
+.trendVs {
+  font-weight: 500;
+  opacity: 0.8;
+}
+.trendGood {
+  background: var(--green-100);
+  color: var(--green);
+}
+.trendBad {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.trendFlat {
+  background: var(--paper);
+  color: var(--s500);
+}

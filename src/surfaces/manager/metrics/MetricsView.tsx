@@ -26,6 +26,7 @@ import {
   type SosSample,
   type SosTable,
 } from '../../../domain/metrics/stepsOfService';
+import { TABLE_TIME_GOAL, tableTimeOf, tableTimeTrend } from './tableTime';
 import { Trend } from './Trend';
 import s from './MetricsView.module.css';
 
@@ -60,6 +61,8 @@ export function MetricsView({ onOpen }: { onOpen: (o: Order) => void }) {
   const missPct = missPercent(sum.missed, sum.n);
   const over = offGoal(sum.missed, sum.n);
   const ml = meal.toLowerCase();
+  const tt = tableTimeOf(sum);
+  const trend = tableTimeTrend(tt, week);
 
   const risk = atRisk(tables.filter((o) => !o.closedAt), cfg);
 
@@ -73,9 +76,27 @@ export function MetricsView({ onOpen }: { onOpen: (o: Order) => void }) {
         </span>
       </div>
 
+      {/* The headline: average table time, big, with a small trend beside it. */}
+      <div className={s.hero}>
+        <div className={s.heroMain}>
+          <span className={s.cardLabel}>Average table time this {ml}</span>
+          <span className={cx(s.heroValue, tt != null && tt > TABLE_TIME_GOAL ? s.red : s.green)}>
+            {fmt1(tt)}
+            <span className={s.heroUnit}> min</span>
+          </span>
+          <span className={s.cardNote}>
+            Order to entrée · goal {TABLE_TIME_GOAL} min · {plural(sum.n, 'table')}
+          </span>
+        </div>
+        <span className={cx(s.trendChip, trend.dir === 'faster' ? s.trendGood : trend.dir === 'slower' ? s.trendBad : s.trendFlat)}>
+          {trend.dir === 'faster' ? '▼' : trend.dir === 'slower' ? '▲' : '–'}{' '}
+          {trend.delta == null ? 'No trend yet' : trend.dir === 'steady' ? 'Steady' : `${Math.abs(trend.delta).toFixed(1)} min ${trend.dir}`}
+          <span className={s.trendVs}>vs the last 7 {ml}s</span>
+        </span>
+      </div>
+
       <div className={s.cards}>
         <MetricCard
-          highlight
           label={`Tables that missed a step this ${ml}`}
           value={`${Math.round(missPct)}%`}
           valueTone={over ? 'bad' : 'good'}

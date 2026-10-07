@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Steps of Service: average table time first
+
+- **Back Office dashboard, Steps of Service card:**
+  - Average table time (order to entrée) is now the big number, green under the goal and red over it.
+  - A small chip beside it shows the trend, for example *▼ 1.2 min faster vs the 7 days before*.
+  - Before, the card led with a large "Faster" or "Slower" heading.
+- **Manager tablet, Metrics:**
+  - A new top panel shows this meal's average table time large, with a small trend chip against the last seven of the same meal.
+  - The missed-step, order → appetizer and appetizer → entrée cards follow below it.
+
 ### Phase 3, typing recipes into the menu builder, and removable rows
 
 - **Phase 3.** Release Phases now offers Phase 1, 2 or 3 for every screen and Back Office page.

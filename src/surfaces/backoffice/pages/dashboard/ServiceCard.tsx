@@ -7,7 +7,7 @@ import { GOALS, TABLE_TIME_GOAL, min1 } from './model/insight';
 import { dayLabel, longDay } from './model/periods';
 import { avgTableTime, lateTablesByServer, serviceAction, serviceWeek, tableTime } from './model/service';
 import type { DashboardData } from './model/useDashboardData';
-import { CardHead, DayModal, DetailStat, DirectionHead, Drivers, PeriodTrend, RangeModal, StartHere, TopAction } from './parts';
+import { CardHead, DayModal, DetailStat, Drivers, PeriodTrend, RangeModal, StartHere, TopAction } from './parts';
 import s from './dashboard.module.css';
 
 /** Steps of Service: average table time against the goal, day by day. */
@@ -34,9 +34,22 @@ export function ServiceCard({ data, goto }: { data: DashboardData; goto: (pageId
   return (
     <article className={s.card}>
       <CardHead title="Steps of Service" onDetail={() => setRange(true)} />
-      <DirectionHead dir={dir} noneLabel="Not enough tables" sub={sub} />
+      {/* The number that matters, big; how it is moving, small beside it. */}
+      <div className={s.hero}>
+        <div className={s.heroMain}>
+          <span className={cx(s.heroValue, ca != null && ca > TABLE_TIME_GOAL ? s.bad : s.good)}>
+            {min1(ca)}
+            <span className={s.heroUnit}> min</span>
+          </span>
+          <span className={s.heroLabel}>average table time · goal {TABLE_TIME_GOAL} min</span>
+        </div>
+        <span className={cx(s.trendChip, dir === 'up' ? s.trendGood : dir === 'down' ? s.trendBad : s.trendFlat)} title={sub}>
+          {dir === 'up' ? '▼' : dir === 'down' ? '▲' : '–'} {dr == null ? 'No trend yet' : dir === 'flat' ? 'Steady' : `${Math.abs(dr).toFixed(1)} min ${dir === 'up' ? 'faster' : 'slower'}`}
+          <span className={s.trendVs}>vs the {n} days before</span>
+        </span>
+      </div>
       <p className={s.cardLine}>
-        <b className={ca != null && ca > TABLE_TIME_GOAL ? s.bad : s.good}>{min1(ca)} min</b> average table time · goal {TABLE_TIME_GOAL} min · met{' '}
+        Met the goal on{' '}
         <b>
           {hit} of {n} days
         </b>
