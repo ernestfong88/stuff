@@ -212,24 +212,24 @@ function PickupTracking() {
   );
 }
 
-/** Service Flow: the steps servers see on each table, from the order to the check. */
+/** Pacing & Coursing: the steps servers see on each table, from the order to the check. */
 export default function Page({ goto }: BoPageProps) {
   const cfg = useConfig();
   const [tab, setTab] = usePageTab<FlowTab>('svcFlow', TABS);
   return (
     <BoPage
-      title="Service Flow"
+      title="Pacing & Coursing"
       actions={
         <ConfirmReset
           sections={['ciMin', 'greet', 'pud']}
           onReset={() => updateConfig({ flow: {}, course: {} })}
           title="Put service flow back to the default?"
           message="Coursing, greet times, pick up tracking and every switch on all three tabs go back to the standard."
-          done="Service flow is back to the defaults"
+          done="Pacing & Coursing is back to the defaults"
         />
       }
     >
-      <Tabs aria-label="Service flow" variant="underline" value={tab} onChange={setTab} options={TABS.map((id) => ({ id, label: TAB_LABELS[id] }))} />
+      <Tabs aria-label="Pacing and coursing" variant="underline" value={tab} onChange={setTab} options={TABS.map((id) => ({ id, label: TAB_LABELS[id] }))} />
       {tab === 'courses' && (
         <>
           <KitchenModeSetting />

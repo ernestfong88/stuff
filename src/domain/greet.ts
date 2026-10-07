@@ -4,7 +4,7 @@
  * gives seated to greeted. Greet to drinks is flagged over the venue's
  * limit and ignored under its floor (the drinks were already there), for
  * the meals the venue picks: dinner by default. Set in Back Office,
- * Service Flow.
+ * Pacing & Coursing.
  */
 import { MINUTE, now } from '../lib/clock';
 import type { MealName, Order } from './types';

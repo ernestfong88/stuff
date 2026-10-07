@@ -33,7 +33,7 @@ export function HospiceCard({ rid, name }: { rid: string; name: string }) {
       sub={
         does
           ? `While ${first} is on hospice, ${does}, with no manager PIN. It never uses a sick waiver, and staff can switch it off for a single order.`
-          : `Both hospice comps are off in Service Flow, so a manager comps ${first}'s meals and fees with their PIN.`
+          : `Both hospice comps are off in Pacing & Coursing, so a manager comps ${first}'s meals and fees with their PIN.`
       }
     >
       <BoRow label="On hospice" hint={h.on ? `Since ${dateText(h.since)}` : 'Off: meals and delivery fees are charged as usual'}>
@@ -53,8 +53,8 @@ export function HospiceCard({ rid, name }: { rid: string; name: string }) {
           </div>
         </>
       )}
-      {does && !fees && <p className={s.warnText}>The hospice delivery fee waiver is off in Service Flow, so a manager waives the fee with their PIN.</p>}
-      {does && !meals && <p className={s.warnText}>Hospice meal comps are off in Service Flow, so a manager comps meals with their PIN.</p>}
+      {does && !fees && <p className={s.warnText}>The hospice delivery fee waiver is off in Pacing & Coursing, so a manager waives the fee with their PIN.</p>}
+      {does && !meals && <p className={s.warnText}>Hospice meal comps are off in Pacing & Coursing, so a manager comps meals with their PIN.</p>}
       {h.log.length > 0 && (
         <ul className={s.audit}>
           {h.log.slice(0, 4).map((e, i) => (

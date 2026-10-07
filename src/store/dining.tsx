@@ -204,7 +204,7 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
   const [recentBumps, setRecentBumps] = useState<RecentBump[]>([]);
   const [modUsage, setModUsage] = useState<Record<string, Record<string, number>>>({});
   const [expoActive, setExpoActive] = useState(true);
-  // How orders reach the kitchen, from the setting (KDS Settings, Service Flow).
+  // How orders reach the kitchen, from the setting (KDS Settings, Pacing & Coursing).
   const kitchenMode = printerMode(useConfig()) ? 'printers' : 'kds_expo';
   const [pendingTakeover, setPendingTakeover] = useState<(PendingTakeover & { go: () => void }) | null>(null);
   const runUndos = useRef(new Map<string, RunUndo>());

@@ -186,9 +186,9 @@ export const BO_SECTIONS: BoSectionDef[] = [
     pages: [
       {
         id: 'svcFlow',
-        label: 'Service Flow',
+        label: 'Pacing & Coursing',
         blurb: 'Coursing, check-ins, dessert and ordering steps',
-        keywords: 'check in dessert steps workflow coursing hospice comp',
+        keywords: 'service flow pacing fire course check in dessert steps workflow coursing hospice comp',
         component: lazy(() => import('./pages/svcFlow')),
       },
       {

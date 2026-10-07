@@ -1,6 +1,6 @@
 /**
  * Small editors for service settings, used by the Back Office pages that set
- * how the floor screens behave (Alerts & Timing, Service Flow, Shift
+ * how the floor screens behave (Alerts & Timing, Pacing & Coursing, Shift
  * Metrics). Each writes straight to the shared settings, so the dining
  * screens change while the page is still open.
  */

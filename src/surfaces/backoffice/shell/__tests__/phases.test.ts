@@ -82,7 +82,7 @@ describe('the standard phase split', () => {
   Back Office › Menus & Recipes › Associate Meals
   Back Office › Venues › Venue Settings
   Back Office › Venues › Printers
-  Back Office › POS Settings › Service Flow
+  Back Office › POS Settings › Pacing & Coursing
   Back Office › POS Settings › Pick Up & Delivery
   Back Office › POS Settings › Messages
   Back Office › Residents › Residents

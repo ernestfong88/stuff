@@ -223,6 +223,7 @@ The final order is:
 ### Less text in Back Office; Dining Service is now POS Settings
 - **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
 - **Dining Service is now POS Settings** in the Back Office menu.
+- **Service Flow is now Pacing & Coursing** (POS Settings). Searching "service flow" still finds it.
 - **Menu weeks run Sunday to Saturday.** A cycle's week 1 always starts on a Sunday, in the builder, Venue Settings ("Week 1 started" snaps to the Sunday), production, printed menus and the floor. Builder columns without dates show their weekday. The demo cycle is turned so today keeps the specials the floor shows.
 - **Every-day items as an à la carte choice.** Each cycle menu's every-day list (for example "VT Fall 2026 · Every-day items") can be picked as a venue's à la carte menu, and Sequoia and Evergreen use it by default. The menus list shows where each one is served.
 - **Printers page** (Venues → Printers), with three tabs:
