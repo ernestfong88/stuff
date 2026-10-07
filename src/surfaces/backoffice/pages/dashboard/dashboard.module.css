@@ -4,37 +4,37 @@
   flex-direction: column;
   gap: 8px;
 }
-.attentionGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
-  gap: 12px;
+.attToggle {
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  color: var(--s400);
 }
-.attCard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  text-align: left;
+.attToggle > * {
+  margin: 0;
+}
+.attList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   background: var(--surface);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-1);
 }
-.attButton {
-  transition: box-shadow var(--fast);
-}
-.attButton:hover {
-  box-shadow:
-    0 6px 18px -8px rgba(15, 23, 42, 0.25),
-    inset 0 0 0 1px rgba(15, 23, 42, 0.1);
-}
-.attHead {
+.attRow {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 10px 16px;
+}
+.attRow + .attRow {
+  border-top: 1px solid var(--hair);
 }
 .attIcon {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: var(--r-sm);
   display: grid;
   place-items: center;
@@ -52,35 +52,47 @@
   color: var(--danger);
   background: var(--danger-bg);
 }
-.attN {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.attTitle {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--s700);
-  line-height: 1.25;
-}
-.attDetail {
+.attAction {
   flex: 1;
-  font-size: 12.5px;
-  color: var(--s500);
-  line-height: 1.45;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
 }
 .attLink {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
   font-size: 12.5px;
   font-weight: 600;
   color: var(--ocean);
 }
+.attLink:hover {
+  text-decoration: underline;
+}
 .attNote {
+  flex-shrink: 0;
   font-size: 12px;
   color: var(--s400);
+}
+.chev {
+  transition: transform var(--fast);
+}
+.chevOpen {
+  transform: rotate(180deg);
+}
+.detailsToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ocean);
+}
+.detailsToggle:hover {
+  text-decoration: underline;
 }
 
 /* ─── Range ─── */
@@ -912,4 +924,13 @@
 }
 .pmixMeals {
   align-self: flex-start;
+}
+
+/* ─── Collapsed detail under a card's summary ─── */
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hair);
 }

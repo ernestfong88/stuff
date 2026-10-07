@@ -223,6 +223,11 @@ The final order is:
 ### Less text in Back Office; Dining Service is now POS Settings
 - **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
 - **Dining Service is now POS Settings** in the Back Office menu.
+- **Calmer dashboard.**
+  - *Needs your attention* is one line per item: the action and a link to where it's handled. Tap the header to collapse it.
+  - *P-Mix · served today* opens with one line and the share bar.
+  - *Resident feedback* opens with just the highlight.
+  - Each has *Show details* for the rest, and the dashboard remembers what you opened or collapsed.
 
 ### Menu builder: copy or swap days, à la carte item counter; phase switches in the demo box
 - **Copy or swap a day.** Each day's menu in the cycle builder has *Copy this day to…* and *Swap with…*.

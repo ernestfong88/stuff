@@ -26,8 +26,11 @@ export type AttentionKind = 'eightySix' | 'late' | 'sick' | 'charges' | 'menuSoo
 export interface AttentionItem {
   kind: AttentionKind;
   tone: 'info' | 'warn' | 'danger';
+  /** What to do, short and verb-first: the one line the dashboard shows. */
+  action: string;
   n: number;
   title: string;
+  /** The specifics; the dashboard leaves them to the linked screen. */
   detail: string;
   /**
    * Page to open, with its link text; absent when the fix is made elsewhere.
@@ -59,15 +62,17 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
   if (x.out.length)
     items.push({
       kind: 'eightySix',
+      action: "Work around today's 86'd items",
       tone: 'danger',
       n: x.out.length,
       title: x.out.length === 1 ? "item 86'd today" : "items 86'd today",
       detail: `${list(x.out, 4)}. Greyed out on every tablet until tomorrow.`,
-      note: 'Managers set it on the tablet',
+      note: 'Set on the tablet',
     });
   if (x.lateTickets)
     items.push({
       kind: 'late',
+      action: 'Look into late tickets',
       tone: 'warn',
       n: x.lateTickets,
       title: x.lateTickets === 1 ? 'late ticket today' : 'late tickets today',
@@ -77,6 +82,7 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
   if (x.waiversUsedUp.length)
     items.push({
       kind: 'sick',
+      action: 'Check who is out of sick fee waivers',
       tone: 'info',
       n: x.waiversUsedUp.length,
       title: x.waiversUsedUp.length === 1 ? 'resident has used every sick fee waiver' : 'residents have used every sick fee waiver',
@@ -86,6 +92,7 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
   if (x.chargesToReview)
     items.push({
       kind: 'charges',
+      action: 'Approve charges before billing',
       tone: 'warn',
       n: x.chargesToReview,
       title: x.chargesToReview === 1 ? 'charge to review' : 'charges to review',
@@ -100,12 +107,17 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
   if (soon.length)
     items.push({
       kind: 'menuSoon',
+      action: soon.length === 1 ? 'Check the menu starting this week' : 'Check the menus starting this week',
       tone: 'info',
       n: soon.length,
       title: soon.length === 1 ? 'menu starts this week' : 'menus start this week',
       detail:
-        soon.map((u) => `${u.m!.name} at ${u.v.name.replace(/ Dining Room$/, '')} on ${new Date(u.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`).join(', ') +
-        (soon.length === 1 ? '. It goes live on its own that day.' : '. Each goes live on its own start date.'),
+        soon
+          .map(
+            (u) =>
+              `${u.m!.name} at ${u.v.name.replace(/ Dining Room$/, '')} on ${new Date(u.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+          )
+          .join(', ') + (soon.length === 1 ? '. It goes live on its own that day.' : '. Each goes live on its own start date.'),
       // Venue Settings schedules menus; open the venue when there is just one.
       goto: { page: 'venues', label: 'See the schedule', path: soon.length === 1 ? [soon[0].v.id, 'menu'] : undefined },
     });
@@ -113,6 +125,7 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
   if (bare.length)
     items.push({
       kind: 'noMenu',
+      action: bare.length === 1 ? `Give ${bare[0].name} a menu` : 'Give venues a menu',
       tone: 'danger',
       n: bare.length,
       title: bare.length === 1 ? 'venue has no menu' : 'venues have no menu',

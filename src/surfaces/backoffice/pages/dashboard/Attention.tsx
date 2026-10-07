@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AlertTriangle, BadgeCheck, CalendarClock, ChevronRight, Clock, Store, Ban, type LucideIcon } from 'lucide-react';
+import { AlertTriangle, BadgeCheck, CalendarClock, ChevronDown, ChevronRight, Clock, Store, Ban, type LucideIcon } from 'lucide-react';
 import { getItem, getResident } from '../../../../data';
 import { courseSummaries } from '../../../../domain/courses';
 import { sickConfig, sickWaiversThisMonth } from '../../../../domain/waivers';
@@ -14,6 +14,7 @@ import { BoCaption, amountToReview, chargesToReview, useBilling, useCommunity } 
 import { useVenueSettings } from '../../../../store/venueSettings';
 import { useBo } from '../../menus/data';
 import { attentionItems, type AttentionKind } from './model/attention';
+import { useRemembered } from './parts';
 import s from './dashboard.module.css';
 
 const ICONS: Record<AttentionKind, LucideIcon> = {
@@ -25,7 +26,7 @@ const ICONS: Record<AttentionKind, LucideIcon> = {
   noMenu: Store,
 };
 
-/** Cards for what needs acting on today; nothing shows when all is well. */
+/** One line per thing to act on today, each linking to where it is done; nothing shows when all is well. */
 export function Attention({ goto }: { goto: (pageId: string) => void }) {
   const marks = use86();
   const cfg = useConfig();
@@ -34,6 +35,7 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
   const { charges } = useBilling();
   const venueSettings = useVenueSettings();
   const bo = useBo();
+  const [open, setOpen] = useRemembered('attention', true);
   // Re-read when the late threshold changes in Alerts & Timing.
   useSetting('t.floorCook');
   const items = useMemo(() => {
@@ -42,7 +44,10 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
     const late = Number.isFinite(lateMin)
       ? [...orders, ...history]
           .filter((o) => !o.queueType && o.openedAt >= t0)
-          .reduce((n, o) => n + courseSummaries(o, cfg).filter((c) => c.kds && c.fired && c.ready && (c.ready - c.fired) / MINUTE >= lateMin).length, 0)
+          .reduce(
+            (n, o) => n + courseSummaries(o, cfg).filter((c) => c.kds && c.fired && c.ready && (c.ready - c.fired) / MINUTE >= lateMin).length,
+            0,
+          )
       : 0;
     const sick = sickConfig(community, cfg);
     const used = new Map<string, number>();
@@ -53,7 +58,9 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
         .filter((n): n is string => !!n),
       lateTickets: late,
       lateMinutes: lateMin,
-      waiversUsedUp: [...used.entries()].filter(([, k]) => k >= sick.allow).map(([rid, k]) => `${getResident(rid)?.name ?? 'A resident'} (${k} of ${sick.allow})`),
+      waiversUsedUp: [...used.entries()]
+        .filter(([, k]) => k >= sick.allow)
+        .map(([rid, k]) => `${getResident(rid)?.name ?? 'A resident'} (${k} of ${sick.allow})`),
       chargesToReview: chargesToReview(charges).length,
       amountToReview: amountToReview(charges),
       venues: venueSettings.venues,
@@ -65,40 +72,37 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
   if (!items.length) return null;
   return (
     <section aria-label="Needs your attention" className={s.attention}>
-      <BoCaption>Needs your attention</BoCaption>
-      <div className={s.attentionGrid}>
-        {items.map((it) => {
-          const Icon = ICONS[it.kind];
-          const body = (
-            <>
-              <span className={s.attHead}>
+      <button type="button" className={s.attToggle} aria-expanded={open} aria-controls="dash-attention" onClick={() => setOpen(!open)}>
+        <BoCaption>Needs your attention · {items.length}</BoCaption>
+        <ChevronDown size={14} aria-hidden className={cx(s.chev, open && s.chevOpen)} />
+      </button>
+      {open && (
+        <ul id="dash-attention" className={s.attList}>
+          {items.map((it) => {
+            const Icon = ICONS[it.kind];
+            const go = it.goto;
+            return (
+              <li key={it.kind} className={s.attRow}>
                 <span className={cx(s.attIcon, s[`att_${it.tone}`])}>
-                  <Icon size={16} aria-hidden />
+                  <Icon size={14} aria-hidden />
                 </span>
-                <span className={s.attN}>{it.n}</span>
-                <span className={s.attTitle}>{it.title}</span>
-              </span>
-              <span className={s.attDetail}>{it.detail}</span>
-              {it.goto ? (
-                <span className={s.attLink}>
-                  {it.goto.label} <ChevronRight size={13} aria-hidden />
-                </span>
-              ) : (
-                <span className={s.attNote}>{it.note}</span>
-              )}
-            </>
-          );
-          return it.goto ? (
-            <button key={it.kind} className={cx(s.attCard, s.attButton)} onClick={() => (it.goto!.path ? navigate('backoffice', [it.goto!.page, ...it.goto!.path]) : goto(it.goto!.page))}>
-              {body}
-            </button>
-          ) : (
-            <div key={it.kind} className={s.attCard}>
-              {body}
-            </div>
-          );
-        })}
-      </div>
+                <span className={s.attAction}>{it.action}</span>
+                {go ? (
+                  <button
+                    type="button"
+                    className={s.attLink}
+                    onClick={() => (go.path ? navigate('backoffice', [go.page, ...go.path]) : goto(go.page))}
+                  >
+                    {go.label} <ChevronRight size={13} aria-hidden />
+                  </button>
+                ) : (
+                  <span className={s.attNote}>{it.note}</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }

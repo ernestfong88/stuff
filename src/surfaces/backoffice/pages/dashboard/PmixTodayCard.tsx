@@ -10,6 +10,7 @@ import { Button, Tabs } from '../../../../ui';
 import { CHART, MeterBar, ShareBar } from '../../kit';
 import { SPECIALS_SOLD_EARLIER } from '../../seed/dashboard';
 import { todayMix, type MixRow } from './model/todayMix';
+import { DetailsToggle, useRemembered } from './parts';
 import s from './dashboard.module.css';
 
 const OTHER = 'var(--s400)';
@@ -26,6 +27,7 @@ export function PmixTodayCard({ goto }: { goto: (pageId: string) => void }) {
   const { orders, history, assocOrders } = useDining();
   const todayStart = startOfToday();
   const [meal, setMeal] = useState<MealName | 'All'>('All');
+  const [open, setOpen] = useRemembered('pmix', false);
   const mix = useMemo(
     () =>
       todayMix([...orders, ...history], assocOrders, {
@@ -54,27 +56,18 @@ export function PmixTodayCard({ goto }: { goto: (pageId: string) => void }) {
           Full P-Mix
         </Button>
       </header>
-      {dayTot > 0 && (
-        <Tabs
-          variant="segmented"
-          size="sm"
-          className={s.pmixMeals}
-          value={meal}
-          onChange={setMeal}
-          aria-label="Meal"
-          options={[
-            { id: 'All' as const, label: 'All' },
-            // A meal with nothing served yet (dinner in the morning) cannot be picked.
-            ...MEALS.map((m) => ({ id: m, label: m, count: mix.byMeal[m] || undefined, disabled: !mix.byMeal[m] })),
-          ]}
-        />
-      )}
       {mix.tot === 0 ? (
         <p className={s.muted}>{meal === 'All' ? 'Nothing served yet today.' : `Nothing served at ${meal.toLowerCase()} yet.`}</p>
       ) : (
         <>
           <p className={s.cardLine}>
             <b>{mix.tot}</b> plates served so far{meal !== 'All' && ` at ${meal.toLowerCase()}`}
+            {mix.top[0] && (
+              <>
+                {' '}
+                · <b>{mix.top[0].name}</b> leads at {mix.top[0].pct}%
+              </>
+            )}
           </p>
           <ShareBar
             label="Share of today's plates"
@@ -82,33 +75,57 @@ export function PmixTodayCard({ goto }: { goto: (pageId: string) => void }) {
             height={10}
             parts={rows.map((r) => ({ key: r.key, name: r.name, value: r.n, color: r.color }))}
           />
-          <ul className={s.pmix}>
-            {rows.map((r) => (
-              <li key={r.key} className={s.pmixRow}>
-                <span className={s.pmixSwatch} style={{ background: r.color }} aria-hidden />
-                <span className={s.pmixMain}>
-                  <span className={s.pmixName}>
-                    {r.name}
-                    {r.note && <span className={s.pmixNote}> · {r.note}</span>}
-                  </span>
-                  <MeterBar value={r.n} max={max} color={r.color} />
-                </span>
-                <span className={s.pmixN}>{r.n}</span>
-                <span className={s.pmixPct}>{r.pct}%</span>
-              </li>
-            ))}
-          </ul>
-          <div className={s.pmixLegend} aria-hidden>
-            <span>
-              <span className={s.pmixSwatch} style={{ background: CHART.specials[1] }} /> Specials
-            </span>
-            <span>
-              <span className={s.pmixSwatch} style={{ background: CHART.alaCarte[1] }} /> À la carte
-            </span>
-          </div>
         </>
       )}
-      <p className={s.chartNote}>Plates from every check rung in today, pick up and delivery, and associate meals. Drinks and sides are left out.</p>
+      {dayTot > 0 && <DetailsToggle open={open} onToggle={() => setOpen(!open)} controls="dash-pmix-detail" />}
+      {open && dayTot > 0 && (
+        <div id="dash-pmix-detail" className={s.details}>
+          <Tabs
+            variant="segmented"
+            size="sm"
+            className={s.pmixMeals}
+            value={meal}
+            onChange={setMeal}
+            aria-label="Meal"
+            options={[
+              { id: 'All' as const, label: 'All' },
+              // A meal with nothing served yet (dinner in the morning) cannot be picked.
+              ...MEALS.map((m) => ({ id: m, label: m, count: mix.byMeal[m] || undefined, disabled: !mix.byMeal[m] })),
+            ]}
+          />
+          {mix.tot > 0 && (
+            <>
+              <ul className={s.pmix}>
+                {rows.map((r) => (
+                  <li key={r.key} className={s.pmixRow}>
+                    <span className={s.pmixSwatch} style={{ background: r.color }} aria-hidden />
+                    <span className={s.pmixMain}>
+                      <span className={s.pmixName}>
+                        {r.name}
+                        {r.note && <span className={s.pmixNote}> · {r.note}</span>}
+                      </span>
+                      <MeterBar value={r.n} max={max} color={r.color} />
+                    </span>
+                    <span className={s.pmixN}>{r.n}</span>
+                    <span className={s.pmixPct}>{r.pct}%</span>
+                  </li>
+                ))}
+              </ul>
+              <div className={s.pmixLegend} aria-hidden>
+                <span>
+                  <span className={s.pmixSwatch} style={{ background: CHART.specials[1] }} /> Specials
+                </span>
+                <span>
+                  <span className={s.pmixSwatch} style={{ background: CHART.alaCarte[1] }} /> À la carte
+                </span>
+              </div>
+            </>
+          )}
+          <p className={s.chartNote}>
+            Plates from every check rung in today, pick up and delivery, and associate meals. Drinks and sides are left out.
+          </p>
+        </div>
+      )}
     </section>
   );
 }

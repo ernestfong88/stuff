@@ -1,6 +1,6 @@
 /** Pieces the three dashboard cards and their details share. */
-import { useEffect, type ReactNode } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button, Modal, cx } from '../../../../ui';
 import { BarChart, BoCaption, CHART } from '../../kit';
 import type { Insight, Tone } from './model/insight';
@@ -17,6 +17,39 @@ export function CardHead({ title, onDetail }: { title: string; onDetail: () => v
         Detail
       </Button>
     </header>
+  );
+}
+
+const OPEN_KEY = 'kisco_backoffice_dash_open_';
+
+/** Open or closed, remembered per box on this device (storage can be blocked, so it falls back to `initial`). */
+export function useRemembered(key: string, initial: boolean): [boolean, (v: boolean) => void] {
+  const [v, setV] = useState(() => {
+    try {
+      const x = localStorage.getItem(OPEN_KEY + key);
+      return x == null ? initial : x === '1';
+    } catch {
+      return initial;
+    }
+  });
+  const set = (next: boolean) => {
+    setV(next);
+    try {
+      localStorage.setItem(OPEN_KEY + key, next ? '1' : '0');
+    } catch {
+      /* not remembered */
+    }
+  };
+  return [v, set];
+}
+
+/** "Show details ⌄" under a card's summary. */
+export function DetailsToggle({ open, onToggle, controls }: { open: boolean; onToggle: () => void; controls: string }) {
+  return (
+    <button type="button" className={s.detailsToggle} aria-expanded={open} aria-controls={controls} onClick={onToggle}>
+      {open ? 'Hide details' : 'Show details'}
+      <ChevronDown size={14} aria-hidden className={cx(s.chev, open && s.chevOpen)} />
+    </button>
   );
 }
 
