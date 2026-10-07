@@ -563,7 +563,7 @@ export function AiReview({ menu: m, len, onGo }: { menu: BoMenu; len: number; on
           </Button>
         )}
         <Button size="sm" variant="ghost" onClick={() => setOpen(!open)} aria-expanded={open}>
-          {open ? 'Hide' : 'Open'}
+          {open ? 'Hide details' : 'Show details'}
         </Button>
       </div>
       {open && (

@@ -18,23 +18,31 @@ export function QuarterBadge({ q, big }: { q: string; big?: boolean }) {
   );
 }
 
-/** Quarter badge with a picker to move the menu to another quarter. */
-export function QuarterPick({ menu, at }: { menu: BoMenu; at: number }) {
+/** The menu's quarter: a badge, or a picker to move it to another quarter while it can be changed. */
+export function QuarterPick({ menu, at, readOnly }: { menu: BoMenu; at: number; readOnly?: boolean }) {
+  if (readOnly) return <QuarterBadge q={menu.quarter} big />;
   return (
     <span className={s.pick}>
-      <QuarterBadge q={menu.quarter} big />
       <Select
         size="sm"
         value={menu.quarter}
         onChange={(quarter) => updateMenu(menu.id, { quarter })}
-        options={quarterOptions(at).map((o) => ({ value: o, label: o === 'Year-round' ? o : `${o} · ${quarterSeason(o)}` }))}
+        options={quarterOptions(at).map((o) => ({
+          value: o,
+          label: o === 'Year-round' ? o : `${o} · ${quarterSeason(o)}`,
+        }))}
         aria-label="Quarter"
       />
     </span>
   );
 }
 
-const STATE_LABEL: Record<MenuState, string> = { draft: 'Draft', scheduled: 'Scheduled', active: 'Active', archived: 'Archived' };
+const STATE_LABEL: Record<MenuState, string> = {
+  draft: 'Draft',
+  scheduled: 'Scheduled',
+  active: 'Active',
+  archived: 'Archived',
+};
 
 export function StateChip({ state }: { state: MenuState }) {
   return <span className={cx(s.state, s[`state_${state}`])}>{STATE_LABEL[state]}</span>;

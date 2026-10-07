@@ -120,3 +120,6 @@
   background: var(--danger-bg);
   color: var(--danger);
 }
+.mealStatic {
+  cursor: default;
+}

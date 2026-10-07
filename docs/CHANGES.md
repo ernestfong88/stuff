@@ -204,6 +204,22 @@ The final order is:
 - Card terminals are shown with the venue they belong to.
 - Each venue and tab has its own address, for example `#/backoffice/venues/v3/devices`.
 
+**Menu builder, clearer and safer** (Menus & Recipes → Menu Cycle & À la Carte)
+- **Locking now works.** Before, a locked menu could still be edited in the builder. A locked menu now opens read-only, with a banner and **Unlock to make changes**. If the menu was approved, unlocking warns that changes need approving again. Unlocked menus have a **Lock** button.
+- **Menu list**, down from 8 columns to 4: *Menu*, *Dietitian approval*, *Last edited*, and the actions.
+  - *Dietitian approval* reads plainly: **Approved** with who signed and when, **Waiting for the dietitian**, or a **Send for approval** link. Before, there was a "Yes/No" shield button and a separate status column.
+  - Each row has one main button, **Edit**, or **View** when the menu is locked. Print, Lock and Unlock, *Copy into a quarter* and Archive are in the ⋮ menu.
+  - The copy icon that instantly copied a menu into the current quarter, with no confirmation, has been removed.
+- **Cycle builder:**
+  - **Weeks** are a row of buttons with their dates, and *Now* marks the current week. Before, they were a dropdown with arrows.
+  - **Each date has its own menu** with *Copy this day to other days*, *Clear this day*, and *Change the dates shown*. Before, clicking a date quietly moved every date in the cycle.
+  - **Copy a day** now has you tick the days on a calendar, with dates and how many dishes are already there. A one-click option picks *Every Thursday in the cycle*. Before, you had to type day numbers such as "7, 8, 9", which the grid never showed.
+  - **Add more** under each day replaces "Options". It offers *Another entrée*, *Another soup or starter*, *A side on its own*, *Another dessert*, *A drink*, and *Clear lunch on this day*. "+ All week" is now **+ Same dish all week**.
+  - The colour key and a one-line how-to sit above the grid instead of below it.
+  - Days with nothing on them are listed by date, not day number. A brand-new menu shows how to start instead of "28 days have nothing on them".
+  - The duplicate quarter badge next to the quarter picker is gone.
+- **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
+
 ### Wiring fixed (settings that did nothing in the mockup)
 - **Guest meal credit**: the toggle was saved in Back Office, but the floor never read it. The checkout now reads it.
 - **Apartment charges**: charges put on an apartment from the floor never reached *Charge Approval*. They now do, and Charge Approval looks up the resident's name.

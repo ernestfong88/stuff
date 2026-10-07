@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, TriangleAlert } from 'lucide-react';
+import { ChevronLeft, TriangleAlert } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import type { BoMenu, Recipe } from '../../../../store/menuEdits';
-import { Button, EmptyState, Modal, toast } from '../../../../ui';
+import { Button, EmptyState, cx, toast } from '../../../../ui';
 import { BoCallout, BoPage } from '../../kit';
 import { cycleLenOf, useBo } from '../data';
-import { addPlacements, copyDay, removePlacements, restorePlacements, updateMenu } from '../menuActions';
+import { addPlacements, removePlacements, restorePlacements, updateMenu } from '../menuActions';
 import { addDays, menuAnchor, menuState, monthDay, venuesAt } from '../../../../domain/menuCycle';
-import { emptyDays, parseDays } from '../model/dayGroup';
+import { emptyDays } from '../model/dayGroup';
 import { RecipeDialog } from '../recipes/RecipeDialog';
-import { Field, Input, Select } from '../ui/controls';
+import { Field, Select } from '../ui/controls';
+import { ApprovalStatus, LockBanner, LockButton } from '../ui/MenuLock';
 import { PlanLegend, QuarterPick, StateChip } from '../ui/menuBits';
 import { AiReview, type AiHighlight } from './AiReview';
+import { CopyDayDialog } from './CopyDayDialog';
 import { MenuGrid, type SlotTarget } from './MenuGrid';
 import { PrintMenus } from './PrintMenus';
 import { QuickEdit } from './QuickEdit';
@@ -36,7 +38,6 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
   useEffect(() => () => window.clearTimeout(clearTimer.current), []);
   const [pick, setPick] = useState<SlotTarget | null>(null);
   const [copyFrom, setCopyFrom] = useState<number | null>(null);
-  const [copyTo, setCopyTo] = useState('');
   const [quick, setQuick] = useState<{ r: Recipe; day: number } | null>(null);
   const [full, setFull] = useState<Recipe | null>(null);
   const [highlight, setHighlight] = useState<AiHighlight | null>(null);
@@ -48,98 +49,116 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
     const dt = anchor ? addDays(anchor.start, d - 1) : null;
     return dt ? `${dt.toLocaleDateString('en-US', { weekday: 'short' })} ${monthDay(dt)}` : `Day ${d}`;
   };
-  const weekLabel = (i: number) => {
-    const lo = i * 7 + 1;
-    const hi = Math.min(len, i * 7 + 7);
-    return (
-      (weeks === 1 ? 'The week' : `Week ${i + 1}`) +
-      (anchor ? ` · ${monthDay(addDays(anchor.start, lo - 1))} to ${monthDay(addDays(anchor.start, hi - 1))}` : '') +
-      (i === thisWeek ? ' (this week)' : '')
-    );
-  };
 
   const place = (recipeId: string, t: SlotTarget) => {
     const r = bo.recipes.find((x) => x.id === recipeId);
     if (t.allWeek) {
       addPlacements(days.map((d) => ({ menuId: m.id, recipeId, day: d, meal: t.meal })));
-      toast(`${r?.name} → every day of week ${w + 1} · ${t.meal}`, { tone: 'success' });
+      toast(`${r?.name} added to ${t.meal.toLowerCase()} every day of week ${w + 1}`, { tone: 'success' });
     } else if (t.with) {
-      addPlacements([{ menuId: m.id, recipeId, day: t.day, meal: t.meal, cat: r?.cat ?? 'Sides', with: t.with }]);
+      addPlacements([
+        {
+          menuId: m.id,
+          recipeId,
+          day: t.day,
+          meal: t.meal,
+          cat: r?.cat ?? 'Sides',
+          with: t.with,
+        },
+      ]);
       toast(`${r?.name} added under the entrée`, { tone: 'success' });
     } else {
       addPlacements([{ menuId: m.id, recipeId, day: t.day, meal: t.meal }]);
-      toast(`${r?.name} → ${dayLabel(t.day)} ${t.meal}`, { tone: 'success' });
+      toast(`${r?.name} added to ${dayLabel(t.day)} ${t.meal.toLowerCase()}`, {
+        tone: 'success',
+      });
     }
   };
 
   const pickTitle = (t: SlotTarget) => {
-    if (t.allWeek) return `Add to every day this week · ${t.meal}`;
+    if (t.allWeek) return `One dish for ${t.meal.toLowerCase()}, every day of week ${w + 1}`;
     if (t.with) {
       const e = bo.grid.find((g) => g.id === t.with);
       return `Add a side for ${e ? nameOf(e.recipeId) : 'this entrée'} · ${dayLabel(t.day)}`;
     }
-    return `Add to ${dayLabel(t.day)} · ${t.meal}`;
+    return `Add to ${t.meal.toLowerCase()} · ${dayLabel(t.day)}`;
   };
 
-  const doCopy = () => {
-    if (copyFrom == null) return;
-    const targets = parseDays(copyTo, len, copyFrom);
-    if (targets.length && bo.grid.some((g) => g.menuId === m.id && g.day === copyFrom)) {
-      copyDay(m.id, copyFrom, targets);
-      toast(`Copied Day ${copyFrom} into day${targets.length > 1 ? 's' : ''} ${targets.join(', ')}`, { tone: 'success' });
-    }
-    setCopyFrom(null);
-    setCopyTo('');
-  };
+  const readOnly = !!m.locked;
 
   return (
     <BoPage
       title={m.name}
       sub={
         <span className={s.sub}>
-          <QuarterPick menu={m} at={at} />
+          <QuarterPick menu={m} at={at} readOnly={readOnly} />
           <StateChip state={menuState(m, venues)} />
           {anchor?.live && weeks > 0 && (
             <span>
               Today is week {Math.ceil((anchor.today ?? 1) / 7)} of {weeks}
             </span>
           )}
+          <ApprovalStatus menu={m} />
         </span>
       }
       actions={
         <span className={s.actions}>
+          {!readOnly && <LockButton menu={m} />}
           <PrintMenus menu={m} week={w} anchor={anchor} />
-          <Field label="Cycle length">
-            <Select
-              size="sm"
-              value={String(m.cycleLen || 0)}
-              onChange={(v) => updateMenu(m.id, { cycleLen: +v })}
-              options={[
-                ...(LENGTHS.includes(m.cycleLen) ? [] : [{ value: String(m.cycleLen || 0), label: 'Pick 4 to 10 weeks', disabled: true }]),
-                ...LENGTHS.map((x) => ({ value: String(x), label: `${x / 7} weeks` })),
-              ]}
-              aria-label="Cycle length"
-            />
-          </Field>
+          {readOnly ? (
+            <span className={s.lenText}>{weeks ? `${weeks}-week cycle` : 'No cycle length'}</span>
+          ) : (
+            <Field label="Cycle length">
+              <Select
+                size="sm"
+                value={String(m.cycleLen || 0)}
+                onChange={(v) => updateMenu(m.id, { cycleLen: +v })}
+                options={[
+                  ...(LENGTHS.includes(m.cycleLen)
+                    ? []
+                    : [
+                        {
+                          value: String(m.cycleLen || 0),
+                          label: 'Pick 4 to 10 weeks',
+                          disabled: true,
+                        },
+                      ]),
+                  ...LENGTHS.map((x) => ({
+                    value: String(x),
+                    label: `${x / 7} weeks`,
+                  })),
+                ]}
+                aria-label="Cycle length"
+              />
+            </Field>
+          )}
         </span>
       }
     >
       <button className={s.back} onClick={onBack}>
-        <ChevronLeft size={16} aria-hidden /> Menu Cycle &amp; À la Carte
+        <ChevronLeft size={16} aria-hidden /> All menus
       </button>
 
-      {len > 0 && empty.length > 0 && (
+      {readOnly && <LockBanner menu={m} />}
+
+      {!readOnly && len > 0 && empty.length === len && (
+        <BoCallout tone="info">
+          A new menu starts empty. Click a <b>+</b> slot to add a dish, use <b>Fill from recipe book</b> below to fill every empty slot at once, or
+          go back and copy last season&apos;s menu instead.
+        </BoCallout>
+      )}
+
+      {!readOnly && len > 0 && empty.length > 0 && empty.length < len && (
         <BoCallout tone="warning">
           <span className={s.warn}>
             <TriangleAlert size={14} aria-hidden />
-            {empty.length} day{empty.length !== 1 ? 's' : ''} in the cycle {empty.length !== 1 ? 'have' : 'has'} nothing placed yet (
-            {empty.slice(0, 10).join(', ')}
-            {empty.length > 10 ? '…' : ''}). Any Day items still cover them.
+            {empty.length === 1 ? 'One day has' : `${empty.length} days have`} nothing on them yet: {empty.slice(0, 6).map(dayLabel).join(', ')}
+            {empty.length > 6 ? ` and ${empty.length - 6} more` : ''}. The every-day items still cover them.
           </span>
         </BoCallout>
       )}
 
-      {len > 0 && (
+      {!readOnly && len > 0 && (
         <AiReview
           menu={m}
           len={len}
@@ -153,59 +172,76 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
       {len > 0 ? (
         <>
           <div className={s.weekBar}>
-            <span className={s.showing}>Showing</span>
-            <Button size="sm" iconOnly icon={<ChevronLeft size={16} />} aria-label="Previous week" disabled={w <= 0} onClick={() => setWeek(w - 1)} />
-            <Select
-              value={String(w)}
-              onChange={(v) => setWeek(+v)}
-              options={Array.from({ length: weeks }, (_, i) => ({ value: String(i), label: weekLabel(i) }))}
-              aria-label="Week"
-              className={s.weekSel}
-            />
-            <Button size="sm" iconOnly icon={<ChevronRight size={16} />} aria-label="Next week" disabled={w >= weeks - 1} onClick={() => setWeek(w + 1)} />
-            {thisWeek >= 0 && w !== thisWeek && (
-              <Button size="sm" variant="ghost" onClick={() => setWeek(thisWeek)}>
-                This week
+            <div className={s.weekTabs} role="tablist" aria-label="Week of the cycle">
+              {Array.from({ length: weeks }, (_, i) => {
+                const lo = i * 7 + 1;
+                const hi = Math.min(len, i * 7 + 7);
+                return (
+                  <button key={i} role="tab" aria-selected={i === w} className={cx(s.weekTab, i === w && s.weekOn)} onClick={() => setWeek(i)}>
+                    <span className={s.weekName}>
+                      {weeks === 1 ? 'The week' : `Week ${i + 1}`}
+                      {i === thisWeek && <span className={s.nowDot}>Now</span>}
+                    </span>
+                    {anchor && (
+                      <span className={s.weekDates}>
+                        {monthDay(addDays(anchor.start, lo - 1))} to {monthDay(addDays(anchor.start, hi - 1))}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <span className={s.spacer} />
+            {!readOnly && (
+              <Button
+                size="sm"
+                variant={confirmClear ? 'danger' : 'softDanger'}
+                onClick={() => {
+                  if (!confirmClear) {
+                    setConfirmClear(true);
+                    clearTimer.current = window.setTimeout(() => setConfirmClear(false), CONFIRM_MS);
+                    return;
+                  }
+                  window.clearTimeout(clearTimer.current);
+                  const removed = bo.grid.filter((g) => g.menuId === m.id && days.includes(g.day));
+                  removePlacements((g) => removed.includes(g));
+                  setConfirmClear(false);
+                  toast(`Cleared week ${w + 1}`, {
+                    action: {
+                      label: 'Undo',
+                      onClick: () => restorePlacements(removed),
+                    },
+                  });
+                }}
+              >
+                {confirmClear ? 'Tap again to clear this week' : 'Clear this week'}
               </Button>
             )}
-            <span className={s.spacer} />
-            <Button
-              size="sm"
-              variant={confirmClear ? 'danger' : 'softDanger'}
-              onClick={() => {
-                if (!confirmClear) {
-                  setConfirmClear(true);
-                  clearTimer.current = window.setTimeout(() => setConfirmClear(false), CONFIRM_MS);
-                  return;
-                }
-                window.clearTimeout(clearTimer.current);
-                const removed = bo.grid.filter((g) => g.menuId === m.id && days.includes(g.day));
-                removePlacements((g) => removed.includes(g));
-                setConfirmClear(false);
-                toast(`Cleared week ${w + 1}`, { action: { label: 'Undo', onClick: () => restorePlacements(removed) } });
-              }}
-            >
-              {confirmClear ? 'Tap again to clear this week' : 'Clear week'}
-            </Button>
           </div>
+
+          <PlanLegend
+            note={
+              readOnly
+                ? 'Click a dish to open its recipe.'
+                : 'Click + to add a dish. Click a dish to change its sides, or × to take it off. Each date has a menu to copy or clear the day.'
+            }
+          />
 
           <MenuGrid
             menu={m}
             days={days}
             anchor={anchor}
             highlight={highlight}
+            readOnly={readOnly}
             onSlot={setPick}
-            onQuick={(r, day) => setQuick({ r, day })}
-            onCopyDay={(d) => {
-              setCopyFrom(d);
-              setCopyTo('');
-            }}
+            onQuick={(r, day) => (readOnly ? setFull(r) : setQuick({ r, day }))}
+            onCopyDay={setCopyFrom}
           />
-          <PlanLegend note="Sides sit under the entrée they go with. Click a date to change it. Click an item for a quick edit." />
         </>
       ) : (
-        <EmptyState title="Set a cycle length to see weeks">
-          Pick 4 to 10 weeks at the top. The every-day items for this menu are on the À la carte menus tab.
+        <EmptyState title="Choose how many weeks this cycle runs">
+          Pick 4 to 10 weeks with Cycle length at the top right, and the weeks appear here to fill in. Dishes served every day are on the À la carte
+          menus tab, under this menu's every-day items.
         </EmptyState>
       )}
 
@@ -213,40 +249,12 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
         <RecipePicker
           title={pickTitle(pick)}
           cat={pick.cat}
-          placeholder={pick.allWeek ? `Search, then pick one item for all ${days.length} days` : undefined}
+          placeholder={pick.allWeek ? `Search, then pick one dish for all ${days.length} days` : undefined}
           onPick={(id) => place(id, pick)}
           onClose={() => setPick(null)}
         />
       )}
-      {copyFrom != null && (
-        <Modal
-          open
-          onClose={() => setCopyFrom(null)}
-          title={`Copy Day ${copyFrom} to…`}
-          width={400}
-          footer={
-            <>
-              <Button variant="ghost" onClick={() => setCopyFrom(null)}>
-                Cancel
-              </Button>
-              <Button variant="primary" disabled={!copyTo.trim()} onClick={doCopy}>
-                Copy
-              </Button>
-            </>
-          }
-        >
-          <Field label="Target days" hint={`Separate with commas or spaces, for example 7, 8, 9 (1 to ${len})`}>
-            <Input
-              autoFocus
-              value={copyTo}
-              placeholder="7, 8, 9"
-              onChange={(e) => setCopyTo(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && doCopy()}
-            />
-          </Field>
-          <p className={s.copyNote}>Every placement on Day {copyFrom} lands on each target day. Existing items on those days are kept.</p>
-        </Modal>
-      )}
+      {copyFrom != null && <CopyDayDialog menuId={m.id} from={copyFrom} len={len} anchor={anchor} onClose={() => setCopyFrom(null)} />}
       {quick && (
         <QuickEdit
           menuId={m.id}

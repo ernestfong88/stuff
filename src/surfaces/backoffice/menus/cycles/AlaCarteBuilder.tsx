@@ -12,6 +12,7 @@ import { DINING_VENUE_ID } from '../model/liveOverlay';
 import type { BuilderMeal } from '../model/types';
 import { RecipeDialog } from '../recipes/RecipeDialog';
 import { QuarterBadge, QuarterPick, StateChip } from '../ui/menuBits';
+import { ApprovalStatus, LockBanner, LockButton } from '../ui/MenuLock';
 import { RecipePicker } from './RecipePicker';
 import s from './AlaCarteBuilder.module.css';
 
@@ -57,7 +58,12 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
     for (const g of bo.grid) {
       if (g.menuId !== m.id || g.day !== 0) continue;
       const r = bo.recipes.find((x) => x.id === g.recipeId);
-      const row = by.get(g.recipeId) ?? { r, id: g.recipeId, cat: normCategory(r?.cat ?? g.cat), meals: new Set<BuilderMeal>() };
+      const row = by.get(g.recipeId) ?? {
+        r,
+        id: g.recipeId,
+        cat: normCategory(r?.cat ?? g.cat),
+        meals: new Set<BuilderMeal>(),
+      };
       row.meals.add(g.meal);
       by.set(g.recipeId, row);
     }
@@ -65,10 +71,13 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
   }, [bo.grid, bo.recipes, m.id]);
 
   const liveNote = live ? ' · servers see it now' : '';
+  const readOnly = !!m.locked;
   const toggle = (row: Row, ml: BuilderMeal) => {
     const on = row.meals.has(ml);
     if (on && row.meals.size === 1) {
-      toast('An item needs at least one meal. Remove it instead.', { tone: 'warning' });
+      toast('An item needs at least one meal. Remove it instead.', {
+        tone: 'warning',
+      });
       return;
     }
     setAnyDayMeals(m.id, row.id, on ? [...row.meals].filter((x) => x !== ml) : [...row.meals, ml]);
@@ -96,20 +105,23 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
       title={everyDay ? `${m.name} · Every-day items` : m.name}
       sub={
         <span className={s.sub}>
-          {everyDay ? <QuarterBadge q={m.quarter} big /> : <QuarterPick menu={m} at={now()} />}
+          {everyDay ? <QuarterBadge q={m.quarter} big /> : <QuarterPick menu={m} at={now()} readOnly={readOnly} />}
           <StateChip state={menuState(m, venues)} />
           <span>
-            {everyDay ? `À la carte items served every day alongside the ${m.name} cycle` : 'À la carte, the same every day'}
+            {everyDay ? `Served every day alongside the ${m.name} cycle` : 'The same menu every day'}
             {where.length ? ` · served at ${where.join(', ')}` : ' · not on a venue yet'}
           </span>
+          {!everyDay && <ApprovalStatus menu={m} />}
         </span>
       }
+      actions={!readOnly && !everyDay ? <LockButton menu={m} /> : undefined}
     >
       <button className={s.back} onClick={onBack}>
-        <ChevronLeft size={16} aria-hidden /> Menu Cycle &amp; À la Carte
+        <ChevronLeft size={16} aria-hidden /> All menus
       </button>
+      {readOnly && <LockBanner menu={m} />}
       <div className={s.meals}>
-        <span className={s.mealLabel}>Meal</span>
+        <span className={s.mealLabel}>Show</span>
         <Tabs
           variant="segmented"
           size="sm"
@@ -124,11 +136,16 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
         />
         {meal !== 'All' && (
           <span className={s.mealHint}>
-            Showing what is offered at {meal.toLowerCase()}. Items you add go on {meal.toLowerCase()}.
+            Only what is offered at {meal.toLowerCase()}.{readOnly ? '' : ` Dishes you add go on ${meal.toLowerCase()}.`}
           </span>
         )}
       </div>
-      {live && <p className={s.liveNote}>Sequoia and Evergreen servers order from this list, so a change shows on their tablets right away.</p>}
+      <p className={s.liveNote}>
+        {readOnly
+          ? 'Each dish shows the meals it is offered at. Click a dish to open its recipe.'
+          : 'Breakfast, Lunch and Dinner on each dish choose when it is offered: dark means on. Click a dish to open its recipe.'}
+        {live ? ' Sequoia and Evergreen servers order from this list, so a change shows on their tablets right away.' : ''}
+      </p>
 
       <div className={s.sections}>
         {SECTIONS.map(([ck, label]) => {
@@ -141,43 +158,64 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
                 <span className={s.count}>
                   {list.length} {list.length === 1 ? 'item' : 'items'}
                 </span>
-                <Button size="sm" icon={<Plus size={13} />} onClick={() => setPick(ck)}>
-                  Add
-                </Button>
+                {!readOnly && (
+                  <Button size="sm" icon={<Plus size={13} />} onClick={() => setPick(ck)}>
+                    Add {label.toLowerCase()}
+                  </Button>
+                )}
               </header>
-              {!list.length && <p className={s.none}>{meal === 'All' ? 'Nothing on the menu here yet.' : `Nothing here at ${meal.toLowerCase()}.`}</p>}
+              {!list.length && (
+                <p className={s.none}>{meal === 'All' ? 'Nothing on the menu here yet.' : `Nothing here at ${meal.toLowerCase()}.`}</p>
+              )}
               {list.map((row) => (
                 <div key={row.id} className={s.row}>
                   <button className={s.name} onClick={() => row.r && setEdit(row.r)} disabled={!row.r}>
                     {row.r ? dishLong(row.r.name) : row.id}
                   </button>
                   <span className={s.chips}>
-                    {MEALS.map((ml) => (
-                      <button
-                        key={ml}
-                        aria-pressed={row.meals.has(ml)}
-                        className={cx(s.mealChip, row.meals.has(ml) && s.mealOn)}
-                        onClick={() => toggle(row, ml)}
-                      >
-                        {ml}
-                      </button>
-                    ))}
+                    {MEALS.map((ml) =>
+                      readOnly ? (
+                        <span key={ml} className={cx(s.mealChip, s.mealStatic, row.meals.has(ml) && s.mealOn)}>
+                          {ml}
+                        </span>
+                      ) : (
+                        <button
+                          key={ml}
+                          aria-pressed={row.meals.has(ml)}
+                          aria-label={`${row.r?.name ?? 'Dish'} at ${ml.toLowerCase()}`}
+                          className={cx(s.mealChip, row.meals.has(ml) && s.mealOn)}
+                          onClick={() => toggle(row, ml)}
+                        >
+                          {ml}
+                        </button>
+                      ),
+                    )}
                   </span>
-                  <button
-                    className={s.remove}
-                    aria-label={`Remove ${row.r?.name ?? 'item'}`}
-                    onClick={() => {
-                      removePlacements((g) => g.menuId === m.id && g.day === 0 && g.recipeId === row.id);
-                      toast(`Removed ${dishLong(row.r?.name ?? 'item')}${liveNote}`, {
-                        action: {
-                          label: 'Undo',
-                          onClick: () => addPlacements([...row.meals].map((ml) => ({ menuId: m.id, recipeId: row.id, day: 0, meal: ml }))),
-                        },
-                      });
-                    }}
-                  >
-                    <X size={14} />
-                  </button>
+                  {!readOnly && (
+                    <button
+                      className={s.remove}
+                      aria-label={`Remove ${row.r?.name ?? 'item'}`}
+                      onClick={() => {
+                        removePlacements((g) => g.menuId === m.id && g.day === 0 && g.recipeId === row.id);
+                        toast(`Removed ${dishLong(row.r?.name ?? 'item')}${liveNote}`, {
+                          action: {
+                            label: 'Undo',
+                            onClick: () =>
+                              addPlacements(
+                                [...row.meals].map((ml) => ({
+                                  menuId: m.id,
+                                  recipeId: row.id,
+                                  day: 0,
+                                  meal: ml,
+                                })),
+                              ),
+                          },
+                        });
+                      }}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
                 </div>
               ))}
             </section>

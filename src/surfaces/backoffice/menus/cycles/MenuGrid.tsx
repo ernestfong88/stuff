@@ -1,5 +1,6 @@
 import { Fragment, useMemo } from 'react';
-import { Copy, MoreHorizontal, X } from 'lucide-react';
+import { CalendarDays, ChevronDown, Copy, Eraser, Plus, X } from 'lucide-react';
+import { useState } from 'react';
 import { now } from '../../../../lib/clock';
 import type { BoMenu, GridEntry, Recipe, RecipeCategory } from '../../../../store/menuEdits';
 import { MenuDivider, MenuItem, Popover, cx, toast } from '../../../../ui';
@@ -47,17 +48,39 @@ function lanesFor(groups: DayGroup[]): Lane[] {
     );
     i++
   )
-    out.push({ kind: 'starters', i, label: 'Soup or starter', cat: 'Starters' });
+    out.push({
+      kind: 'starters',
+      i,
+      label: 'Soup or starter',
+      cat: 'Starters',
+    });
   const ne = Math.max(
     1,
     max((g) => g.entrees.length),
   );
   for (let i = 0; i < ne; i++) {
-    out.push({ kind: 'entree', i, label: ne > 1 ? `Entrée ${i + 1}` : 'Entrée', cat: 'Entrees' });
-    out.push({ kind: 'sides', i, label: 'Sides', sub: ne > 1 ? `with entrée ${i + 1}` : 'with the entrée', cat: 'Sides' });
+    out.push({
+      kind: 'entree',
+      i,
+      label: ne > 1 ? `Entrée ${i + 1}` : 'Entrée',
+      cat: 'Entrees',
+    });
+    out.push({
+      kind: 'sides',
+      i,
+      label: 'Sides',
+      sub: ne > 1 ? `with entrée ${i + 1}` : 'with the entrée',
+      cat: 'Sides',
+    });
   }
   for (let i = 0; i < max((g) => g.looseSides.length); i++)
-    out.push({ kind: 'looseSides', i, label: 'Other sides', sub: i ? '' : 'not tied to an entrée', cat: 'Sides' });
+    out.push({
+      kind: 'looseSides',
+      i,
+      label: 'Other sides',
+      sub: i ? '' : 'not tied to an entrée',
+      cat: 'Sides',
+    });
   for (
     let i = 0;
     i <
@@ -81,6 +104,7 @@ export function MenuGrid({
   onSlot,
   onQuick,
   onCopyDay,
+  readOnly,
 }: {
   menu: BoMenu;
   days: number[];
@@ -89,6 +113,8 @@ export function MenuGrid({
   onSlot: (t: SlotTarget) => void;
   onQuick: (r: Recipe, day: number) => void;
   onCopyDay: (day: number) => void;
+  /** A locked menu: dishes show, but nothing can be added, moved or removed. */
+  readOnly?: boolean;
 }) {
   const bo = useBo();
   const recipes = useMemo(() => new Map(bo.recipes.map((r) => [r.id, r])), [bo.recipes]);
@@ -104,27 +130,39 @@ export function MenuGrid({
             ↳
           </span>
         )}
-        <button className={s.cardName} title={`${r?.name} · ${g.cat} · click for quick edit`} onClick={() => r && onQuick(r, day)}>
+        <button
+          className={s.cardName}
+          title={readOnly ? `${r?.name} · open the recipe` : `${r?.name} · change its sides`}
+          onClick={() => r && onQuick(r, day)}
+        >
           {r ? dishLong(r.name) : g.recipeId}
         </button>
-        <button
-          className={s.cardX}
-          aria-label={`Remove ${r?.name ?? 'item'} from this day`}
-          onClick={() => {
-            removePlacements((x) => x.id === g.id);
-            toast(`${r?.name ?? 'Item'} removed`, { action: { label: 'Undo', onClick: () => restorePlacements([g]) } });
-          }}
-        >
-          <X size={11} />
-        </button>
+        {!readOnly && (
+          <button
+            className={s.cardX}
+            aria-label={`Remove ${r?.name ?? 'item'} from this day`}
+            onClick={() => {
+              removePlacements((x) => x.id === g.id);
+              toast(`${r?.name ?? 'Item'} removed`, {
+                action: {
+                  label: 'Undo',
+                  onClick: () => restorePlacements([g]),
+                },
+              });
+            }}
+          >
+            <X size={11} />
+          </button>
+        )}
       </div>
     );
   };
-  const slot = (t: SlotTarget, label: string) => (
-    <button className={cx(s.slot, t.with && s.slotSide)} onClick={() => onSlot(t)}>
-      + {label}
-    </button>
-  );
+  const slot = (t: SlotTarget, label: string) =>
+    readOnly ? null : (
+      <button className={cx(s.slot, t.with && s.slotSide)} onClick={() => onSlot(t)}>
+        + {label}
+      </button>
+    );
 
   const headDate = (d: number) => (anchor ? addDays(anchor.start, d - 1) : null);
 
@@ -138,58 +176,28 @@ export function MenuGrid({
               const dt = headDate(d);
               return (
                 <th key={d} className={cx(s.dayHead, today === d && s.today)}>
-                  <span className={s.dayHeadIn}>
-                    <Popover
-                      align="left"
-                      minWidth={240}
-                      trigger={({ toggle }) => (
-                        <button className={s.dateBtn} onClick={toggle} title="Click to change the date">
-                          {dt ? (
-                            <>
-                              <span className={s.dateNum}>{dt.getDate()}</span>
-                              <span className={s.dateWords}>
-                                <span>{dt.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
-                                <span className={s.dateSub}>{today === d ? 'TODAY' : dt.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</span>
-                              </span>
-                            </>
-                          ) : (
-                            <span className={s.dateWords}>
-                              <span>DAY {d}</span>
-                              <span className={s.dateSub}>Set date</span>
-                            </span>
-                          )}
-                        </button>
-                      )}
-                    >
-                      {({ close }) => (
-                        <div className={s.datePop}>
-                          <div className={s.datePopHead}>Date for this column</div>
-                          <input
-                            type="date"
-                            className={s.dateInput}
-                            defaultValue={isoDay(dt ?? dayStart(now()))}
-                            aria-label={`Date for day ${d}`}
-                            onChange={(e) => {
-                              const v = parseIsoDay(e.target.value);
-                              if (!v) return;
-                              setDayDate(m.id, d, v);
-                              toast(`Dates moved. ${v.getMonth() + 1}/${v.getDate()} is now in this column.`);
-                              close();
-                            }}
-                          />
-                          <p className={s.datePopNote}>The other days move with it, so the cycle stays in order.</p>
-                        </div>
-                      )}
-                    </Popover>
-                    <button
-                      className={s.copyBtn}
-                      aria-label={`Copy Day ${d} to other days`}
-                      title={`Copy Day ${d} to other days…`}
-                      onClick={() => onCopyDay(d)}
-                    >
-                      <Copy size={12} />
-                    </button>
-                  </span>
+                  <DayMenu
+                    day={d}
+                    date={dt}
+                    isToday={today === d}
+                    readOnly={readOnly}
+                    hasItems={bo.grid.some((x) => x.menuId === m.id && x.day === d)}
+                    onCopy={() => onCopyDay(d)}
+                    onClear={() => {
+                      const removed = bo.grid.filter((x) => x.menuId === m.id && x.day === d);
+                      removePlacements((x) => removed.includes(x));
+                      toast(`Cleared ${dt ? dt.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' }) : `day ${d}`}`, {
+                        action: {
+                          label: 'Undo',
+                          onClick: () => restorePlacements(removed),
+                        },
+                      });
+                    }}
+                    onDate={(v) => {
+                      setDayDate(m.id, d, v);
+                      toast(`Dates moved. ${v.getMonth() + 1}/${v.getDate()} is now in this column, and the other days moved with it.`);
+                    }}
+                  />
                 </th>
               );
             })}
@@ -207,13 +215,15 @@ export function MenuGrid({
                   <td colSpan={days.length + 1} className={s.band}>
                     <span className={s.bandIn}>
                       <span className={s.mealName}>{meal}</span>
-                      <button
-                        className={s.allWeek}
-                        title="Place one item on every day of this week"
-                        onClick={() => onSlot({ day: 0, meal, cat: null, allWeek: true })}
-                      >
-                        + All week
-                      </button>
+                      {!readOnly && (
+                        <button
+                          className={s.allWeek}
+                          title={`Put one dish on ${meal.toLowerCase()} every day of this week`}
+                          onClick={() => onSlot({ day: 0, meal, cat: null, allWeek: true })}
+                        >
+                          + Same dish all week
+                        </button>
+                      )}
                     </span>
                   </td>
                 </tr>
@@ -256,64 +266,204 @@ export function MenuGrid({
                     })}
                   </tr>
                 ))}
-                <tr>
-                  <td className={s.optHead} />
-                  {days.map((d) => {
-                    const has = placementsAt(bo.grid, m.id, d, meal).length > 0;
-                    return (
-                      <td key={d} className={cx(s.optCell, today === d && s.todayCol)}>
-                        <Popover
-                          align="center"
-                          minWidth={190}
-                          trigger={({ toggle }) => (
-                            <button className={s.options} onClick={toggle} aria-label={`Options for day ${d} ${meal}`}>
-                              <MoreHorizontal size={14} aria-hidden /> Options
-                            </button>
-                          )}
-                        >
-                          {({ close }) => (
-                            <>
-                              <div className={s.popHead}>Add item</div>
-                              {(['Starters', 'Entrees', 'Sides', 'Desserts', 'Drinks'] as RecipeCategory[]).map((c) => (
-                                <MenuItem
-                                  key={c}
-                                  icon={<span className={cx(swatchClass, planClass(c))} />}
-                                  onClick={() => {
-                                    close();
-                                    onSlot({ day: d, meal, cat: c });
-                                  }}
-                                >
-                                  {PLAN_LABEL[c]}
-                                </MenuItem>
-                              ))}
-                              {has && (
-                                <>
-                                  <MenuDivider />
+                {!readOnly && (
+                  <tr>
+                    <td className={s.optHead} />
+                    {days.map((d) => {
+                      const has = placementsAt(bo.grid, m.id, d, meal).length > 0;
+                      return (
+                        <td key={d} className={cx(s.optCell, today === d && s.todayCol)}>
+                          <Popover
+                            align="center"
+                            minWidth={220}
+                            trigger={({ toggle }) => (
+                              <button className={s.options} onClick={toggle} aria-label={`Add more to ${meal.toLowerCase()} on day ${d}`}>
+                                <Plus size={13} aria-hidden /> Add more
+                              </button>
+                            )}
+                          >
+                            {({ close }) => (
+                              <>
+                                <div className={s.popHead}>Add to {meal.toLowerCase()}</div>
+                                {(
+                                  [
+                                    ['Entrees', 'Another entrée'],
+                                    ['Starters', 'Another soup or starter'],
+                                    ['Sides', 'A side on its own'],
+                                    ['Desserts', 'Another dessert'],
+                                    ['Drinks', 'A drink'],
+                                  ] as Array<[RecipeCategory, string]>
+                                ).map(([c, label]) => (
                                   <MenuItem
-                                    danger
+                                    key={c}
+                                    icon={<span className={cx(swatchClass, planClass(c))} />}
                                     onClick={() => {
-                                      const removed = bo.grid.filter((x) => x.menuId === m.id && x.day === d && x.meal === meal);
-                                      removePlacements((x) => removed.includes(x));
                                       close();
-                                      toast(`Cleared ${meal} on Day ${d}`, { action: { label: 'Undo', onClick: () => restorePlacements(removed) } });
+                                      onSlot({ day: d, meal, cat: c });
                                     }}
                                   >
-                                    Clear this meal
+                                    {label}
                                   </MenuItem>
-                                </>
-                              )}
-                            </>
-                          )}
-                        </Popover>
-                      </td>
-                    );
-                  })}
-                </tr>
+                                ))}
+                                {has && (
+                                  <>
+                                    <MenuDivider />
+                                    <MenuItem
+                                      danger
+                                      icon={<Eraser size={15} />}
+                                      onClick={() => {
+                                        const removed = bo.grid.filter((x) => x.menuId === m.id && x.day === d && x.meal === meal);
+                                        removePlacements((x) => removed.includes(x));
+                                        close();
+                                        toast(`Cleared ${meal.toLowerCase()}`, {
+                                          action: {
+                                            label: 'Undo',
+                                            onClick: () => restorePlacements(removed),
+                                          },
+                                        });
+                                      }}
+                                    >
+                                      Clear {meal.toLowerCase()} on this day
+                                    </MenuItem>
+                                  </>
+                                )}
+                              </>
+                            )}
+                          </Popover>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                )}
               </Fragment>
             );
           })}
         </tbody>
       </table>
     </div>
+  );
+}
+
+/**
+ * A day's column heading: its date, and a menu to copy the day, clear it,
+ * or move the cycle's dates.
+ */
+function DayMenu({
+  day,
+  date,
+  isToday,
+  readOnly,
+  hasItems,
+  onCopy,
+  onClear,
+  onDate,
+}: {
+  day: number;
+  date: Date | null;
+  isToday: boolean;
+  readOnly?: boolean;
+  hasItems: boolean;
+  onCopy: () => void;
+  onClear: () => void;
+  onDate: (d: Date) => void;
+}) {
+  const [dating, setDating] = useState(false);
+  const label = (
+    <>
+      {date ? (
+        <>
+          <span className={s.dateNum}>{date.getDate()}</span>
+          <span className={s.dateWords}>
+            <span>{date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
+            <span className={s.dateSub}>{isToday ? 'TODAY' : date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</span>
+          </span>
+        </>
+      ) : (
+        <span className={s.dateWords}>
+          <span>DAY {day}</span>
+          <span className={s.dateSub}>No date yet</span>
+        </span>
+      )}
+    </>
+  );
+  if (readOnly)
+    return (
+      <span className={s.dayHeadIn}>
+        <span className={s.dateBtn}>{label}</span>
+      </span>
+    );
+  return (
+    <span className={s.dayHeadIn}>
+      <Popover
+        align="left"
+        minWidth={250}
+        trigger={({ toggle }) => (
+          <button
+            className={s.dateBtn}
+            onClick={() => {
+              setDating(false);
+              toggle();
+            }}
+            aria-label={`${date ? date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : `Day ${day}`}: copy, clear or change dates`}
+          >
+            {label}
+            <ChevronDown size={13} className={s.dayChev} aria-hidden />
+          </button>
+        )}
+      >
+        {({ close }) =>
+          dating ? (
+            <div className={s.datePop}>
+              <div className={s.datePopHead}>Which date is this column?</div>
+              <input
+                type="date"
+                className={s.dateInput}
+                autoFocus
+                defaultValue={isoDay(date ?? dayStart(now()))}
+                aria-label={`Date for day ${day}`}
+                onChange={(e) => {
+                  const v = parseIsoDay(e.target.value);
+                  if (!v) return;
+                  onDate(v);
+                  setDating(false);
+                  close();
+                }}
+              />
+              <p className={s.datePopNote}>
+                Every other day moves with it, so the cycle stays in order. Only the dates shown here change, not when venues serve the menu.
+              </p>
+            </div>
+          ) : (
+            <>
+              <MenuItem
+                icon={<Copy size={15} />}
+                onClick={() => {
+                  close();
+                  onCopy();
+                }}
+              >
+                Copy this day to other days
+              </MenuItem>
+              {hasItems && (
+                <MenuItem
+                  danger
+                  icon={<Eraser size={15} />}
+                  onClick={() => {
+                    close();
+                    onClear();
+                  }}
+                >
+                  Clear this day
+                </MenuItem>
+              )}
+              <MenuDivider />
+              <MenuItem icon={<CalendarDays size={15} />} onClick={() => setDating(true)}>
+                Change the dates shown
+              </MenuItem>
+            </>
+          )
+        }
+      </Popover>
+    </span>
   );
 }

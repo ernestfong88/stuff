@@ -86,3 +86,10 @@ export function parseDays(text: string, len: number, from: number): number[] {
     ),
   ];
 }
+
+/** The same weekday in every other week of the cycle (copy Wednesday to every Wednesday). */
+export function sameWeekday(from: number, len: number): number[] {
+  const out: number[] = [];
+  for (let d = ((from - 1) % 7) + 1; d <= len; d += 7) if (d !== from) out.push(d);
+  return out;
+}

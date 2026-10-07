@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Check, Copy, Lock, LockOpen, MoreVertical, Plus, Printer, X } from 'lucide-react';
+import { Archive, ArchiveRestore, Check, Clock, Copy, Eye, Lock, LockOpen, MoreVertical, Pencil, Plus, Printer, Send } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import { navigate, useRoute } from '../../../../shell/router';
 import type { BoMenu, MenuKind } from '../../../../store/menuEdits';
@@ -10,14 +10,25 @@ import { blankMenu, cloneMenu, updateMenu } from '../menuActions';
 import { menuState, parseQuarter, quarterIndexOf, quarterLabel, quarterRange, quarterSeason, venuesAt } from '../../../../domain/menuCycle';
 import { ARCHIVE, YEAR_ROUND, isArchived, menuRows, quarterFilterOptions, quarterGaps, type MenuRow } from '../model/menuList';
 import { Select } from '../ui/controls';
-import { QuarterBadge, StateChip } from '../ui/menuBits';
+import { approvalOf, REQUEST_APPROVAL } from '../model/approval';
+import { StateChip } from '../ui/menuBits';
 import { AlaCarteBuilder } from './AlaCarteBuilder';
 import { CycleBuilder } from './CycleBuilder';
 import s from './MenusPage.module.css';
 
-const KIND_LABEL: Record<MenuKind, string> = { cycle: 'Menu cycle', alc: 'À la carte' };
+const KIND_LABEL: Record<MenuKind, string> = {
+  cycle: 'Menu cycle',
+  alc: 'À la carte',
+};
 
-const date = (t?: number | null) => (t ? new Date(t).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : '');
+const date = (t?: number | null) =>
+  t
+    ? new Date(t).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : '';
 
 /** Menu Cycle & À la Carte: the quarter's menus, and the builders. */
 export function MenusPage() {
@@ -83,7 +94,7 @@ function MenuList() {
       </div>
 
       <div className={s.toolbar}>
-        <SearchField value={q} onChange={setQ} placeholder="Search…" className={s.search} />
+        <SearchField value={q} onChange={setQ} placeholder="Search menus" className={s.search} />
         <Select
           value={quarter}
           onChange={setQuarter}
@@ -91,18 +102,16 @@ function MenuList() {
           options={[
             ...quarterFilterOptions(bo.menus, nowQ).map((x) => {
               const idx = parseQuarter(x)?.index ?? nowQ;
-              return { value: x, label: `${x} · ${quarterSeason(x)}${idx === nowQ ? ' (now)' : idx < nowQ ? ' (past)' : ''}` };
+              return {
+                value: x,
+                label: `${x} · ${quarterSeason(x)}${idx === nowQ ? ' (now)' : idx < nowQ ? ' (past)' : ''}`,
+              };
             }),
             { value: YEAR_ROUND, label: YEAR_ROUND },
             { value: ARCHIVE, label: ARCHIVE },
           ]}
         />
-        {quarter !== ARCHIVE && quarter !== YEAR_ROUND && (
-          <>
-            <QuarterBadge q={quarter} big />
-            <span className={s.range}>{quarterRange(quarter)}</span>
-          </>
-        )}
+        {quarter !== ARCHIVE && quarter !== YEAR_ROUND && <span className={s.range}>{quarterRange(quarter)}</span>}
       </div>
 
       {gaps.map((kind) => (
@@ -122,7 +131,12 @@ function MenuList() {
               if (m) navigate('backoffice', ['menus', clone(m, quarter, kind)]);
             }}
             placeholder={`Copy ${kind === 'alc' ? 'à la carte' : 'menu cycle'} from…`}
-            options={bo.menus.filter((m) => m.kind === kind).map((m) => ({ value: m.id, label: `${m.name} · ${m.quarter || 'no quarter'}` }))}
+            options={bo.menus
+              .filter((m) => m.kind === kind)
+              .map((m) => ({
+                value: m.id,
+                label: `${m.name} · ${m.quarter || 'no quarter'}`,
+              }))}
           />
         </div>
       ))}
@@ -132,13 +146,12 @@ function MenuList() {
           <thead>
             <tr>
               <th aria-label="Favorite" />
-              <th>Name</th>
+              <th>Menu</th>
+              <th>Dietitian approval</th>
               <th>Last edited</th>
-              <th className={s.c}>Locked</th>
-              <th className={s.c}>Date signed</th>
-              <th className={s.c}>Approve my menu</th>
-              <th className={s.c}>Approval status</th>
-              <th className={s.r}>Actions</th>
+              <th className={s.r}>
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -147,6 +160,7 @@ function MenuList() {
               const st = menuState(m, venues);
               const w = where(m);
               const len = cycleLenOf(bo, m.id);
+              const ap = approvalOf(m);
               return (
                 <tr key={(r.everyDay ? 'ev' : '') + m.id}>
                   <td className={s.starCell}>
@@ -165,122 +179,144 @@ function MenuList() {
                     <button className={s.name} onClick={() => open(r)}>
                       {r.everyDay ? `${m.name} · Every-day items` : m.name}
                     </button>
-                    {r.everyDay && <div className={s.muted}>Served every day alongside the {m.name} cycle</div>}
                     <div className={s.meta}>
-                      <span className={s.kind}>{r.everyDay ? 'À la carte' : KIND_LABEL[m.kind]}</span>
                       <StateChip state={st} />
-                      <span>{m.kind === 'cycle' && !r.everyDay ? (len > 0 ? `${Math.ceil(len / 7)} weeks` : 'no cycle set') : `${items(m)} items`}</span>
+                      <span>
+                        {r.everyDay ? 'À la carte' : KIND_LABEL[m.kind]} ·{' '}
+                        {m.kind === 'cycle' && !r.everyDay ? (len > 0 ? `${Math.ceil(len / 7)} weeks` : 'no length set') : `${items(m)} items`}
+                      </span>
+                      {m.locked && (
+                        <span className={s.lockedTag}>
+                          <Lock size={12} aria-hidden /> Locked
+                        </span>
+                      )}
                     </div>
-                    <div className={s.muted}>{w.length ? 'Served at ' + w.join(', ') : 'Not on a venue'}</div>
+                    <div className={s.muted}>
+                      {r.everyDay ? `Served every day alongside the ${m.name} cycle` : w.length ? 'Served at ' + w.join(', ') : 'Not on a venue yet'}
+                    </div>
+                  </td>
+                  <td>
+                    {!r.everyDay && (
+                      <div className={cx(s.ap, s[`ap_${ap.step}`])}>
+                        <span className={s.apLabel}>
+                          {ap.step === 'approved' ? (
+                            <Check size={14} strokeWidth={3} aria-hidden />
+                          ) : ap.step === 'waiting' ? (
+                            <Clock size={14} aria-hidden />
+                          ) : null}
+                          {ap.label}
+                        </span>
+                        {ap.detail && <span className={s.apDetail}>{ap.detail}</span>}
+                        {ap.step === 'none' && (
+                          <button
+                            className={s.apSend}
+                            onClick={() => {
+                              updateMenu(m.id, REQUEST_APPROVAL);
+                              toast(`${m.name} sent to the dietitian to approve`, { tone: 'success' });
+                            }}
+                          >
+                            <Send size={13} aria-hidden /> Send for approval
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </td>
                   <td>
                     <div className={s.strong}>{m.editedBy || '–'}</div>
                     <div className={s.muted}>{date(m.editedAt)}</div>
                   </td>
-                  <td className={s.c}>
-                    <button
-                      className={cx(s.lock, m.locked && s.locked)}
-                      aria-label={m.locked ? `Unlock ${m.name}` : `Lock ${m.name}`}
-                      title={m.locked ? 'Locked. Tap to unlock.' : 'Unlocked. Tap to lock.'}
-                      onClick={() => {
-                        updateMenu(m.id, { locked: !m.locked });
-                        toast(m.locked ? 'Unlocked' : 'Locked so it cannot be edited');
-                      }}
-                    >
-                      {m.locked ? <Lock size={18} /> : <LockOpen size={18} />}
-                    </button>
-                  </td>
-                  <td className={s.c}>
-                    {m.signedBy && (
-                      <>
-                        <div className={s.signed}>{m.signedBy}</div>
-                        <div className={s.muted}>{date(m.signedAt)}</div>
-                      </>
-                    )}
-                  </td>
-                  <td className={s.c}>
-                    <button
-                      className={s.approve}
-                      disabled={!!m.approveReq}
-                      title={m.approveReq ? 'Approval requested' : 'Request approval'}
-                      onClick={() => {
-                        updateMenu(m.id, { approveReq: true, approval: 'Pending signature' });
-                        toast('Sent to the dietitian to approve', { tone: 'success' });
-                      }}
-                    >
-                      {m.approveReq ? 'Yes' : 'No'}
-                      <span className={cx(s.shield, m.approveReq && s.shieldOn)}>
-                        {m.approveReq ? <Check size={12} strokeWidth={3} /> : <X size={12} strokeWidth={3} />}
-                      </span>
-                    </button>
-                  </td>
-                  <td className={cx(s.c, s.approval, m.approval === 'Approved' && s.approved)}>{m.approval}</td>
                   <td className={s.r}>
                     <span className={s.actions}>
-                      <Button size="sm" variant="success" onClick={() => open(r)}>
-                        Menu builder
+                      <Button size="sm" variant="primary" icon={m.locked ? <Eye size={14} /> : <Pencil size={14} />} onClick={() => open(r)}>
+                        {m.locked ? 'View' : 'Edit'}
                       </Button>
-                      <Button size="sm" variant="warning" iconOnly icon={<Printer size={15} />} aria-label={`Print ${m.name}`} onClick={() => open(r, true)} />
-                      {!r.everyDay && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          iconOnly
-                          icon={<Copy size={15} />}
-                          aria-label={`Copy ${m.name} into ${target}`}
-                          title={`Copy into ${target}`}
-                          onClick={() => clone(m, target, m.kind)}
-                        />
-                      )}
-                      {!r.everyDay && (
-                        <Popover
-                          trigger={({ toggle }) => (
-                            <Button size="sm" variant="ghost" iconOnly icon={<MoreVertical size={16} />} aria-label={`More for ${m.name}`} onClick={toggle} />
-                          )}
-                          minWidth={220}
-                        >
-                          {({ close }) => (
-                            <>
-                              {st === 'archived' || isArchived(m, venues, nowQ) ? (
-                                <MenuItem
-                                  onClick={() => {
-                                    updateMenu(m.id, { status: 'draft' });
-                                    toast('Restored as a draft');
-                                    close();
-                                  }}
-                                >
-                                  Restore
-                                </MenuItem>
-                              ) : st !== 'active' ? (
-                                <MenuItem
-                                  onClick={() => {
-                                    updateMenu(m.id, { status: 'archived' });
-                                    toast('Moved to the archive');
-                                    close();
-                                  }}
-                                >
-                                  Archive
-                                </MenuItem>
-                              ) : (
-                                <div className={s.menuNote}>Serving now, so it cannot be archived.</div>
-                              )}
-                              <MenuDivider />
-                              <div className={s.menuHead}>Copy into</div>
-                              {next4.map((qq) => (
-                                <MenuItem
-                                  key={qq}
-                                  onClick={() => {
-                                    clone(m, qq, m.kind);
-                                    close();
-                                  }}
-                                >
-                                  {qq} · {quarterSeason(qq)}
-                                </MenuItem>
-                              ))}
-                            </>
-                          )}
-                        </Popover>
-                      )}
+                      <Popover
+                        trigger={({ toggle }) => (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            iconOnly
+                            icon={<MoreVertical size={16} />}
+                            aria-label={`More for ${m.name}`}
+                            onClick={toggle}
+                          />
+                        )}
+                        minWidth={230}
+                      >
+                        {({ close }) => (
+                          <>
+                            <MenuItem
+                              icon={<Printer size={15} />}
+                              onClick={() => {
+                                close();
+                                open(r, true);
+                              }}
+                            >
+                              Print menus
+                            </MenuItem>
+                            {!r.everyDay && (
+                              <MenuItem
+                                icon={m.locked ? <LockOpen size={15} /> : <Lock size={15} />}
+                                onClick={() => {
+                                  updateMenu(m.id, { locked: !m.locked });
+                                  toast(
+                                    m.locked
+                                      ? `${m.name} unlocked. It can be changed again.`
+                                      : `${m.name} locked. Nobody can change it until it's unlocked.`,
+                                  );
+                                  close();
+                                }}
+                              >
+                                {m.locked ? 'Unlock' : 'Lock so nobody can change it'}
+                              </MenuItem>
+                            )}
+                            {!r.everyDay && (
+                              <>
+                                <MenuDivider />
+                                <div className={s.menuHead}>Copy into a quarter as a draft</div>
+                                {next4.map((qq) => (
+                                  <MenuItem
+                                    key={qq}
+                                    icon={<Copy size={15} />}
+                                    onClick={() => {
+                                      clone(m, qq, m.kind);
+                                      close();
+                                    }}
+                                  >
+                                    {qq} · {quarterSeason(qq)}
+                                  </MenuItem>
+                                ))}
+                                <MenuDivider />
+                                {st === 'archived' || isArchived(m, venues, nowQ) ? (
+                                  <MenuItem
+                                    icon={<ArchiveRestore size={15} />}
+                                    onClick={() => {
+                                      updateMenu(m.id, { status: 'draft' });
+                                      toast('Restored as a draft');
+                                      close();
+                                    }}
+                                  >
+                                    Restore from the archive
+                                  </MenuItem>
+                                ) : st !== 'active' ? (
+                                  <MenuItem
+                                    icon={<Archive size={15} />}
+                                    onClick={() => {
+                                      updateMenu(m.id, { status: 'archived' });
+                                      toast('Moved to the archive');
+                                      close();
+                                    }}
+                                  >
+                                    Archive
+                                  </MenuItem>
+                                ) : (
+                                  <div className={s.menuNote}>Serving now, so it can't be archived.</div>
+                                )}
+                              </>
+                            )}
+                          </>
+                        )}
+                      </Popover>
                     </span>
                   </td>
                 </tr>

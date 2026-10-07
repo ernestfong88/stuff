@@ -35,21 +35,65 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-.showing {
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--s400);
+.weekTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
-.weekSel {
-  min-width: 280px;
+.weekTab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 44px;
+  padding: 5px 12px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+  text-align: left;
+  transition: background var(--fast);
+}
+.weekTab:hover {
+  background: var(--paper);
+}
+.weekOn,
+.weekOn:hover {
+  background: var(--ink);
+  box-shadow: none;
+}
+.weekName {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.weekOn .weekName {
+  color: #fff;
+}
+.weekDates {
+  font-size: 11.5px;
+  color: var(--s500);
+}
+.weekOn .weekDates {
+  color: rgba(255, 255, 255, 0.75);
+}
+.nowDot {
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--green);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.6;
+  color: #fff;
+}
+.lenText {
+  align-self: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--s700);
 }
 .spacer {
   flex: 1;
 }
-.copyNote {
-  margin: 12px 0 0;
-  font-size: 12.5px;
-  color: var(--s500);
-}
+
