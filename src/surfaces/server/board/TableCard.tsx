@@ -219,24 +219,19 @@ export function TableCard({ order: o, stage, since, covered, onOpen }: TableCard
   const readyCourse = courseWork(o).run;
   return (
     <div
-      role="button"
-      tabIndex={0}
-      aria-label={`Open ${tableName(o)}`}
       className={cx(s.card, s[`lane_${stage.key}`], late && s.late, stage.key === 'run' && !late && s.loud)}
       onClick={() => onOpen(o.id)}
-      onKeyDown={(e) => {
-        if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault();
-          onOpen(o.id);
-        }
-      }}
     >
-      <div className={s.head}>
+      <button
+        className={s.head}
+        aria-label={`Open ${tableName(o)}${lead ? `, ${lead.name}${lead.more ? ` and ${lead.more} more` : ''}` : ''}`}
+        onClick={stop(() => onOpen(o.id))}
+      >
         <span className={s.table}>{tableName(o)}</span>
         <span className={cx(s.lead, !lead && s.nobody)}>{lead ? lead.name + (lead.more ? ' +' + lead.more : '') : 'No one yet'}</span>
         {late && stage.key !== 'check' && <span className={s.lateTag}>LATE</span>}
         <span className={cx(s.timer, late && s.timerLate)}>{formatElapsed(ms)}</span>
-      </div>
+      </button>
       {actions.length > 0 && <div className={s.actions}>{actions.map(render)}</div>}
       {undo && (
         <div role="status" className={s.undo} onClick={(e) => e.stopPropagation()}>

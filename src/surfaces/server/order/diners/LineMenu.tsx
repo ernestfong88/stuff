@@ -86,17 +86,7 @@ export function LineMenu({
 }
 
 /** "How did Ruth like it?" Liked it / Didn't, with an optional note, saved as dining feedback. */
-function LineFeedback({
-  order,
-  line,
-  resident,
-  onDone,
-}: {
-  order: Order;
-  line: OrderLine;
-  resident: Resident;
-  onDone: () => void;
-}) {
+function LineFeedback({ order, line, resident, onDone }: { order: Order; line: OrderLine; resident: Resident; onDone: () => void }) {
   const it = getItem(line.itemId);
   const [verdict, setVerdict] = useState<'pos' | 'neg' | null>(null);
   const [text, setText] = useState('');
