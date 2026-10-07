@@ -53,6 +53,7 @@ demo data.
 | `npm run build` | Typecheck and build a static site into `dist/` |
 | `npm run preview` | Serve the production build |
 | `npm test` | Unit tests (vitest) |
+| `npm run e2e` | End-to-end flows across surfaces (Playwright; starts its own dev server) |
 | `npm run typecheck` | TypeScript only |
 | `npm run lint` | oxlint |
 
