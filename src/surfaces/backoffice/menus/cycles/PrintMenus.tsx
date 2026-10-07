@@ -5,7 +5,7 @@ import { useSetting } from '../../../../store/serviceConfig';
 import type { BoMenu } from '../../../../store/menuEdits';
 import { Button, Popover, cx } from '../../../../ui';
 import { placementSides, useBo } from '../data';
-import { monthDay, type CycleAnchor } from '../model/cycle';
+import { monthDay, type CycleAnchor } from '../../../../domain/menuCycle';
 import { menuHtml, printContext, printWeek, weekDays, type PrintKind } from '../model/menuPrint';
 import { printHtml } from '../ui/printFrame';
 import s from './PrintMenus.module.css';

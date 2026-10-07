@@ -8,7 +8,7 @@ import { COMMUNITY_NAME } from '../../../../data';
 import type { GridEntry, Recipe } from '../../../../store/menuEdits';
 import type { BoState } from './types';
 import { dishLong, normCategory } from './categories';
-import { addDays, cycleDayOn, dayStart, menuAnchor, monthDay, venuesAt, type CycleAnchor } from './cycle';
+import { addDays, cycleDayOn, dayStart, menuAnchor, monthDay, venuesAt, type CycleAnchor } from '../../../../domain/menuCycle';
 import { pickupSpan } from './pickupWindows';
 import { tabletItem } from './tablet';
 

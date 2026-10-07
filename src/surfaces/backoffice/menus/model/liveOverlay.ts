@@ -14,7 +14,7 @@
 import type { MealName, MenuItem, ModGroup } from '../../../../domain/types';
 import type { LiveItemPatch, LiveMenuOverlay, LiveRuledGroup, ModRuleEdit, Recipe } from '../../../../store/menuEdits';
 import { normCategory, subOf, subToEntreeType } from './categories';
-import { venuesAt } from './cycle';
+import { venuesAt } from '../../../../domain/menuCycle';
 import { resolveRule, ruleIsSet } from './modRules';
 import { MEALS, recipeToItem, sectionGroup, tabletSection, toTabletAllergens, type TabletIndex } from './tablet';
 import type { BoState } from './types';

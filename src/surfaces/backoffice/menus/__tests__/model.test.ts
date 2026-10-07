@@ -3,7 +3,7 @@ import type { GridEntry, Recipe, VenueSchedule } from '../../../../store/menuEdi
 import { SEED } from '../data';
 import { aiCheck, applyOps, undoOps } from '../model/aiReview';
 import { guessCategory, guessProtein, guessSubcategory, normCategory, subOf } from '../model/categories';
-import { cycleDayOn, DAY_MS, menuAnchor, menuState, quarterLabel, quarterMenuName, venuesAt } from '../model/cycle';
+import { cycleDayOn, DAY_MS, menuAnchor, menuState, quarterLabel, quarterMenuName, venuesAt } from '../../../../domain/menuCycle';
 import { groupDay, parseDays, sideMatches } from '../model/dayGroup';
 import { menuRows, quarterGaps } from '../model/menuList';
 import { andList, esc, printContext, dailyMenuHtml, orderFormHtml } from '../model/menuPrint';

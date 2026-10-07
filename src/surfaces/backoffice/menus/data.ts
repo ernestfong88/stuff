@@ -18,12 +18,12 @@ import {
   type Recipe,
   type VenueSchedule,
 } from '../../../store/menuEdits';
-import { quarterIndexOf, quarterLabel, quarterMenuName } from './model/cycle';
+import { quarterIndexOf, quarterLabel, quarterMenuName } from '../../../domain/menuCycle';
 import { computeLive } from './model/liveOverlay';
 import { tabletIndex } from './model/tablet';
 import type { BoState } from './model/types';
 import recipesJson from './seed/recipes.json';
-import gridJson from './seed/grid.json';
+import gridJson from '../../../data/seed/menuGrid.json';
 import menusJson from './seed/menus.json';
 import modGroupsJson from './seed/modGroups.json';
 import ruleDefaultsJson from './seed/ruleDefaults.json';

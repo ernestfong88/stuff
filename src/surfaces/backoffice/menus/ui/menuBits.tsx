@@ -2,7 +2,7 @@
 import type { BoMenu } from '../../../../store/menuEdits';
 import { cx } from '../../../../ui';
 import { updateMenu } from '../menuActions';
-import { parseQuarter, quarterOptions, quarterSeason, type MenuState } from '../model/cycle';
+import { parseQuarter, quarterOptions, quarterSeason, type MenuState } from '../../../../domain/menuCycle';
 import { normCategory } from '../model/categories';
 import { Select } from './controls';
 import s from './menuBits.module.css';

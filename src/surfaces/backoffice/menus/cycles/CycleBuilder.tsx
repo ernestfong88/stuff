@@ -6,7 +6,7 @@ import { Button, EmptyState, Modal, toast } from '../../../../ui';
 import { BoCallout, BoPage } from '../../kit';
 import { cycleLenOf, useBo } from '../data';
 import { addPlacements, copyDay, removePlacements, restorePlacements, updateMenu } from '../menuActions';
-import { addDays, menuAnchor, menuState, monthDay, venuesAt } from '../model/cycle';
+import { addDays, menuAnchor, menuState, monthDay, venuesAt } from '../../../../domain/menuCycle';
 import { emptyDays, parseDays } from '../model/dayGroup';
 import { RecipeDialog } from '../recipes/RecipeDialog';
 import { Field, Input, Select } from '../ui/controls';

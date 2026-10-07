@@ -20,7 +20,7 @@
  *   checklistFor(state, venueId) → ChecklistGroup[]   (+ isChecklistEdited)
  *   checklistForMeal(state, venueId, meal) → ChecklistGroup[]       (only that meal's items)
  *   checkMark(state, venueId, iso, meal, itemId) → CheckMark | null
- *   productionDay(venueId, dayOffset) → ProductionDay               (dayOffset 0 to 2)
+ *   productionDay(venueId, dayOffset) → ProductionDay               (dayOffset 0 to PLAN_DAYS - 1)
  *   productionCount(state, venueId, iso, row) → ProductionCount
  *   productionOpen(state, dayOffsets?) → {open, total, byMeal}      (counts still to confirm)
  *   prepTasks(state) → PrepTask[]
@@ -54,6 +54,11 @@ import { isoDate } from '../domain/pickup';
 import type { AssocMeal, Order } from '../domain/types';
 import { MINUTE, now, today } from '../lib/clock';
 import { createSharedStore, useShared } from '../lib/sharedStore';
+import gridSeed from '../data/seed/menuGrid.json';
+import recipeNamesSeed from '../data/seed/recipeNames.json';
+import { cycleDayOn, servingAt } from '../domain/menuCycle';
+import { menuEditsStore, type GridEntry } from './menuEdits';
+import { venueSettingsStore } from './venueSettings';
 
 // ─── Types ───────────────────────────────────────────────────────────────
 
@@ -594,8 +599,11 @@ export function setCheck(venueId: string, iso: string, meal: PrepMeal, itemId: s
 
 // ─── Back Office production counts ───────────────────────────────────────
 
+/** How far ahead the director can plan: this week and next. */
+export const PLAN_DAYS = 14;
+
 function dayOffsetOf(iso: string): number | null {
-  for (let o = 0; o < 3; o++) if (isoDate(o) === iso) return o;
+  for (let o = 0; o < PLAN_DAYS; o++) if (isoDate(o) === iso) return o;
   return null;
 }
 
@@ -603,37 +611,95 @@ function formatWeekday(date: Date): string {
   return date.toLocaleDateString('en-US', { weekday: 'short' });
 }
 
+const MEAL_ORDER: Record<PrepMeal, number> = { Breakfast: 0, Lunch: 1, Dinner: 2 };
+const recipeNames = recipeNamesSeed as Record<string, string>;
+
+/** The menu cycle as Menu Cycle & À la Carte has it: the chef's edits, else the seed. */
+function cycleGrid(): { grid: GridEntry[]; nameOf: (recipeId: string) => string | undefined } {
+  const edits = menuEditsStore.get();
+  const grid = edits.grid ?? (gridSeed as unknown as GridEntry[]);
+  const edited = edits.recipes ? new Map(edits.recipes.map((r) => [r.id, r])) : null;
+  return {
+    grid,
+    nameOf: (id) => {
+      const r = edited?.get(id);
+      if (r) return r.placeholder ? undefined : r.name;
+      return recipeNames[id];
+    },
+  };
+}
+
 /**
- * What a venue makes on a day (0 today, 1 tomorrow, 2 the day after): that
- * day's cycle items with recommendations from past runs, then the five
+ * The cycle items a venue serves on a date, with a recommendation from past
+ * runs: the venue's scheduled menu on that date (Venue Settings), its cycle
+ * day, and what Menu Cycle places on that day. Two entrées in a meal split
+ * the room, so each is recommended at 85%.
+ */
+function cycleRows(venue: ProductionVenue, date: Date): { cycleDay: number; rows: ProductionRow[] } {
+  const scheduled = venueSettingsStore.get().venues.find((v) => v.name === venue.fullName);
+  if (!scheduled) return { cycleDay: 0, rows: [] };
+  const { menuId, start } = servingAt(scheduled, date.getTime());
+  const { grid, nameOf } = cycleGrid();
+  const placed = grid.filter((g) => g.menuId === menuId && g.day > 0);
+  const len = placed.reduce((m, g) => Math.max(m, g.day), 0);
+  const cycleDay = len > 1 ? (cycleDayOn(start, len, date.getTime()) ?? 0) : 0;
+  if (!cycleDay) return { cycleDay: 0, rows: [] };
+  const today = placed.filter((g) => g.day === cycleDay && g.meal !== 'Snacks' && g.cat !== 'Drinks');
+  const rows: ProductionRow[] = [];
+  for (const g of today) {
+    const name = nameOf(g.recipeId);
+    if (!name) continue;
+    const meal = g.meal as PrepMeal;
+    const entree = g.cat === 'Entrees';
+    const paired = today.filter((x) => x.meal === g.meal && x.cat === 'Entrees').length > 1;
+    const base = 28 + (seedHash(`${g.recipeId}:${g.day}`) % 18);
+    const recommended = entree ? (paired ? Math.round(base * 0.85) : base) : 24 + (seedHash(`${g.recipeId}:x${g.day}`) % 14);
+    rows.push({
+      id: g.id,
+      kind: 'special',
+      meal,
+      name,
+      category: g.cat,
+      entree,
+      recommended,
+      basis: (entree ? (paired ? 'paired special · ' : 'solo special · ') : '') + `last runs ${recommended - 3} to ${recommended + 2}`,
+    });
+  }
+  return { cycleDay, rows };
+}
+
+/**
+ * What a venue makes on a day (0 today, 1 tomorrow ... up to PLAN_DAYS - 1):
+ * that day's cycle items with recommendations from past runs, then the five
  * best-selling always-available dishes of each meal from average sales on
  * that weekday.
  */
 export function productionDay(venueId: string, dayOffset: number): ProductionDay {
   const venue = getProductionVenue(venueId);
-  const day = seed.menus[venue.menu].production[dayOffset] ?? { cycleDay: 0, rows: [] };
   const date = today();
   date.setHours(0, 0, 0, 0);
   date.setDate(date.getDate() + dayOffset);
   const factor = WEEKDAY_FACTOR[date.getDay()];
-  const rows = day.rows.map((r): ProductionRow => {
-    if (r.kind === 'special') {
-      return { id: r.id, kind: 'special', meal: r.meal, name: r.name, category: r.category, entree: r.entree, recommended: r.recommended, basis: r.basis };
-    }
+  const anyDay = (seed.menus[venue.menu].production[0]?.rows ?? []).flatMap((r): ProductionRow[] => {
+    if (r.kind !== 'anyDay') return [];
     const avg = (r.weekly / 7) * factor;
-    return {
-      id: r.id,
-      kind: 'anyDay',
-      meal: r.meal,
-      name: r.name,
-      category: 'Any Day',
-      entree: false,
-      recommended: Math.ceil(avg),
-      unit: r.unit,
-      basis: `avg ${formatWeekday(date)} ${r.meal.toLowerCase()}, last 4 weeks: ${Math.round(avg * 10) / 10}`,
-    };
+    return [
+      {
+        id: r.id,
+        kind: 'anyDay',
+        meal: r.meal,
+        name: r.name,
+        category: 'Any Day',
+        entree: false,
+        recommended: Math.ceil(avg),
+        unit: r.unit,
+        basis: `avg ${formatWeekday(date)} ${r.meal.toLowerCase()}, last 4 weeks: ${Math.round(avg * 10) / 10}`,
+      },
+    ];
   });
-  return { offset: dayOffset, iso: isoDate(dayOffset), date, cycleDay: day.cycleDay, rows };
+  const cycle = venue.menu === 'cycle' ? cycleRows(venue, date) : { cycleDay: 0, rows: [] };
+  const rows = [...cycle.rows, ...anyDay].sort((a, b) => MEAL_ORDER[a.meal] - MEAL_ORDER[b.meal] || (a.kind === 'anyDay' ? 1 : 0) - (b.kind === 'anyDay' ? 1 : 0));
+  return { offset: dayOffset, iso: isoDate(dayOffset), date, cycleDay: cycle.cycleDay, rows };
 }
 
 /** The morning crew already confirmed breakfast and most of lunch today; a few dinner counts are left. */

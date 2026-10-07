@@ -7,7 +7,7 @@ import { Button, MenuDivider, MenuItem, Popover, SearchField, cx, toast } from '
 import { BoPage } from '../../kit';
 import { cycleLenOf, useBo } from '../data';
 import { blankMenu, cloneMenu, updateMenu } from '../menuActions';
-import { menuState, parseQuarter, quarterIndexOf, quarterLabel, quarterRange, quarterSeason, venuesAt } from '../model/cycle';
+import { menuState, parseQuarter, quarterIndexOf, quarterLabel, quarterRange, quarterSeason, venuesAt } from '../../../../domain/menuCycle';
 import { ARCHIVE, YEAR_ROUND, isArchived, menuRows, quarterFilterOptions, quarterGaps, type MenuRow } from '../model/menuList';
 import { Select } from '../ui/controls';
 import { QuarterBadge, StateChip } from '../ui/menuBits';

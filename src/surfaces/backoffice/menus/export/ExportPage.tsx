@@ -6,7 +6,7 @@ import { useSetting } from '../../../../store/serviceConfig';
 import { Button, Chip, EmptyState, Tabs, cx, toast } from '../../../../ui';
 import { BoPage } from '../../kit';
 import { placementSides, useBo } from '../data';
-import { venuesAt } from '../model/cycle';
+import { venuesAt } from '../../../../domain/menuCycle';
 import { alaCarteItems, menuHtml, printContext, printWeek, TEMPLATES, weekDays, type PrintKind, type TemplateId } from '../model/menuPrint';
 import { Field, Select } from '../ui/controls';
 import { PagePreview } from '../ui/PagePreview';

@@ -7,7 +7,7 @@ import { BoPage } from '../../kit';
 import { useBo } from '../data';
 import { addPlacements, removePlacements, setAnyDayMeals } from '../menuActions';
 import { dishLong, normCategory } from '../model/categories';
-import { menuState, venuesAt } from '../model/cycle';
+import { menuState, venuesAt } from '../../../../domain/menuCycle';
 import { DINING_VENUE_ID } from '../model/liveOverlay';
 import type { BuilderMeal } from '../model/types';
 import { RecipeDialog } from '../recipes/RecipeDialog';

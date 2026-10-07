@@ -3,7 +3,7 @@
  * an à la carte menu; past menus go to the Archive.
  */
 import type { BoMenu, GridEntry, MenuKind, VenueSchedule } from '../../../../store/menuEdits';
-import { menuState, parseQuarter, quarterLabel } from './cycle';
+import { menuState, parseQuarter, quarterLabel } from '../../../../domain/menuCycle';
 
 export const ARCHIVE = 'Archive';
 export const YEAR_ROUND = 'Year-round';

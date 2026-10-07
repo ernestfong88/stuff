@@ -2,7 +2,7 @@
  * Menu cycles on the calendar: which cycle day a date is, the dates a
  * builder column shows, quarters, and a menu's lifecycle state.
  */
-import type { BoMenu, VenueSchedule } from '../../../../store/menuEdits';
+import type { BoMenu, VenueSchedule } from '../store/menuEdits';
 
 export const DAY_MS = 86_400_000;
 

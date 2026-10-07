@@ -4,7 +4,7 @@
  */
 import type { Recipe } from '../../../../store/menuEdits';
 import { normCategory } from './categories';
-import { DAY_MS } from './cycle';
+import { DAY_MS } from '../../../../domain/menuCycle';
 
 export type Sentiment = 'pos' | 'neu' | 'neg';
 

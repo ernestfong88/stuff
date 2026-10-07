@@ -5,7 +5,7 @@ import { EmptyState, SearchField, Tabs, toast } from '../../../../ui';
 import { BoCallout, BoPage } from '../../kit';
 import { updateBo, useBo } from '../data';
 import { CATEGORIES, dishLong } from '../model/categories';
-import { venuesAt } from '../model/cycle';
+import { venuesAt } from '../../../../domain/menuCycle';
 import { DINING_VENUE_ID } from '../model/liveOverlay';
 import { menuPrices, orphanPrices, priceRow, recipesOnMenu, setPrice, type PriceField } from '../model/pricing';
 import { MoneyInput, Select, TableFrame, tableClass } from '../ui/controls';

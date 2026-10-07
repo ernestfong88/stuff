@@ -1,5 +1,5 @@
 /**
- * Production sheets for the kitchen: the day's counts by meal, and each
+ * Production sheets for the kitchen: a day's (or a week's) counts by meal, and each
  * special that has a recipe scaled to its count. Printed from a hidden
  * frame so the back office page itself never goes to the printer.
  */
@@ -16,7 +16,8 @@ h3{font-size:15px;margin:18px 0 4px}.sub{color:#5e6b74;font-size:12px}table{widt
 td,th{padding:5px 6px;border-bottom:1px solid #ccc;text-align:left}th{font-size:11px;text-transform:uppercase;letter-spacing:.05em}
 .n{text-align:right;font-variant-numeric:tabular-nums}.sheet{page-break-before:always}ol{padding-left:18px}`;
 
-export function productionSheetsHtml(venueName: string, dayLabel: string, day: ProductionDay, state: ProductionState, venueId: string): string {
+/** One day's counts by meal, then a scaled recipe sheet per special. */
+function dayHtml(venueName: string, dayLabel: string, day: ProductionDay, state: ProductionState, venueId: string, first: boolean): string {
   const meals = [...new Set(day.rows.map((r) => r.meal))];
   const counts = meals
     .map((meal) => {
@@ -38,14 +39,28 @@ export function productionSheetsHtml(venueName: string, dayLabel: string, day: P
       const f = make / recipe.base;
       const items = recipe.ingredients.map(([q, u, w]) => `<tr><td class="n">${quarter(q * f)}${u ? ' ' + esc(u) : ''}</td><td>${esc(w)}</td></tr>`).join('');
       const steps = recipe.method.map((m) => `<li>${esc(m)}</li>`).join('');
-      return `<section class="sheet"><h1>${esc(r.name)} · make ${esc(make)}</h1><div class="sub">${esc(r.meal)} · base recipe ${recipe.base} · one serving = ${esc(recipe.serving)}</div><h3>Ingredients</h3><table><tbody>${items}</tbody></table><h3>Method</h3><ol>${steps}</ol></section>`;
+      return `<section class="sheet"><h1>${esc(r.name)} · make ${esc(make)}</h1><div class="sub">${esc(dayLabel)} · ${esc(r.meal)} · base recipe ${recipe.base} · one serving = ${esc(recipe.serving)}</div><h3>Ingredients</h3><table><tbody>${items}</tbody></table><h3>Method</h3><ol>${steps}</ol></section>`;
     })
     .join('');
   const title = `Production · ${venueName} · ${dayLabel}`;
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1><div class="sub">${esc(day.date.toDateString())}${day.cycleDay ? ' · cycle day ' + day.cycleDay : ''}</div>${counts}${sheets}</body></html>`;
+  return `<section${first ? '' : ' class="sheet"'}><h1>${esc(title)}</h1><div class="sub">${esc(day.date.toDateString())}${day.cycleDay ? ' · cycle day ' + day.cycleDay : ''}</div>${counts}</section>${sheets}`;
 }
 
-export function printProductionSheets(venueName: string, dayLabel: string, day: ProductionDay, state: ProductionState, venueId: string): void {
+function documentHtml(title: string, body: string): string {
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>${CSS}</style></head><body>${body}</body></html>`;
+}
+
+export function productionSheetsHtml(venueName: string, dayLabel: string, day: ProductionDay, state: ProductionState, venueId: string): string {
+  return documentHtml(`Production · ${venueName} · ${dayLabel}`, dayHtml(venueName, dayLabel, day, state, venueId, true));
+}
+
+/** A week of production: each day's counts and recipe sheets, one after another. */
+export function productionWeekHtml(venueName: string, days: Array<{ label: string; day: ProductionDay }>, state: ProductionState, venueId: string): string {
+  const body = days.map((d, i) => dayHtml(venueName, d.label, d.day, state, venueId, i === 0)).join('');
+  return documentHtml(`Production · ${venueName} · week`, body);
+}
+
+function printHtml(html: string): void {
   const frame = document.createElement('iframe');
   frame.setAttribute('aria-hidden', 'true');
   frame.style.cssText = 'position:fixed;width:0;height:0;border:0;opacity:0';
@@ -56,9 +71,17 @@ export function printProductionSheets(venueName: string, dayLabel: string, day: 
     return;
   }
   doc.open();
-  doc.write(productionSheetsHtml(venueName, dayLabel, day, state, venueId));
+  doc.write(html);
   doc.close();
   frame.contentWindow.focus();
   frame.contentWindow.print();
   setTimeout(() => frame.remove(), 1000);
+}
+
+export function printProductionSheets(venueName: string, dayLabel: string, day: ProductionDay, state: ProductionState, venueId: string): void {
+  printHtml(productionSheetsHtml(venueName, dayLabel, day, state, venueId));
+}
+
+export function printProductionWeek(venueName: string, days: Array<{ label: string; day: ProductionDay }>, state: ProductionState, venueId: string): void {
+  printHtml(productionWeekHtml(venueName, days, state, venueId));
 }

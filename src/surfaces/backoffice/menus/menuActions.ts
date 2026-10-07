@@ -3,7 +3,7 @@ import { now } from '../../../lib/clock';
 import { uid } from '../../../lib/id';
 import type { BoMenu, GridEntry, MenuKind } from '../../../store/menuEdits';
 import { BACK_OFFICE_AUTHOR, getBo, updateBo } from './data';
-import { addDays, dayStart, quarterMenuName } from './model/cycle';
+import { addDays, dayStart, quarterMenuName } from '../../../domain/menuCycle';
 import type { BuilderMeal } from './model/types';
 
 /** Change a menu, recording who edited it and when. */

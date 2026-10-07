@@ -6,7 +6,7 @@ import { MenuDivider, MenuItem, Popover, cx, toast } from '../../../../ui';
 import { placementSides, useBo } from '../data';
 import { removePlacements, restorePlacements, setDayDate } from '../menuActions';
 import { dishLong } from '../model/categories';
-import { addDays, dayStart, isoDay, parseIsoDay, type CycleAnchor } from '../model/cycle';
+import { addDays, dayStart, isoDay, parseIsoDay, type CycleAnchor } from '../../../../domain/menuCycle';
 import { groupDay, placementsAt, type DayGroup } from '../model/dayGroup';
 import { BUILDER_MEALS, type BuilderMeal } from '../model/types';
 import { PLAN_LABEL, planClass, swatchClass } from '../ui/menuBits';
