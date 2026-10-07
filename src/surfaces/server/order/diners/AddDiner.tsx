@@ -37,9 +37,7 @@ export function AddDiner({
   const seated = order.diners.filter((d) => d.kind === 'resident' && !d.isGuest).map((d) => d.refId);
 
   const pool =
-    kind === 'associate'
-      ? associates.map((a) => ({ ...a, apt: undefined }))
-      : residents.filter((r) => kind === 'guest' || !seated.includes(r.id));
+    kind === 'associate' ? associates.map((a) => ({ ...a, apt: undefined })) : residents.filter((r) => kind === 'guest' || !seated.includes(r.id));
   const matches = searchPeople<{ id: string; name: string; apt?: string; photo: string; dept?: string }>(pool, q, 8);
 
   const pick = (id: string) => {
@@ -95,9 +93,7 @@ export function AddDiner({
           className={s.search}
         />
       )}
-      {kind === 'guest' && !host && (
-        <p className={s.hint}>Pick whose guest they are — then choose the visitor from the resident's contacts.</p>
-      )}
+      {kind === 'guest' && !host && <p className={s.hint}>Pick whose guest they are, then choose the visitor from the resident's contacts.</p>}
 
       {kind === 'guest' && host ? (
         <div className="fade-in">

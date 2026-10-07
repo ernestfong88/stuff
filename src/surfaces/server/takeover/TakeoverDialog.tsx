@@ -1,3 +1,4 @@
+import { serverName } from '../../../domain/servers';
 import { useDining } from '../../../store/dining';
 import { Button, Modal } from '../../../ui';
 import s from './TakeoverDialog.module.css';
@@ -9,14 +10,14 @@ import s from './TakeoverDialog.module.css';
 export function TakeoverDialog() {
   const { pendingTakeover, confirmTakeover, cancelTakeover } = useDining();
   if (!pendingTakeover) return null;
-  const from = pendingTakeover.from;
+  const from = serverName(pendingTakeover.from);
   return (
     <Modal
       open
       onClose={cancelTakeover}
       width={420}
       hideClose
-      title={`You're taking over this check from ${from}`}
+      title={`Take over this check from ${from}?`}
       footer={
         <>
           <Button size="lg" className={s.grow} onClick={cancelTakeover}>

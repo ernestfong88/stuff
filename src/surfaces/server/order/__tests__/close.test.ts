@@ -9,6 +9,7 @@ import {
   creditUse,
   defaultDrop,
   defaultPlanMode,
+  splitAmounts,
   type CloseInputs,
   type CloseRow,
 } from '../close/closeMath';
@@ -142,5 +143,19 @@ describe('pick up windows', () => {
     expect(date).toEqual({ left: 1, full: false });
     expect(loadTag(date)).toBe('1 left');
     expect(windowLoad('pickup', 'sequoia', 1020, '2026-10-07', 'x', { ...data, orders: [...data.orders, booked('d')] }).full).toBe(true);
+  });
+});
+
+describe('card split', () => {
+  it('puts the whole total on one card', () => {
+    expect(splitAmounts(30, 'one', 50)).toEqual([30]);
+  });
+
+  it('splits across two cards that always add up to the total', () => {
+    expect(splitAmounts(30, 'split', 60)).toEqual([18, 12]);
+    const [a, b] = splitAmounts(0.05, 'split', 50);
+    expect(Math.round((a + b) * 100)).toBe(5);
+    const [c, d] = splitAmounts(47.33, 'split', 70);
+    expect(Math.round((c + d) * 100)).toBe(4733);
   });
 });

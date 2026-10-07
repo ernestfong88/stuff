@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { UserPlus } from 'lucide-react';
 import { getItem, getTable } from '../../../data';
-import { dinerPerson, findLine } from '../../../domain/orders';
-import type { Order, QueueType, Resident } from '../../../domain/types';
+import { dinerName, findLine } from '../../../domain/orders';
+import type { Diner, Order, QueueType, Resident } from '../../../domain/types';
 import { now } from '../../../lib/clock';
 import { useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
 import { useSession } from '../../../store/session';
-import { cx } from '../../../ui';
+import { cx, useConfirm } from '../../../ui';
 import { ResidentProfileSheet } from '../features';
 import { TakeoverDialog } from '../takeover/TakeoverDialog';
 import { CloseScreen } from './close/CloseScreen';
 import { AddDiner } from './diners/AddDiner';
+import { allergyPerson } from './diners/allergyPerson';
 import { DinerCard } from './diners/DinerCard';
 import { SpouseSuggest, spouseToAdd } from './diners/SpouseSuggest';
 import { afterPick } from './menu/afterPick';
@@ -83,6 +84,7 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
   const [tab, setTab] = useState<MenuTab>(startTab);
   const [sideWait, setSideWait] = useState<string | null>(null);
   const [profile, setProfile] = useState<string | null>(null);
+  const [ask, confirmDialog] = useConfirm();
 
   // Switching the check's meal starts its menu on the first tab.
   const meal = useRef(o.meal);
@@ -103,6 +105,24 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
   const diner = o.diners.find((d) => d.id === selected) ?? null;
   const table = o.tableId ? getTable(o.tableId) : undefined;
   const spouse = spouseToAdd(o);
+
+  // Removing someone with items on the check takes the items too, so ask first.
+  const removeDiner = async (d: Diner) => {
+    const lines = d.items.filter((l) => !l.cancelled && !l.parentId).length;
+    if (lines > 0) {
+      const sent = d.items.some((l) => l.sent && !l.cancelled);
+      const ok = await ask({
+        title: `Remove ${dinerName(d)} from the check?`,
+        message:
+          `Their ${lines === 1 ? 'item comes' : `${lines} items come`} off the check too.` +
+          (sent ? ' Anything already sent to the kitchen is dropped from the tickets.' : ''),
+        confirmLabel: 'Remove',
+        tone: 'danger',
+      });
+      if (!ok) return;
+    }
+    dining.removeDiner(o.id, d.id);
+  };
 
   const select = (id: string, nextTab?: MenuTab) => {
     setSelected(id);
@@ -153,7 +173,7 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
                 setGuestHost(host);
                 setAdding(true);
               }}
-              onRemove={() => dining.removeDiner(o.id, d.id)}
+              onRemove={() => removeDiner(d)}
               onEditLine={(line) => setEditing({ dinerId: d.id, lineId: line.id })}
               onAddUsual={(u) => {
                 select(d.id);
@@ -219,7 +239,7 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
               key={edit.line.id}
               item={editItem}
               diner={edit.diner}
-              person={dinerPerson(edit.diner) as Resident | undefined}
+              person={allergyPerson(edit.diner)}
               initialMods={edit.line.mods}
               initialNote={edit.line.note}
               confirmLabel="Save changes"
@@ -235,6 +255,7 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
       </div>
       <SendBar order={o} justSent={justSent} onSend={send} onClose={() => setClosing({ dinerIds: null })} />
       <ResidentProfileSheet residentId={profile} onClose={() => setProfile(null)} />
+      {confirmDialog}
       <TakeoverDialog />
     </div>
   );

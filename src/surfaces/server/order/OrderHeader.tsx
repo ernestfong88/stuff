@@ -32,7 +32,7 @@ export function OrderHeader({ order: o, onBack }: { order: Order; onBack: () => 
           <span className={s.comped}>
             Comped · {o.comp.reason}
             <button className={s.undo} onClick={() => setOrderComp(o.id, null)}>
-              undo
+              Undo
             </button>
           </span>
         ) : (

@@ -1,4 +1,4 @@
-import { ClipboardList, Search, Users } from 'lucide-react';
+import { ClipboardList, ListChecks, Users } from 'lucide-react';
 import type { Order } from '../../domain/types';
 import { cx, useViewportWidth } from '../../ui';
 import { MenuReferenceButton, PointsChip, SideWorkChip } from './features';
@@ -79,7 +79,7 @@ export function ServerNavRight({ view, onResidents, onShift }: { view: ServerVie
         {narrow ? <span className="sr-only">Residents</span> : ' Residents'}
       </button>
       <button className={cx(s.btn, view === 'shift' && s.onShift)} onClick={onShift} title="Shift Review" aria-pressed={view === 'shift'}>
-        <Search size={15} strokeWidth={2} aria-hidden />
+        <ListChecks size={15} strokeWidth={2} aria-hidden />
         {narrow ? <span className="sr-only">Shift Review</span> : ' Shift Review'}
       </button>
     </>

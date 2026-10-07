@@ -1,8 +1,11 @@
+.wrap {
+  flex-shrink: 0;
+  margin: 10px 16px 0;
+}
 .row {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 10px 16px 0;
   padding: 8px 12px;
   flex-shrink: 0;
   border-radius: var(--r-md);
@@ -39,4 +42,13 @@
 .step:disabled {
   background: var(--paper);
   color: #b8c0c6;
+}
+.warn {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: var(--warning-bg);
+  color: var(--warning);
+  font-size: 13px;
+  font-weight: 600;
 }

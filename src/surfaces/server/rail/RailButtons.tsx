@@ -41,9 +41,9 @@ export function FullscreenLockButton() {
 /** The big "+ Check" button: start a check on a table. */
 export function StartCheckButton({ onStart }: { onStart: () => void }) {
   return (
-    <button className={s.start} onClick={onStart} title="Start a check" aria-label="Start a check">
+    <button className={s.start} onClick={onStart} title="Start a new check on a table" aria-label="New check">
       <Plus size={28} strokeWidth={2.5} aria-hidden />
-      <span className={s.label}>Check</span>
+      <span className={s.label}>New check</span>
     </button>
   );
 }

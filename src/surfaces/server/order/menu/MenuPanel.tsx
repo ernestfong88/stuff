@@ -2,12 +2,13 @@ import { useRef, useState, type ReactNode } from 'react';
 import { Star } from 'lucide-react';
 import { getItem } from '../../../../data';
 import { flag } from '../../../../domain/config';
-import { availableCount, dinerPerson, findLine } from '../../../../domain/orders';
+import { availableCount, findLine } from '../../../../domain/orders';
 import type { Diner, MenuItem, ModSelection, Order, Resident } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
 import { cx, SearchField } from '../../../../ui';
 import { sideParentFor } from '../checkLines';
+import { allergyPerson } from '../diners/allergyPerson';
 import { DinerHead } from './DinerHead';
 import s from './MenuPanel.module.css';
 import {
@@ -65,7 +66,8 @@ export function MenuPanel({
   const [modItem, setModItem] = useState<MenuItem | null>(null);
   const [pinnedLine, setPinnedLine] = useState<string | null>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
-  const person = dinerPerson(diner) as Resident | undefined;
+  // A guest's diner points at the host, whose allergies are not the guest's.
+  const person = allergyPerson(diner);
   const tabs = menuTabs(o.meal);
   const sections = menuSections(o.meal, tab, { drinkGroup, room: o.room, search, cfg });
   const isResident = diner.kind === 'resident' && !diner.isGuest;
@@ -112,9 +114,7 @@ export function MenuPanel({
       )}
       <div className={s.grid}>
         {tab === 'Sides' && !search && sideWait === diner.id && (
-          <div className={s.sideNote}>
-            This entree has no side. Adding one is optional: tap a side, another item, the next diner or Send.
-          </div>
+          <div className={s.sideNote}>This entree has no side. Adding one is optional: tap a side, another item, the next diner or Send.</div>
         )}
         {sections.map((sec) => (
           <SectionBlock key={sec.key} section={sec}>
@@ -216,9 +216,7 @@ function SectionBlock({ section, children }: { section: MenuSection; children: R
           style={section.tint ? { color: section.tint[1] } : undefined}
         >
           {star && <Star size={11} strokeWidth={2.5} aria-hidden />}
-          {section.tint && (
-            <span className={s.swatch} style={{ background: section.tint[0], boxShadow: `inset 0 0 0 1px ${section.tint[1]}66` }} />
-          )}
+          {section.tint && <span className={s.swatch} style={{ background: section.tint[0], boxShadow: `inset 0 0 0 1px ${section.tint[1]}66` }} />}
           {section.label}
           {section.kind !== 'specials' && section.kind !== 'everyday' && <span className={s.count}>{section.items.length}</span>}
         </div>

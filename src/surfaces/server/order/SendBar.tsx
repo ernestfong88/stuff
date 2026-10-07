@@ -13,17 +13,7 @@ import { rangeLabel } from './queue/pickupWindows';
 import s from './SendBar.module.css';
 
 /** The check's footer: Close & charge, and Send (which says what it will do). */
-export function SendBar({
-  order: o,
-  justSent,
-  onSend,
-  onClose,
-}: {
-  order: Order;
-  justSent: boolean;
-  onSend: () => void;
-  onClose: () => void;
-}) {
+export function SendBar({ order: o, justSent, onSend, onClose }: { order: Order; justSent: boolean; onSend: () => void; onClose: () => void }) {
   const cfg = useConfig();
   const { orders, history, kitchenMode } = useDining();
   const unsent = hasUnsent(o);
@@ -35,14 +25,14 @@ export function SendBar({
     return (
       <footer className={s.bar}>
         <div className={s.sent} role="status">
-          <CircleCheck size={18} aria-hidden /> {kitchenMode === 'printers' ? 'Tickets printed — Hot Line & Cold Pantry' : sentMessage(o)}
+          <CircleCheck size={18} aria-hidden /> {kitchenMode === 'printers' ? 'Tickets printed at the Hot Line and Cold Pantry' : sentMessage(o)}
         </div>
       </footer>
     );
   }
 
   const label = (() => {
-    if (!unsent) return held ? `${held} held — release to send` : 'Nothing new to send';
+    if (!unsent) return held ? `${held} held. Release to send` : 'Nothing new to send';
     const fireAt = pickupFireAt(o, pickupLeadMinutes([...orders, ...history], cfg));
     if (fireAt && fireAt > now()) return `Schedule for ${rangeLabel(o.readyAt)} · kitchen fires at ${clockLabel(fireAt)}`;
     if (o.queueType) return 'Send to kitchen · ASAP, whole order fires now';
