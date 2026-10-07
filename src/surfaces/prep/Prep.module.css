@@ -1,0 +1,107 @@
+.screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--hair);
+}
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tally,
+.tallyDone {
+  font-size: 15px;
+  font-weight: 900;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.tally small,
+.tallyDone small {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.tallyDone {
+  color: var(--flora);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 18px 32px;
+}
+
+.cap {
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.capSpecials {
+  composes: cap;
+  color: var(--clay-600);
+  margin: 0 2px 10px;
+}
+.capChecklist {
+  composes: cap;
+  color: var(--flora);
+}
+
+.specials {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.checklistHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 2px 10px;
+}
+.checklistCount {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--s500);
+}
+
+.empty {
+  padding: 16px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  color: var(--s500);
+  font-size: 14px;
+  margin-bottom: 24px;
+}

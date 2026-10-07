@@ -1,0 +1,203 @@
+.band {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: var(--r-xl);
+}
+.bandBig {
+  padding: 14px 16px;
+  box-shadow: inset 4px 0 0 var(--clay);
+}
+.plan {
+  background: var(--flora-100);
+  --tone-amt: var(--flora);
+  --tone-ink: #3e5a2e;
+  --tone-dot: var(--flora);
+}
+.charge {
+  background: var(--clay-100);
+  --tone-amt: var(--ink);
+  --tone-ink: #7a4f24;
+  --tone-dot: var(--clay);
+}
+.comp {
+  background: #f0f3f6;
+  --tone-amt: var(--s400);
+  --tone-ink: var(--s700);
+  --tone-dot: var(--s400);
+}
+.bandIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-md);
+  flex-shrink: 0;
+  background: var(--tone-dot);
+  color: #fff;
+}
+.bandAmt {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--tone-amt);
+  font-variant-numeric: tabular-nums;
+}
+.bandAmtBig {
+  font-size: 34px;
+  font-weight: 600;
+}
+.bandText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.bandTitle {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--tone-ink);
+}
+.bandBig .bandTitle {
+  font-size: 17px;
+}
+.bandSub {
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--s700);
+}
+
+.summary {
+  margin-bottom: 14px;
+  padding: 4px 16px 2px;
+  border-radius: var(--r-2xl);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.06);
+}
+.sumRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--hair);
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot_plan {
+  background: var(--flora);
+}
+.dot_charge {
+  background: var(--clay);
+}
+.dot_comp {
+  background: var(--s400);
+}
+.sumWho {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sumName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.sumTitle {
+  margin-top: 1px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.ink_plan {
+  color: #3e5a2e;
+}
+.ink_charge {
+  color: #7a4f24;
+}
+.ink_comp {
+  color: var(--s700);
+}
+.sumAmt {
+  font-size: 17px;
+  font-weight: 800;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.sumAmtBig {
+  font-size: 22px;
+}
+.amt_plan {
+  color: var(--flora);
+}
+.amt_charge {
+  color: var(--ink);
+}
+.amt_comp {
+  color: var(--s400);
+}
+.sumTotal {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 0 10px;
+}
+.sumTotalLabel {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s500);
+}
+.sumTotalAmt {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.zero {
+  color: var(--flora);
+}
+
+.total {
+  flex: 1;
+  min-width: 0;
+}
+.totalLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s500);
+}
+.totalAmt {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.totalParts {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--s500);
+}

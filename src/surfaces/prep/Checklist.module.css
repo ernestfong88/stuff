@@ -1,0 +1,132 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.group {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  padding: 10px 10px 12px;
+  box-shadow: var(--shadow-1);
+}
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 2px 4px 8px;
+}
+.name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.count {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--s400);
+}
+.countDone {
+  color: var(--flora);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  padding: 10px 12px;
+  text-align: left;
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+.tap {
+  flex-wrap: nowrap;
+}
+.tap:hover {
+  background: var(--limestone);
+}
+.rowDone,
+.rowDone:hover {
+  background: var(--flora-100);
+  box-shadow: inset 0 0 0 1.5px rgba(93, 117, 69, 0.35);
+}
+
+.box {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 2px var(--s200);
+  background: var(--surface);
+  color: #fff;
+}
+.boxOn {
+  background: var(--flora);
+  box-shadow: none;
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+.label {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.rowDone .label {
+  color: var(--flora);
+}
+.stamp {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--moss);
+}
+
+.choices {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.choice {
+  min-height: 42px;
+  padding: 0 13px;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  background: var(--surface);
+  color: var(--s700);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.choice:hover {
+  background: var(--flora-100);
+  color: var(--flora);
+}
+
+.undo {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ocean);
+}

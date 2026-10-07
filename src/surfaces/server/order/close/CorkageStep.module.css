@@ -1,0 +1,42 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 16px 0;
+  padding: 8px 12px;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+  background: #f0f3f6;
+}
+.label {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--s400);
+}
+.count {
+  min-width: 70px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--limestone);
+  color: var(--ink);
+}
+.step:disabled {
+  background: var(--paper);
+  color: #b8c0c6;
+}

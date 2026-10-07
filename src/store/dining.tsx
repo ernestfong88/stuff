@@ -58,6 +58,7 @@ import { now } from '../lib/clock';
 import { uid } from '../lib/id';
 import { useShared } from '../lib/sharedStore';
 import { getConfig, configStore } from './config';
+import { resetProduction } from './production';
 import { serviceConfig } from './serviceConfig';
 import { claimPacingLeadership, createDiningEngine, releasePacingLeadership, type DiningEngine } from './diningEngine';
 import { eightySixStore } from './eightySix';
@@ -541,6 +542,7 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
       resetDemo() {
         engine.reset();
         for (const store of [configStore, serviceConfig, noticesStore, eightySixStore, notesStore, residentPrefsStore]) store.reset();
+        resetProduction();
         setRecentBumps([]);
         setModUsage({});
         setPendingTakeover(null);

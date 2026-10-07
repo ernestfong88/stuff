@@ -1,0 +1,79 @@
+.card {
+  padding: 16px 18px 16px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+}
+.name {
+  flex: 0 1 320px;
+  min-width: 0;
+  height: 40px;
+  padding: 0 6px;
+  border: none;
+  border-radius: var(--r-md);
+  background: transparent;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.name:hover {
+  background: var(--paper);
+}
+.name:focus {
+  outline: none;
+  background: var(--paper);
+  box-shadow: var(--focus);
+}
+.retire {
+  margin-left: auto;
+}
+.label {
+  margin: 0 0 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.printers {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.printer {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 4px 6px 4px 12px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.printerIcon {
+  color: var(--s500);
+}
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  color: var(--s500);
+}
+.iconBtn:hover {
+  background: var(--limestone);
+  color: var(--ocean);
+}

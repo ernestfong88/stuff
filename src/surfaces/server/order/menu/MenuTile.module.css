@@ -1,0 +1,95 @@
+.tile {
+  display: flex;
+  align-items: stretch;
+  gap: 3px;
+  min-height: 48px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+.special {
+  background: #fbf1e4;
+  box-shadow:
+    inset 3px 0 0 var(--clay),
+    inset 0 0 0 1px rgba(168, 112, 59, 0.22);
+}
+.soldOut {
+  background: #e2e7ec;
+  opacity: 0.55;
+}
+.add {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 4px 5px 9px;
+  text-align: left;
+}
+.add:active:not(:disabled) {
+  filter: brightness(0.96);
+}
+.add:disabled {
+  cursor: not-allowed;
+}
+.name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.star {
+  margin-right: 4px;
+  vertical-align: -1px;
+  color: #b8762f;
+  fill: #e0a458;
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.price {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--s500);
+}
+.allergy {
+  color: var(--danger);
+}
+.out {
+  color: var(--danger);
+}
+.low {
+  color: var(--clay-600);
+}
+.plenty {
+  color: #4f6b3a;
+}
+.mod {
+  flex: 0 0 46px;
+  align-self: stretch;
+  background: #f6e7d6;
+  color: #8a5a2b;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+.mod:hover {
+  background: #f0dcc5;
+}
+@container (max-width: 560px) {
+  .name {
+    font-size: 12px;
+  }
+}
