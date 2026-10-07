@@ -1,11 +1,11 @@
 import { Check, ChevronDown, LogOut, Maximize, Minimize, RotateCcw } from 'lucide-react';
 import { Fragment } from 'react';
 import { rooms } from '../data';
-import { Avatar, MenuDivider, MenuItem, Popover, useConfirm, useViewportWidth } from '../ui';
+import { Avatar, MenuDivider, MenuItem, Popover, toast, Toggle, useConfirm, useViewportWidth } from '../ui';
 import { cx } from '../ui/cx';
 import { useDemoActions } from './demoTools';
 import { enterFullscreen, exitFullscreen, useFullscreen } from './fullscreen';
-import { usePhaseOn, usePhasePlan } from '../store/phases';
+import { phaseIsOn, setPhaseOn, usePhaseOn, usePhasePlan, type Phase } from '../store/phases';
 import { getMode, modeOn, modePhase, orderedModes } from './modes';
 import { navigate, useRoute } from './router';
 import { signOut, useMe, useVenue, venueCode, venueColor } from './session';
@@ -61,25 +61,39 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
       >
         {({ close }) => (
           <>
-            {demo.length > 0 && (
-              <div className={s.demo}>
-                <div className={s.demoHead}>Demo</div>
-                {demo.map((a) => (
-                  <button
-                    key={a.id}
-                    role="menuitem"
-                    className={s.demoBtn}
-                    onClick={async () => {
-                      close();
-                      if (await ask({ title: a.label, message: a.confirm, confirmLabel: a.label, tone: 'danger' })) a.run();
-                    }}
-                  >
-                    <RotateCcw size={15} strokeWidth={2.5} />
-                    {a.label}
-                  </button>
+            <div className={s.demo}>
+              <div className={s.demoHead}>Demo</div>
+              {/* Release phases, for the whole system: the same switches as in Back Office. */}
+              <div className={s.phaseRow} role="group" aria-label="Release phases switched on">
+                {([2, 3] as Phase[]).map((ph) => (
+                  <span key={ph} className={cx(s.phaseSwitch, ph === 3 && s.phase3)}>
+                    <span className={cx(s.phaseLabel, ph === 2 ? s.phase2 : s.phase3)}>Phase {ph}</span>
+                    <Toggle
+                      checked={phaseIsOn(ph, on)}
+                      onChange={(v) => {
+                        setPhaseOn(ph, v);
+                        toast(v ? `Phase ${ph} is on everywhere` : `Phase ${ph} is off everywhere`, { tone: 'success' });
+                      }}
+                      label={<span className="sr-only">Phase {ph}</span>}
+                    />
+                  </span>
                 ))}
               </div>
-            )}
+              {demo.map((a) => (
+                <button
+                  key={a.id}
+                  role="menuitem"
+                  className={s.demoBtn}
+                  onClick={async () => {
+                    close();
+                    if (await ask({ title: a.label, message: a.confirm, confirmLabel: a.label, tone: 'danger' })) a.run();
+                  }}
+                >
+                  <RotateCcw size={15} strokeWidth={2.5} />
+                  {a.label}
+                </button>
+              ))}
+            </div>
             {modes.map((x, i) => (
               <Fragment key={x.id}>
                 {startsPhase(i) && (

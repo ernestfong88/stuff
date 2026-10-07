@@ -1,5 +1,5 @@
 import { Fragment, useMemo, useState } from 'react';
-import { CalendarDays, ChevronDown, Copy, Eraser, Plus, X } from 'lucide-react';
+import { ArrowLeftRight, CalendarDays, ChevronDown, Copy, Eraser, Plus, X } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import type { BoMenu, GridEntry, Recipe, RecipeCategory } from '../../../../store/menuEdits';
 import { MenuDivider, MenuItem, Popover, cx, toast } from '../../../../ui';
@@ -41,7 +41,13 @@ const MORE_LABEL: Record<string, string> = {
 };
 
 const sameTarget = (a: SlotTarget | null, b: SlotTarget) =>
-  !!a && a.day === b.day && a.meal === b.meal && a.cat === b.cat && (a.with ?? '') === (b.with ?? '') && !!a.allWeek === !!b.allWeek && !!a.more === !!b.more;
+  !!a &&
+  a.day === b.day &&
+  a.meal === b.meal &&
+  a.cat === b.cat &&
+  (a.with ?? '') === (b.with ?? '') &&
+  !!a.allWeek === !!b.allWeek &&
+  !!a.more === !!b.more;
 
 type LaneKind = 'starters' | 'entree' | 'sides' | 'looseSides' | 'desserts' | 'drinks' | 'other';
 
@@ -82,7 +88,8 @@ function lanesFor(groups: DayGroup[], hidden: string[] = []): Lane[] {
       cat: 'Sides',
     });
   const nd = max((g) => g.desserts.length);
-  for (let i = 0; i < Math.max(atLeast('desserts'), nd); i++) out.push({ kind: 'desserts', i, label: 'Dessert', cat: 'Desserts', removable: nd === 0 });
+  for (let i = 0; i < Math.max(atLeast('desserts'), nd); i++)
+    out.push({ kind: 'desserts', i, label: 'Dessert', cat: 'Desserts', removable: nd === 0 });
   for (let i = 0; i < max((g) => g.drinks.length); i++) out.push({ kind: 'drinks', i, label: 'Drink', cat: 'Drinks' });
   for (let i = 0; i < max((g) => g.other.length); i++) out.push({ kind: 'other', i, label: 'Other', cat: 'Snacks' });
   return out;
@@ -105,7 +112,7 @@ export function MenuGrid({
   /** A recipe typed into a slot goes there. */
   onPlace: (recipeId: string, t: SlotTarget) => void;
   onQuick: (r: Recipe, day: number) => void;
-  onCopyDay: (day: number) => void;
+  onCopyDay: (day: number, action: 'copy' | 'swap') => void;
   /** A locked menu: dishes show, but nothing can be added, moved or removed. */
   readOnly?: boolean;
 }) {
@@ -199,7 +206,8 @@ export function MenuGrid({
                     isToday={today === d}
                     readOnly={readOnly}
                     hasItems={bo.grid.some((x) => x.menuId === m.id && x.day === d)}
-                    onCopy={() => onCopyDay(d)}
+                    onCopy={() => onCopyDay(d, 'copy')}
+                    onSwap={() => onCopyDay(d, 'swap')}
                     onClear={() => {
                       const removed = bo.grid.filter((x) => x.menuId === m.id && x.day === d);
                       removePlacements((x) => removed.includes(x));
@@ -238,13 +246,22 @@ export function MenuGrid({
                         (sameTarget(typing, allWeek) ? (
                           <span className={s.allWeekSearch}>{search(allWeek, 'Type one dish for every day this week')}</span>
                         ) : (
-                          <button className={s.allWeek} title={`Put one dish on ${meal.toLowerCase()} every day of this week`} onClick={() => setTyping(allWeek)}>
+                          <button
+                            className={s.allWeek}
+                            title={`Put one dish on ${meal.toLowerCase()} every day of this week`}
+                            onClick={() => setTyping(allWeek)}
+                          >
                             + Same dish all week
                           </button>
                         ))}
                       {!readOnly &&
                         (hidden as DefaultLane[]).map((lane) => (
-                          <button key={lane} className={s.laneBack} onClick={() => setLaneHidden(meal, lane, false)} title={`Show the ${LANE_NAME[lane].toLowerCase()} row again`}>
+                          <button
+                            key={lane}
+                            className={s.laneBack}
+                            onClick={() => setLaneHidden(meal, lane, false)}
+                            title={`Show the ${LANE_NAME[lane].toLowerCase()} row again`}
+                          >
                             + {LANE_NAME[lane]} row
                           </button>
                         ))}
@@ -311,63 +328,63 @@ export function MenuGrid({
                           {more ? (
                             search(more, `Type ${MORE_LABEL[more.cat ?? 'Entrees']}`)
                           ) : (
-                          <Popover
-                            align="center"
-                            minWidth={220}
-                            trigger={({ toggle }) => (
-                              <button className={s.options} onClick={toggle} aria-label={`Add more to ${meal.toLowerCase()} on day ${d}`}>
-                                <Plus size={13} aria-hidden /> Add more
-                              </button>
-                            )}
-                          >
-                            {({ close }) => (
-                              <>
-                                <div className={s.popHead}>Add to {meal.toLowerCase()}</div>
-                                {(
-                                  [
-                                    ['Entrees', 'Another entrée'],
-                                    ['Starters', 'Another soup or starter'],
-                                    ['Sides', 'A side on its own'],
-                                    ['Desserts', 'Another dessert'],
-                                    ['Drinks', 'A drink'],
-                                  ] as Array<[RecipeCategory, string]>
-                                ).map(([c, label]) => (
-                                  <MenuItem
-                                    key={c}
-                                    icon={<span className={cx(swatchClass, planClass(c))} />}
-                                    onClick={() => {
-                                      close();
-                                      setTyping({ day: d, meal, cat: c, more: true });
-                                    }}
-                                  >
-                                    {label}
-                                  </MenuItem>
-                                ))}
-                                {has && (
-                                  <>
-                                    <MenuDivider />
+                            <Popover
+                              align="center"
+                              minWidth={220}
+                              trigger={({ toggle }) => (
+                                <button className={s.options} onClick={toggle} aria-label={`Add more to ${meal.toLowerCase()} on day ${d}`}>
+                                  <Plus size={13} aria-hidden /> Add more
+                                </button>
+                              )}
+                            >
+                              {({ close }) => (
+                                <>
+                                  <div className={s.popHead}>Add to {meal.toLowerCase()}</div>
+                                  {(
+                                    [
+                                      ['Entrees', 'Another entrée'],
+                                      ['Starters', 'Another soup or starter'],
+                                      ['Sides', 'A side on its own'],
+                                      ['Desserts', 'Another dessert'],
+                                      ['Drinks', 'A drink'],
+                                    ] as Array<[RecipeCategory, string]>
+                                  ).map(([c, label]) => (
                                     <MenuItem
-                                      danger
-                                      icon={<Eraser size={15} />}
+                                      key={c}
+                                      icon={<span className={cx(swatchClass, planClass(c))} />}
                                       onClick={() => {
-                                        const removed = bo.grid.filter((x) => x.menuId === m.id && x.day === d && x.meal === meal);
-                                        removePlacements((x) => removed.includes(x));
                                         close();
-                                        toast(`Cleared ${meal.toLowerCase()}`, {
-                                          action: {
-                                            label: 'Undo',
-                                            onClick: () => restorePlacements(removed),
-                                          },
-                                        });
+                                        setTyping({ day: d, meal, cat: c, more: true });
                                       }}
                                     >
-                                      Clear {meal.toLowerCase()} on this day
+                                      {label}
                                     </MenuItem>
-                                  </>
-                                )}
-                              </>
-                            )}
-                          </Popover>
+                                  ))}
+                                  {has && (
+                                    <>
+                                      <MenuDivider />
+                                      <MenuItem
+                                        danger
+                                        icon={<Eraser size={15} />}
+                                        onClick={() => {
+                                          const removed = bo.grid.filter((x) => x.menuId === m.id && x.day === d && x.meal === meal);
+                                          removePlacements((x) => removed.includes(x));
+                                          close();
+                                          toast(`Cleared ${meal.toLowerCase()}`, {
+                                            action: {
+                                              label: 'Undo',
+                                              onClick: () => restorePlacements(removed),
+                                            },
+                                          });
+                                        }}
+                                      >
+                                        Clear {meal.toLowerCase()} on this day
+                                      </MenuItem>
+                                    </>
+                                  )}
+                                </>
+                              )}
+                            </Popover>
                           )}
                         </td>
                       );
@@ -384,7 +401,7 @@ export function MenuGrid({
 }
 
 /**
- * A day's column heading: its date, and a menu to copy the day, clear it,
+ * A day's column heading: its date, and a menu to copy the day, swap it, clear it,
  * or move the cycle's dates.
  */
 function DayMenu({
@@ -394,6 +411,7 @@ function DayMenu({
   readOnly,
   hasItems,
   onCopy,
+  onSwap,
   onClear,
   onDate,
 }: {
@@ -403,6 +421,7 @@ function DayMenu({
   readOnly?: boolean;
   hasItems: boolean;
   onCopy: () => void;
+  onSwap: () => void;
   onClear: () => void;
   onDate: (d: Date) => void;
 }) {
@@ -443,7 +462,7 @@ function DayMenu({
               setDating(false);
               toggle();
             }}
-            aria-label={`${date ? date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : `Day ${day}`}: copy, clear or change dates`}
+            aria-label={`${date ? date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : `Day ${day}`}: copy, swap, clear or change dates`}
           >
             {label}
             <ChevronDown size={13} className={s.dayChev} aria-hidden />
@@ -481,7 +500,16 @@ function DayMenu({
                   onCopy();
                 }}
               >
-                Copy this day to other days
+                Copy this day to…
+              </MenuItem>
+              <MenuItem
+                icon={<ArrowLeftRight size={15} />}
+                onClick={() => {
+                  close();
+                  onSwap();
+                }}
+              >
+                Swap with…
               </MenuItem>
               {hasItems && (
                 <MenuItem

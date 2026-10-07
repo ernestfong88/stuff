@@ -13,7 +13,7 @@ import { Field, Select } from '../ui/controls';
 import { ApprovalStatus, LockBanner, LockButton } from '../ui/MenuLock';
 import { PlanLegend, QuarterPick, StateChip } from '../ui/menuBits';
 import { AiReview, type AiHighlight } from './AiReview';
-import { CopyDayDialog } from './CopyDayDialog';
+import { CopyDayDialog, type DayAction } from './CopyDayDialog';
 import { MenuGrid, type SlotTarget } from './MenuGrid';
 import { PrintMenus } from './PrintMenus';
 import { QuickEdit } from './QuickEdit';
@@ -35,7 +35,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
   const [confirmClear, setConfirmClear] = useState(false);
   const clearTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(clearTimer.current), []);
-  const [copyFrom, setCopyFrom] = useState<number | null>(null);
+  const [dayAct, setDayAct] = useState<{ day: number; action: DayAction } | null>(null);
   const [quick, setQuick] = useState<{ r: Recipe; day: number } | null>(null);
   const [full, setFull] = useState<Recipe | null>(null);
   const [highlight, setHighlight] = useState<AiHighlight | null>(null);
@@ -71,7 +71,6 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
       });
     }
   };
-
 
   const readOnly = !!m.locked;
 
@@ -132,8 +131,8 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
 
       {!readOnly && len > 0 && empty.length === len && (
         <BoCallout tone="info">
-          A new menu starts empty. Click a <b>+</b> slot to add a dish, use <b>Fill from recipe book</b> below to fill every empty slot at once, or
-          go back and copy last season&apos;s menu instead.
+          A new menu starts empty. Click a <b>+</b> slot to add a dish, use <b>Fill from recipe book</b> below to fill every empty slot at once, or go
+          back and copy last season&apos;s menu instead.
         </BoCallout>
       )}
 
@@ -212,7 +211,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
             note={
               readOnly
                 ? 'Click a dish to open its recipe.'
-                : 'Click + and type a dish name to add it. Click a dish to change its sides, or × to take it off. An empty row has an × by its name to drop it from that meal. Each date has a menu to copy or clear the day.'
+                : 'Click + and type a dish name to add it. Click a dish to change its sides, or × to take it off. An empty row has an × by its name to drop it from that meal. Each date has a menu to copy, swap or clear the day.'
             }
           />
 
@@ -224,7 +223,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
             readOnly={readOnly}
             onPlace={place}
             onQuick={(r, day) => (readOnly ? setFull(r) : setQuick({ r, day }))}
-            onCopyDay={setCopyFrom}
+            onCopyDay={(day, action) => setDayAct({ day, action })}
           />
         </>
       ) : (
@@ -234,7 +233,9 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
         </EmptyState>
       )}
 
-      {copyFrom != null && <CopyDayDialog menuId={m.id} from={copyFrom} len={len} anchor={anchor} onClose={() => setCopyFrom(null)} />}
+      {dayAct && !readOnly && (
+        <CopyDayDialog menuId={m.id} from={dayAct.day} action={dayAct.action} len={len} anchor={anchor} onClose={() => setDayAct(null)} />
+      )}
       {quick && (
         <QuickEdit
           menuId={m.id}

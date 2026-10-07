@@ -220,6 +220,18 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Menu builder: copy or swap days, à la carte item counter; phase switches in the demo box
+- **Copy or swap a day.** Each day's menu in the cycle builder has *Copy this day to…* and *Swap with…*.
+  - **Copy:** pick all meals or one meal, then whether to replace what's on the target days or add to it, then one or more days from the week grid.
+  - **Warning:** when dishes will be replaced, the dialog says which days and how many dishes.
+  - **Swap:** two days trade places across every meal, sides included.
+  - **Undo:** both show a toast with Undo.
+  - **What's kept:** sides stay linked to their entrée, and side choices come with them. Any Day and locked menus are never touched.
+- **À la carte item counter.** À la carte menus show "Menu items N / 20 · Sides N / 8" next to Lock. It turns amber at a limit and red over it, with a warning that doesn't block saving.
+  - **What counts:** beverages and upcharges (add-ons) don't count, and sides count toward the 20.
+  - **Changing the limits:** they are in `MENU_STANDARDS` (`menus/model/alcStandards.ts`).
+- **Phase switches in the demo box.** The Demo box at the top of the screen menu now has the Phase 2 and Phase 3 switches too.
+
 ### Printers by category or recipe, drinks split, P-Mix by meal
 - **Printers by group, category or recipe.** In *Only some items* mode, each printer can take:
   - whole groups;

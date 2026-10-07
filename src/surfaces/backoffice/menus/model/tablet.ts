@@ -138,3 +138,14 @@ const TO_TABLET: Record<string, string> = { Milk: 'Dairy', Wheat: 'Gluten', 'Tre
 export function toTabletAllergens(list: string[]): string[] {
   return list.map((a) => TO_TABLET[a] ?? a);
 }
+
+/**
+ * An upcharge: an add-on sold on top of a dish (extra chicken on a salad).
+ * The tablet marks these `upcharge` and lists them under Add-Ons.
+ */
+export function isUpchargeRecipe(recipeId: string, idx: TabletIndex = tabletIndex()): boolean {
+  return tabletIds(recipeId, idx).some((id) => {
+    const p = idx.placeOf.get(id);
+    return !!p && (p.item.upcharge === true || p.category === 'Add-Ons');
+  });
+}

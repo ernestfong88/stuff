@@ -1,10 +1,11 @@
 /** Changes to menus and what is placed on them. */
 import { now } from '../../../lib/clock';
 import { uid } from '../../../lib/id';
-import type { BoMenu, GridEntry, MenuKind } from '../../../store/menuEdits';
-import { BACK_OFFICE_AUTHOR, getBo, updateBo } from './data';
+import type { BoMenu, GridEntry, MenuKind, SideOverrides } from '../../../store/menuEdits';
+import { BACK_OFFICE_AUTHOR, SEED_SIDES, getBo, updateBo } from './data';
+import { copyDay as copyDayGrid, copyDaySides, swapDays as swapDayGrid, swapDaySides } from './model/dayOps';
 import { addDays, dayStart, quarterMenuName } from '../../../domain/menuCycle';
-import type { BuilderMeal } from './model/types';
+import type { BoState, BuilderMeal } from './model/types';
 
 /** Change a menu, recording who edited it and when. */
 export function updateMenu(id: string, patch: Partial<BoMenu>): void {
@@ -38,12 +39,68 @@ export function restorePlacements(list: GridEntry[]): void {
   updateBo((s) => ({ grid: [...s.grid, ...list.filter((g) => !s.grid.some((x) => x.id === g.id))] }));
 }
 
-/** Copy everything on one cycle day onto other days (what is there already stays). */
-export function copyDay(menuId: string, from: number, to: number[]): void {
+/** What a set of days held before a copy or swap, to put back with Undo. */
+export interface DaySnapshot {
+  menuId: string;
+  days: number[];
+  grid: GridEntry[];
+  sides: SideOverrides[string];
+}
+
+function snapshot(s: BoState, menuId: string, days: number[]): DaySnapshot {
+  const own = s.sides[menuId] ?? {};
+  return {
+    menuId,
+    days,
+    grid: s.grid.filter((g) => g.menuId === menuId && days.includes(g.day)),
+    sides: Object.fromEntries(days.filter((d) => own[d]).map((d) => [d, own[d]])),
+  };
+}
+
+const isLocked = (s: BoState, menuId: string) => !!s.menus.find((m) => m.id === menuId)?.locked;
+
+/**
+ * Copy one cycle day (every meal, or one) onto other days. With replace,
+ * what was there for those meals is taken off. Returns what to restore for
+ * Undo, or null when the menu is locked.
+ */
+export function copyDay(menuId: string, from: number, to: number[], opts: { meal?: BuilderMeal; mode: 'replace' | 'add' }): DaySnapshot | null {
+  let snap: DaySnapshot | null = null;
   updateBo((s) => {
-    const src = s.grid.filter((g) => g.menuId === menuId && g.day === from);
-    let sort = nextSort(s.grid);
-    return { grid: [...s.grid, ...to.flatMap((d) => src.map((g) => ({ ...g, id: uid('g'), day: d, sort: sort++, with: undefined })))] };
+    if (isLocked(s, menuId)) return {};
+    snap = snapshot(s, menuId, to);
+    const grid = copyDayGrid(s.grid, menuId, from, to, { ...opts, newId: () => uid('g') });
+    const copied = new Set(
+      s.grid.filter((g) => g.menuId === menuId && g.day === from && (!opts.meal || g.meal === opts.meal)).map((g) => g.recipeId),
+    );
+    return { grid, sides: copyDaySides(s.sides, SEED_SIDES, menuId, from, to, copied) };
+  });
+  return snap;
+}
+
+/** Trade everything on two cycle days. Returns what to restore for Undo, or null when the menu is locked. */
+export function swapDays(menuId: string, a: number, b: number): DaySnapshot | null {
+  let snap: DaySnapshot | null = null;
+  updateBo((s) => {
+    if (isLocked(s, menuId)) return {};
+    snap = snapshot(s, menuId, [a, b]);
+    return { grid: swapDayGrid(s.grid, menuId, a, b), sides: swapDaySides(s.sides, SEED_SIDES, menuId, a, b) };
+  });
+  return snap;
+}
+
+/** Put days back the way a snapshot saw them (Undo for a copy or swap). */
+export function restoreDays(snap: DaySnapshot): void {
+  updateBo((s) => {
+    const own = { ...s.sides[snap.menuId] };
+    for (const d of snap.days) {
+      if (snap.sides[d]) own[d] = snap.sides[d];
+      else delete own[d];
+    }
+    return {
+      grid: [...s.grid.filter((g) => !(g.menuId === snap.menuId && snap.days.includes(g.day))), ...snap.grid],
+      sides: { ...s.sides, [snap.menuId]: own },
+    };
   });
 }
 

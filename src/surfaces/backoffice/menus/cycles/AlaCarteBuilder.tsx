@@ -3,16 +3,19 @@ import { ChevronLeft, Plus, X } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import type { BoMenu, Recipe, RecipeCategory } from '../../../../store/menuEdits';
 import { Button, Tabs, cx, toast } from '../../../../ui';
-import { BoPage } from '../../kit';
+import { BoCallout, BoPage } from '../../kit';
 import { useBo } from '../data';
 import { addPlacements, removePlacements, setAnyDayMeals } from '../menuActions';
 import { dishLong, normCategory } from '../model/categories';
 import { menuState, venuesAt } from '../../../../domain/menuCycle';
+import { countAlc } from '../model/alcStandards';
 import { DINING_VENUE_ID } from '../model/liveOverlay';
+import { isUpchargeRecipe } from '../model/tablet';
 import type { BuilderMeal } from '../model/types';
 import { RecipeDialog } from '../recipes/RecipeDialog';
 import { QuarterBadge, QuarterPick, StateChip } from '../ui/menuBits';
 import { ApprovalStatus, LockBanner, LockButton } from '../ui/MenuLock';
+import { ALC_RULE, AlcCounter, alcWarnings } from './AlcCounter';
 import { SlotSearch } from './SlotSearch';
 import s from './AlaCarteBuilder.module.css';
 
@@ -71,6 +74,19 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
     return [...by.values()].sort((a, b) => dishLong(a.r?.name ?? '').localeCompare(dishLong(b.r?.name ?? '')));
   }, [bo.grid, bo.recipes, m.id]);
 
+  // The standard is for à la carte menus; a cycle's every-day list is the whole standing tablet menu.
+  const standard = m.kind === 'alc' && !everyDay;
+  const tally = useMemo(
+    () =>
+      countAlc(
+        bo.grid.filter((g) => g.menuId === m.id && g.day === 0),
+        (id) => bo.recipes.find((x) => x.id === id),
+        (id) => isUpchargeRecipe(id),
+      ),
+    [bo.grid, bo.recipes, m.id],
+  );
+  const over = standard ? alcWarnings(tally) : [];
+
   const liveNote = live ? ' · servers see it now' : '';
   const readOnly = !!m.locked;
   const toggle = (row: Row, ml: BuilderMeal) => {
@@ -115,12 +131,24 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
           {!everyDay && <ApprovalStatus menu={m} />}
         </span>
       }
-      actions={!readOnly && !everyDay ? <LockButton menu={m} /> : undefined}
+      actions={
+        standard || (!readOnly && !everyDay) ? (
+          <span className={s.actions}>
+            {standard && <AlcCounter count={tally} />}
+            {!readOnly && !everyDay && <LockButton menu={m} />}
+          </span>
+        ) : undefined
+      }
     >
       <button className={s.back} onClick={onBack}>
         <ChevronLeft size={16} aria-hidden /> All menus
       </button>
       {readOnly && <LockBanner menu={m} />}
+      {over.length > 0 && (
+        <BoCallout tone="warning" title={`This menu is ${over.join(' and ')}.`}>
+          It is a guide, not a block: your changes still save.
+        </BoCallout>
+      )}
       <div className={s.meals}>
         <span className={s.mealLabel}>Show</span>
         <Tabs
@@ -146,6 +174,9 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
           ? 'Each dish shows the meals it is offered at. Click a dish to open its recipe.'
           : 'Breakfast, Lunch and Dinner on each dish choose when it is offered: dark means on. Click a dish to open its recipe.'}
         {live ? ' Sequoia and Evergreen servers order from this list, so a change shows on their tablets right away.' : ''}
+        {standard
+          ? ` Menu standard: ${tally.limitItems} menu items, at most ${tally.limitSides} sides. ${ALC_RULE.replace('the 20', `the ${tally.limitItems}`)}`
+          : ''}
       </p>
 
       <div className={s.sections}>
