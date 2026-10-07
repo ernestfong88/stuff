@@ -1,8 +1,11 @@
 import { AlertTriangle, Plus } from 'lucide-react';
 import { uid } from '../../../../lib/id';
 import { Button } from '../../../../ui';
-import { BoCallout, BoPage, BoRow, BoSection, CrudTable, setBillingList, useBilling, useCrudEditing, type CrudColumn } from '../../kit';
+import { BoCallout, BoPage, BoRow, BoSection, BoTabbedPage, CrudTable, setBillingList, useBilling, useCrudEditing, type CrudColumn } from '../../kit';
 import type { BoPageProps } from '../../nav';
+import { CorkageTab } from '../fees';
+import MealCountsPage from '../mealdrops';
+import { useHubTab } from '../pageTab';
 import type { BoMealPlan } from '../../seed/billing';
 import { RetiredList } from '../RetiredList';
 import s from './plans.module.css';
@@ -25,14 +28,14 @@ const COLUMNS: Array<CrudColumn<BoMealPlan>> = [
 ];
 
 /** Meal Plans: the plan types the charge engine uses, and guest meal credits. */
-export default function MealPlansPage({ goto }: BoPageProps) {
+function MealPlansTab({ goto }: BoPageProps) {
   const { plans } = useBilling();
   const editing = useCrudEditing<BoMealPlan>();
   const defaults = plans.filter((p) => p.active && p.isDefault);
   return (
     <BoPage
       title="Meal Plans"
-      sub="The plans a resident can be on: a number of meals a month or a day, or a dollar spend-down shared by a couple (Monthly $). Choose a resident's plan in Dining Plans & Notes."
+      sub="The plans a resident can be on: a number of meals a month or a day, or a dollar spend-down shared by a couple (Monthly $). Choose a resident's plan from their profile, under Residents."
       actions={
         <Button variant="primary" icon={<Plus size={15} />} onClick={() => editing.add({ id: uid('pl'), text: 'New plan', amt: 30, type: 'Monthly', isDefault: false, active: true })} disabled={editing.draft != null}>
           Add a plan
@@ -62,5 +65,26 @@ export default function MealPlansPage({ goto }: BoPageProps) {
         </BoRow>
       </BoSection>
     </BoPage>
+  );
+}
+
+const HUB_TABS = ['plans', 'counts', 'corkage'] as const;
+
+/** Billing Setup: the lists billing uses, set up once and rarely changed. */
+export default function BillingSetupPage(props: BoPageProps) {
+  const [tab, go] = useHubTab('plans', HUB_TABS);
+  return (
+    <BoTabbedPage
+      page="plans"
+      title="Billing Setup"
+      sub="Set up once and rarely changed: the meal plans residents can be on, the meal counts servers pick at close, and corkage."
+      current={tab}
+      onTab={go}
+      tabs={[
+        { id: 'plans', label: 'Meal plans', render: () => <MealPlansTab {...props} /> },
+        { id: 'counts', label: 'Meal counts', render: () => <MealCountsPage {...props} /> },
+        { id: 'corkage', label: 'Corkage', render: () => <CorkageTab /> },
+      ]}
+    />
   );
 }

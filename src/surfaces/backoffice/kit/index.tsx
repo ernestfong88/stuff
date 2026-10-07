@@ -8,12 +8,37 @@
  *     <BoTable columns rows />
  *   </BoPage>
  */
-import type { CSSProperties, InputHTMLAttributes, ReactNode } from 'react';
+import { createContext, useContext, type CSSProperties, type InputHTMLAttributes, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { cx } from '../../../ui';
+import { Tabs, cx } from '../../../ui';
 import s from './kit.module.css';
 
+/**
+ * Set by a page that shows other pages as its tabs (BoTabbedPage): their
+ * BoPage drops its own title, since the tab already names it, and keeps its
+ * description and buttons.
+ */
+const EmbeddedPage = createContext(false);
+
+/** Show a page inside another page's tab, without its own title. */
+export function BoEmbedded({ children }: { children: ReactNode }) {
+  return <EmbeddedPage.Provider value={true}>{children}</EmbeddedPage.Provider>;
+}
+
 export function BoPage({ title, sub, actions, children }: { title: ReactNode; sub?: ReactNode; actions?: ReactNode; children?: ReactNode }) {
+  const embedded = useContext(EmbeddedPage);
+  if (embedded)
+    return (
+      <div className={s.page}>
+        {(sub || actions) && (
+          <header className={s.embedHead}>
+            {sub && <p className={s.embedSub}>{sub}</p>}
+            {actions && <div className={s.pageActions}>{actions}</div>}
+          </header>
+        )}
+        {children}
+      </div>
+    );
   return (
     <div className={s.page}>
       <header className={s.pageHead}>
@@ -24,6 +49,49 @@ export function BoPage({ title, sub, actions, children }: { title: ReactNode; su
         {actions && <div className={s.pageActions}>{actions}</div>}
       </header>
       {children}
+    </div>
+  );
+}
+
+export interface BoTab {
+  id: string;
+  label: ReactNode;
+  count?: number;
+  render: () => ReactNode;
+}
+
+/**
+ * A page made of tabs, each one a former page of its own: one title, one row
+ * of tabs, and the chosen tab below. The tab lives in the address,
+ * #/backoffice/<page>/<tab>; the first tab has no segment, so it keeps
+ * whatever comes after the page (a resident's id, its own sub-tab).
+ */
+export function BoTabbedPage({
+  page,
+  title,
+  sub,
+  tabs,
+  current,
+  onTab,
+}: {
+  page: string;
+  title: ReactNode;
+  sub?: ReactNode;
+  tabs: BoTab[];
+  current: string;
+  onTab: (id: string) => void;
+}) {
+  const tab = tabs.find((t) => t.id === current) ?? tabs[0];
+  return (
+    <div className={s.page}>
+      <header className={s.pageHead}>
+        <div className={s.pageTitles}>
+          <h1 className={s.pageTitle}>{title}</h1>
+          {sub && <p className={s.pageSub}>{sub}</p>}
+        </div>
+      </header>
+      <Tabs variant="underline" aria-label={`${typeof title === 'string' ? title : page} sections`} value={tab.id} onChange={onTab} options={tabs.map((t) => ({ id: t.id, label: t.label, count: t.count }))} />
+      <EmbeddedPage.Provider value={true}>{tab.render()}</EmbeddedPage.Provider>
     </div>
   );
 }

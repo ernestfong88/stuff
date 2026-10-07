@@ -36,7 +36,7 @@ export default function BarSurface() {
           </span>
         </div>
         {!roomHasBar(venue, cfg) && !q.make.length && !q.waiting.length && (
-          <p className={s.note}>Servers pour their own drinks at {roomName}. A manager can send any drink to the bar in Back Office, Kitchen Routing.</p>
+          <p className={s.note}>Servers pour their own drinks at {roomName}. A manager can send any drink to the bar in Back Office, Venue Settings, on the venue's Kitchen tab.</p>
         )}
 
         <Eyebrow className={s.cap}>To make</Eyebrow>

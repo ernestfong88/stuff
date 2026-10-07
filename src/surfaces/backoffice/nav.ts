@@ -143,30 +143,10 @@ export const BO_SECTIONS: BoSectionDef[] = [
       {
         id: 'venues',
         label: 'Venue Settings',
-        blurb: 'Menus, printers, KDS screens and payment terminals per venue',
-        keywords: 'printer terminal square room kds screen cook hot cold station',
+        blurb: "Each venue's menu, prices, floor plan, kitchen screens and routing, printers and terminals",
+        keywords:
+          'printer terminal square room kds screen cook hot cold station price pricing cost guest a la carte floor plan tables layout seating map kitchen routing expo bar route',
         component: lazy(() => import('./pages/venues')),
-      },
-      {
-        id: 'pricing',
-        label: 'Pricing',
-        blurb: 'Resident, guest and a la carte prices',
-        keywords: 'price cost guest a la carte',
-        component: lazy(() => import('./pages/pricing')),
-      },
-      {
-        id: 'floorplan',
-        label: 'Floor Plans',
-        blurb: 'Arrange the tables in each room',
-        keywords: 'tables layout seating map',
-        component: lazy(() => import('./pages/floorplan')),
-      },
-      {
-        id: 'svcRoute',
-        label: 'Kitchen Routing',
-        blurb: 'Cook line, expo or bar for each recipe',
-        keywords: 'kds expo bar station route',
-        component: lazy(() => import('./pages/svcRoute')),
       },
     ],
   },
@@ -178,37 +158,30 @@ export const BO_SECTIONS: BoSectionDef[] = [
       {
         id: 'svcFlow',
         label: 'Service Flow',
-        blurb: 'Check-in, dessert and ordering steps',
-        keywords: 'check in dessert steps workflow',
+        blurb: 'Coursing, check-ins, dessert and ordering steps',
+        keywords: 'check in dessert steps workflow coursing hospice comp',
         component: lazy(() => import('./pages/svcFlow')),
       },
       {
         id: 'svcWin',
-        label: 'Pick Up Windows',
-        blurb: 'The 15 minute ranges each venue offers',
-        keywords: 'pick up delivery window range time slot associate schedule cutoff',
+        label: 'Pick Up & Delivery',
+        blurb: 'Pick up times, delivery fees and sick fee waivers',
+        keywords: 'pick up delivery window range time slot associate schedule cutoff tray room service fee sick waiver waive',
         component: lazy(() => import('./pages/svcWin')),
       },
       {
         id: 'svcTexts',
-        label: 'Text Messages',
-        blurb: 'What residents and associates get by text',
-        keywords: 'sms text message template wording mobile phone cell no mobile',
+        label: 'Messages',
+        blurb: 'Texts to residents and broadcasts to staff',
+        keywords: 'sms text message template wording mobile phone cell no mobile broadcast alert announcement notice acknowledge',
         component: lazy(() => import('./pages/svcTexts')),
       },
       {
         id: 'svcKiosk',
-        label: 'Featured on Kiosk',
+        label: 'Kiosk',
         blurb: 'The drinks and sides residents see first at the lobby kiosk',
-        keywords: 'kiosk featured popular favorites drinks sides short list lobby order',
+        keywords: 'kiosk featured popular favorites drinks sides short list lobby order rotate screen',
         component: lazy(() => import('./pages/svcKiosk')),
-      },
-      {
-        id: 'broadcasts',
-        label: 'Broadcasts',
-        blurb: 'Notices servers open and acknowledge',
-        keywords: 'message alert announcement notice acknowledge',
-        component: lazy(() => import('./pages/broadcasts')),
       },
     ],
   },
@@ -218,25 +191,12 @@ export const BO_SECTIONS: BoSectionDef[] = [
     icon: Users,
     pages: [
       {
-        id: 'resDiets',
-        label: 'Allergies & Diets',
-        blurb: 'Who has each allergy, diet or texture, as the kitchen ticket shows it',
-        keywords: 'allergy allergies diet texture puree thickened gluten shellfish kds ticket report',
-        component: lazy(() => import('./pages/resDiets')),
-      },
-      {
         id: 'resProfiles',
-        label: 'Resident Profiles',
-        blurb: 'The profile servers see when they open a resident',
-        keywords: 'profile server view story family usuals preference',
+        label: 'Residents',
+        blurb: 'Profiles as servers see them, allergies and diets, trivia',
+        keywords:
+          'profile server view story family usuals preference allergy allergies diet texture puree thickened gluten shellfish trivia quiz score scoreboard prize',
         component: lazy(() => import('./pages/resProfiles')),
-      },
-      {
-        id: 'trivia',
-        label: 'Trivia Scoreboard',
-        blurb: 'Monthly trivia points, winners and prizes',
-        keywords: 'trivia quiz question game score scoreboard leaderboard prize winners engagement tv large print',
-        component: lazy(() => import('./pages/trivia')),
       },
     ],
   },
@@ -261,24 +221,10 @@ export const BO_SECTIONS: BoSectionDef[] = [
       },
       {
         id: 'plans',
-        label: 'Meal Plans',
-        blurb: 'Plan types the charge engine uses, guest meal credits',
-        keywords: 'plan monthly daily spend-down guest meal credit',
+        label: 'Billing Setup',
+        blurb: 'Meal plans, meal counts and corkage',
+        keywords: 'plan monthly daily spend-down meal counts guest associate close corkage wine bottle',
         component: lazy(() => import('./pages/plans')),
-      },
-      {
-        id: 'mealdrops',
-        label: 'Meal Counts',
-        blurb: 'Options a server picks at close',
-        keywords: 'guest associate count close',
-        component: lazy(() => import('./pages/mealdrops')),
-      },
-      {
-        id: 'fees',
-        label: 'Delivery Options',
-        blurb: 'Room service, tray and corkage fees, sick fee waivers',
-        keywords: 'tray room service fee corkage wine bottle check charge sick waiver waive delivery fee',
-        component: lazy(() => import('./pages/fees')),
       },
     ],
   },
@@ -354,6 +300,32 @@ export const BO_MORE_PAGES: BoPageDef[] = [
 ];
 
 export const BO_PAGES: BoPageDef[] = BO_SECTIONS.flatMap((s) => s.pages);
+
+/**
+ * Pages that were merged into another page's tab. Their old addresses (and
+ * links inside the app) still work: they open the tab they became, and
+ * search still finds them by their old name.
+ */
+export interface BoPageAlias {
+  id: string;
+  label: string;
+  blurb: string;
+  keywords: string;
+  /** Where it lives now, as #/backoffice/<...to>. */
+  to: string[];
+}
+
+export const BO_ALIASES: BoPageAlias[] = [
+  { id: 'pricing', label: 'Prices', blurb: 'In Venue Settings, on each venue', keywords: 'pricing price cost guest a la carte', to: ['venues', 'first', 'prices'] },
+  { id: 'floorplan', label: 'Floor plan', blurb: 'In Venue Settings, on each venue', keywords: 'floor plans tables layout seating map', to: ['venues', 'first', 'floor'] },
+  { id: 'svcRoute', label: 'Kitchen routing', blurb: 'In Venue Settings, on each venue', keywords: 'kitchen routing kds expo bar station route', to: ['venues', 'first', 'kitchen'] },
+  { id: 'fees', label: 'Delivery fees & sick waivers', blurb: 'In Pick Up & Delivery', keywords: 'delivery options tray room service fee sick waiver', to: ['svcWin', 'fees'] },
+  { id: 'broadcasts', label: 'Broadcasts to staff', blurb: 'In Messages', keywords: 'broadcast notice announcement', to: ['svcTexts', 'broadcasts'] },
+  { id: 'resDiets', label: 'Allergies & diets', blurb: 'In Residents', keywords: 'allergy diet texture', to: ['resProfiles', 'diets'] },
+  { id: 'trivia', label: 'Trivia scoreboard', blurb: 'In Residents', keywords: 'trivia quiz score prize', to: ['resProfiles', 'trivia'] },
+  { id: 'mealdrops', label: 'Meal counts', blurb: 'In Billing Setup', keywords: 'meal counts guest associate close', to: ['plans', 'counts'] },
+  { id: 'corkage', label: 'Corkage', blurb: 'In Billing Setup', keywords: 'corkage wine bottle fee', to: ['plans', 'corkage'] },
+];
 
 export const DEFAULT_BO_PAGE = 'dashboard';
 

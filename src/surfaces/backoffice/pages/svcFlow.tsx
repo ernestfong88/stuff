@@ -201,12 +201,12 @@ export default function Page({ goto }: BoPageProps) {
       {tab === 'pickup' && (
         <>
           <PickupTracking />
-          <BoSection title="Comps for residents on hospice" sub="Mark a resident On hospice in Resident Profiles.">
+          <BoSection title="Comps for residents on hospice" sub="Mark a resident On hospice in Residents.">
             <FlowToggle k="hospiceAuto" label="Comp their meals" hint="Their meals are comped at close with the reason Hospice. No manager PIN, and no meal credit used." />
             <FlowToggle
               k="freeDeliveryComp"
               label="Waive their delivery fees"
-              hint="The delivery fee is waived with no manager PIN. For anyone else a hospice waiver needs a manager PIN. Sick waivers have their own monthly limit, under Delivery Options."
+              hint="The delivery fee is waived with no manager PIN. For anyone else a hospice waiver needs a manager PIN. Sick waivers have their own monthly limit, under Pick Up & Delivery."
             />
           </BoSection>
         </>

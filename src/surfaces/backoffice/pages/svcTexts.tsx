@@ -13,9 +13,10 @@ import { useOutbox } from '../../../store/textOutbox';
 import { formatPhone, hasMobile, hasMobileByDefault, PHONES } from '../../../domain/pickupService/phones';
 import { mobileOverrides, textSettings, useServiceSettings, type TextSetting } from '../../../domain/pickupService/settings';
 import { fillText, smsParts, TEXT_DEFINITIONS, TEXT_TAG_LABELS, textBody, textOn, type TextDefinition, type TextKey, type TextTag } from '../../../domain/pickupService/texts';
-import { BoPage, BoSection } from '../kit';
+import { BoPage, BoSection, BoTabbedPage } from '../kit';
 import { ConfirmReset } from './ConfirmReset';
-import { usePageTab } from './pageTab';
+import { useHubTab, usePageTab } from './pageTab';
+import BroadcastsPage from './broadcasts';
 import { insertTag, unknownTags } from './textTags';
 import type { BoPageProps } from '../nav';
 import s from './svcTexts.module.css';
@@ -198,7 +199,7 @@ const TABS = ['texts', 'mobile', 'sent'] as const;
 type TextsTab = (typeof TABS)[number];
 
 /** Text Messages: What residents and associates get by text. */
-export default function Page(_props: BoPageProps) {
+function ResidentTexts() {
   const svc = useServiceSettings();
   const texts = textSettings(svc);
   const sent = useOutbox();
@@ -244,5 +245,24 @@ export default function Page(_props: BoPageProps) {
       {tab === 'mobile' && <NoMobile />}
       {tab === 'sent' && <Outbox />}
     </BoPage>
+  );
+}
+
+const HUB_TABS = ['texts', 'broadcasts'] as const;
+
+/** Messages: texts residents get, and broadcasts servers read on their tablets. */
+export default function Page(props: BoPageProps) {
+  const [tab, go] = useHubTab('svcTexts', HUB_TABS);
+  return (
+    <BoTabbedPage
+      page="svcTexts"
+      title="Messages"
+      current={tab}
+      onTab={go}
+      tabs={[
+        { id: 'texts', label: 'Texts to residents', render: () => <ResidentTexts /> },
+        { id: 'broadcasts', label: 'Broadcasts to staff', render: () => <BroadcastsPage {...props} /> },
+      ]}
+    />
   );
 }

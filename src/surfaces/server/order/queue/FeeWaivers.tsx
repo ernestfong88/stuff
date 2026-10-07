@@ -88,7 +88,7 @@ export function HospiceWaiver({ order: o }: { order: Order }) {
       {ask && (
         <ManagerPinDialog
           title={`Mark ${first} as on hospice`}
-          sub={`Manager PIN. This updates ${first}'s resident profile, so this delivery and every one after it has no delivery fee, with no PIN. Turn it off in Back Office, Resident Profiles.`}
+          sub={`Manager PIN. This updates ${first}'s resident profile, so this delivery and every one after it has no delivery fee, with no PIN. Turn it off in Back Office, Residents.`}
           onClose={() => setAsk(false)}
           onOk={() => {
             setAsk(false);

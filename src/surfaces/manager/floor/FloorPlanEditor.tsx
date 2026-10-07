@@ -23,9 +23,10 @@ function withoutKey<T>(rec: Record<string, T>, key: string): Record<string, T> {
  * remove them, rename and resize, then save. The host and manager floors
  * read the saved layout. A removed table stays in order history.
  */
-export function FloorPlanEditor() {
+export function FloorPlanEditor({ room: fixedRoom }: { room?: string } = {}) {
   const saved = useShared(layoutStore);
-  const [room, setRoom] = useState(roomKeys[0]);
+  const [pickedRoom, setRoom] = useState(roomKeys[0]);
+  const room = fixedRoom ?? pickedRoom;
   const [drafts, setDrafts] = useState<Record<string, PlanItem[]>>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [confirm, confirmUi] = useConfirm();
@@ -126,17 +127,19 @@ export function FloorPlanEditor() {
   return (
     <div className={s.editor}>
       <div className={s.bar}>
-        <Tabs
-          variant="pills"
-          size="sm"
-          value={room}
-          onChange={(r) => {
-            setRoom(r);
-            setSelected(null);
-          }}
-          aria-label="Room"
-          options={roomKeys.map((k) => ({ id: k, label: drafts[k] ? `${rooms[k].name} (not saved)` : rooms[k].name }))}
-        />
+        {!fixedRoom && (
+          <Tabs
+            variant="pills"
+            size="sm"
+            value={room}
+            onChange={(r) => {
+              setRoom(r);
+              setSelected(null);
+            }}
+            aria-label="Room"
+            options={roomKeys.map((k) => ({ id: k, label: drafts[k] ? `${rooms[k].name} (not saved)` : rooms[k].name }))}
+          />
+        )}
         <span className={s.grow} />
         <Button size="sm" icon={<Square size={14} />} onClick={() => add('table')}>
           Add table

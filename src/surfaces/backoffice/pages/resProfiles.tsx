@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { ChevronLeft, SearchX } from 'lucide-react';
 import type { BoPageProps } from '../nav';
-import { BoPage } from '../kit';
+import { BoPage, BoTabbedPage } from '../kit';
 import { getResident, residents } from '../../../data';
 import { isOnHospice } from '../../../domain/waivers';
 import type { Resident } from '../../../domain/types';
 import { navigate, useRoute } from '../../../shell/router';
+import { useHubTab } from './pageTab';
+import AllergiesDietsPage from './resDiets';
+import TriviaPage from './trivia';
 import { useConfig } from '../../../store/config';
 import { Button, Chip, EmptyState, SearchField } from '../../../ui';
 import { HospiceCard } from './residents/HospiceCard';
@@ -29,7 +32,7 @@ function HospiceTag({ resident }: { resident: Resident }) {
  * A resident opens at #/backoffice/resProfiles/<id>, so the browser's back
  * button returns to the list and a profile can be linked to.
  */
-export default function Page({ goto }: BoPageProps) {
+function ResidentProfiles({ goto }: BoPageProps) {
   const route = useRoute();
   const [query, setQuery] = useState('');
   const resident = route.path[0] === 'resProfiles' ? getResident(route.path[1]) : undefined;
@@ -97,5 +100,30 @@ export default function Page({ goto }: BoPageProps) {
         <EmptyState icon={<SearchX size={28} />} title="No resident matches that" />
       )}
     </BoPage>
+  );
+}
+
+const HUB_TABS = ['profiles', 'diets', 'trivia'] as const;
+
+/**
+ * Residents: everyone as servers see them, their allergies and diets, and
+ * the trivia scoreboard. An open profile shows on its own, without the tabs.
+ */
+export default function Page(props: BoPageProps) {
+  const route = useRoute();
+  const [tab, go] = useHubTab('resProfiles', HUB_TABS);
+  if (route.path[0] === 'resProfiles' && getResident(route.path[1])) return <ResidentProfiles {...props} />;
+  return (
+    <BoTabbedPage
+      page="resProfiles"
+      title="Residents"
+      current={tab}
+      onTab={go}
+      tabs={[
+        { id: 'profiles', label: 'Profiles', render: () => <ResidentProfiles {...props} /> },
+        { id: 'diets', label: 'Allergies & diets', render: () => <AllergiesDietsPage {...props} /> },
+        { id: 'trivia', label: 'Trivia scoreboard', render: () => <TriviaPage {...props} /> },
+      ]}
+    />
   );
 }

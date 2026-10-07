@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { filterCommunityGroups } from '../../kit/community';
-import { BO_MORE_PAGES, BO_PAGES, findPage, navPageId } from '../../nav';
+import { BO_ALIASES, BO_MORE_PAGES, BO_PAGES, findPage, navPageId } from '../../nav';
 import { searchPages } from '../search';
 import { isSearchShortcut, shortcutLabel } from '../shortcut';
 
@@ -54,5 +54,15 @@ describe('community search', () => {
   });
   it('matches a whole group by its name', () => {
     expect(filterCommunityGroups(cols, 'balfour')[0][0][1]).toHaveLength(2);
+  });
+});
+
+describe('merged pages', () => {
+  it('sends every old page address to a page that exists, and never to another old address', () => {
+    for (const a of BO_ALIASES) {
+      expect(findPage(a.to[0]), a.id).not.toBeNull();
+      expect(BO_ALIASES.some((x) => x.id === a.to[0]), a.id).toBe(false);
+      expect(BO_PAGES.some((p) => p.id === a.id), `${a.id} is both a page and an old address`).toBe(false);
+    }
   });
 });

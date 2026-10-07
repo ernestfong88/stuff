@@ -121,6 +121,11 @@ components so only they re-render each second.
 `useView('mine')` returns `[view, setView, rest]`. Deep links work, so
 `#/backoffice/billing` opens straight to billing.
 
+### Back Office pages made of tabs
+- A page whose parts used to be pages of their own uses `BoTabbedPage` (from `backoffice/kit`) with `useHubTab` (`pages/pageTab.ts`). The first tab owns the bare address, `#/backoffice/<page>`, so its own links still work. The other tabs are at `#/backoffice/<page>/<tab>`.
+- Inside a tab, a page's own `BoPage` drops its title. To show a page inside some other tab of your own, wrap it in `BoEmbedded`.
+- A page that becomes a tab goes into `BO_ALIASES` in `nav.ts`. Its old address then redirects to the tab, and search still finds it under its old name.
+
 ### Chrome
 - Tablet surfaces wrap themselves in `TabletShell` (`nav`, `actions` and
   `rail` slots).

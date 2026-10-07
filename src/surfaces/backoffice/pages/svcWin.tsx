@@ -34,10 +34,11 @@ import {
   type WindowSettings,
   type WindowType,
 } from '../../../domain/pickupService/windows';
-import { BoPage, BoRow, BoSection, NumberBox } from '../kit';
+import { BoPage, BoRow, BoSection, BoTabbedPage, NumberBox } from '../kit';
 import type { BoPageProps } from '../nav';
 import { ConfirmReset } from './ConfirmReset';
-import { usePageTab } from './pageTab';
+import { useHubTab, usePageTab } from './pageTab';
+import DeliveryFeesTab from './fees';
 import s from './svcWin.module.css';
 
 const TABS = ['ranges', 'capacity', 'timing'] as const;
@@ -319,7 +320,7 @@ function Timing({ win }: { win: WindowSettings }) {
 }
 
 /** Pick Up Windows: The 15 minute ranges each venue offers. */
-export default function Page(_props: BoPageProps) {
+function PickUpTimes() {
   const win = windowSettings(useServiceSettings());
   const [venue, setVenue] = useState(venueOptions[0].id);
   const [tab, setTab] = usePageTab<WinTab>('svcWin', TABS);
@@ -343,5 +344,24 @@ export default function Page(_props: BoPageProps) {
       {tab === 'capacity' && <Capacity win={win} venue={venue} setVenue={setVenue} />}
       {tab === 'timing' && <Timing win={win} />}
     </BoPage>
+  );
+}
+
+const HUB_TABS = ['times', 'fees'] as const;
+
+/** Pick Up & Delivery: when residents and associates can book, and what delivery costs. */
+export default function Page(_props: BoPageProps) {
+  const [tab, go] = useHubTab('svcWin', HUB_TABS);
+  return (
+    <BoTabbedPage
+      page="svcWin"
+      title="Pick Up & Delivery"
+      current={tab}
+      onTab={go}
+      tabs={[
+        { id: 'times', label: 'Pick up times', render: () => <PickUpTimes /> },
+        { id: 'fees', label: 'Delivery fees & sick waivers', render: () => <DeliveryFeesTab /> },
+      ]}
+    />
   );
 }

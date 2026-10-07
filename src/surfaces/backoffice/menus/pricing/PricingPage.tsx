@@ -19,14 +19,14 @@ const FIELDS: Array<[PriceField, string]> = [
 ];
 
 /** Pricing: resident, guest and à la carte prices for each recipe at a venue. */
-export function PricingPage() {
+export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) {
   const bo = useBo();
   const venues = useMemo(() => venuesAt(bo.venues, now()).filter((v) => v.active && v.menuId), [bo.venues]);
   const [venueId, setVenueId] = useState(venues[0]?.id ?? '');
   const [cat, setCat] = useState('');
   const [q, setQ] = useState('');
   const [changedOnly, setChangedOnly] = useState(false);
-  const venue = venues.find((v) => v.id === venueId) ?? venues[0];
+  const venue = fixedVenue ? venues.find((v) => v.id === fixedVenue) : (venues.find((v) => v.id === venueId) ?? venues[0]);
   const onMenu = useMemo(() => recipesOnMenu(bo, venue?.menuId ?? null), [bo, venue]);
   const byId = useMemo(() => new Map(bo.recipes.map((r) => [r.id, r])), [bo.recipes]);
   const query = q.trim().toLowerCase();
@@ -45,7 +45,11 @@ export function PricingPage() {
   if (!venue) {
     return (
       <BoPage title="Pricing" sub="Prices for each recipe at this venue, across every menu it serves.">
-        <EmptyState title="No venue serves a menu yet">Give a venue a menu in Venue Settings, then set its prices here.</EmptyState>
+        {fixedVenue ? (
+          <EmptyState title="No menu yet">Choose this venue's menu on its Menu tab, then set its prices here.</EmptyState>
+        ) : (
+          <EmptyState title="No venue serves a menu yet">Give a venue a menu in Venue Settings, then set its prices here.</EmptyState>
+        )}
       </BoPage>
     );
   }
@@ -66,7 +70,9 @@ export function PricingPage() {
       sub="What each dish costs at a venue, for residents, guests and à la carte. Changes save as you type. A closed check keeps the price it was ordered at."
     >
       <div className={s.toolbar}>
-        <Tabs variant="pills" size="md" value={venue.id} onChange={setVenueId} options={venues.map((v) => ({ id: v.id, label: v.name }))} aria-label="Venue" />
+        {!fixedVenue && (
+          <Tabs variant="pills" size="md" value={venue.id} onChange={setVenueId} options={venues.map((v) => ({ id: v.id, label: v.name }))} aria-label="Venue" />
+        )}
         <Select
           value={cat}
           onChange={setCat}

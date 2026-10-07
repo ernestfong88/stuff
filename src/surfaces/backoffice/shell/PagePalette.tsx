@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Search } from 'lucide-react';
 import { cx } from '../../../ui';
-import { BO_MORE_PAGES, BO_SECTIONS, findPage, type BoSectionDef } from '../nav';
+import { BO_ALIASES, BO_MORE_PAGES, BO_SECTIONS, findPage, type BoSectionDef } from '../nav';
 import { phaseOf, usePhasePlan } from '../phases';
 import { searchPages, type SearchablePage } from './search';
 import s from './PagePalette.module.css';
@@ -15,6 +15,10 @@ const ENTRIES: Entry[] = [
   ...BO_MORE_PAGES.flatMap((p) => {
     const home = findPage(p.id);
     return home ? [{ ...p, section: home.section.label, sectionDef: home.section }] : [];
+  }),
+  ...BO_ALIASES.flatMap((a) => {
+    const home = findPage(a.to[0]);
+    return home ? [{ ...a, section: home.page.label, sectionDef: home.section }] : [];
   }),
 ];
 

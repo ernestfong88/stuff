@@ -7,7 +7,7 @@
 import { formatTime } from '../../../../lib/format';
 import { menuById, venuePrinters, type Venue, type VenueAdminView } from '../../../../store/venueSettings';
 
-export type VenueTab = 'menu' | 'devices' | 'kitchen' | 'details';
+export type VenueTab = 'menu' | 'prices' | 'floor' | 'kitchen' | 'devices' | 'details';
 
 export interface VenueIssue {
   venueId: string;

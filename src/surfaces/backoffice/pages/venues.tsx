@@ -14,9 +14,14 @@ import { Button, Tabs, cx, toast } from '../../../ui';
 import { KdsScreensEditor } from '../../kitchen/admin/KdsScreensEditor';
 import { cycleWeekLabel, isStaticMenu } from '../../kitchen/admin/menuCycle';
 import { VenueDevices } from '../../kitchen/admin/VenueDevices';
+import { resetRouting, routingEdited, RoutingEditor } from '../../kitchen/admin/RoutingEditor';
+import { FloorPlanEditor } from '../../manager/floor/FloorPlanEditor';
+import { useConfig } from '../../../store/config';
+import { PricingPage } from '../menus/pricing/PricingPage';
+import { ConfirmReset } from './ConfirmReset';
 import { menuById, patchVenue, useVenueSettings, venueSettingsStore, type Venue, type VenueAdminView } from '../../../store/venueSettings';
 import { cycleLenOf, refreshLiveMenu, useBo } from '../menus/data';
-import { BoPage, BoSection } from '../kit';
+import { BoEmbedded, BoPage, BoSection } from '../kit';
 import type { BoPageProps } from '../nav';
 import { NewVenueDialog } from './venues/NewVenueDialog';
 import { VenueDetails, kitchenName } from './venues/VenueDetails';
@@ -24,7 +29,7 @@ import { VenueMenu } from './venues/VenueMenu';
 import { allVenueIssues, kitchenOf, venueIssues, type VenueTab } from './venues/issues';
 import s from './venues/venues.module.css';
 
-const TABS: VenueTab[] = ['menu', 'devices', 'kitchen', 'details'];
+const TABS: VenueTab[] = ['menu', 'prices', 'floor', 'kitchen', 'devices', 'details'];
 
 /** One line under a venue's name in the list: its menu and where it is in the cycle. */
 function menuLine(settings: VenueAdminView, v: Venue): string {
@@ -65,12 +70,17 @@ export default function Page({ goto }: BoPageProps) {
   const venue = active.find((v) => v.id === route.path[1]) ?? active[0];
   const tab: VenueTab = TABS.includes(route.path[2] as VenueTab) ? (route.path[2] as VenueTab) : 'menu';
   const open = (id: string, t: VenueTab = 'menu') => navigate('backoffice', ['venues', id, t], { replace: true });
+  // An old link (#/backoffice/pricing) arrives as venues/first/prices: show the real venue in the address.
+  const asked = route.path[1];
+  useEffect(() => {
+    if (asked && venue && asked !== venue.id) navigate('backoffice', ['venues', venue.id, tab], { replace: true });
+  }, [asked, venue, tab]);
   const issues = allVenueIssues(settings);
 
   return (
     <BoPage
       title="Venue Settings"
-      sub="Choose a venue to set what it serves, its printers and card terminals, and its kitchen screens."
+      sub="Everything about a venue in one place: what it serves, its prices, floor plan, kitchen, printers and name. Choose a venue on the left."
       actions={
         <Button variant="primary" icon={<Plus size={16} />} onClick={() => setAdding(true)}>
           New venue
@@ -190,6 +200,8 @@ function VenueDetail({
   const issues = venueIssues(settings, venue);
   const count = (t: VenueTab) => issues.filter((i) => i.tab === t).length || undefined;
   const kitchen = kitchenOf(settings, venue);
+  const cfg = useConfig();
+  const sharing = venue.room ? settings.venues.filter((v) => v.active && v.id !== venue.id && v.room === venue.room) : [];
   return (
     <>
       <header className={s.detailHead}>
@@ -204,32 +216,77 @@ function VenueDetail({
         className={s.tabs}
         options={[
           { id: 'menu', label: 'Menu', count: count('menu'), countTone: 'danger' },
+          { id: 'prices', label: 'Prices' },
+          { id: 'floor', label: 'Floor plan' },
+          { id: 'kitchen', label: 'Kitchen' },
           { id: 'devices', label: 'Printers & terminals', count: count('devices') },
-          { id: 'kitchen', label: 'Kitchen screens' },
-          { id: 'details', label: 'Name & kitchen' },
+          { id: 'details', label: 'Details' },
         ]}
       />
       <div className={s.tabBody}>
         {tab === 'menu' && <VenueMenu settings={settings} venue={venue} goto={goto} />}
         {tab === 'devices' && <VenueDevices settings={settings} venue={venue} />}
+        {tab === 'prices' && (
+          <BoEmbedded>
+            <PricingPage venueId={venue.id} />
+          </BoEmbedded>
+        )}
+        {tab === 'floor' &&
+          (venue.room ? (
+            <>
+              {sharing.length > 0 && (
+                <p className={s.quiet}>
+                  {sharing.map((v) => v.name).join(' and ')} {sharing.length === 1 ? 'shares' : 'share'} this room, so a change here shows for both.
+                </p>
+              )}
+              <FloorPlanEditor key={venue.room} room={venue.room} />
+            </>
+          ) : (
+            <NoKitchen venue={venue} what="a floor plan" onTab={onTab} />
+          ))}
         {tab === 'kitchen' &&
           (kitchen ? (
-            <BoSection>
-              <KdsScreensEditor settings={settings} room={kitchen.room} ownerName={kitchen.owner.id !== venue.id ? kitchen.owner.name : null} />
-            </BoSection>
+            <>
+              <BoSection>
+                <KdsScreensEditor settings={settings} room={kitchen.room} ownerName={kitchen.owner.id !== venue.id ? kitchen.owner.name : null} />
+              </BoSection>
+              <BoSection
+                title="What skips the cook line"
+                sub="Drinks, soups and anything else servers make themselves never go to a cook screen. Change an item's button to send it one way or the other."
+                actions={
+                  routingEdited(cfg) && (
+                    <ConfirmReset
+                      label="Reset routing"
+                      onReset={resetRouting}
+                      title="Put routing back to each recipe's default, in every kitchen?"
+                      message="Every routing change goes back, in every kitchen, and default sides show on the cook line again. Entree groups stay as they are."
+                      done="Routing is back to each recipe's default"
+                    />
+                  )
+                }
+              >
+                <RoutingEditor key={kitchen.room} room={kitchen.room} />
+              </BoSection>
+            </>
           ) : (
-            <BoSection title="Kitchen screens">
-              <p className={s.quiet}>
-                {venue.name} has no kitchen, so there are no cook screens to set.{' '}
-                <button className={s.link} onClick={() => onTab('details')}>
-                  Choose its kitchen
-                </button>
-                .
-              </p>
-            </BoSection>
+            <NoKitchen venue={venue} what="cook screens or routing" onTab={onTab} />
           ))}
         {tab === 'details' && <VenueDetails settings={settings} venue={venue} onRetired={onRetired} />}
       </div>
     </>
+  );
+}
+
+function NoKitchen({ venue, what, onTab }: { venue: Venue; what: string; onTab: (t: VenueTab) => void }) {
+  return (
+    <BoSection>
+      <p className={s.quiet}>
+        {venue.name} has no dining room or kitchen of its own, so there is no {what} to set.{' '}
+        <button className={s.link} onClick={() => onTab('details')}>
+          Choose its kitchen
+        </button>
+        .
+      </p>
+    </BoSection>
   );
 }

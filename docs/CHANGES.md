@@ -220,6 +220,27 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Back Office: fewer pages, from Venues down
+
+From Venues down, the Back Office menu had 22 pages. Related settings sat far apart: delivery fees were under Billing while pick up times were under Dining Service, and a venue's prices, floor plan and kitchen routing were three separate pages. Pages that belong together are now tabs of one page. The menu from Venues down is 14 pages, 10 of them outside HO Settings:
+
+| Menu | Page | Its tabs | Was |
+| --- | --- | --- | --- |
+| Venues | **Venue Settings** | per venue: Menu · Prices · Floor plan · Kitchen (screens and what skips the cook line) · Printers & terminals · Details | Venue Settings, Pricing, Floor Plans, Kitchen Routing |
+| Dining Service | Service Flow | (unchanged) | |
+| | **Pick Up & Delivery** | Pick up times · Delivery fees & sick waivers | Pick Up Windows, most of Delivery Options |
+| | **Messages** | Texts to residents · Broadcasts to staff | Text Messages, Broadcasts |
+| | **Kiosk** | (unchanged) | Featured on Kiosk |
+| Residents | **Residents** | Profiles · Allergies & diets · Trivia scoreboard | Resident Profiles, Allergies & Diets, Trivia Scoreboard |
+| Billing | Charge Approval, Order History | (unchanged) | |
+| | **Billing Setup** | Meal plans · Meal counts · Corkage | Meal Plans, Meal Counts, corkage from Delivery Options |
+| Associates & PINs, HO Settings | | (unchanged) | |
+
+- **Old links still work.** Bookmarks and links inside the app open the tab the page became; for example `#/backoffice/pricing` opens the first venue's Prices tab. Search still finds the old names: typing "pricing" or "floor plan" goes to the right tab.
+- **Each tab has its own address**, for example `#/backoffice/svcWin/fees`.
+- **In Venue Settings**, the venue is already chosen, so the old venue and kitchen pickers are gone from Prices, Floor plan and Kitchen. When two venues share a room, the floor plan says so.
+- **One title per page.** A tab drops the old page's title and keeps its one-line description and buttons.
+
 ### Usability pass on every other screen
 
 Each screen was checked at tablet and desktop sizes, or phone size for the Associate Phone. Bugs (things that didn't work) were fixed first, then confusing controls and layout. The general rules applied everywhere:
