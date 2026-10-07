@@ -39,48 +39,72 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
   // Phase 2 screens sit below a divider, in their own colour; "Phase 1 only" hides them (except this one).
   const modes = orderedModes(plan).filter((x) => view === 'all' || x.id === mode || modePhase(x.id, plan) === 1);
   const firstLater = modes.findIndex((x) => modePhase(x.id, plan) === 2);
+  const demo = useDemoActions();
+  const [ask, dialog] = useConfirm();
   return (
-    <Popover
-      minWidth={250}
-      trigger={({ open, toggle }) => (
-        <button
-          className={cx(s.modeChip, dark && s.dark, tall && s.tall, open && s.open)}
-          onClick={toggle}
-          title={`Mode: ${m.label}. Tap to switch.`}
-          aria-haspopup="menu"
-          aria-expanded={open}
-        >
-          {m.label}
-          <ChevronDown size={tall ? 14 : 12} strokeWidth={2.5} className={s.chev} />
-        </button>
-      )}
-    >
-      {({ close }) => (
-        <>
-          {modes.map((x, i) => (
-            <Fragment key={x.id}>
-              {i === firstLater && (
-                <>
-                  <MenuDivider />
-                  <div className={s.phaseHead}>Phase 2</div>
-                </>
-              )}
-              <MenuItem
-                active={x.id === mode}
-                icon={<span className={s.modeNum}>{i + 1}</span>}
-                end={x.id === mode ? <Check size={15} strokeWidth={2.5} /> : undefined}
-                onClick={() => {
-                  close();
-                  navigate(x.id);
-                }}
-              >
-                <span className={cx(i >= firstLater && firstLater >= 0 && s.phase2)}>{x.label}</span>
-              </MenuItem>
-            </Fragment>
-          ))}
-        </>
-      )}
-    </Popover>
+    <>
+      <Popover
+        minWidth={250}
+        trigger={({ open, toggle }) => (
+          <button
+            className={cx(s.modeChip, dark && s.dark, tall && s.tall, open && s.open)}
+            onClick={toggle}
+            title={`Mode: ${m.label}. Tap to switch.`}
+            aria-haspopup="menu"
+            aria-expanded={open}
+          >
+            {m.label}
+            <ChevronDown size={tall ? 14 : 12} strokeWidth={2.5} className={s.chev} />
+          </button>
+        )}
+      >
+        {({ close }) => (
+          <>
+            {modes.map((x, i) => (
+              <Fragment key={x.id}>
+                {i === firstLater && (
+                  <>
+                    <MenuDivider />
+                    <div className={s.phaseHead}>Phase 2</div>
+                  </>
+                )}
+                <MenuItem
+                  active={x.id === mode}
+                  icon={<span className={s.modeNum}>{i + 1}</span>}
+                  end={x.id === mode ? <Check size={15} strokeWidth={2.5} /> : undefined}
+                  onClick={() => {
+                    close();
+                    navigate(x.id);
+                  }}
+                >
+                  <span className={cx(i >= firstLater && firstLater >= 0 && s.phase2)}>{x.label}</span>
+                </MenuItem>
+              </Fragment>
+            ))}
+            {demo.length > 0 && (
+              <div className={s.demo}>
+                <div className={s.demoHead}>Demo</div>
+                {demo.map((a) => (
+                  <button
+                    key={a.id}
+                    role="menuitem"
+                    className={s.demoBtn}
+                    onClick={async () => {
+                      close();
+                      if (await ask({ title: a.label, message: a.confirm, confirmLabel: a.label, tone: 'danger' })) a.run();
+                    }}
+                  >
+                    <RotateCcw size={15} strokeWidth={2.5} />
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </Popover>
+      {dialog}
+    </>
   );
 }
 
@@ -134,8 +158,6 @@ export function VenueChip() {
 export function AccountMenu({ size = 40, dark }: { size?: number; dark?: boolean }) {
   const me = useMe();
   const fs = useFullscreen();
-  const demo = useDemoActions();
-  const [ask, dialog] = useConfirm();
   return (
     <>
       <Popover
@@ -166,24 +188,6 @@ export function AccountMenu({ size = 40, dark }: { size?: number; dark?: boolean
             >
               {fs ? 'Exit full screen' : 'Full screen'}
             </MenuItem>
-            {demo.length > 0 && (
-              <>
-                <MenuDivider />
-                <div className={s.menuHead}>Demo</div>
-                {demo.map((a) => (
-                  <MenuItem
-                    key={a.id}
-                    icon={<RotateCcw size={16} />}
-                    onClick={async () => {
-                      close();
-                      if (await ask({ title: a.label, message: a.confirm, confirmLabel: a.label, tone: 'danger' })) a.run();
-                    }}
-                  >
-                    {a.label}
-                  </MenuItem>
-                ))}
-              </>
-            )}
             <MenuDivider />
             <MenuItem
               danger
@@ -198,7 +202,6 @@ export function AccountMenu({ size = 40, dark }: { size?: number; dark?: boolean
           </>
         )}
       </Popover>
-      {dialog}
     </>
   );
 }

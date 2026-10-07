@@ -14,7 +14,7 @@ function SessionBridge() {
   return null;
 }
 
-/** Demo tools in the account menu, kept out of the main nav. */
+/** Demo tools, at the bottom of the screen menu on every screen. */
 function DemoTools() {
   const { resetDemo, clearAll } = useDining();
   useEffect(() => {

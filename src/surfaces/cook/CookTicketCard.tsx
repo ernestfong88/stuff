@@ -56,18 +56,20 @@ export function CookTicketCard(p: CookTicketCardProps) {
             {p.index}
           </span>
         )}
-        <span className={s.where}>
-          {o.queueType === 'delivery' ? <Truck size={17} strokeWidth={2.5} /> : o.queueType === 'pickup' ? <ShoppingBag size={17} strokeWidth={2.5} /> : null}
-          <span className={s.table}>{where}</span>
-          {o.server && <span className={s.server}>· {serverName(o.server)}</span>}
+        <span className={s.whereCol}>
+          <span className={s.where}>
+            {o.queueType === 'delivery' ? <Truck size={17} strokeWidth={2.5} /> : o.queueType === 'pickup' ? <ShoppingBag size={17} strokeWidth={2.5} /> : null}
+            <span className={s.table}>{where}</span>
+            {o.server && <span className={s.server}>· {serverName(o.server)}</span>}
+          </span>
+          {!o.queueType && (
+            <span className={s.inAt} title="When the table's order first went to the kitchen">
+              {formatTime(firstSend(o) ?? t.firedAt)}
+            </span>
+          )}
         </span>
         {toGo && <span className={s.togo}>TO GO</span>}
         <span className={s.course}>{o.queueType ? 'ALL' : 'C' + t.course}</span>
-        {!o.queueType && (
-          <span className={s.inAt} title="When the table's order first went to the kitchen">
-            IN {formatTime(firstSend(o) ?? t.firedAt)}
-          </span>
-        )}
         <span className={s.timer}>{formatElapsed(p.now - t.firedAt)}</span>
       </header>
 

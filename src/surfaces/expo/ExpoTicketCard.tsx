@@ -115,14 +115,14 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
             </span>
           )}
           {allToGo && <span className={s.togo}>TO GO</span>}
-          {!o.queueType && (
-            <span className={cx(s.inAt, s.clockPushed)} title="When the table's order first went to the kitchen">
-              IN {formatTime(firstSend(o) ?? t.firedAt)}
-            </span>
-          )}
-          <span className={cx(s.clock, !o.queueType ? undefined : s.clockPushed)}>{formatElapsed(now - t.firedAt)}</span>
+          <span className={cx(s.clock, s.clockPushed)}>{formatElapsed(now - t.firedAt)}</span>
         </div>
         <div className={s.headRow}>
+          {!o.queueType && (
+            <span className={s.inAt} title="When the table's order first went to the kitchen">
+              {formatTime(firstSend(o) ?? t.firedAt)}
+            </span>
+          )}
           {o.readyAt && <span className={s.window}>{o.readyAt === 'ASAP' ? 'ASAP' : pickupWindow(o.readyAt)}</span>}
           {who && queue && <span className={s.who}>{who}</span>}
           {o.source === 'kiosk' && <span className={s.serverPill}>{o.utensils ? 'Utensils' : 'No utensils'}</span>}

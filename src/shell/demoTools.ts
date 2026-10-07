@@ -1,7 +1,7 @@
 /**
  * Demo-only actions (reset the demo, clear all tickets). Stores register them
- * here and the account menu lists them under "Demo", away from the main nav,
- * so they can't be tapped by accident mid-service.
+ * here and the screen menu (top right, on every screen) lists them at the
+ * bottom under "Demo". Each one asks before it runs.
  */
 import { createSharedStore, useShared } from '../lib/sharedStore';
 

@@ -25,14 +25,14 @@ test('reset demo data puts the seeded service back on every screen', async ({ co
   await expect.poll(() => bodyText(cook)).toContain('SQ 1');
 
   await server.bringToFront();
-  await server.getByTitle('Account').click();
+  await server.getByTitle(/^Mode: /).click();
   await server.getByRole('menuitem', { name: 'Clear all tickets' }).click();
   await server.getByRole('dialog').getByRole('button', { name: 'Clear all tickets' }).click();
   await cook.bringToFront();
   await expect.poll(() => bodyText(cook)).not.toContain('SQ 1');
 
   await server.bringToFront();
-  await server.getByTitle('Account').click();
+  await server.getByTitle(/^Mode: /).click();
   await server.getByRole('menuitem', { name: 'Reset demo data' }).click();
   await server.getByRole('dialog').getByRole('button', { name: 'Reset demo data' }).click();
   await cook.bringToFront();
