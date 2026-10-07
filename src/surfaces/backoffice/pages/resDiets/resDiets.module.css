@@ -1,0 +1,118 @@
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-1);
+}
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.search {
+  width: 260px;
+}
+.checkLabel {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--s700);
+  cursor: pointer;
+}
+.checkLabel input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--ocean);
+}
+.chipRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+.chipLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.chipCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.n {
+  font-size: 11.5px;
+  color: var(--s500);
+  font-variant-numeric: tabular-nums;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.allergy {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+.diet {
+  color: var(--ocean);
+  background: var(--ocean-100);
+}
+.texture {
+  color: var(--clay-600);
+  background: var(--clay-100);
+}
+.tagOn {
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+.countRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  font-size: 13px;
+  color: var(--s500);
+  margin-bottom: -8px;
+}
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.name {
+  white-space: nowrap;
+  font-weight: 650;
+  color: var(--ink);
+}
+.tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.none {
+  color: var(--s400);
+}
+.onFile {
+  font-size: 12.5px;
+  color: var(--s500);
+}
+.foot {
+  font-size: 12px;
+  color: var(--s500);
+}
+.level {
+  text-decoration: none;
+}

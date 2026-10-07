@@ -93,6 +93,9 @@ export default function Page({ goto }: BoPageProps) {
       <Button variant="ghost" onClick={() => goto('resDiets')}>
         Allergies & diets
       </Button>
+      <Button variant="ghost" onClick={() => goto('residents')}>
+        Meal plans & kitchen notes
+      </Button>
       <Button onClick={() => editStory(resident?.id ?? null)}>{resident ? 'Edit story & notes' : 'Edit stories & notes'}</Button>
     </>
   );

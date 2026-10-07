@@ -9,6 +9,7 @@
  *   </BoPage>
  */
 import type { CSSProperties, InputHTMLAttributes, ReactNode } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { cx } from '../../../ui';
 import s from './kit.module.css';
 
@@ -63,20 +64,68 @@ export interface BoColumn<T> {
   render: (row: T) => ReactNode;
   align?: 'left' | 'right' | 'center';
   width?: number | string;
+  /** Makes the header a sort button (with BoTable's sort / onSort). */
+  sortable?: boolean;
 }
 
-/** Plain data table with sticky header. */
-export function BoTable<T>({ columns, rows, rowKey, empty, onRowClick, dense }: { columns: Array<BoColumn<T>>; rows: T[]; rowKey: (row: T) => string; empty?: ReactNode; onRowClick?: (row: T) => void; dense?: boolean }) {
+export interface BoSort {
+  key: string;
+  /** 1 ascending, -1 descending. */
+  dir: 1 | -1;
+}
+
+/** Next sort after clicking a column header: same column flips, a new one starts ascending. */
+export function nextSort(cur: BoSort, key: string): BoSort {
+  return { key, dir: cur.key === key ? (cur.dir === 1 ? -1 : 1) : 1 };
+}
+
+/** Plain data table with sticky header. Sorting is optional and controlled by the page. */
+export function BoTable<T>({
+  columns,
+  rows,
+  rowKey,
+  empty,
+  onRowClick,
+  dense,
+  sort,
+  onSort,
+  rowTone,
+  caption,
+}: {
+  columns: Array<BoColumn<T>>;
+  rows: T[];
+  rowKey: (row: T) => string;
+  empty?: ReactNode;
+  onRowClick?: (row: T) => void;
+  dense?: boolean;
+  sort?: BoSort;
+  onSort?: (sort: BoSort) => void;
+  /** Dim a row (voided, retired) or tint it. */
+  rowTone?: (row: T) => 'muted' | 'danger' | undefined;
+  /** Screen reader name of the table. */
+  caption?: string;
+}) {
   return (
     <div className={s.tableWrap}>
       <table className={cx(s.table, dense && s.dense)}>
+        {caption && <caption className="sr-only">{caption}</caption>}
         <thead>
           <tr>
-            {columns.map((c) => (
-              <th key={c.key} style={{ textAlign: c.align, width: c.width }}>
-                {c.header}
-              </th>
-            ))}
+            {columns.map((c) => {
+              const on = sort?.key === c.key;
+              return (
+                <th key={c.key} style={{ textAlign: c.align, width: c.width }} aria-sort={on ? (sort.dir === 1 ? 'ascending' : 'descending') : undefined}>
+                  {c.sortable && sort && onSort ? (
+                    <button className={cx(s.sortBtn, on && s.sortOn)} onClick={() => onSort(nextSort(sort, c.key))}>
+                      {c.header}
+                      <ChevronDown size={12} className={cx(s.sortIcon, on && sort.dir === -1 && s.sortDesc)} aria-hidden />
+                    </button>
+                  ) : (
+                    c.header
+                  )}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>
@@ -88,7 +137,7 @@ export function BoTable<T>({ columns, rows, rowKey, empty, onRowClick, dense }: 
             </tr>
           ) : (
             rows.map((r) => (
-              <tr key={rowKey(r)} onClick={onRowClick ? () => onRowClick(r) : undefined} className={onRowClick ? s.clickRow : undefined}>
+              <tr key={rowKey(r)} onClick={onRowClick ? () => onRowClick(r) : undefined} className={cx(onRowClick && s.clickRow, rowTone && s[`tone_${rowTone(r) ?? ''}`])}>
                 {columns.map((c) => (
                   <td key={c.key} style={{ textAlign: c.align }}>
                     {c.render(r)}
@@ -136,3 +185,13 @@ export function BoCallout({ tone = 'info', title, children }: { tone?: 'info' | 
 export function BoGrid({ min = 280, gap = 16, children }: { min?: number; gap?: number; children: ReactNode }) {
   return <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(min(${min}px, 100%), 1fr))`, gap }}>{children}</div>;
 }
+
+export { BoStatTile, BoStatRow, BoSelect, BoField, BoCaption, BoIconButton, BoFilterChip } from './controls';
+export { BarChart, type BarChartProps, type BarDatum, type BarSegment } from './charts/BarChart';
+export { DonutChart, type DonutChartProps, type DonutSlice } from './charts/DonutChart';
+export { ShareBar, MeterBar, type SharePart } from './charts/ShareBar';
+export { CHART } from './charts/palette';
+export { useCommunity, setCommunity } from './community';
+export { CrudTable, useCrudEditing, type CrudRow, type CrudColumn, type CrudEditing } from './CrudTable';
+export { useBilling, setBillingList, billingStore, chargesToReview, amountToReview, type BillingState } from './billing';
+export { useResidentRecords, updateResidentRecord, residentRecordsStore } from './residentRecords';

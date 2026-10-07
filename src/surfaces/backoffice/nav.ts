@@ -14,6 +14,11 @@ export interface BoPageDef {
   /** Extra words the Ctrl K search matches. */
   keywords: string;
   component: LazyExoticComponent<ComponentType<BoPageProps>>;
+  /**
+   * Pages opened from another page rather than the side nav name the nav
+   * page they belong under; the nav highlights that page while they show.
+   */
+  parent?: string;
 }
 
 export interface BoSectionDef {
@@ -298,6 +303,26 @@ export const BO_SECTIONS: BoSectionDef[] = [
   },
 ];
 
+/** Pages opened from another page rather than the side nav (search still finds them). */
+export const BO_MORE_PAGES: BoPageDef[] = [
+  {
+    id: 'residents',
+    label: 'Dining Plans & Notes',
+    blurb: 'Meal plan, preferences and kitchen notes',
+    keywords: 'allergy diet meal plan billing start day hospice kitchen notes preferences',
+    parent: 'resProfiles',
+    component: lazy(() => import('./pages/residents')),
+  },
+  {
+    id: 'svcRes',
+    label: 'Conversation Profiles',
+    blurb: 'Edit the story, Loves and Good to know notes servers see',
+    keywords: 'story loves good to know conversation profile bio family interests edit',
+    parent: 'resProfiles',
+    component: lazy(() => import('./pages/svcRes')),
+  },
+];
+
 export const BO_PAGES: BoPageDef[] = BO_SECTIONS.flatMap((s) => s.pages);
 
 export const DEFAULT_BO_PAGE = 'dashboard';
@@ -307,5 +332,12 @@ export function findPage(id: string | undefined): { section: BoSectionDef; page:
     const page = section.pages.find((p) => p.id === id);
     if (page) return { section, page };
   }
-  return null;
+  const more = BO_MORE_PAGES.find((p) => p.id === id);
+  const home = more?.parent ? findPage(more.parent) : null;
+  return more && home ? { section: home.section, page: more } : null;
+}
+
+/** The side nav page to highlight for a page: itself, or the page it was opened from. */
+export function navPageId(id: string): string {
+  return BO_MORE_PAGES.find((p) => p.id === id)?.parent ?? id;
 }

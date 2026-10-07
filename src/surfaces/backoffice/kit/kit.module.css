@@ -229,3 +229,33 @@
   border-color: var(--green);
   color: #24512a;
 }
+
+.sortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  border-radius: var(--r-xs);
+}
+.sortOn {
+  color: var(--ink);
+}
+.sortIcon {
+  opacity: 0.45;
+  transition: transform var(--fast);
+}
+.sortOn .sortIcon {
+  opacity: 1;
+}
+.sortDesc {
+  transform: rotate(180deg);
+}
+.tone_muted td {
+  color: var(--s400);
+}
+.tone_danger td {
+  background: #fdf3f1;
+}
