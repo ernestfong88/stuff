@@ -1,0 +1,80 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.panel {
+  position: absolute;
+  top: 100%;
+  margin-top: 7px;
+  z-index: 400;
+  padding: 6px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow:
+    0 18px 40px -10px rgba(20, 35, 48, 0.4),
+    inset 0 0 0 1px rgba(20, 35, 48, 0.08);
+  animation: k-pop-in var(--med) var(--ease);
+  color: var(--ink);
+}
+.above {
+  top: auto;
+  bottom: 100%;
+  margin: 0 0 7px;
+}
+.right {
+  right: 0;
+}
+.left {
+  left: 0;
+}
+.center {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--s700);
+}
+.item:hover:not(:disabled) {
+  background: var(--paper);
+}
+.item:disabled {
+  opacity: 0.45;
+}
+.itemActive {
+  background: var(--ocean-100);
+  color: var(--ocean-700);
+  font-weight: 700;
+}
+.itemActive:hover:not(:disabled) {
+  background: var(--ocean-100);
+}
+.itemDanger {
+  color: var(--danger);
+}
+.itemIcon {
+  display: inline-flex;
+  color: var(--s400);
+}
+.itemActive .itemIcon {
+  color: var(--ocean-700);
+}
+.itemLabel {
+  flex: 1;
+  min-width: 0;
+}
+.divider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--hair);
+}

@@ -1,0 +1,122 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(11, 17, 21, 0.42);
+  animation: k-fade var(--med) var(--ease);
+}
+
+.modal,
+.sheet {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-3);
+  outline: none;
+}
+
+.modal {
+  border-radius: var(--r-2xl);
+  animation: k-pop-in var(--med) var(--ease);
+}
+.tall {
+  height: 100%;
+}
+
+.sheetBackdrop.right {
+  justify-content: flex-end;
+  padding: 0;
+}
+.sheetBackdrop.bottom {
+  align-items: flex-end;
+  padding: 0;
+}
+.sheet_right {
+  height: 100%;
+  border-radius: var(--r-2xl) 0 0 var(--r-2xl);
+  animation: k-slide-in-right var(--med) var(--ease);
+}
+.sheet_bottom {
+  width: 100%;
+  max-height: 92%;
+  border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+  animation: k-slide-up var(--med) var(--ease);
+}
+
+@keyframes k-slide-in-right {
+  from {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 20px 12px;
+  flex-shrink: 0;
+}
+.titles {
+  flex: 1;
+  min-width: 0;
+}
+.title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.subtitle {
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--s500);
+}
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: -4px -6px 0 0;
+  border-radius: var(--r-md);
+  color: var(--s500);
+  flex-shrink: 0;
+}
+.close:hover {
+  background: var(--limestone);
+  color: var(--ink);
+}
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 20px 20px;
+}
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--hair);
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .backdrop {
+    padding: 12px;
+  }
+}

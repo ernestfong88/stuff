@@ -1,0 +1,203 @@
+import { Check, ChevronDown, LogOut, Maximize, Minimize, RotateCcw } from 'lucide-react';
+import { rooms } from '../data';
+import { Avatar, MenuDivider, MenuItem, Popover, useConfirm } from '../ui';
+import { cx } from '../ui/cx';
+import { useDemoActions } from './demoTools';
+import { enterFullscreen, exitFullscreen, useFullscreen } from './fullscreen';
+import { MODES, getMode } from './modes';
+import { navigate, useRoute } from './router';
+import { signOut, useMe, useVenue, venueCode, venueColor } from './session';
+import s from './controls.module.css';
+import { setZoom, useZoom } from './zoom';
+
+/** A− 100% A+ text size control. */
+export function TextZoom({ dark, tall }: { dark?: boolean; tall?: boolean }) {
+  const z = useZoom();
+  return (
+    <span className={cx(s.zoom, dark && s.dark, tall && s.tall)} role="group" aria-label="Text size">
+      <button onClick={() => setZoom(z - 0.05)} title="Smaller text" aria-label="Smaller text" className={s.zSmall}>
+        A−
+      </button>
+      <button onClick={() => setZoom(1)} title="Reset text size" className={s.zPct}>
+        {Math.round(z * 100)}%
+      </button>
+      <button onClick={() => setZoom(z + 0.05)} title="Larger text" aria-label="Larger text" className={s.zBig}>
+        A+
+      </button>
+    </span>
+  );
+}
+
+/** Which surface this device shows. */
+export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
+  const { mode } = useRoute();
+  const m = getMode(mode);
+  return (
+    <Popover
+      minWidth={250}
+      trigger={({ open, toggle }) => (
+        <button
+          className={cx(s.modeChip, dark && s.dark, tall && s.tall, open && s.open)}
+          onClick={toggle}
+          title={`Mode: ${m.label}. Tap to switch.`}
+          aria-haspopup="menu"
+          aria-expanded={open}
+        >
+          {m.label}
+          <ChevronDown size={tall ? 14 : 12} strokeWidth={2.5} className={s.chev} />
+        </button>
+      )}
+    >
+      {({ close }) => (
+        <>
+          {MODES.map((x, i) => (
+            <MenuItem
+              key={x.id}
+              active={x.id === mode}
+              icon={<span className={s.modeNum}>{i + 1}</span>}
+              end={x.id === mode ? <Check size={15} strokeWidth={2.5} /> : undefined}
+              onClick={() => {
+                close();
+                navigate(x.id);
+              }}
+            >
+              {x.label}
+            </MenuItem>
+          ))}
+        </>
+      )}
+    </Popover>
+  );
+}
+
+/** Coloured venue code (SE, OB ...); tap to switch the dining room this device serves. */
+export function VenueChip() {
+  const [venue, setVenue] = useVenue();
+  return (
+    <Popover
+      align="left"
+      minWidth={240}
+      trigger={({ toggle, open }) => (
+        <button
+          className={s.venue}
+          style={{ background: venueColor(venue) }}
+          onClick={toggle}
+          title={`${rooms[venue]?.name}. Tap to change venue.`}
+          aria-haspopup="menu"
+          aria-expanded={open}
+        >
+          {venueCode(venue)}
+        </button>
+      )}
+    >
+      {({ close }) => (
+        <>
+          <div className={s.menuHead}>Venue</div>
+          {Object.entries(rooms).map(([key, r]) => (
+            <MenuItem
+              key={key}
+              active={key === venue}
+              icon={
+                <span className={s.venueDot} style={{ background: venueColor(key) }}>
+                  {venueCode(key)}
+                </span>
+              }
+              onClick={() => {
+                setVenue(key);
+                close();
+              }}
+            >
+              {r.name}
+            </MenuItem>
+          ))}
+        </>
+      )}
+    </Popover>
+  );
+}
+
+/** Signed-in associate, full screen, demo tools and log out. */
+export function AccountMenu({ size = 40, dark }: { size?: number; dark?: boolean }) {
+  const me = useMe();
+  const fs = useFullscreen();
+  const demo = useDemoActions();
+  const [ask, dialog] = useConfirm();
+  return (
+    <>
+      <Popover
+        minWidth={240}
+        trigger={({ toggle, open }) => (
+          <button className={cx(s.account, dark && s.dark)} onClick={toggle} title="Account" aria-haspopup="menu" aria-expanded={open}>
+            <Avatar person={{ name: me.name, photo: me.initials }} size={size} />
+          </button>
+        )}
+      >
+        {({ close }) => (
+          <>
+            <div className={s.who}>
+              <Avatar person={{ name: me.name, photo: me.initials }} size={36} />
+              <div>
+                <div className={s.whoName}>{me.name}</div>
+                <div className={s.whoRole}>{me.role}</div>
+              </div>
+            </div>
+            <MenuDivider />
+            <MenuItem
+              icon={fs ? <Minimize size={16} /> : <Maximize size={16} />}
+              onClick={() => {
+                close();
+                if (fs) void exitFullscreen();
+                else void enterFullscreen();
+              }}
+            >
+              {fs ? 'Exit full screen' : 'Full screen'}
+            </MenuItem>
+            {demo.length > 0 && (
+              <>
+                <MenuDivider />
+                <div className={s.menuHead}>Demo</div>
+                {demo.map((a) => (
+                  <MenuItem
+                    key={a.id}
+                    icon={<RotateCcw size={16} />}
+                    onClick={async () => {
+                      close();
+                      if (await ask({ title: a.label, message: a.confirm, confirmLabel: a.label, tone: 'danger' })) a.run();
+                    }}
+                  >
+                    {a.label}
+                  </MenuItem>
+                ))}
+              </>
+            )}
+            <MenuDivider />
+            <MenuItem
+              danger
+              icon={<LogOut size={16} />}
+              onClick={() => {
+                close();
+                signOut();
+              }}
+            >
+              Log out
+            </MenuItem>
+          </>
+        )}
+      </Popover>
+      {dialog}
+    </>
+  );
+}
+
+/**
+ * Text size + mode switch pinned top right, for surfaces without their own
+ * header (kiosk, display, kitchen screens draw these inline instead).
+ */
+export function CornerControls({ dark }: { dark?: boolean }) {
+  return (
+    <span className={s.corner}>
+      <TextZoom dark={dark} />
+      <ModeChip dark={dark} />
+    </span>
+  );
+}
