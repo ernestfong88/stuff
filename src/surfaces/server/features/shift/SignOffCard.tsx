@@ -48,21 +48,21 @@ export function SignOffCard({
       ) : (
         <>
           <div className={s.buttons}>
-            <Button variant="dark" size="lg" onClick={() => setSigning(true)} disabled={signing}>
+            <Button variant="dark" size="lg" onClick={() => setSigning(true)} disabled={signing || openTables > 0}>
               Sign off and end shift
             </Button>
             <Button size="lg" icon={<Printer size={16} />} onClick={onExport}>
               Export a copy
             </Button>
           </div>
+          {openTables > 0 && (
+            <p className={s.open} role="status">
+              {openTables} table{openTables === 1 ? ' is' : 's are'} still open. Close {openTables === 1 ? 'it' : 'them'} and sign off unlocks.
+            </p>
+          )}
           {signing && (
             <>
               <SideWorkNudge who={who} />
-              {openTables > 0 && (
-                <p className={s.open} role="alert">
-                  {openTables} table{openTables === 1 ? '' : 's'} still open. Close {openTables === 1 ? 'it' : 'them'} and this unlocks.
-                </p>
-              )}
               <SignaturePad
                 name={whoName}
                 disabled={openTables > 0}

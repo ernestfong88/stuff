@@ -76,7 +76,7 @@ export function ShiftReviewView({ server, onOpenCheck }: { server?: string; onOp
   return (
     <div className={s.page}>
       <header className={s.head}>
-        <h1 className={s.title}>End of shift · {who}</h1>
+        <h1 className={s.title}>End of shift · {whoName}</h1>
         <span className={s.date}>
           {formatDayLong(t)} · {meal}
         </span>
@@ -94,7 +94,13 @@ export function ShiftReviewView({ server, onOpenCheck }: { server?: string; onOp
         onChange={setTab}
         options={[
           { id: 'checks', label: 'Checks and payments' },
-          { id: 'notes', label: 'People notes', icon: <Sparkles size={14} aria-hidden />, count: myNotes.length, countTone: tab === 'notes' ? undefined : 'plum' },
+          {
+            id: 'notes',
+            label: 'People notes',
+            icon: <Sparkles size={14} aria-hidden />,
+            count: myNotes.length,
+            countTone: tab === 'notes' ? undefined : 'plum',
+          },
           { id: 'feedback', label: 'Dining feedback', count: feedback.length, countTone: tab === 'feedback' ? undefined : 'success' },
           { id: 'trivia', label: 'Trivia scoreboard', icon: <CircleHelp size={15} aria-hidden /> },
         ]}

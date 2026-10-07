@@ -10,6 +10,7 @@ import { useDining } from '../../../../store/dining';
 import { Avatar, Chip, cx } from '../../../../ui';
 import { sortWithSides } from '../checkLines';
 import s from './DinerCard.module.css';
+import { allergyPerson } from './allergyPerson';
 import { LineRow } from './LineRow';
 import { SeatPicker } from './SeatPicker';
 import { UsualsRow } from './UsualsRow';
@@ -85,9 +86,7 @@ export function DinerCard({
               </span>
             )}
             {!isResident && (
-              <span className={s.kind}>
-                {diner.kind === 'resident' ? 'Guest' : `${(person as Associate | undefined)?.dept ?? ''} · associate`}
-              </span>
+              <span className={s.kind}>{diner.kind === 'resident' ? 'Guest' : `${(person as Associate | undefined)?.dept ?? ''} · associate`}</span>
             )}
             {pills.map((p) => (
               <Chip
@@ -130,7 +129,7 @@ export function DinerCard({
       {diner.items.length > 0 && (
         <div className={s.lines}>
           {sortWithSides(diner.items).map((line) => (
-            <LineRow key={line.id} order={o} diner={diner} line={line} person={resident} onEdit={() => onEditLine(line)} />
+            <LineRow key={line.id} order={o} diner={diner} line={line} person={allergyPerson(diner)} onEdit={() => onEditLine(line)} />
           ))}
         </div>
       )}

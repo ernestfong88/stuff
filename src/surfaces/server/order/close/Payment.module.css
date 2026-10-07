@@ -130,7 +130,7 @@
   color: var(--s500);
 }
 .pct {
-  min-height: 36px;
+  min-height: 40px;
   padding: 0 12px;
   border-radius: var(--r-pill);
   background: var(--limestone);
@@ -143,12 +143,4 @@
 }
 .any {
   color: var(--s400);
-}
-@media (max-height: 760px) {
-  .lede {
-    display: none;
-  }
-  .eyebrow {
-    margin-bottom: 8px;
-  }
 }

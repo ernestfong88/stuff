@@ -69,3 +69,29 @@
   grid-template-columns: repeat(auto-fill, minmax(262px, 1fr));
   gap: 8px;
 }
+
+/* Looking at another server's tables. */
+.others {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 8px 8px 8px 14px;
+  border-radius: var(--r-md);
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.othersText {
+  flex: 1;
+  font-size: 14px;
+  color: var(--ink);
+}
+.othersBack {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: var(--surface);
+  font-weight: 700;
+  font-size: 14px;
+}

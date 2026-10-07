@@ -1,4 +1,4 @@
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, Eye } from 'lucide-react';
 import { dinerBilling } from '../../../domain/billing';
 import type { DiningConfig } from '../../../domain/config';
 import type { Order } from '../../../domain/types';
@@ -30,11 +30,17 @@ interface Row {
 export function MyTablesBoard({
   room,
   server,
+  me,
+  onMine,
   onOpen,
 }: {
   room: string;
   /** Initials of the server whose tables are shown. */
   server: string;
+  /** Initials of the signed-in server; another server's board says whose it is. */
+  me?: string;
+  /** Back to my own tables from another server's. */
+  onMine?: () => void;
   onOpen: (orderId: string, opts?: OpenCheckOptions) => void;
 }) {
   const { orders } = useDining();
@@ -48,9 +54,25 @@ export function MyTablesBoard({
   const byLane = new Map<StageKey, Row[]>();
   for (const r of rows) byLane.set(r.stage.key, [...(byLane.get(r.stage.key) ?? []), r]);
 
+  const banner =
+    me && server !== me ? (
+      <div className={s.others} role="status">
+        <Eye size={16} aria-hidden />
+        <span className={s.othersText}>
+          <b>{serverName(server)}'s tables.</b> Changing one of these checks asks to take it over.
+        </span>
+        {onMine && (
+          <button className={s.othersBack} onClick={onMine}>
+            Back to my tables
+          </button>
+        )}
+      </div>
+    ) : null;
+
   if (!rows.length) {
     return (
       <div className={s.board}>
+        {banner}
         <EmptyState icon={<ClipboardList size={28} />} title={`No open checks for ${serverName(server)}`}>
           Start one from the floor.
         </EmptyState>
@@ -60,6 +82,7 @@ export function MyTablesBoard({
 
   return (
     <div className={cx(s.board, 'scroll')}>
+      {banner}
       {LANES.map((lane) => {
         const list = (byLane.get(lane.key) ?? []).sort((a, b) => a.since - b.since || a.order.openedAt - b.order.openedAt);
         if (!list.length) return null;

@@ -9,6 +9,9 @@ interface Place {
   bottom?: number;
 }
 
+/** Scrolls this soon after opening come from the tap itself, not the user. */
+const SETTLE_MS = 350;
+
 /** The text-size zoom on #root; fixed boxes inside it are placed in zoomed pixels. */
 function rootZoom(): number {
   const z = parseFloat(document.getElementById('root')?.style.zoom || '');
@@ -57,6 +60,9 @@ export function AnchoredMenu({
 
   useEffect(() => {
     if (!place) return;
+    // Opening it can select the diner, which reflows the column and nudges
+    // its scroll; only a scroll after that settles closes the menu.
+    const openedAt = performance.now();
     const onDown = (e: PointerEvent) => {
       const t = e.target as Node;
       if (!panel.current?.contains(t) && !anchor.current?.contains(t)) close();
@@ -64,6 +70,7 @@ export function AnchoredMenu({
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
     const onMove = (e: Event) => {
       if (panel.current && e.target instanceof Node && panel.current.contains(e.target)) return;
+      if (e.type === 'scroll' && performance.now() - openedAt < SETTLE_MS) return;
       close();
     };
     window.addEventListener('pointerdown', onDown);

@@ -74,7 +74,7 @@ export default function ServerSurface() {
       ) : view === 'shift' ? (
         <ShiftReviewView />
       ) : (
-        <MyTablesBoard room={venue} server={viewServer} onOpen={openCheck} />
+        <MyTablesBoard room={venue} server={viewServer} me={me} onMine={goMine} onOpen={openCheck} />
       )}
       <TakeoverDialog />
     </TabletShell>

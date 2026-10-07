@@ -197,6 +197,21 @@ export function CloseScreen({
 
       <div className={cx(s.scroll, 'scroll')}>
         {rows.length > 1 && <CloseSummary rows={rows} views={views} total={total} />}
+        {/* In the scroll, not the footer, so the people being closed keep the room on a short tablet. */}
+        {total > 0 && (
+          <TablePayment
+            mode={tablePay}
+            total={total}
+            split={split}
+            states={tableTerminal}
+            onMode={pickTablePay}
+            onSplit={(p) => {
+              setSplit(p);
+              setTableTerminal({});
+            }}
+            onState={(i, st) => setTableTerminal((x) => ({ ...x, [i]: st }))}
+          />
+        )}
         {rows.map((r, i) => {
           const id = r.diner.id;
           return (
@@ -237,29 +252,10 @@ export function CloseScreen({
             <AlertCircle size={14} aria-hidden /> The terminal has not reported this payment yet. Send it, then wait for the tap to settle.
           </div>
         )}
-        {total > 0 && (
-          <TablePayment
-            mode={tablePay}
-            total={total}
-            split={split}
-            states={tableTerminal}
-            onMode={pickTablePay}
-            onSplit={(p) => {
-              setSplit(p);
-              setTableTerminal({});
-            }}
-            onState={(i, st) => setTableTerminal((x) => ({ ...x, [i]: st }))}
-          />
-        )}
         <div className={s.actions}>
           <CloseTotal views={views} total={total} />
-          <button
-            className={cx(s.printTable, printed.table && s.printed)}
-            title="Print a receipt for the whole table"
-            onClick={() => print('table')}
-          >
-            {printed.table ? <Check size={15} aria-hidden /> : <Printer size={15} aria-hidden />}{' '}
-            {printed.table ? 'Printed' : 'Print table'}
+          <button className={cx(s.printTable, printed.table && s.printed)} title="Print a receipt for the whole table" onClick={() => print('table')}>
+            {printed.table ? <Check size={15} aria-hidden /> : <Printer size={15} aria-hidden />} {printed.table ? 'Printed' : 'Print table'}
           </button>
           <button className={s.close} disabled={blocked} onClick={finish}>
             <Check size={17} aria-hidden />{' '}

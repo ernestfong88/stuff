@@ -78,12 +78,16 @@
   flex-shrink: 0;
 }
 .mic {
-  width: 42px;
-  height: 42px;
+  height: 40px;
+  padding: 0 14px;
+  gap: 6px;
   border-radius: var(--r-lg);
   background: var(--ocean-100);
   color: var(--ocean-700);
+  font-size: 13px;
+  font-weight: 800;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }

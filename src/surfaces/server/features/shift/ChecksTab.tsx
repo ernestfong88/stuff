@@ -11,7 +11,7 @@ import type { ClosedCheckRow, ShiftTotals } from './closedChecks';
 import { ShiftFaces } from './ShiftFaces';
 import s from './ChecksTab.module.css';
 
-/** Notes added at a check, the trivia "?" and the mic for a closed check. */
+/** Notes added at a check, Trivia and a voice note for a closed check. */
 function RowActions({ order, label, who, locked, onMic }: { order: Order; label: string; who: string; locked: boolean; onMic: () => void }) {
   const notes = useNotes();
   const count = notes.filter((n) => n.oid === order.id && n.by === who).length;
@@ -22,10 +22,10 @@ function RowActions({ order, label, who, locked, onMic }: { order: Order; label:
           ✓ {count} {count === 1 ? 'note' : 'notes'}
         </Chip>
       )}
-      {!locked && <TriviaButton order={order} variant="icon" />}
+      {!locked && <TriviaButton order={order} />}
       {!locked && (
         <button type="button" className={s.mic} onClick={onMic} aria-label={`Voice note about ${label}`} title="Voice note about this table">
-          <Mic size={19} aria-hidden />
+          <Mic size={17} aria-hidden /> Voice note
         </button>
       )}
     </div>
@@ -63,7 +63,7 @@ export function ChecksTab({
         />
         <SummaryTile value={checkIns} label="table check-ins" color="#2f8c8c" />
       </SummaryTiles>
-      <h3 className={s.cap}>Older orders · {rows.length} closed this shift</h3>
+      <h3 className={s.cap}>Closed checks · {rows.length} this shift</h3>
       {rows.length ? (
         <ul className={s.list}>
           {rows.map((r) => {

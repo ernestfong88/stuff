@@ -22,7 +22,7 @@ export type PlanMode = 'count' | 'alacarte' | 'comp';
 export type DropType = 'dinein' | 'pickup' | 'delivery' | 'assoc' | 'sick' | 'nocharge' | 'hospice';
 export const NO_CHARGE_DROPS: Partial<Record<DropType, string>> = {
   assoc: 'Associate Meal',
-  sick: 'Delivery — Sick',
+  sick: 'Sick delivery',
   nocharge: 'No Charge',
   hospice: 'Hospice',
 };
@@ -69,7 +69,12 @@ export function creditUse(diner: Diner, overflowChoice: Record<string, 'credit' 
 }
 
 /** A line beyond the credit that is charged à la carte. */
-export function overflowIsAla(diner: Diner, line: OrderLine, overflowChoice: Record<string, 'credit' | 'ala'>, cfg: DiningConfig = DEFAULT_CONFIG): boolean {
+export function overflowIsAla(
+  diner: Diner,
+  line: OrderLine,
+  overflowChoice: Record<string, 'credit' | 'ala'>,
+  cfg: DiningConfig = DEFAULT_CONFIG,
+): boolean {
   const rules = mealCreditRules(cfg);
   return isExtraSide(diner, line, rules) || (overflowChoice[line.id] ?? rules.overflow) === 'ala';
 }
@@ -155,8 +160,7 @@ export function planUse(rows: CloseRow[], mode: Record<string, PlanMode>, uses: 
   for (const r of rows) {
     const h = hostPlan(r.person);
     if (!h || !r.person || r.charge.comped) continue;
-    const own =
-      !r.diner.isGuest && r.diner.kind !== 'associate' && (mode[r.diner.id] ?? defaultPlanMode(r.diner)) !== 'alacarte' && h.left > 0;
+    const own = !r.diner.isGuest && r.diner.kind !== 'associate' && (mode[r.diner.id] ?? defaultPlanMode(r.diner)) !== 'alacarte' && h.left > 0;
     const guest = r.diner.isGuest && r.charge.hostCredit;
     if (!own && !guest) continue;
     const u = (by[r.person.id] ??= { left: h.left, own: 0, guests: 0, names: [] });
@@ -263,9 +267,7 @@ export function closeView(
       how: null,
       onPlan,
       title: g ? `Covered by ${host}'s meal plan` : 'Covered by meal plan',
-      sub: g
-        ? `Uses ${use} of ${host}'s meals · ${meals(after)}${tail}`
-        : `This meal uses ${meals(use)}${guestText} · ${meals(after)}${tail}`,
+      sub: g ? `Uses ${use} of ${host}'s meals · ${meals(after)}${tail}` : `This meal uses ${meals(use)}${guestText} · ${meals(after)}${tail}`,
     };
   }
   return { k: 'none', tone: 'comp', amt: 0, how: null, onPlan: false, title: 'Nothing to charge', sub: '' };
@@ -275,9 +277,7 @@ export function closeView(
 export function closeButtonLabel(views: CloseView[], total: number, closing: number, all: number): string {
   const part = closing < all ? ` ${closing} of ${all}` : '';
   if (total <= 0) return `Close${part} · nothing to charge`;
-  return views.some((v) => v.how === 'apt')
-    ? `Charge ${formatMoney(total)} & close${part}`
-    : `Close${part} · ${formatMoney(total)} paid by card`;
+  return views.some((v) => v.how === 'apt') ? `Charge ${formatMoney(total)} & close${part}` : `Close${part} · ${formatMoney(total)} paid by card`;
 }
 
 /** "$29.00 to resident accounts · 1 person on the meal plan" under the table total. */
@@ -316,4 +316,15 @@ export function chargeDrop(row: CloseRow, how: PayHow, compReason: string, cardR
 /** Price of a line on the close screen (a guest on the host's credit pays resident prices). */
 export function closeLinePrice(line: OrderLine, d: Diner, charge: CloseCharge, ala: boolean): number {
   return linePrice(line, charge.hostCredit ? { ...d, isGuest: false } : d, ala ? 'ala' : undefined);
+}
+
+/**
+ * What each card pays: the whole total on one card, or split by percent
+ * across two. The second card takes whatever the first leaves, so the two
+ * always add up to the total to the cent.
+ */
+export function splitAmounts(total: number, mode: TablePay, pct: number): number[] {
+  if (mode !== 'split') return [total];
+  const first = Math.round(total * pct) / 100;
+  return [first, Math.round((total - first) * 100) / 100];
 }

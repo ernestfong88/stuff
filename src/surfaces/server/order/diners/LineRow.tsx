@@ -22,7 +22,7 @@ export function LineRow({
   order: Order;
   diner: Diner;
   line: OrderLine;
-  /** The resident or associate behind the diner (the host, for a guest). */
+  /** Whose allergies count for this diner (none for a guest). */
   person: Resident | undefined;
   onEdit: () => void;
 }) {
@@ -94,12 +94,12 @@ export function LineRow({
         )}
         {conflicts.length > 0 && (
           <div className={s.allergy}>
-            <AlertTriangle size={12} aria-hidden /> Contains {conflicts.join(', ').toLowerCase()} — {person?.name.split(' ')[0]} is allergic
+            <AlertTriangle size={12} aria-hidden /> Contains {conflicts.join(', ').toLowerCase()}. {person?.name.split(' ')[0]} is allergic
           </div>
         )}
       </div>
       <div className={cx(s.price, tag && s.priceTagged)}>
-        {price ? `$${price}` : '—'}
+        {price ? `$${price}` : ''}
         {tag && <span className={s.priceTag}>{tag}</span>}
       </div>
       {line.sent && !line.comped && !line.cancelled && (

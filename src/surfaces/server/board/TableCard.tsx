@@ -6,7 +6,7 @@ import type { Order } from '../../../domain/types';
 import { formatElapsed } from '../../../lib/format';
 import { useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
-import { cx, useNow } from '../../../ui';
+import { cx, toast, useNow } from '../../../ui';
 import { TriviaButton } from '../features';
 import { drinkQueue } from '../shared/lines';
 import { checkInWakeMinutes, tableRoom, venueHasExpo } from '../../../domain/venue';
@@ -59,6 +59,15 @@ export function TableCard({ order: o, stage, since, covered, onOpen }: TableCard
   });
   const grab = actions.find((a): a is Extract<CardAction, { course: number }> => a.kind === 'grab' || a.kind === 'getAndRun');
   const serveCourse = actions.find((a) => a.kind === 'markServed');
+
+  // Nothing to charge, so it closes in one tap; Undo puts the table back.
+  const quickClose = () => {
+    dining.closeOrder(o.id, {});
+    toast(`${tableName(o)} closed on the meal plan`, {
+      tone: 'success',
+      action: { label: 'Undo', onClick: () => dining.reopenOrder(o.id) },
+    });
+  };
 
   const stop = (fn: () => void) => (e: MouseEvent) => {
     e.stopPropagation();
@@ -177,7 +186,12 @@ export function TableCard({ order: o, stage, since, covered, onOpen }: TableCard
         );
       case 'quickClose':
         return (
-          <button key="qc" className={cx(s.act, s.close)} onClick={stop(() => dining.closeOrder(o.id, {}))}>
+          <button
+            key="qc"
+            className={cx(s.act, s.close)}
+            title="Everyone is on their meal plan with nothing to charge. Closes the check now"
+            onClick={stop(() => quickClose())}
+          >
             Quick close
           </button>
         );

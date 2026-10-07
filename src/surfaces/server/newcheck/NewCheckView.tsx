@@ -2,32 +2,36 @@ import { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import type { FloorTable } from '../../../domain/types';
 import { useDining } from '../../../store/dining';
+import { useConfirm } from '../../../ui';
 import { currentMeal } from '../shared/meal';
 import { FloorPicker } from './FloorPicker';
-import { myChecksAt } from './floorTables';
+import { myChecksAt, pickerTable } from './floorTables';
 import { NewCheckAsk } from './NewCheckAsk';
 import s from './NewCheckView.module.css';
 
 /** Pick a table for a new check. A table where I already have a check asks first. */
-export function NewCheckView({
-  room,
-  me,
-  onBack,
-  onOpen,
-}: {
-  room: string;
-  me: string;
-  onBack: () => void;
-  onOpen: (orderId: string) => void;
-}) {
+export function NewCheckView({ room, me, onBack, onOpen }: { room: string; me: string; onBack: () => void; onOpen: (orderId: string) => void }) {
   const { orders, openOrder, newCheck } = useDining();
   const [ask, setAsk] = useState<{ table: FloorTable; mine: ReturnType<typeof myChecksAt> } | null>(null);
 
-  const pick = (table: FloorTable) => {
+  const [confirm, confirmDialog] = useConfirm();
+
+  const pick = async (table: FloorTable) => {
     const mine = myChecksAt(orders, table.id, me);
     if (mine.length) {
       setAsk({ table, mine });
       return;
+    }
+    // Another server's table: say so, rather than quietly starting a second check there.
+    const others = pickerTable(table, orders, me).others;
+    if (others.length) {
+      const who = others.join(' and ');
+      const ok = await confirm({
+        title: `${who} ${others.length === 1 ? 'has' : 'have'} a check at ${table.label}`,
+        message: `Start your own check here for someone who sits down with them? It gets its own diners and timer. To work on ${who}'s check, open it from their tables on My tables.`,
+        confirmLabel: 'Start my check',
+      });
+      if (!ok) return;
     }
     const id = openOrder(table.id, room, currentMeal(), me);
     if (id) onOpen(id);
@@ -46,6 +50,7 @@ export function NewCheckView({
         </p>
       </div>
       <FloorPicker room={room} me={me} onPick={pick} />
+      {confirmDialog}
       {ask && (
         <NewCheckAsk
           table={ask.table}

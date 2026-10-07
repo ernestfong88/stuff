@@ -16,20 +16,29 @@ export function CorkageStep({ order: o }: { order: Order }) {
   const c = corkageSettings(o.room, cfg);
   const bottles = o.corkage || 0;
   if (!c.on || o.queueType) return null;
+  // The fee lands on seat 1; with no one there it would quietly go uncharged.
+  const noSeatOne = bottles > 0 && !o.diners.some((d) => d.seat === 1);
   return (
-    <div className={s.row}>
-      <span className={s.label}>
-        Corkage fee <span className={s.sub}>· ${c.amt} a bottle, charged to seat 1</span>
-      </span>
-      <button className={s.step} aria-label="Fewer bottles" disabled={bottles <= 0} onClick={() => setCorkage(o.id, bottles - 1)}>
-        <Minus size={16} strokeWidth={2.5} aria-hidden />
-      </button>
-      <span className={s.count} aria-live="polite">
-        {bottles ? `${bottles} ${bottles === 1 ? 'bottle' : 'bottles'}` : 'None'}
-      </span>
-      <button className={s.step} aria-label="More bottles" onClick={() => setCorkage(o.id, bottles + 1)}>
-        <Plus size={16} strokeWidth={2.5} aria-hidden />
-      </button>
+    <div className={s.wrap}>
+      <div className={s.row}>
+        <span className={s.label}>
+          Corkage fee <span className={s.sub}>· ${c.amt} a bottle, charged to seat 1</span>
+        </span>
+        <button className={s.step} aria-label="Fewer bottles" disabled={bottles <= 0} onClick={() => setCorkage(o.id, bottles - 1)}>
+          <Minus size={16} strokeWidth={2.5} aria-hidden />
+        </button>
+        <span className={s.count} aria-live="polite">
+          {bottles ? `${bottles} ${bottles === 1 ? 'bottle' : 'bottles'}` : 'None'}
+        </span>
+        <button className={s.step} aria-label="More bottles" onClick={() => setCorkage(o.id, bottles + 1)}>
+          <Plus size={16} strokeWidth={2.5} aria-hidden />
+        </button>
+      </div>
+      {noSeatOne && (
+        <p className={s.warn} role="alert">
+          No one is in seat 1, so the corkage fee is not charged. Go back to the check and move someone to seat 1.
+        </p>
+      )}
     </div>
   );
 }

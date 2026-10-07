@@ -77,7 +77,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
         <div className={s.who}>
           <div className={s.name}>
             {dinerName(d)}
-            {d.isGuest ? (d.guestName ? ` — ${d.guestRel || 'guest'} of ${host}` : ' (guest)') : ''}
+            {d.isGuest ? (d.guestName ? `, ${d.guestRel || 'guest'} of ${host}` : ' (guest)') : ''}
           </div>
           <div className={s.plan}>{c.planLabel}</div>
         </div>
@@ -113,7 +113,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
               </span>
               {!autoHospice && !o.comp && (
                 <button className={s.link} onClick={() => p.onMode('count')}>
-                  undo
+                  Undo
                 </button>
               )}
             </div>
@@ -129,9 +129,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
                     {p.use && p.use.ala > 0 && <span className={s.ala}> + {p.use.ala} à la carte</span>}
                   </span>
                 )}
-                <span className={s.rule}>
-                  {mealCreditText(mealCreditRules(cfg))}
-                </span>
+                <span className={s.rule}>{mealCreditText(mealCreditRules(cfg))}</span>
                 <button className={s.link} onClick={() => p.onMode(p.mode === 'alacarte' ? 'count' : 'alacarte')}>
                   {p.mode === 'alacarte' ? 'use credits instead' : 'all à la carte instead'}
                 </button>
@@ -145,7 +143,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
                     </div>
                   ) : (
                     <div key={line.id} className={s.overflow}>
-                      <span className={s.overflowText}>Beyond the credit — {getItem(line.itemId)?.name}:</span>
+                      <span className={s.overflowText}>{getItem(line.itemId)?.name} is more than one credit covers:</span>
                       {(
                         [
                           ['credit', 'Another credit'],
@@ -175,8 +173,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
 
       <div className={s.lines}>
         {d.items.map((line) => {
-          const ala =
-            p.mode === 'alacarte' || (!!p.use?.overflow.some((x) => x.id === line.id) && overflowIsAla(d, line, p.overflowChoice, cfg));
+          const ala = p.mode === 'alacarte' || (!!p.use?.overflow.some((x) => x.id === line.id) && overflowIsAla(d, line, p.overflowChoice, cfg));
           const price = closeLinePrice(line, d, c, ala);
           return (
             <div key={line.id} className={s.line}>
@@ -198,9 +195,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
       </div>
 
       {d.seat === 1 && o.queueType === 'delivery' && !o.comp && !p.feeComp && <HospiceWaiver order={o} />}
-      {d.seat === 1 && o.queueType === 'delivery' && !o.comp && (
-        <SickWaiver order={o} onComp={p.onFeeComp} comp={p.feeComp} onUndo={p.onFeeUndo} />
-      )}
+      {d.seat === 1 && o.queueType === 'delivery' && !o.comp && <SickWaiver order={o} onComp={p.onFeeComp} comp={p.feeComp} onUndo={p.onFeeUndo} />}
 
       {c.needsDrop && (
         <div className={s.pay}>
@@ -216,7 +211,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
                     <span className={s.compTag}>Comped · {p.feeComp?.reason || o.comp?.reason} · manager approved</span>
                     {p.feeComp && (
                       <button className={s.link} onClick={p.onFeeUndo}>
-                        undo
+                        Undo
                       </button>
                     )}
                   </>
@@ -236,13 +231,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
             {(['apt', 'card'] as const).map((h) => {
               const Icon = h === 'apt' ? Home : CreditCard;
               return (
-                <button
-                  key={h}
-                  role="radio"
-                  aria-checked={p.how === h}
-                  className={cx(s.how, p.how === h && s.howOn)}
-                  onClick={() => p.onHow(h)}
-                >
+                <button key={h} role="radio" aria-checked={p.how === h} className={cx(s.how, p.how === h && s.howOn)} onClick={() => p.onHow(h)}>
                   <Icon size={15} strokeWidth={2} aria-hidden /> {payLabel(h, d, row.person)}
                 </button>
               );
