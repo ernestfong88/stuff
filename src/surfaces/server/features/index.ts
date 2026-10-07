@@ -12,3 +12,7 @@ export { PointsChip } from './points/PointsChip';
 export { NoticesButton } from './notices/NoticesButton';
 export { VoiceButton } from './voice/VoiceButton';
 export { TriviaButton } from './trivia/TriviaButton';
+
+// Also available for the order screen: the mic for one check, and Good to know for a seated resident.
+export { MicButton } from './voice/VoiceButton';
+export { GoodToKnow } from './residents/GoodToKnow';

@@ -1,0 +1,29 @@
+.page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 16px 28px;
+}
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.title {
+  font-family: var(--font-serif);
+  font-size: 23px;
+  font-weight: 600;
+}
+.date {
+  font-size: 13px;
+  color: var(--s400);
+}
+.open {
+  margin-left: auto;
+}
+.tabs {
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}

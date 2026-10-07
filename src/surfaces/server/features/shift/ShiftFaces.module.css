@@ -1,0 +1,26 @@
+.faces {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.name {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.guest {
+  color: var(--s500);
+}
+.more {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--s500);
+  background: #eef1f4;
+  border-radius: var(--r-pill);
+  padding: 3px 8px;
+}

@@ -1,0 +1,25 @@
+.badge {
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.gold {
+  color: #b07a1e;
+  background: #fbf1dc;
+}
+.silver {
+  color: #6b7780;
+  background: #eef1f4;
+}
+.bronze {
+  color: #9a5b34;
+  background: #f6e9df;
+}
+.plain {
+  color: var(--s400);
+}
