@@ -1,0 +1,144 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: flex-start;
+  padding: 12px 12px 12px 14px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  border-left: 5px solid var(--ocean);
+  box-shadow: var(--ring);
+}
+.booked {
+  border-left-color: var(--ocean);
+}
+.soon {
+  border-left-color: #8a5a1e;
+}
+.late {
+  border-left-color: var(--danger);
+  box-shadow: inset 0 0 0 1.5px rgba(178, 59, 46, 0.33);
+}
+.seated {
+  border-left-color: #2f6b33;
+}
+.noshow {
+  border-left-color: var(--s500);
+}
+.cancelled {
+  border-left-color: var(--s400);
+}
+.dim {
+  opacity: 0.66;
+}
+.time {
+  width: 52px;
+  flex-shrink: 0;
+  font-size: 19px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  padding-top: 1px;
+}
+.struck {
+  text-decoration: line-through;
+}
+.body {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+.top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.name {
+  font-size: 15px;
+  font-weight: 800;
+}
+.size {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--s500);
+}
+.chip {
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.chip_booked {
+  color: var(--ocean);
+  background: #e3eef7;
+}
+.chip_soon {
+  color: #8a5a1e;
+  background: #f6e7cf;
+}
+.chip_late {
+  color: var(--danger);
+  background: #f8e1de;
+}
+.chip_seated {
+  color: #2f6b33;
+  background: #e2efe2;
+}
+.chip_noshow {
+  color: var(--s500);
+  background: #eceef0;
+}
+.chip_cancelled {
+  color: var(--s400);
+  background: #f1f2f3;
+}
+.line {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 3px;
+}
+.text_booked {
+  color: var(--ocean);
+}
+.text_soon {
+  color: #8a5a1e;
+}
+.text_late {
+  color: var(--danger);
+}
+.text_seated {
+  color: #2f6b33;
+}
+.meta {
+  font-size: 12.5px;
+  color: var(--s500);
+  margin-top: 3px;
+}
+.party {
+  font-size: 12px;
+  color: var(--s400);
+  margin-top: 2px;
+}
+.notes {
+  font-size: 12.5px;
+  color: var(--s700);
+  margin-top: 4px;
+  font-style: italic;
+}
+.clash {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a5a1e;
+  margin-top: 5px;
+}
+.actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-left: auto;
+  align-self: center;
+}
+.cancel {
+  color: var(--danger);
+}
