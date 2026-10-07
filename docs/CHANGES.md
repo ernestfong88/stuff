@@ -141,6 +141,7 @@ old deep links such as `#/backoffice/production` still work.
 | Dining Service | Side Work Tasks, Assign Side Work | **Productions and Checklists** (new) |
 | Dining Service | Alerts & Timing, Shift Metrics | **HO Settings** (new) |
 | — | Meal Credits | **HO Settings** (new page) |
+| — | Release Phases | **HO Settings** (new page) |
 | Billing → Meal Plans | "Residents can use their meal credits for guests" | Moved to **HO Settings → Meal Credits**; Meal Plans links to it |
 
 The final order is:
@@ -182,6 +183,13 @@ The final order is:
 - What happens to items over the limit: use another credit, or charge à la carte.
 - Whether residents may spend credits on guests. This is on by default only at The Fountains.
 - The server's check and the Close & Charge screen use these rules, and the diner card describes them in words.
+
+**Release Phases** (HO Settings → Release Phases)
+- Mark any Back Office page as **Phase 1** or **Phase 2**. Every page starts in Phase 1.
+- In the side menu, Phase 2 pages carry a *Phase 2* tag, and each one opens with a banner saying it is planned for a later release. Search results show the tag too.
+- A switch at the bottom of the side menu shows *All pages* or *Phase 1 only*. Phase 1 only hides the Phase 2 pages, but search still finds them.
+- *Copy as a list* copies the split, section by section, to paste into an email or a ticket.
+- The split is saved in the browser and kept through *Reset demo data*. To make one split the default on every device, set `phase: 2` on those pages in `src/surfaces/backoffice/nav.ts`.
 
 ### Wiring fixed (settings that did nothing in the mockup)
 - **Guest meal credit**: the toggle was saved in Back Office, but the floor never read it. The checkout now reads it.

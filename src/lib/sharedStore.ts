@@ -36,11 +36,14 @@ const demoStores = new Set<SharedStore<unknown>>();
 /**
  * Keys that describe this device, not demo data: who is signed in, text
  * size, which kitchen screen or venue it shows, bump bar keys, the demo
- * clock, the pacing leader lease.
+ * clock, the pacing leader lease. The back office's release phase plan is
+ * a planning decision rather than demo data, so it stays too.
  */
 const DEVICE_KEYS = new Set([
   'kisco_session',
   'kisco_backoffice_community',
+  'kisco_backoffice_phases',
+  'kisco_backoffice_phase_view',
   'kisco_text_zoom',
   'kisco_clock_offset',
   'kisco_kds_screen',

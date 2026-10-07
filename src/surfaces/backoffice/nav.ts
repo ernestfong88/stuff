@@ -19,6 +19,8 @@ export interface BoPageDef {
    * page they belong under; the nav highlights that page while they show.
    */
   parent?: string;
+  /** Release phase; absent means Phase 1. HO Settings -> Release Phases can move it. */
+  phase?: 1 | 2;
 }
 
 export interface BoSectionDef {
@@ -319,6 +321,13 @@ export const BO_SECTIONS: BoSectionDef[] = [
         blurb: 'What one meal credit covers, extras past it, and guest meals on a resident\'s credit',
         keywords: 'meal credit plan starter entree side dessert extra third side a la carte guest host allowance',
         component: lazy(() => import('./pages/credits')),
+      },
+      {
+        id: 'phases',
+        label: 'Release Phases',
+        blurb: 'Which back office pages ship in Phase 1 and which come later',
+        keywords: 'phase 1 2 release rollout launch later roadmap scope mvp',
+        component: lazy(() => import('./pages/phases')),
       },
     ],
   },

@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { cx, useViewportWidth } from '../../../ui';
 import { PageErrorBoundary } from './PageErrorBoundary';
+import { PhaseBanner } from './PhaseBanner';
 import { PageLoading } from './PageLoading';
 import { PagePalette } from './PagePalette';
 import { useBoPage } from './route';
@@ -75,6 +76,7 @@ export function BackOfficeShell() {
       <main ref={main} className={s.main} tabIndex={-1}>
         <TopBar section={section} page={page} goto={goto} navOpen={drawerOpen} onOpenNav={() => setDrawerOpen(true)} />
         <div className={s.content}>
+          <PhaseBanner pageId={page.id} goto={goto} />
           <PageErrorBoundary resetKey={page.id} pageLabel={page.label}>
             <Suspense fallback={<PageLoading />}>
               <Page key={page.id} goto={goto} />

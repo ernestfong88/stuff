@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import { Search } from 'lucide-react';
 import { cx } from '../../../ui';
 import { BO_MORE_PAGES, BO_SECTIONS, findPage, type BoSectionDef } from '../nav';
+import { phaseOf, usePhasePlan } from '../phases';
 import { searchPages, type SearchablePage } from './search';
 import s from './PagePalette.module.css';
 
@@ -25,6 +26,7 @@ export function PagePalette({ onClose, goto }: { onClose: () => void; goto: (pag
   const list = useRef<HTMLDivElement>(null);
   const listId = useId();
   const results = useMemo(() => searchPages(ENTRIES, query), [query]);
+  const plan = usePhasePlan();
 
   useEffect(() => {
     const before = document.activeElement as HTMLElement | null;
@@ -100,7 +102,10 @@ export function PagePalette({ onClose, goto }: { onClose: () => void; goto: (pag
                   <span className={s.itemLabel}>{r.label}</span>
                   <span className={s.itemBlurb}>{r.blurb}</span>
                 </span>
-                <span className={s.itemSection}>{r.section}</span>
+                <span className={s.itemSection}>
+                  {r.section}
+                  {phaseOf(r.id, plan) === 2 && ' · Phase 2'}
+                </span>
               </div>
             );
           })}
