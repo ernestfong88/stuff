@@ -243,6 +243,17 @@ export function seatsFor(r: Reservation): SeatEntry[] {
   });
 }
 
+/** Is a one-tap note in the notes text? */
+export function hasNote(notes: string, word: string): boolean {
+  return notes.toLowerCase().includes(word.toLowerCase());
+}
+
+/** Add or take out a one-tap note, keeping the rest of the text. */
+export function toggleNote(notes: string, word: string): string {
+  if (hasNote(notes, word)) return notes.replace(new RegExp(word + '[.,]?\\s*', 'i'), '').trim();
+  return (notes.trim() ? notes.trim().replace(/[.,]?$/, '. ') : '') + word;
+}
+
 /** "4 parties, 12 guests, 1 seated" summary counts for a meal. */
 export function mealSummary(rows: Reservation[]): { parties: number; covers: number; seated: number } {
   const active = rows.filter((r) => !r.cancelledAt && !r.noShowAt);

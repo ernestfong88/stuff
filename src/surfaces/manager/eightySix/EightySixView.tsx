@@ -1,37 +1,14 @@
 import { useState } from 'react';
-import { getItem, menu } from '../../../data';
+import { getItem } from '../../../data';
 import { serverItemName } from '../../../domain/menu';
-import type { MealName, MenuItem } from '../../../domain/types';
+import type { MealName } from '../../../domain/types';
 import { today } from '../../../lib/clock';
 import { useConfig } from '../../../store/config';
 import { is86, itemsOut, set86, use86 } from '../../../store/eightySix';
 import { EmptyState, PageTitle, SearchField, Tabs, cx } from '../../../ui';
 import { MEALS } from '../metrics/stepsOfService';
+import { mealByHour, menuForToday } from './menuToday';
 import s from './EightySixView.module.css';
-
-/** Day of the menu cycle being served; items with day 0 are on every day. */
-export const MENU_CYCLE_DAY = 15;
-
-/** __kMealNow: the meal the clock is in. */
-export function mealByHour(hour: number): MealName {
-  return hour >= 15 ? 'Dinner' : hour >= 10 ? 'Lunch' : 'Breakfast';
-}
-
-/** Today's items of a meal by category, each item once, matching the search. */
-export function menuForToday(meal: MealName, query: string): Array<[string, MenuItem[]]> {
-  const seen = new Set<string>();
-  const q = query.trim().toLowerCase();
-  return Object.entries(menu[meal] ?? {})
-    .map(([cat, items]): [string, MenuItem[]] => [
-      cat,
-      items.filter((it) => {
-        if (!(it.day == null || it.day === 0 || it.day === MENU_CYCLE_DAY) || seen.has(it.id)) return false;
-        seen.add(it.id);
-        return !q || it.name.toLowerCase().includes(q);
-      }),
-    ])
-    .filter(([, items]) => items.length > 0);
-}
 
 /** __KMgr86: mark what the kitchen is out of; it comes back on its own at midnight. */
 export function EightySixView() {

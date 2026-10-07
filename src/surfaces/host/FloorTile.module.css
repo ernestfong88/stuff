@@ -30,7 +30,7 @@
   box-shadow: inset 0 0 0 2px #b4441f;
 }
 .label {
-  font-size: 13px;
+  font-size: clamp(12px, 2.4cqh, 17px);
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
@@ -43,11 +43,11 @@
   max-width: 100%;
 }
 .pill {
-  height: 18px;
+  height: clamp(17px, 3.2cqh, 23px);
   padding: 0 7px;
   border-radius: var(--r-pill);
   color: #fff;
-  font-size: 10px;
+  font-size: clamp(10px, 1.8cqh, 13px);
   font-weight: 900;
   display: inline-flex;
   align-items: center;
@@ -55,7 +55,7 @@
   white-space: nowrap;
 }
 .free {
-  font-size: 10.5px;
+  font-size: clamp(10px, 1.8cqh, 12.5px);
   color: var(--s400);
   font-weight: 600;
 }
@@ -65,7 +65,7 @@
   border-radius: 9px;
   background: #fcf0d6;
   color: #a86a00;
-  font-size: 10px;
+  font-size: clamp(9.5px, 1.75cqh, 12.5px);
   font-weight: 900;
   line-height: 1.15;
   display: flex;

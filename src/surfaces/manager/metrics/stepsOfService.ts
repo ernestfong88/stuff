@@ -174,6 +174,8 @@ const DEMO_SERVERS = ['AA', 'RJ', 'MG'];
 
 export interface DemoSosTable extends SosSample {
   meal: MealName;
+  app: number;
+  ent: number;
 }
 
 /**

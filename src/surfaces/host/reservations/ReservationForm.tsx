@@ -12,6 +12,8 @@ import {
   RESV_MEALS,
   RESV_NOTES,
   clashes,
+  hasNote,
+  toggleNote,
   dayFromToday,
   dayWord,
   hm,
@@ -39,17 +41,6 @@ interface Props {
 }
 
 const guestPerson = (g: GuestOnFile): ResvPerson => ({ gid: g.id, guest: g.name, rel: g.rel, host: g.host });
-
-/** Is a one-tap note in the notes text? */
-export function hasNote(notes: string, word: string): boolean {
-  return notes.toLowerCase().includes(word.toLowerCase());
-}
-
-/** Add or take out a one-tap note, keeping the rest of the text. */
-export function toggleNote(notes: string, word: string): string {
-  if (hasNote(notes, word)) return notes.replace(new RegExp(word + '[.,]?\\s*', 'i'), '').trim();
-  return (notes.trim() ? notes.trim().replace(/[.,]?$/, '. ') : '') + word;
-}
 
 /**
  * __KResvForm: new or edit. Who comes first, because that is what the caller

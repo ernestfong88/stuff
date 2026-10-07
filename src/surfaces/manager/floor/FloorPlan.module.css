@@ -1,4 +1,6 @@
 .plan {
+  /* Tiles size their text from the plan's height (cqh), so every table reads the same at 1024 and 1920. */
+  container-type: size;
   position: relative;
   flex: 1;
   border-radius: var(--r-2xl);
