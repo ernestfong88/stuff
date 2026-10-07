@@ -217,3 +217,12 @@
   font-weight: 700;
   color: var(--ocean);
 }
+@media (max-width: 1240px) {
+  .side {
+    flex: 1 1 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}

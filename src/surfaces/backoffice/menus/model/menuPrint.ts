@@ -273,7 +273,7 @@ export function weekHtml(C: PrintContext, w: number): string {
     'in}td.m{width:70px;font:700 10px -apple-system,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:#F0F3F6;vertical-align:middle;text-align:center}.e{font-weight:bold;margin-bottom:7px}.s{font-style:italic;color:#3A4751;margin-bottom:7px}.d{color:#5E6B74;font-style:italic}</style>';
   const cell = (L: PrintLine[], c: PrintCat, cls: string) =>
     L.filter((x) => x.c === c)
-      .map((x) => '<div class="' + cls + '">' + esc(dishLong(x.r.name)) + diets(x.r, C.options) + '</div>')
+      .map((x) => '<div class="' + cls + '">' + esc(dishLong(x.r.name)) + '</div>')
       .join('');
   const rows = ms
     .map(
