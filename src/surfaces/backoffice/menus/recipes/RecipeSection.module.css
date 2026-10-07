@@ -1,0 +1,45 @@
+.sec {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px 20px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.anchor {
+  scroll-margin-top: 12px;
+}
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.titles {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.title {
+  font-size: 15.5px;
+  font-weight: 700;
+}
+.hint {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: var(--s500);
+  line-height: 1.45;
+}
+.aiTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--clay-100);
+  color: var(--clay-600);
+  white-space: nowrap;
+}

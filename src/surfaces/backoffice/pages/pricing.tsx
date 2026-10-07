@@ -1,7 +1,7 @@
 import type { BoPageProps } from '../nav';
-import { BoPage } from '../kit';
+import { PricingPage } from '../menus/pricing/PricingPage';
 
-/** Pricing: Resident, guest and a la carte prices. */
+/** Pricing: resident, guest and à la carte prices per venue. */
 export default function Page(_props: BoPageProps) {
-  return <BoPage title="Pricing" sub="Resident, guest and a la carte prices" />;
+  return <PricingPage />;
 }

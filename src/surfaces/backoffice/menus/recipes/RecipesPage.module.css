@@ -1,0 +1,81 @@
+.top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.scopes {
+  display: flex;
+  gap: 8px;
+}
+.scope {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 650;
+  background: var(--surface);
+  color: var(--s500);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.scopeOn {
+  background: var(--ocean);
+  color: #fff;
+  box-shadow: none;
+}
+.find {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 24px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.findTitle {
+  font-size: 18px;
+  font-weight: 800;
+}
+.findSub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--s500);
+}
+.picks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.pick {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+  text-align: left;
+  transition:
+    background-color var(--fast),
+    box-shadow var(--fast);
+}
+.pick:hover {
+  background: #f7f9fb;
+  box-shadow: inset 0 0 0 1px var(--ocean);
+}
+.pickTitle {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.pickSub {
+  font-size: 11.5px;
+  color: var(--s500);
+}
+.showAll {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ocean);
+}
