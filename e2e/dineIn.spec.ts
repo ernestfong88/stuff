@@ -25,7 +25,7 @@ test('a check travels from the server tablet to the kitchen, expo, and back offi
   await expo.bringToFront();
   const expoTicket = cardWith(expo, 'EG 6', 'Walter');
   await expect(expoTicket).toContainText('Ready');
-  await expoTicket.getByRole('button', { name: /^Bump$/ }).click();
+  await expoTicket.getByRole('button', { name: /^Run course 2\?$/ }).click();
   await expect(cardWith(expo, 'EG 6', 'Walter')).toHaveCount(0);
 
   // Server: the table is eating; close it to Walter's account.

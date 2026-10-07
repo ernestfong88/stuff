@@ -3,7 +3,7 @@ import { DEFAULT_CONFIG } from '../../../domain/config';
 import { diner, line, order } from '../../../domain/__tests__/helpers';
 import { screensForItem, type KdsScreen } from '../../../domain/kdsScreens';
 import seed from '../../../data/seed/venueSettings.json';
-import { averageTicketMinutes, buildCookTickets, bumpLineIds, plateDetails, ticketStatus } from '../cookTickets';
+import { allDayCounts, averageTicketMinutes, buildCookTickets, bumpLineIds, plateDetails, ticketStatus } from '../cookTickets';
 
 const SEQUOIA = (seed as unknown as { kds: { sequoia: KdsScreen[] } }).kds.sequoia;
 const screensOf = (itemId: string, room: string) => screensForItem(itemId, room, room === 'sequoia' ? SEQUOIA : [], {});
@@ -59,6 +59,22 @@ describe('cook tickets', () => {
     const o = order([diner([fired('d_peach', { firedAt: 0 })])], { openedAt: 0 });
     expect(averageTicketMinutes([{ order: o, at: 10 * 60_000 }], 11 * 60_000)).toBe(10);
     expect(averageTicketMinutes([{ order: o, at: 0 }], 2 * 3_600_000)).toBeNull();
+  });
+});
+
+describe('all day counts', () => {
+  it('counts the plates still to make on this screen, most first', () => {
+    const a = order([diner([fired('d_peach'), fired('d_shells')]), diner([fired('d_peach')])]);
+    const b = order([diner([fired('d_peach', { kitchenState: 'ready' }), fired('d_shells', { cancelled: true }), fired('d_peach')])]);
+    const tickets = buildCookTickets([a, b], opts('all'));
+    expect(allDayCounts(tickets, 'all', (id) => id)).toEqual([
+      { name: 'd_peach', count: 3 },
+      { name: 'd_shells', count: 1 },
+    ]);
+  });
+
+  it('is empty when the line is clear', () => {
+    expect(allDayCounts([], 'all', (id) => id)).toEqual([]);
   });
 });
 

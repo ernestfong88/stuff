@@ -4,12 +4,15 @@
  * bump the ticket when the course is done. Works from a physical bump bar
  * too.
  */
-import { Keyboard } from 'lucide-react';
+import { Keyboard, ListOrdered } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { now } from '../../lib/clock';
+import { safeStorage } from '../../lib/storage';
 import { useConfig } from '../../store/config';
 import { useDining } from '../../store/dining';
 import { useSetting } from '../../store/serviceConfig';
+import { getItem } from '../../data';
+import { kitchenItemName } from '../../domain/menu';
 import { tableName } from '../../domain/orders';
 import { serverName } from '../../domain/servers';
 import { cx, useNow } from '../../ui';
@@ -20,15 +23,20 @@ import { KitchenUnavailable } from '../kitchen/KitchenUnavailable';
 import { MenuReference } from '../kitchen/MenuReference';
 import { RecallMenu } from '../kitchen/RecallMenu';
 import type { SubcategoryChoices } from '../../domain/subcategories';
+import { snapshotLines } from '../kitchen/lineSnapshot';
 import { useBumpBar } from '../kitchen/useBumpBar';
+import { useBumpUndo } from '../kitchen/useBumpUndo';
 import { useThreshold } from '../kitchen/useThreshold';
 import { kitchenPrinters, kitchenScreens, screenOptions, useDeviceScreen, useVenueSettings } from '../../store/venueSettings';
-import { averageTicketMinutes, bumpLineIds, buildCookTickets, screenLines, ticketStatus, type CookLine, type CookTicket } from './cookTickets';
+import { AllDayBar } from './AllDayBar';
+import { allDayCounts, averageTicketMinutes, bumpLineIds, buildCookTickets, screenLines, ticketStatus, type CookLine, type CookTicket } from './cookTickets';
 import { CookTicketCard } from './CookTicketCard';
 import s from './Cook.module.css';
 import { ScreenPicker } from './ScreenPicker';
 
 const NO_CHOICES: SubcategoryChoices = {};
+/** Whether this device shows the all day strip. */
+const ALL_DAY_KEY = 'kisco_cook_allday';
 
 export default function Cook() {
   const { kitchenMode } = useDining();
@@ -54,6 +62,8 @@ function CookLine() {
   const clock = useNow(1000);
   const [keysOpen, setKeysOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [allDay, setAllDay] = useState(() => safeStorage.get(ALL_DAY_KEY) === '1');
+  const undoToast = useBumpUndo();
   const closeKeys = useCallback(() => setKeysOpen(false), []);
 
   const screensOf = useCallback(
@@ -70,6 +80,14 @@ function CookLine() {
     return order ? [{ ...b, order }] : [];
   });
   const avg = averageTicketMinutes(bumped, now());
+  // Only tickets that still have plates up can be pulled back; once expo runs them there is nothing to recall.
+  const recallable = bumped.filter((b) => b.order.diners.some((d) => d.items.some((i) => i.kitchenState === 'ready')));
+  const counts = allDayCounts(tickets, screen.key, (id) => kitchenItemName(getItem(id)?.name ?? '', cfg));
+
+  const toggleAllDay = () => {
+    safeStorage.set(ALL_DAY_KEY, allDay ? '0' : '1');
+    setAllDay(!allDay);
+  };
 
   const tapLine = (t: CookTicket, line: CookLine) =>
     dining.setItemKitchenState(t.orderId, line.id, line.cancelled ? 'cleared' : line.kitchenState === 'ready' ? 'cooking' : 'ready');
@@ -79,17 +97,26 @@ function CookLine() {
     for (const l of ticketStatus(t, screen.key).cancelled) dining.setItemKitchenState(t.orderId, l.id, 'cleared');
   };
 
+  /** Picked up, without an expo station: the course leaves the line. */
+  const clearTicket = (t: CookTicket) => {
+    const before = snapshotLines(t.order, t.lines.flatMap((l) => [l.id, ...l.sideLines.map((x) => x.id)]));
+    dining.clearCourse(t.orderId, t.course);
+    undoToast(t.orderId, before, `${tableName(t.order)} cleared`);
+  };
+
   const bumpTicket = (t: CookTicket) => {
     const st = ticketStatus(t, screen.key);
     if (st.onlyCancelled) return clearCancelled(t);
-    if (st.allReady && !expoActive) return dining.clearCourse(t.orderId, t.course);
-    dining.markCourseReady(t.orderId, t.course, bumpLineIds(t, screen.key, screensOf));
+    if (st.allReady && !expoActive) return clearTicket(t);
+    const ids = bumpLineIds(t, screen.key, screensOf);
+    const before = snapshotLines(t.order, [...ids, ...st.cancelled.map((l) => l.id)]);
+    dining.markCourseReady(t.orderId, t.course, ids);
     clearCancelled(t);
+    undoToast(t.orderId, before, `${tableName(t.order)} bumped`);
   };
 
   const recallLast = () => {
-    const back = bumped.find((b) => b.order.diners.some((d) => d.items.some((i) => i.kitchenState === 'ready')));
-    if (back) dining.recallToCooking(back.orderId);
+    if (recallable[0]) dining.recallToCooking(recallable[0].orderId);
   };
 
   const [sel, setSel] = useBumpBar({
@@ -120,12 +147,21 @@ function CookLine() {
         subtitle={screen.roomName}
         actions={
           <>
+            <HeaderButton
+              icon={<ListOrdered size={15} strokeWidth={2.5} />}
+              on={allDay}
+              aria-pressed={allDay}
+              onClick={toggleAllDay}
+              title="How many of each plate are still to make"
+            >
+              ALL DAY
+            </HeaderButton>
             <HeaderButton onClick={() => setMenuOpen(true)} title="Today's entrées: plating and cook notes">
               MENU
             </HeaderButton>
             <RecallMenu
               title="Undo a bump: pulls the ticket back"
-              items={bumped.map((b) => ({ id: b.orderId, label: tableName(b.order) + (b.order.server ? ' · ' + serverName(b.order.server) : '') }))}
+              items={recallable.map((b) => ({ id: b.orderId, label: tableName(b.order) + (b.order.server ? ' · ' + serverName(b.order.server) : '') }))}
               onRecall={(id) => dining.recallToCooking(id)}
             />
             <HeaderButton icon={<Keyboard size={15} strokeWidth={2.5} />} onClick={() => setKeysOpen(true)} title="Bump bar keys">
@@ -136,11 +172,12 @@ function CookLine() {
       >
         {avg != null && (
           <span className={cx(s.avg, avg <= 12 ? s.avgGood : s.avgSlow)} title="Average minutes from fire to bump, last hour">
-            avg {avg}m
+            Avg ticket {avg} min
           </span>
         )}
         <ScreenPicker value={screen.key} options={screenOptions(settings)} />
       </KitchenHeader>
+      {allDay && <AllDayBar counts={counts} />}
       <TicketArea label="Tickets">
         <TicketGrid>
           {tickets.map((t, i) => (
@@ -158,7 +195,7 @@ function CookLine() {
                 onSelect={(line) => setSel({ ticket: i, line })}
                 onTapLine={(line) => tapLine(t, line)}
                 onBump={() => bumpTicket(t)}
-                onClear={() => dining.clearCourse(t.orderId, t.course)}
+                onClear={() => clearTicket(t)}
                 onClearCancelled={() => clearCancelled(t)}
               />
             </TicketSlot>

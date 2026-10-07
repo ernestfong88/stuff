@@ -60,6 +60,10 @@ export default function ProductionPrep() {
   const markOf = (item: ChecklistItem) => checkMark(state, venueId, iso, meal, item, nowMs);
   const total = groups.reduce((n, g) => n + g.items.length, 0);
   const done = groups.reduce((n, g) => n + g.items.filter((it) => markOf(it)).length, 0);
+  const preppedCount = specials.filter((sp) => prepped(sp)).length;
+  // The header counts everything for the meal on screen: specials and checklist.
+  const allDone = done + preppedCount;
+  const allTotal = total + specials.length;
 
   return (
     <div className={s.screen} data-prep={`${sel.offset}|${meal}`}>
@@ -68,8 +72,12 @@ export default function ProductionPrep() {
           <h1 className={s.title}>Prep · Production plan</h1>
           <VenueTabs value={venueId} onChange={setVenueId} />
           <span className={s.right}>
-            <span className={done === total && total > 0 ? s.tallyDone : s.tally} aria-label={`${done} of ${total} checklist items done`}>
-              {done}/{total} <small>done</small>
+            <span
+              className={allDone === allTotal && allTotal > 0 ? s.tallyDone : s.tally}
+              aria-label={`${allDone} of ${allTotal} specials and checklist items done`}
+              title="Specials prepped and checklist items done for the meal on screen"
+            >
+              {allDone} of {allTotal} <small>done</small>
             </span>
             <TextZoom tall />
             <ModeChip tall />
@@ -79,7 +87,14 @@ export default function ProductionPrep() {
       </header>
 
       <main className={s.body}>
-        <h2 className={s.capSpecials}>{when} specials · make this many</h2>
+        <div className={s.sectionHead}>
+          <h2 className={s.capSpecials}>{when} specials · make this many</h2>
+          {specials.length > 0 && (
+            <span className={s.checklistCount}>
+              {preppedCount} of {specials.length} prepped
+            </span>
+          )}
+        </div>
         {specials.length > 0 ? (
           <div className={s.specials}>
             {ordered.map((sp) => (

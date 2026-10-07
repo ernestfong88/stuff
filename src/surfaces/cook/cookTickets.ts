@@ -148,6 +148,29 @@ export function bumpLineIds(t: CookTicket, screen: string, screensOf: CookTicket
   ]);
 }
 
+export interface AllDayCount {
+  name: string;
+  count: number;
+}
+
+/**
+ * All day: how many of each plate this screen still has to make, across
+ * every ticket on the line. Plates already up and cancelled ones don't
+ * count. Most first, then by name.
+ */
+export function allDayCounts(tickets: readonly CookTicket[], screen: string, name: (itemId: string) => string): AllDayCount[] {
+  const counts = new Map<string, number>();
+  for (const t of tickets)
+    for (const l of screenLines(t, screen)) {
+      if (l.cancelled || l.kitchenState === 'ready') continue;
+      const n = name(l.itemId);
+      counts.set(n, (counts.get(n) ?? 0) + 1);
+    }
+  return [...counts]
+    .map(([n, count]) => ({ name: n, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
 /** Average minutes from first fire to bump over bumps in the last hour, or null. */
 export function averageTicketMinutes(bumps: ReadonlyArray<{ order: Order; at: number }>, at: number): number | null {
   const recent = bumps.filter((b) => at - b.at < 3_600_000);

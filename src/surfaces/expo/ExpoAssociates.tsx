@@ -39,7 +39,7 @@ function AssocTicketCard({ ticket: t, index, now, onUpdate }: { ticket: AssocTic
 
   const next = assocNext(m);
   const timer =
-    next.kind === 'fire' ? (now > t.at ? shortSpan(now - t.at) : 'in ' + shortSpan(t.at - now)) : formatElapsed(now - (next.kind === 'ready' ? m.firedAt ?? now : m.readyAt ?? now));
+    next.kind === 'fire' ? (now > t.at ? shortSpan(now - t.at) + ' over' : 'in ' + shortSpan(t.at - now)) : formatElapsed(now - (next.kind === 'ready' ? m.firedAt ?? now : m.readyAt ?? now));
   const courseChip = state === 'late' ? (next.kind === 'fire' ? 'Holding' : 'Ready') : TICKET_STATE_LABEL[state];
   const detail = [m.note ? '“' + m.note + '”' : '', t.noc ? `Set out before the ${NOC_CLOSE} close` : ''].filter(Boolean).join(', ');
 
@@ -47,8 +47,9 @@ function AssocTicketCard({ ticket: t, index, now, onUpdate }: { ticket: AssocTic
     <article className={cx(s.ticket, s[state], changed && s.changed)} aria-label={`Associate meal for ${m.associate}, ${TICKET_STATE_LABEL[state]}`}>
       <header className={s.head}>
         <div className={s.headRow}>
-          <span className={s.seq}>{index < 10 ? index : ''}</span>
-          <span className={s.label}>Assoc</span>
+          {index < 10 && <span className={s.seq}>{index}</span>}
+          <span className={cx(s.label, s.assocName)}>{m.associate}</span>
+          <span className={s.serverPill}>Associate</span>
           <span className={cx(s.clock, s.clockPushed)}>{timer}</span>
         </div>
         <div className={s.headRow}>
@@ -63,10 +64,6 @@ function AssocTicketCard({ ticket: t, index, now, onUpdate }: { ticket: AssocTic
             <span className={s.courseChip}>{courseChip}</span>
           </div>
           <div className={s.diner}>
-            <div className={s.dinerHead}>
-              <span className={s.seat}>1</span>
-              <span className={s.dinerName}>{m.associate}</span>
-            </div>
             <div className={s.plateRow}>
               <span className={cx(s.tick, m.readyAt != null && s.tickOn)} aria-hidden="true">
                 {m.readyAt != null && <Check size={10} strokeWidth={4} />}

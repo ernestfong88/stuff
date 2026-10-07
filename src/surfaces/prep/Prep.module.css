@@ -66,10 +66,15 @@
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 2px 10px;
+}
 .capSpecials {
   composes: cap;
   color: var(--clay-600);
-  margin: 0 2px 10px;
 }
 .capChecklist {
   composes: cap;

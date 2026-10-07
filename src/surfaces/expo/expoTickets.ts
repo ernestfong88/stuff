@@ -30,13 +30,17 @@ export interface ExpoTicket {
 
 export type ExpoFilter = 'all' | 'tables' | 'pickup' | 'delivery' | 'progress' | 'unfired';
 
-export const EXPO_FILTERS: ReadonlyArray<{ id: ExpoFilter; label: string }> = [
+/**
+ * In the order a ticket moves: not fired, in progress, then ready to go out.
+ * The three "ready" lists only hold tickets whose course is up at the pass.
+ */
+export const EXPO_FILTERS: ReadonlyArray<{ id: ExpoFilter; label: string; ready?: boolean }> = [
   { id: 'all', label: 'All active' },
-  { id: 'tables', label: 'Tables' },
-  { id: 'pickup', label: 'Pick Up' },
-  { id: 'delivery', label: 'Delivery' },
-  { id: 'progress', label: 'In progress' },
   { id: 'unfired', label: 'Not fired' },
+  { id: 'progress', label: 'In progress' },
+  { id: 'tables', label: 'Tables', ready: true },
+  { id: 'pickup', label: 'Pick up', ready: true },
+  { id: 'delivery', label: 'Delivery', ready: true },
 ];
 
 export interface Thresholds {
@@ -154,7 +158,7 @@ export function ticketState(t: ExpoTicket, at: number, th: Thresholds): TicketSt
 export type ExpoAction =
   | { kind: 'fire'; course: number }
   | { kind: 'run'; course: number }
-  | { kind: 'bump' }
+  | { kind: 'bump'; course: number }
   | { kind: 'handOff'; notified: boolean }
   | { kind: 'ready'; lineIds: string[]; course: number }
   | { kind: 'waiting' };
@@ -166,7 +170,7 @@ export function expoAction(t: ExpoTicket): ExpoAction {
   const c = currentCourse(t.lines);
   if (c != null && courseIsReady(t.lines)) {
     if (t.order.queueType) return { kind: 'handOff', notified: !!t.order.notified };
-    return t.lines.some((l) => l.course > c) ? { kind: 'run', course: c } : { kind: 'bump' };
+    return t.lines.some((l) => l.course > c) ? { kind: 'run', course: c } : { kind: 'bump', course: c };
   }
   const cooking = t.lines.filter((l) => l.kitchenState === 'cooking');
   if (cooking.length && c != null) return { kind: 'ready', lineIds: cooking.map((l) => l.id), course: c };

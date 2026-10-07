@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mic } from 'lucide-react';
-import { useNow } from '../../ui';
+import { useConfirm, useNow } from '../../ui';
 import { addPrepNote, prepNotes, removePrepNote, useProduction, type PrepMeal } from '../../store/production';
 import { noteWhen } from './logic';
 import { useSpeechNote } from './useSpeechNote';
@@ -26,6 +26,7 @@ export function PrepNotes({ venueId, iso, meal, dish, cook }: PrepNotesProps) {
   const notes = prepNotes(state, venueId, iso, meal, dish, nowMs);
   const speech = useSpeechNote(`${venueId}|${iso}|${meal}|${dish}`);
   const [showAll, setShowAll] = useState(false);
+  const [ask, confirmDialog] = useConfirm();
   const shown = showAll ? notes : notes.slice(0, 2);
   const canSave = speech.text.trim().length > 0;
 
@@ -36,8 +37,25 @@ export function PrepNotes({ venueId, iso, meal, dish, cook }: PrepNotesProps) {
     speech.close();
   };
 
+  const remove = async (id: string, text: string) => {
+    const ok = await ask({
+      title: 'Remove this note?',
+      message: (
+        <>
+          “{text.length > 120 ? text.slice(0, 117) + '...' : text}”
+          <br />
+          Once removed, the next cook won&apos;t see it.
+        </>
+      ),
+      confirmLabel: 'Remove note',
+      tone: 'danger',
+    });
+    if (ok) removePrepNote(venueId, iso, meal, dish, id);
+  };
+
   return (
     <div className={s.notes}>
+      {confirmDialog}
       {speech.stage === 'idle' && (
         <>
           {speech.message && (
@@ -135,7 +153,7 @@ export function PrepNotes({ venueId, iso, meal, dish, cook }: PrepNotesProps) {
                   {n.by} · {noteWhen(n.at, nowMs)}
                 </span>
                 {n.by === cook && (
-                  <button className={s.remove} onClick={() => removePrepNote(venueId, iso, meal, dish, n.id)}>
+                  <button className={s.remove} onClick={() => void remove(n.id, n.text)}>
                     Remove
                   </button>
                 )}

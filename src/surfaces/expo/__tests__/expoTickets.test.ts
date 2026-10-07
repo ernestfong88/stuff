@@ -27,7 +27,7 @@ describe('expo tickets', () => {
     const ready = buildExpoTickets([order([diner([l('d_cbsoup', 'ready', 1), l('d_peach', 'scheduled', 2)])])])[0];
     expect(expoAction(ready)).toEqual({ kind: 'run', course: 1 });
     const last = buildExpoTickets([order([diner([l('d_peach', 'ready')])])])[0];
-    expect(expoAction(last)).toEqual({ kind: 'bump' });
+    expect(expoAction(last)).toEqual({ kind: 'bump', course: 2 });
     const held = buildExpoTickets([order([diner([l('d_cbsoup', 'cleared', 1), l('d_trifle', 'scheduled', 3)])])])[0];
     expect(expoAction(held)).toEqual({ kind: 'fire', course: 3 });
     const pu = buildExpoTickets([order([diner([l('d_peach', 'ready')])], { queueType: 'pickup', notified: true })])[0];

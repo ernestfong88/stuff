@@ -90,6 +90,14 @@
   color: #fff;
   white-space: nowrap;
 }
+/* An associate's name is the ticket title, so it may need to shorten. */
+.assocName {
+  flex-shrink: 1;
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .serverPill {
   min-width: 0;
   overflow: hidden;
@@ -125,25 +133,6 @@
 .togoSmall {
   align-self: center;
   font-size: 10px;
-}
-.refire {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 34px;
-  margin-left: auto;
-  border-radius: var(--r-sm);
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-}
-.refire:hover {
-  background: rgba(255, 255, 255, 0.24);
-}
-.refireOn {
-  background: var(--k-amber);
-  color: var(--night);
 }
 .clock {
   flex-shrink: 0;
@@ -306,18 +295,9 @@
   font-size: 11px;
   font-weight: 800;
 }
-.fireChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 30px;
-  padding: 0 12px;
-  border-radius: var(--r-pill);
+.courseChipNext {
   background: var(--k-amber);
   color: var(--k-amber-ink);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
 }
 .doneHead {
   display: flex;
@@ -444,7 +424,10 @@ button.plateRow:hover {
   display: flex;
   border-top: 1px solid var(--k-neutral);
   border-radius: 0 0 6px 6px;
-  overflow: hidden;
+}
+/* No overflow clip here: the More menu opens above the footer. */
+.foot > :first-child {
+  border-bottom-left-radius: 6px;
 }
 .act {
   flex: 1.4;
@@ -465,6 +448,20 @@ button.plateRow:hover {
   flex: 1;
   padding: 0 4px;
   font-size: 13px;
+}
+.actStacked {
+  flex-direction: column;
+  gap: 1px;
+}
+.actMain {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.actNote {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
 }
 .actSplit {
   border-left: 1px solid #1e4a25;
@@ -504,22 +501,58 @@ button.plateRow:hover {
     background: var(--k-ready-deep);
   }
 }
-.print {
+.more {
   flex-shrink: 0;
   width: 52px;
+  height: 100%;
+  min-height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-left: 1px solid var(--k-neutral);
+  border-bottom-right-radius: 6px;
   background: #20272f;
   color: var(--k-soft);
 }
-.print:hover {
+.more:hover,
+.moreOn {
   background: #29323b;
+  color: #fff;
 }
-.printed {
-  background: var(--moss);
-  color: var(--night);
+.moreMenu.moreMenu {
+  background: var(--night-2);
+  color: var(--night-ink);
+  box-shadow:
+    0 18px 44px -10px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.moreItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  text-align: left;
+  font-size: 15px;
+  font-weight: 800;
+  color: #f1f5f9;
+}
+.moreItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.moreItem svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--k-soft);
+}
+.moreItem small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--night-dim);
 }
 
 @media (prefers-reduced-motion: reduce) {

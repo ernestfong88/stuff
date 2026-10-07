@@ -1,4 +1,4 @@
-import { Bell, Check, CheckCircle2, Flame, Printer, RotateCw, ShoppingBag, Truck } from 'lucide-react';
+import { Bell, Check, CheckCircle2, Flame, MoreVertical, Printer, RotateCw, ShoppingBag, Truck } from 'lucide-react';
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import { getItem, getTable } from '../../data';
 import type { DiningConfig } from '../../domain/config';
@@ -7,7 +7,7 @@ import { dinerName, dinerPerson } from '../../domain/orders';
 import { serverName } from '../../domain/servers';
 import { formatElapsed, formatTime } from '../../lib/format';
 import { itemReminders } from '../../store/menuEdits';
-import { cx } from '../../ui';
+import { Popover, cx, toast } from '../../ui';
 import { DinerPills } from '../kitchen/DinerPills';
 import { pickupWindow } from '../kitchen/kitchenTime';
 import { orderTextPlan, type TextSettings } from '../kitchen/orderTexts';
@@ -81,7 +81,6 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
   const queue = !!o.queueType;
   const [refireOpen, setRefireOpen] = useState(false);
   const [openDone, setOpenDone] = useState<Record<number, boolean>>({});
-  const [printed, setPrinted] = useState(false);
   const state = ticketState(t, now, thresholds);
   const changed = useChanged<TicketState>(state, 750);
   const label = expoLabel(t);
@@ -95,19 +94,15 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
   const allToGo = t.lines.length > 0 && t.lines.every((l) => l.toGo);
   const nothingFired = fireable != null && t.lines.every((l) => l.kitchenState === 'scheduled');
 
-  useEffect(() => {
-    if (!printed) return;
-    const h = setTimeout(() => setPrinted(false), 1800);
-    return () => clearTimeout(h);
-  }, [printed]);
-
   return (
     <article className={cx(s.ticket, s[state], changed && s.changed, selected && s.selected)} aria-label={`${label}, ${TICKET_STATE_LABEL[state]}`}>
       <header className={s.head}>
         <div className={s.headRow}>
-          <span className={s.seq} title="Bump bar quick select">
-            {index < 10 ? index : ''}
-          </span>
+          {index < 10 && (
+            <span className={s.seq} title="Bump bar quick select">
+              {index}
+            </span>
+          )}
           <span className={s.label}>
             {o.queueType === 'delivery' ? <Truck size={17} strokeWidth={2.5} /> : o.queueType === 'pickup' ? <ShoppingBag size={17} strokeWidth={2.5} /> : null}
             {label}
@@ -119,18 +114,7 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
             </span>
           )}
           {allToGo && <span className={s.togo}>TO GO</span>}
-          {!nothingFired && (
-            <button
-              className={cx(s.refire, refireOpen && s.refireOn)}
-              onClick={() => setRefireOpen((v) => !v)}
-              aria-expanded={refireOpen}
-              aria-label="Refire an item"
-              title="Refire an item"
-            >
-              <RotateCw size={15} strokeWidth={2.75} />
-            </button>
-          )}
-          <span className={cx(s.clock, nothingFired && s.clockPushed)}>{formatElapsed(now - t.firedAt)}</span>
+          <span className={cx(s.clock, s.clockPushed)}>{formatElapsed(now - t.firedAt)}</span>
         </div>
         <div className={s.headRow}>
           {o.readyAt && <span className={s.window}>{o.readyAt === 'ASAP' ? 'ASAP' : pickupWindow(o.readyAt)}</span>}
@@ -170,13 +154,9 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
                 !queue && (
                   <div className={s.courseHead}>
                     <span className={s.courseName}>COURSE {course}</span>
-                    {fireable === course ? (
-                      <button className={s.fireChip} onClick={() => actions.fire(o.id, course)}>
-                        <Flame size={12} strokeWidth={2.5} /> Fire
-                      </button>
-                    ) : (
-                      <span className={s.courseChip}>{cs === 'fired' ? 'Fired' : cs === 'ready' ? 'Ready' : 'Holding'}</span>
-                    )}
+                    <span className={cx(s.courseChip, fireable === course && s.courseChipNext)}>
+                      {fireable === course ? 'Fire next' : cs === 'fired' ? 'Fired' : cs === 'ready' ? 'Ready' : 'Holding'}
+                    </span>
                   </div>
                 )
               )}
@@ -188,17 +168,52 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
 
       <footer className={s.foot}>
         <Footer ticket={t} texts={texts} actions={actions} />
-        <button
-          className={cx(s.print, printed && s.printed)}
-          aria-label="Print this course"
-          title="Print this course for the runner: each person's name, then their plates. The ticket stays until bumped."
-          onClick={() => {
-            actions.print(t, label);
-            setPrinted(true);
-          }}
+        <Popover
+          above
+          className={s.moreMenu}
+          minWidth={230}
+          trigger={({ open, toggle }) => (
+            <button className={cx(s.more, open && s.moreOn)} onClick={toggle} aria-haspopup="menu" aria-expanded={open} aria-label={`More for ${label}`}>
+              <MoreVertical size={20} strokeWidth={2.5} />
+            </button>
+          )}
         >
-          {printed ? <Check size={18} strokeWidth={2.5} /> : <Printer size={18} strokeWidth={2.25} />}
-        </button>
+          {({ close }) => (
+            <>
+              <button
+                role="menuitem"
+                className={s.moreItem}
+                onClick={() => {
+                  close();
+                  actions.print(t, label);
+                  toast(`Printing ${label} for the runner`, { tone: 'success' });
+                }}
+              >
+                <Printer size={17} strokeWidth={2.25} />
+                <span>
+                  Print for the runner
+                  <small>Names, then their plates. The ticket stays.</small>
+                </span>
+              </button>
+              {!nothingFired && (
+                <button
+                  role="menuitem"
+                  className={s.moreItem}
+                  onClick={() => {
+                    close();
+                    setRefireOpen(true);
+                  }}
+                >
+                  <RotateCw size={17} strokeWidth={2.5} />
+                  <span>
+                    Refire an item
+                    <small>Sends a plate back to the line as a rush.</small>
+                  </span>
+                </button>
+              )}
+            </>
+          )}
+        </Popover>
       </footer>
     </article>
   );
@@ -336,19 +351,23 @@ function Footer({ ticket: t, texts, actions }: { ticket: ExpoTicket; texts: Text
       );
     case 'bump':
       return (
-        <button className={cx(s.act, s.actNeutral)} onClick={() => actions.bump(o.id)}>
+        <button className={cx(s.act, s.actGo)} onClick={() => actions.bump(o.id)}>
           <CheckCircle2 size={17} strokeWidth={2.5} />
-          Bump
+          Run course {a.course}?
         </button>
       );
     case 'handOff': {
       const plan = orderTextPlan(o, texts);
       const firstName = o.assoc && o.assocName ? o.assocName.split(' ')[0] : o.diners[0] ? dinerName(o.diners[0]).split(' ')[0] : 'resident';
+      const handOffLabel = o.queueType === 'delivery' ? 'On its way?' : 'Picked up?';
       if (a.notified)
         return (
-          <button className={cx(s.act, s.actGo, flash && s.actFlash)} onClick={() => actions.handOff(t)}>
-            <CheckCircle2 size={17} strokeWidth={2.5} />
-            {(plan.sent ? 'Texted ' + (o.notifiedAt ? formatTime(o.notifiedAt) : '') : `Not texted (${plan.why})`) + ', clear?'}
+          <button className={cx(s.act, s.actGo, s.actStacked, flash && s.actFlash)} onClick={() => actions.handOff(t)}>
+            <span className={s.actMain}>
+              <CheckCircle2 size={17} strokeWidth={2.5} />
+              {handOffLabel}
+            </span>
+            <span className={s.actNote}>{plan.sent ? 'Texted ' + (o.notifiedAt ? formatTime(o.notifiedAt) : '') : plan.why === 'no mobile' ? 'Not texted: no mobile on file' : 'Not texted: texts are off'}</span>
           </button>
         );
       return (
@@ -367,7 +386,7 @@ function Footer({ ticket: t, texts, actions }: { ticket: ExpoTicket; texts: Text
           )}
           <button className={cx(s.act, s.actGo, plan.sent && s.actHalf, plan.sent && s.actSplit)} onClick={() => actions.handOff(t)}>
             <CheckCircle2 size={15} strokeWidth={2.5} />
-            {o.queueType === 'delivery' ? 'On its way?' : 'Picked up?'}
+            {handOffLabel}
           </button>
         </>
       );

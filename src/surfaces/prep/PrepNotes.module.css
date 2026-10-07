@@ -200,10 +200,11 @@
 }
 .remove,
 .more {
-  font-size: 12px;
+  min-height: 36px;
+  font-size: 13px;
   font-weight: 800;
-  padding: 6px 4px;
-  border-radius: var(--r-xs);
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
 }
 .remove {
   color: var(--s500);

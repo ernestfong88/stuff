@@ -21,7 +21,9 @@ import { KitchenUnavailable } from '../kitchen/KitchenUnavailable';
 import { MenuReference } from '../kitchen/MenuReference';
 import type { TextSettings } from '../kitchen/orderTexts';
 import { RecallMenu } from '../kitchen/RecallMenu';
+import { snapshotLines } from '../kitchen/lineSnapshot';
 import { useBumpBar } from '../kitchen/useBumpBar';
+import { useBumpUndo } from '../kitchen/useBumpUndo';
 import { useThreshold } from '../kitchen/useThreshold';
 import { kitchenPrinters, useVenueSettings } from '../../store/venueSettings';
 import { assocTickets, plannedToday, type AssocStage } from './assocTickets';
@@ -73,6 +75,7 @@ function ExpoPass() {
   const [keysOpen, setKeysOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const closeKeys = useCallback(() => setKeysOpen(false), []);
+  const undoToast = useBumpUndo();
 
   const tickets = useMemo(() => buildExpoTickets(orders), [orders]);
   const lists = filterTickets(tickets, clock);
@@ -85,8 +88,28 @@ function ExpoPass() {
     return order && order.diners.some((d) => d.items.some((i) => i.kitchenState === 'cleared')) ? [{ ...b, order }] : [];
   });
 
+  const recallLabel = (o: ExpoTicket['order']) => (o.queueType ? `${tableName(o)} · ${o.diners[0] ? dinerName(o.diners[0]).split(' ')[0] : ''}` : tableName(o));
+
+  /** Run course c to the table, with an Undo in case it was the wrong ticket. */
+  const runCourse = (orderId: string, c: number) => {
+    const o = orders.find((x) => x.id === orderId);
+    const before = o ? snapshotLines(o) : [];
+    dining.clearCourse(orderId, c);
+    if (o) undoToast(orderId, before, `${recallLabel(o)}: course ${c} ran`);
+  };
+
+  /** The last course goes out: the ticket leaves the pass. */
+  const bumpOrder = (orderId: string) => {
+    const o = orders.find((x) => x.id === orderId);
+    const before = o ? snapshotLines(o) : [];
+    dining.clearOrder(orderId);
+    if (o) undoToast(orderId, before, `${recallLabel(o)} cleared from the pass`);
+  };
+
   const handOff = (t: ExpoTicket) => {
+    const before = snapshotLines(t.order);
     dining.clearOrder(t.order.id);
+    undoToast(t.order.id, before, `${recallLabel(t.order)} ${t.order.queueType === 'delivery' ? 'on its way' : 'picked up'}`);
     if (t.order.queueType === 'pickup' && !tracksPickup(t.order.room)) {
       dining.patchOrder(t.order.id, { setOut: true });
       dining.markDelivered(t.order.id);
@@ -96,8 +119,8 @@ function ExpoPass() {
   const actions: ExpoTicketActions = {
     fire: dining.fireCourseNow,
     setLine: dining.setItemKitchenState,
-    runCourse: dining.clearCourse,
-    bump: dining.clearOrder,
+    runCourse,
+    bump: bumpOrder,
     notify: dining.notifyOrder,
     handOff,
     refire: dining.remakeLine,
@@ -116,8 +139,8 @@ function ExpoPass() {
     if (cooking.length) return cooking.forEach((l) => dining.setItemKitchenState(t.order.id, l.id, 'ready'));
     if (!courseIsReady(t.lines)) return;
     const c = currentCourse(t.lines) ?? 0;
-    if (t.lines.some((l) => l.kitchenState === 'scheduled' && l.course > c)) dining.clearCourse(t.order.id, c);
-    else dining.clearOrder(t.order.id);
+    if (t.lines.some((l) => l.kitchenState === 'scheduled' && l.course > c)) runCourse(t.order.id, c);
+    else bumpOrder(t.order.id);
   };
 
   const [sel, setSel] = useBumpBar({
@@ -132,12 +155,29 @@ function ExpoPass() {
       return up;
     },
     onBumpTicket: (i) => bumpTicket(shown[i]),
+    onMenu: () => recalls[0] && dining.recallCleared(recalls[0].orderId),
   });
 
   const updateAssoc = (id: string, patch: AssocStage & Partial<AssocMeal>, text: string) =>
     dining.setAssocOrders((list) => list.map((m) => (m.id === id ? { ...m, ...patch, log: [...(m.log ?? []), { by: 'Expo', at: now(), text }] } : m)));
 
-  const recallLabel = (o: ExpoTicket['order']) => (o.queueType ? `${tableName(o)} · ${o.diners[0] ? dinerName(o.diners[0]).split(' ')[0] : ''}` : tableName(o));
+  const filterButton = (f: (typeof EXPO_FILTERS)[number]) => (
+    <HeaderButton
+      key={f.id}
+      on={!associates && filter === f.id}
+      aria-pressed={!associates && filter === f.id}
+      count={lists[f.id].length}
+      countTone={f.id === 'unfired' ? 'blue' : 'green'}
+      className={s.filter}
+      onClick={() => {
+        setAssociates(false);
+        setFilter(f.id);
+        setSel({ ticket: 0, line: 0 });
+      }}
+    >
+      {f.label}
+    </HeaderButton>
+  );
 
   if (keysOpen)
     return (
@@ -172,23 +212,13 @@ function ExpoPass() {
         }
       >
         <nav className={s.filters} aria-label="Show">
-          {EXPO_FILTERS.map((f) => (
-            <HeaderButton
-              key={f.id}
-              on={!associates && filter === f.id}
-              aria-pressed={!associates && filter === f.id}
-              count={lists[f.id].length}
-              countTone={f.id === 'unfired' ? 'blue' : 'green'}
-              className={s.filter}
-              onClick={() => {
-                setAssociates(false);
-                setFilter(f.id);
-                setSel({ ticket: 0, line: 0 });
-              }}
-            >
-              {f.label}
-            </HeaderButton>
-          ))}
+          {EXPO_FILTERS.filter((f) => !f.ready).map(filterButton)}
+          <span className={s.readyGroup} role="group" aria-label="Ready to go out">
+            <span className={s.readyLabel} aria-hidden="true">
+              Ready
+            </span>
+            {EXPO_FILTERS.filter((f) => f.ready).map(filterButton)}
+          </span>
           <HeaderButton
             on={associates}
             aria-pressed={associates}

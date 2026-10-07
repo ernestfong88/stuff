@@ -66,10 +66,10 @@ function ChecklistRow({ item, mark, onSet }: RowProps) {
   // A stocked item asks how: stocked, or a backup made.
   if (item.stock && !mark) {
     return (
-      <div className={s.row}>
+      <div className={cx(s.row, s.stockRow)}>
         {box}
         {text}
-        <span className={s.choices}>
+        <span className={s.choices} role="group" aria-label={item.text}>
           <button className={s.choice} onClick={() => onSet('stocked')}>
             Stocked
           </button>
@@ -81,16 +81,23 @@ function ChecklistRow({ item, mark, onSet }: RowProps) {
     );
   }
 
+  // Done stays done until Undo, so a stray tap can't wipe who did it and when.
+  if (mark) {
+    return (
+      <div className={cx(s.row, s.rowDone)}>
+        {box}
+        {text}
+        <button className={s.undo} onClick={() => onSet(null)} aria-label={`Undo ${item.text}`}>
+          Undo
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <button
-      className={cx(s.row, s.tap, mark && s.rowDone)}
-      aria-pressed={!!mark}
-      title={mark ? 'Tap to uncheck' : 'Tap when done'}
-      onClick={() => onSet(mark ? null : 'done')}
-    >
+    <button className={cx(s.row, s.tap)} aria-pressed={false} onClick={() => onSet('done')}>
       {box}
       {text}
-      {mark && <span className={s.undo}>Undo</span>}
     </button>
   );
 }

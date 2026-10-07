@@ -22,12 +22,7 @@ interface SpecialCardProps {
 export function SpecialCard({ special, amount, prepped, venueId, iso, meal, cook, onOpen }: SpecialCardProps) {
   if (prepped) {
     return (
-      <button
-        className={s.doneRow}
-        aria-pressed
-        title="Tap to uncheck"
-        onClick={() => setPrepped(venueId, iso, meal, special.slot, false, cook)}
-      >
+      <div className={s.doneRow} aria-label={`${special.name}, prepped`}>
         <span className={s.doneBox}>
           <Check size={16} strokeWidth={3} aria-hidden />
         </span>
@@ -39,8 +34,10 @@ export function SpecialCard({ special, amount, prepped, venueId, iso, meal, cook
             Prepped · {prepped.by} · {formatTime(prepped.at)}
           </span>
         </span>
-        <span className={s.undo}>Undo</span>
-      </button>
+        <button className={s.undo} onClick={() => setPrepped(venueId, iso, meal, special.slot, false, cook)} aria-label={`Undo prepped for ${special.name}`}>
+          Undo
+        </button>
+      </div>
     );
   }
 
