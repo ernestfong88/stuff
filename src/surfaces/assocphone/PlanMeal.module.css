@@ -150,8 +150,19 @@
   color: var(--s500);
   margin-top: 8px;
 }
-.confirm {
-  margin-top: 14px;
+/* The plan button stays in reach while the menu scrolls. */
+.bar {
+  flex-shrink: 0;
+  padding: 10px 14px 14px;
+  background: var(--paper);
+  box-shadow: 0 -1px 0 var(--hair-2);
+}
+.summary {
+  margin: 0 2px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--s700);
 }
 
 .closed {

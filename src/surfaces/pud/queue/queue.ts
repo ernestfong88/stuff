@@ -32,6 +32,9 @@ const isQueue = (o: Order) => o.queueType === 'pickup' || o.queueType === 'deliv
 
 export const matchesFilter = (o: Order, f: QueueFilter) => f === 'all' || o.queueType === f;
 
+/** Nothing ordered on it yet: a new order left without picking any items. */
+export const isEmptyOrder = (o: Order) => !o.diners.some((d) => d.items.length > 0);
+
 /** Open pick up and delivery orders, soonest promise first. */
 export function openRows(orders: Order[], kitchenMode?: string): QueueRow[] {
   return orders
@@ -98,6 +101,8 @@ export interface StatusCounts {
   out: number;
   cooking: number;
   later: number;
+  /** Started but not sent to the kitchen. */
+  draft: number;
 }
 
 /** The status summary above the list. */
@@ -109,7 +114,8 @@ export function statusCounts(rows: QueueRow[], at: number): StatusCounts {
     waiting: n('waiting'),
     out: n('out'),
     cooking: n('cooking'),
-    later: n('scheduled') + n('draft'),
+    later: n('scheduled'),
+    draft: n('draft'),
   };
 }
 
@@ -197,6 +203,27 @@ export function nextAction(r: QueueRow, ctx: TextContext, tracksPickups: boolean
   if (r.stage === 'waiting' && tracksPickups) return { kind: 'pickedUp', label: 'Picked up' };
   if (r.stage === 'out') return { kind: 'delivered', label: 'Delivered' };
   return null;
+}
+
+/** The line in the toast after a hand-off button: "Ruth's order is set out." */
+export function handOffMessage(kind: QueueActionKind, o: Order, finished = false): string {
+  const who = `${firstOf(o)}'s ${o.queueType === 'delivery' ? 'delivery' : 'order'}`;
+  if (kind === 'packed') return finished ? `${who} is set out and done.` : `${who} is set out.`;
+  if (kind === 'onMyWay') return `${who} is on the way.`;
+  if (kind === 'pickedUp') return `${who} is picked up.`;
+  return `${who} is delivered.`;
+}
+
+/**
+ * What Undo puts back on an order still on the list. Picked up and
+ * Delivered close the order, so Undo reopens it first (see usePudActions).
+ * A text that went out can't be called back; Undo only moves the order.
+ */
+export function undoPatch(kind: QueueActionKind): Partial<Order> {
+  const handedOn: Partial<Order> = { notified: false, notifiedAt: undefined };
+  if (kind === 'packed') return { ...handedOn, setOut: undefined, deliveredAt: undefined };
+  if (kind === 'onMyWay') return { ...handedOn, pickedUpAt: undefined, textedOnWayAt: undefined };
+  return { deliveredAt: undefined, setOut: undefined };
 }
 
 /** The hover text on a stage that was texted: "Texted: Hi Ruth, ..." */

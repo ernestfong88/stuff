@@ -16,11 +16,14 @@ interface ShiftCardProps {
   closed: ClosedReason | null;
   /** No pickup range left to order for this shift today. */
   orderingOver: boolean;
+  /** The planned meal's range is still open, so it can be changed or cancelled. */
+  canChange: boolean;
   onPlan: () => void;
+  onChange: (meal: AssocMeal) => void;
   onCancel: (meal: AssocMeal) => void;
 }
 
-export function ShiftCard({ shift, dayName, anyTime, planned, closed, orderingOver, onPlan, onCancel }: ShiftCardProps) {
+export function ShiftCard({ shift, dayName, anyTime, planned, closed, orderingOver, canChange, onPlan, onChange, onCancel }: ShiftCardProps) {
   const texted = planned && lastTexted(planned);
   const showDate = dayName === 'Today' || dayName === 'Tomorrow';
   return (
@@ -46,9 +49,18 @@ export function ShiftCard({ shift, dayName, anyTime, planned, closed, orderingOv
             {planned.item}
             {planned.note ? ` (${planned.note})` : ''} · {windowTag(planned.window)}
           </span>
-          <button className={s.cancel} onClick={() => onCancel(planned)} aria-label={`Cancel ${planned.item} on ${dayName}`}>
-            Cancel
-          </button>
+          {canChange ? (
+            <span className={s.actions}>
+              <button className={s.change} onClick={() => onChange(planned)} aria-label={`Change ${planned.item} on ${dayName}`}>
+                Change
+              </button>
+              <button className={s.cancel} onClick={() => onCancel(planned)} aria-label={`Cancel ${planned.item} on ${dayName}`}>
+                Cancel
+              </button>
+            </span>
+          ) : (
+            <p className={s.locked}>Ordering has closed, so the kitchen is making it. To change it now, ask the kitchen.</p>
+          )}
           {texted && (
             <p className={s.texted}>
               <MessageSquareText size={13} strokeWidth={2.2} aria-hidden /> {texted}

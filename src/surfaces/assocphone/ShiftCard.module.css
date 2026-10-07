@@ -44,17 +44,40 @@
   font-size: 13.5px;
   color: var(--s700);
 }
+.actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+.change,
 .cancel {
+  flex: 1;
   min-height: 40px;
-  padding: 0 8px;
-  margin: -6px -6px -6px 0;
-  border-radius: var(--r-sm);
-  font-size: 13px;
+  padding: 0 12px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
   font-weight: 800;
+}
+.change {
+  background: var(--ocean-100);
+  color: var(--ocean);
+}
+.change:hover {
+  background: #cddfec;
+}
+.cancel {
   color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
 }
 .cancel:hover {
   background: var(--danger-bg);
+}
+.locked {
+  width: 100%;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--s500);
 }
 .texted {
   display: flex;

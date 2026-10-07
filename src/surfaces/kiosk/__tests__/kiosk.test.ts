@@ -3,9 +3,11 @@ import { getItem, getResident, residents } from '../../../data';
 import { dinerBilling } from '../../../domain/billing';
 import { backWithin, countedSteps, INITIAL_STATE, nextStep, type KioskState } from '../model/flow';
 import { dishLongName, drinkGroup, drinkName, kioskMenu, shortList, versionMods, dishVersions, changeChips, modsFromWords } from '../../../domain/kioskMenu';
-import { buildKioskOrder, kioskNote, kioskTextBody, mainDishName, planSentence, reviewItems, reviewWhen, sideIds } from '../model/order';
+import { buildKioskOrder, kioskNote, kioskTextBody, mainDishName, planSentence, reviewWhen, sideIds } from '../model/order';
 import { aptLetters, findResidents } from '../model/residents';
 import { kioskMeals, kioskTypes, nextTimes, timeChoices } from '../model/times';
+import { mainWithSides, reviewLines } from '../model/review';
+import { kioskUnitFor } from '../ui/unit';
 
 const T0 = new Date(2026, 9, 7, 17, 45, 0, 0).getTime();
 beforeEach(() => {
@@ -177,7 +179,7 @@ describe('the order', () => {
 
   it('reads back the order and texts a short copy', () => {
     expect(mainDishName(answers)).toBe('Veggie Pizza');
-    expect(reviewItems(answers)).toEqual(['Veggie Pizza, no side', 'Cheeseburger Soup', 'Iced Tea']);
+    expect(mainWithSides(answers)).toBe('Veggie Pizza, no side');
     expect(reviewWhen(answers, '2026-10-07')).toBe('Dinner today, 6:30 to 6:45 PM, pick up at the Sequoia Dining basket.');
     const o = buildKioskOrder(answers, ctx);
     const bill = dinerBilling(o.diners[0], o);
@@ -185,5 +187,53 @@ describe('the order', () => {
     expect(kioskTextBody(answers, o, eleanor, bill, {}, '2026-10-07')).toBe(
       'Valencia Terrace Dining: your dinner order for today, 6:30 to 6:45 PM, pick up at the Sequoia Dining basket.\n- Cheeseburger Soup\n- Veggie Pizza\n- Iced Tea\nChanges: No onions',
     );
+  });
+});
+
+describe('the review', () => {
+  const answers = state({
+    resident: eleanor,
+    type: 'delivery',
+    meal: 'Dinner',
+    date: '2026-10-07',
+    win: 1110,
+    entree: 'd_peach',
+    side: 'keep',
+    soup: null,
+    drink: null,
+    dessert: null,
+    utensils: false,
+  });
+
+  it('names the sides a dish comes with, a swapped side, or none', () => {
+    expect(mainWithSides(answers)).toBe('Peach Glazed Chicken Breast, with mashed potatoes and garlic green beans');
+    expect(mainWithSides({ ...answers, side: 'none' })).toBe('Peach Glazed Chicken Breast, no side');
+    expect(mainWithSides({ entree: 'd_pizza', version: 'Veggie', side: 'none' })).toBe('Veggie Pizza, no side');
+    expect(mainWithSides({ ...answers, entree: null })).toBe('');
+  });
+
+  it('reads back one answer a line, each opening its question to change it', () => {
+    const lines = reviewLines(answers, dinner, '2026-10-07');
+    expect(lines.map((l) => [l.label, l.value])).toEqual([
+      ['When', `Dinner today, 6:30 to 6:45 PM, delivered to Apt ${eleanor.apt}`],
+      ['Main dish', 'Peach Glazed Chicken Breast, with mashed potatoes and garlic green beans'],
+      ['Soup', 'No soup'],
+      ['Drink', 'No drink'],
+      ['Dessert', 'No dessert'],
+      ['Changes', 'No changes'],
+      ['Utensils', 'No utensils or napkin'],
+    ]);
+    expect(lines.find((l) => l.key === 'when')?.to).toBe('type');
+    expect(lines.find((l) => l.key === 'main')?.patch).toEqual({ special: 0, others: false });
+    expect(reviewLines(answers, { ...dinner, soups: [], desserts: [] }, '2026-10-07').map((l) => l.key)).not.toContain('soup');
+  });
+});
+
+describe('kiosk unit', () => {
+  it('sizes portrait from the short side, and lets landscape grow with the width a little', () => {
+    expect(kioskUnitFor(1080, 1920)).toBeCloseTo(0.9);
+    expect(kioskUnitFor(1024, 700)).toBeCloseTo(1024 / 1460);
+    expect(kioskUnitFor(1280, 800)).toBeCloseTo(800 / 960);
+    expect(kioskUnitFor(1024, 700)).toBeGreaterThan(700 / 1200);
   });
 });

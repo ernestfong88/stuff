@@ -18,10 +18,13 @@ import {
   windowMinutes,
   type AssocMealName,
 } from '../../domain/assocMeals/windows';
+import { pickedMods } from './myMeals';
 import s from './PlanMeal.module.css';
 
 interface PlanMealProps {
   shift: Shift;
+  /** The planned meal being changed; its choices start picked. */
+  editing?: AssocMeal;
   /** Salaried view: any range that is still open, not only during the shift. */
   anyTime: boolean;
   todayIso: string;
@@ -33,29 +36,45 @@ interface PlanMealProps {
   onPlan: (meal: NewMeal) => void;
 }
 
-/** Plan a meal for a shift: pick from the menu, make the choices, pick a pickup range. */
-export function PlanMeal({ shift, anyTime, todayIso, settings, meals, orders, onBack, onPlan }: PlanMealProps) {
+/**
+ * Plan a meal for a shift: pick from the menu, make the choices, pick a
+ * pickup range. The button stays at the bottom of the screen and says
+ * what is still missing.
+ */
+export function PlanMeal({ shift, editing, anyTime, todayIso, settings, meals, orders, onBack, onPlan }: PlanMealProps) {
   const nowMs = useNow(30_000);
   const mealChoices = shiftMeals(shift.meal);
-  const [meal, setMeal] = useState<AssocMealName>(mealChoices[0]);
-  const [itemId, setItemId] = useState<string | null>(null);
-  const [picked, setPicked] = useState<Record<string, string>>({});
-
   const menuSettings = useAssocMenuSettings();
+  const startMeal = mealChoices.find((m) => m === editing?.meal) ?? mealChoices[0];
+  const [meal, setMeal] = useState<AssocMealName>(startMeal);
+  const [itemId, setItemId] = useState<string | null>(
+    () => (editing && assocMenuFor(shift.date, startMeal, todayIso, menuSettings)?.find((x) => x.name === editing.item)?.id) || null,
+  );
+  const [picked, setPicked] = useState<Record<string, string>>(() => pickedMods(editing));
+
   const menu = assocMenuFor(shift.date, meal, todayIso, menuSettings);
   const cap = windowCap(settings.caps, settings.venue);
   const open = openWindows(shift, meal, anyTime, settings, meals, nowMs);
   const loadOf = (w: string) => windowLoad(cap, settings.venue, w, shift.date, orders, meals);
   const bookable = open.filter((w) => !loadOf(w).full);
   const nearBreak = anyTime ? null : nearestToBreak(bookable, shift.breakAt);
-  const [chosenWindow, setPickup] = useState<string | null>(null);
+  const [chosenWindow, setPickup] = useState<string | null>(editing?.window ?? null);
   const pickup = chosenWindow && bookable.includes(chosenWindow) ? chosenWindow : nearBreak;
 
   const item = menu?.find((x) => x.id === itemId) ?? null;
   const left = item ? itemsLeft(meals, shift.date, item) : null;
   const missing = item ? missingChoice(item, picked) : null;
   const ready = !!item && !!pickup && !missing && left !== 0;
-  const action = !item ? 'Pick a meal' : missing ? `Pick a ${missing.group.toLowerCase()}` : !pickup ? 'Pick a pickup time' : 'Plan this meal';
+  const action = !item
+    ? 'Pick a meal'
+    : missing
+      ? `Pick a ${missing.group.toLowerCase()}`
+      : !pickup
+        ? 'Pick a pickup time'
+        : editing
+          ? 'Save changes'
+          : 'Plan this meal';
+  const summary = item ? [item.name + (modsText(item, picked) ? ` (${modsText(item, picked)})` : ''), pickup && rangeLabel(windowMinutes(pickup) ?? 0)].filter(Boolean).join(' · ') : '';
 
   const place = () => {
     if (!ready || !item || !pickup) return;
@@ -82,7 +101,7 @@ export function PlanMeal({ shift, anyTime, todayIso, settings, meals, orders, on
           Back
         </button>
         <h1 className={s.title}>
-          {dayName(shift.date, todayIso)} · {meal}
+          {editing ? `Change meal · ${dayName(shift.date, todayIso)}` : `${dayName(shift.date, todayIso)} · ${meal}`}
         </h1>
       </header>
       {mealChoices.length > 1 && (
@@ -186,12 +205,17 @@ export function PlanMeal({ shift, anyTime, todayIso, settings, meals, orders, on
                 ? `The kitchen is closed overnight, so the dinner line makes NOC meals before it closes at ${minutesLabel(settings.nocBy)} and sets them out for your range. NOC orders close at ${minutesLabel(settings.nocBy - settings.cutoffMin)} and no text is sent.`
                 : `Each pickup time is a 15 minute range. Orders close ${settings.cutoffMin} min before the range starts. Associate meals don't take notes.`}
             </p>
-            <Button variant="primary" size="lg" block disabled={!ready} onClick={place} className={s.confirm}>
-              {action}
-            </Button>
           </>
         )}
       </div>
+      {menu && (
+        <footer className={s.bar}>
+          {summary && <p className={s.summary}>{summary}</p>}
+          <Button variant="primary" size="lg" block disabled={!ready} onClick={place}>
+            {action}
+          </Button>
+        </footer>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import type { AssocMeal } from '../../domain/types';
 import { EmptyState, cx } from '../../ui';
 import { dayName } from '../../domain/assocMeals/shifts';
 import { windowTag } from '../../domain/assocMeals/windows';
+import { statusText } from './myMeals';
 import s from './MealHistory.module.css';
 
 /** Meals picked up or cancelled, newest first. */
@@ -15,7 +16,7 @@ export function MealHistory({ meals, todayIso }: { meals: AssocMeal[]; todayIso:
           <span className={s.item}>
             {m.item} · {windowTag(m.window)}
           </span>
-          <span className={cx(s.status, m.status.startsWith('Cancelled') && s.cancelled)}>{m.status}</span>
+          <span className={cx(s.status, m.status.startsWith('Cancelled') && s.cancelled)}>{statusText(m.status)}</span>
         </li>
       ))}
     </ul>

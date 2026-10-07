@@ -3,9 +3,10 @@ import { dinerName } from '../../../domain/orders';
 import type { Order } from '../../../domain/types';
 import { useDining } from '../../../store/dining';
 import { sendText } from '../../../store/textOutbox';
+import { toast } from '../../../ui';
 import { mobileOverrides, textSettings, tracksPickups, useServiceSettings } from '../../../domain/pickupService/settings';
 import { queueTextKey, textFor, textMessage, textNumber, textRecipient, type TextContext } from '../../../domain/pickupService/texts';
-import type { QueueActionKind, QueueRow } from './queue';
+import { handOffMessage, undoPatch, type QueueActionKind, type QueueRow } from './queue';
 
 /** The text settings PU & Delivery reads, re-read when Back Office changes them. */
 export function useTextContext(): TextContext {
@@ -15,13 +16,14 @@ export function useTextContext(): TextContext {
 
 /**
  * What the PU & Delivery buttons do. Handing an order on (packed and set
- * out, or out the door) sends its one text through the outbox.
+ * out, or out the door) sends its one text through the outbox. Each hand-off
+ * shows a toast with Undo, since one tap moves or closes the order.
  */
 export function usePudActions(rows: QueueRow[], onOpen: (orderId: string) => void) {
   const dining = useDining();
   const cfg = useServiceSettings();
   const ctx = useTextContext();
-  const { notifyOrder, markPickedUp, markDelivered, patchOrder } = dining;
+  const { notifyOrder, markPickedUp, markDelivered, patchOrder, reopenOrder } = dining;
 
   const text = useCallback(
     (o: Order) => {
@@ -34,15 +36,24 @@ export function usePudActions(rows: QueueRow[], onOpen: (orderId: string) => voi
     [ctx],
   );
 
-  /** Packed and set out; at a venue that doesn't track collection, that finishes it. */
+  /** Put an order back the way it was before `kind`; a closed one is reopened first. */
+  const undo = useCallback(
+    (kind: QueueActionKind, o: Order, closed: boolean) => {
+      if (closed) reopenOrder(o.id);
+      patchOrder(o.id, undoPatch(kind));
+    },
+    [reopenOrder, patchOrder],
+  );
+
+  /** Packed and set out; at a venue that doesn't track collection, that finishes it. Returns true when it finished. */
   const setOut = useCallback(
     (o: Order) => {
       notifyOrder(o.id);
       text(o);
-      if (!tracksPickups(cfg, o.room)) {
-        patchOrder(o.id, { setOut: true });
-        markDelivered(o.id);
-      }
+      if (tracksPickups(cfg, o.room)) return false;
+      patchOrder(o.id, { setOut: true });
+      markDelivered(o.id);
+      return true;
     },
     [cfg, notifyOrder, text, patchOrder, markDelivered],
   );
@@ -59,12 +70,29 @@ export function usePudActions(rows: QueueRow[], onOpen: (orderId: string) => voi
 
   const run = useCallback(
     (kind: QueueActionKind, o: Order) => {
-      if (kind === 'finish') onOpen(o.id);
-      else if (kind === 'packed') setOut(o);
+      if (kind === 'finish') return onOpen(o.id);
+      let closed = false;
+      if (kind === 'packed') closed = setOut(o);
       else if (kind === 'onMyWay') leave(o);
-      else markDelivered(o.id);
+      else {
+        markDelivered(o.id);
+        closed = true;
+      }
+      toast(handOffMessage(kind, o, closed), { tone: 'success', action: { label: 'Undo', onClick: () => undo(kind, o, closed) } });
     },
-    [onOpen, setOut, leave, markDelivered],
+    [onOpen, setOut, leave, markDelivered, undo],
+  );
+
+  /** Every ready delivery leaves in one trip, with one Undo for all of them. */
+  const takeAll = useCallback(
+    (list: QueueRow[]) => {
+      list.forEach((r) => leave(r.order));
+      toast(`${list.length} deliveries are on the way.`, {
+        tone: 'success',
+        action: { label: 'Undo', onClick: () => list.forEach((r) => undo('onMyWay', r.order, false)) },
+      });
+    },
+    [leave, undo],
   );
 
   // A pick up that was set out before its venue stopped tracking collection
@@ -81,11 +109,11 @@ export function usePudActions(rows: QueueRow[], onOpen: (orderId: string) => voi
   /** Bring a handed-off order back to the list to correct it. */
   const reopen = useCallback(
     (o: Order) => {
-      dining.reopenOrder(o.id);
-      dining.patchOrder(o.id, { deliveredAt: undefined, setOut: undefined });
+      reopenOrder(o.id);
+      patchOrder(o.id, { deliveredAt: undefined, setOut: undefined });
     },
-    [dining],
+    [reopenOrder, patchOrder],
   );
 
-  return { run, leave, reopen };
+  return { run, takeAll, reopen };
 }
