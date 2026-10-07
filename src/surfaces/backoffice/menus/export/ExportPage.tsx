@@ -80,29 +80,49 @@ export function ExportPage() {
             <Field label="Venue">
               <Select value={venue.id} onChange={setVenueId} options={venues.map((v) => ({ value: v.id, label: v.name }))} />
             </Field>
-            <Tabs variant="segmented" size="sm" value={kind} onChange={setKind} options={KINDS.map((k) => ({ id: k.id, label: k.label }))} aria-label="Printout" className={s.kinds} />
+            <Tabs
+              variant="segmented"
+              size="sm"
+              value={kind}
+              onChange={setKind}
+              options={KINDS.map((k) => ({ id: k.id, label: k.label }))}
+              aria-label="Printout"
+              className={s.kinds}
+            />
             {kind === 'daily' && weeks > 0 && ctx.today > 0 && (
               <p className={s.hint}>
                 Today is week {Math.ceil(ctx.today / 7)} of the {weeks}-week cycle. The export follows it automatically.
               </p>
             )}
             {(kind === 'week' || kind === 'order') && weeks > 0 && (
-              <p className={s.hint}>Prints week {printWeek(ctx) + 1} of the {weeks}-week cycle, the one running now. The menu builder prints any week.</p>
+              <p className={s.hint}>
+                Prints week {printWeek(ctx) + 1} of the {weeks}-week cycle, the one running now. The menu builder prints any week.
+              </p>
             )}
-            {kind !== 'alacarte' && weeks === 0 && <p className={s.hint}>{venue.name} serves an à la carte menu, so the printout lists what it offers every day.</p>}
+            {kind !== 'alacarte' && weeks === 0 && (
+              <p className={s.hint}>{venue.name} serves an à la carte menu, so the printout lists what it offers every day.</p>
+            )}
           </section>
 
           <section className={s.card}>
             <div className={s.label}>Template · maintained by marketing, HO managed</div>
             <div className={s.templates} role="radiogroup" aria-label="Template">
               {TEMPLATES.map((t) => (
-                <button key={t.id} role="radio" aria-checked={template === t.id} className={cx(s.template, template === t.id && s.templateOn)} onClick={() => setTemplate(t.id)}>
+                <button
+                  key={t.id}
+                  role="radio"
+                  aria-checked={template === t.id}
+                  className={cx(s.template, template === t.id && s.templateOn)}
+                  onClick={() => setTemplate(t.id)}
+                >
                   <span className={s.templateName}>{t.name}</span>
                   <span className={s.templateUse}>{t.use}</span>
                 </button>
               ))}
             </div>
-            <p className={s.hint}>Every template drops in {venue.name}&apos;s logo automatically. Communities pick, never edit: that keeps the brand and keeps typos off the menu.</p>
+            <p className={s.hint}>
+              Every template drops in {venue.name}&apos;s logo automatically. Communities pick, never edit: that keeps the brand and keeps typos off the menu.
+            </p>
           </section>
 
           <section className={s.card}>

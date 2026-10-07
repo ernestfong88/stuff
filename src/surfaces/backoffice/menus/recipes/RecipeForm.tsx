@@ -46,7 +46,10 @@ export function RecipeForm(p: RecipeFormProps) {
   const { r, readOnly, page } = p;
   const [scale, setScale] = useState<number | null>(null);
   const drafted = r.aiDrafted ?? [];
-  const go = (k: string) => document.getElementById('recipe-sec-' + k)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  const go = (k: string) =>
+    document
+      .getElementById('recipe-sec-' + k)
+      ?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
 
   return (
     <div className={s.form}>
@@ -54,7 +57,8 @@ export function RecipeForm(p: RecipeFormProps) {
       {readOnly && (
         <BoCallout tone="info">
           <span className={s.calloutRow}>
-            <Lock size={14} aria-hidden /> Managed by Home Office, so it is read-only here. Suggest a change at the bottom, or copy it from the Recipes list to make your own.
+            <Lock size={14} aria-hidden /> Managed by Home Office, so it is read-only here. Suggest a change at the bottom, or copy it from the Recipes list to
+            make your own.
           </span>
         </BoCallout>
       )}

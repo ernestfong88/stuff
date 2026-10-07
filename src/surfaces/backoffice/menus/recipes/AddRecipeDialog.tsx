@@ -18,7 +18,15 @@ const READ_MS = 1200;
  * accident. A new one can start blank or be drafted from pasted text or a
  * photo of the recipe card.
  */
-export function AddRecipeDialog({ onClose, onAddGlobal, onCreated }: { onClose: () => void; onAddGlobal: (r: Recipe, linked: boolean) => void; onCreated: (id: string) => void }) {
+export function AddRecipeDialog({
+  onClose,
+  onAddGlobal,
+  onCreated,
+}: {
+  onClose: () => void;
+  onAddGlobal: (r: Recipe, linked: boolean) => void;
+  onCreated: (id: string) => void;
+}) {
   const bo = useBo();
   const [q, setQ] = useState('');
   const [isNew, setIsNew] = useState(false);
@@ -50,13 +58,17 @@ export function AddRecipeDialog({ onClose, onAddGlobal, onCreated }: { onClose: 
       {isNew ? (
         <div className={s.newBox}>
           <div className={s.newTitle}>Add “{name}” as a new recipe</div>
-          <p className={s.muted}>Paste the recipe as text, or upload a photo or PDF. AI drafts the recipe from it for you to review and edit. Or start blank.</p>
+          <p className={s.muted}>
+            Paste the recipe as text, or upload a photo or PDF. AI drafts the recipe from it for you to review and edit. Or start blank.
+          </p>
           <TextArea
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={6}
             aria-label="Recipe text"
-            placeholder={'Paste anything: an email, a recipe card, notes…\n\n2 lb ground beef\n1 cup breadcrumbs\n2 eggs\nMix, form a loaf, bake at 350 for 45 minutes.'}
+            placeholder={
+              'Paste anything: an email, a recipe card, notes…\n\n2 lb ground beef\n1 cup breadcrumbs\n2 eggs\nMix, form a loaf, bake at 350 for 45 minutes.'
+            }
           />
           <div className={s.fileRow}>
             <label className={s.file}>
@@ -148,7 +160,9 @@ export function AddRecipeDialog({ onClose, onAddGlobal, onCreated }: { onClose: 
           </div>
         </>
       ) : (
-        <p className={s.muted}>Search checks your recipes first, then the Global Library, then other communities, so nobody builds the fourth copy of meatloaf by accident.</p>
+        <p className={s.muted}>
+          Search checks your recipes first, then the Global Library, then other communities, so nobody builds the fourth copy of meatloaf by accident.
+        </p>
       )}
     </Modal>
   );

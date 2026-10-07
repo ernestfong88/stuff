@@ -68,7 +68,12 @@ export function autofill(r: Recipe): { patch: Partial<Recipe>; filled: string[] 
     patch.method =
       kind === 'Appetizer'
         ? ['Prep and portion all components.', 'Combine or heat to service temperature.', 'Taste, season, hold hot or cold as appropriate.']
-        : ['Prep and measure all ingredients (mise en place).', 'Cook the main component to temperature.', 'Finish with sauce or seasoning; verify internal temp.', 'Plate per photo and cook notes; serve immediately.'];
+        : [
+            'Prep and measure all ingredients (mise en place).',
+            'Cook the main component to temperature.',
+            'Finish with sauce or seasoning; verify internal temp.',
+            'Plate per photo and cook notes; serve immediately.',
+          ];
     filled.push('method');
   }
   if (!r.nutrition || !Object.keys(r.nutrition).length) {
@@ -156,11 +161,16 @@ export function ingredientsFromAbout(about: string): Ingredient[] {
     .replace(/[.!?]/g, ',')
     .split(/,|;|\bwith\b|\band\b|\bover\b|\bon\b|\btopped\b|\bserved\b/)
     .map((x) =>
-      x
-        .trim()
-        .replace(/^((sliced|diced|chopped|shredded|grilled|roasted|baked|fried|seared|steamed|hot|warm|cold|crispy|fresh|house|homemade)\s+)+/, ''),
+      x.trim().replace(/^((sliced|diced|chopped|shredded|grilled|roasted|baked|fried|seared|steamed|hot|warm|cold|crispy|fresh|house|homemade)\s+)+/, ''),
     )
-    .filter((x) => x.length > 2 && x.length < 34 && !/^(a|an|the|light|not|no|very|it|served|serve|sliced|diced|chopped|shredded|grilled|roasted|baked|fried|seared|steamed|hot|warm|cold|crispy|fresh)\b/.test(x))
+    .filter(
+      (x) =>
+        x.length > 2 &&
+        x.length < 34 &&
+        !/^(a|an|the|light|not|no|very|it|served|serve|sliced|diced|chopped|shredded|grilled|roasted|baked|fried|seared|steamed|hot|warm|cold|crispy|fresh)\b/.test(
+          x,
+        ),
+    )
     .slice(0, 10)
     .map((name) => ({ qty: 1, unit: '', name }));
 }

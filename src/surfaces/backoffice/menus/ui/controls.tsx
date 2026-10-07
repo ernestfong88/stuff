@@ -60,7 +60,11 @@ export function MoneyInput({
   width = 88,
   className,
   ...rest
-}: Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & { value: number | null | undefined; onChange: (v: number | null) => void; width?: number }) {
+}: Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & {
+  value: number | null | undefined;
+  onChange: (v: number | null) => void;
+  width?: number;
+}) {
   return (
     <span className={s.money} style={{ width } as CSSProperties}>
       <span className={s.moneySign} aria-hidden>
@@ -82,7 +86,19 @@ export function MoneyInput({
 }
 
 /** Small uppercase label above a control, with an optional hint under it. */
-export function Field({ label, hint, right, children, className }: { label: ReactNode; hint?: ReactNode; right?: ReactNode; children: ReactNode; className?: string }) {
+export function Field({
+  label,
+  hint,
+  right,
+  children,
+  className,
+}: {
+  label: ReactNode;
+  hint?: ReactNode;
+  right?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cx(s.field, className)}>
       <div className={s.fieldHead}>

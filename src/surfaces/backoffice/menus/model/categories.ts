@@ -141,8 +141,7 @@ function isAlcoholic(name: string): boolean {
 
 function drinkTypeAuto(name: string): string {
   if (/beer|lager|\bipa\b|stout|pilsner|porter|\bale\b/i.test(name)) return 'Beer';
-  if (/wine|merlot|cabernet|chardonnay|pinot|sauvignon|riesling|ros[eé]\b|champagne|prosecco|sangria|blanc|grigio|bubbles|sparkling/i.test(name))
-    return 'Wine';
+  if (/wine|merlot|cabernet|chardonnay|pinot|sauvignon|riesling|ros[eé]\b|champagne|prosecco|sangria|blanc|grigio|bubbles|sparkling/i.test(name)) return 'Wine';
   if (/margarita|mimosa|bloody mary|martini|mojito|spritz|sour|&|tonic|sunrise/i.test(name)) return 'Cocktails';
   return 'Spirits / Liquor';
 }

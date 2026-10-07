@@ -5,7 +5,21 @@ import { cx } from '../../../../ui';
 import s from './RecipeSection.module.css';
 
 /** A titled card in the recipe form; `id` makes it a jump target. */
-export function RecipeSection({ id, title, hint, right, children, className }: { id?: string; title: ReactNode; hint?: ReactNode; right?: ReactNode; children?: ReactNode; className?: string }) {
+export function RecipeSection({
+  id,
+  title,
+  hint,
+  right,
+  children,
+  className,
+}: {
+  id?: string;
+  title: ReactNode;
+  hint?: ReactNode;
+  right?: ReactNode;
+  children?: ReactNode;
+  className?: string;
+}) {
   return (
     <section id={id ? 'recipe-sec-' + id : undefined} className={cx(s.sec, id && s.anchor, className)}>
       <div className={s.head}>

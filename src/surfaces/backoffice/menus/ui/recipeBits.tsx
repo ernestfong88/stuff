@@ -14,7 +14,10 @@ export function ScoreChip({ sc, big }: { sc: RecipeScore | null; big?: boolean }
       {sc.score.toFixed(1)}
       <span className={s.outOf}>/5</span>
       {sc.trend !== 'flat' && (
-        <span title={sc.trend === 'up' ? 'Trending up in the last 3 weeks' : 'Trending down in the last 3 weeks'} aria-label={sc.trend === 'up' ? 'trending up' : 'trending down'}>
+        <span
+          title={sc.trend === 'up' ? 'Trending up in the last 3 weeks' : 'Trending down in the last 3 weeks'}
+          aria-label={sc.trend === 'up' ? 'trending up' : 'trending down'}
+        >
           {sc.trend === 'up' ? '↑' : '↓'}
         </span>
       )}

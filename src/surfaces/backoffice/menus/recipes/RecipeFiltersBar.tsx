@@ -57,16 +57,37 @@ export function RecipeFiltersBar({
         <div className={s.row}>
           {subs.length > 0 && (
             <Field label="Subcategory">
-              <Select size="sm" emphasize value={f.sub} onChange={(sub) => set({ sub })} placeholder={'Any ' + f.cat.toLowerCase()} options={subs.map((x) => ({ value: x, label: x }))} />
+              <Select
+                size="sm"
+                emphasize
+                value={f.sub}
+                onChange={(sub) => set({ sub })}
+                placeholder={'Any ' + f.cat.toLowerCase()}
+                options={subs.map((x) => ({ value: x, label: x }))}
+              />
             </Field>
           )}
           {(!f.cat || f.cat === 'Entrees') && (
             <Field label="Protein">
-              <Select size="sm" emphasize value={f.protein} onChange={(protein) => set({ protein })} placeholder="Any protein" options={PROTEINS.map((p) => ({ value: p.id, label: p.label }))} />
+              <Select
+                size="sm"
+                emphasize
+                value={f.protein}
+                onChange={(protein) => set({ protein })}
+                placeholder="Any protein"
+                options={PROTEINS.map((p) => ({ value: p.id, label: p.label }))}
+              />
             </Field>
           )}
           <Field label="Diet">
-            <Select size="sm" emphasize value={f.diet} onChange={(diet) => set({ diet })} placeholder="Any diet" options={DIETS.map((d) => ({ value: d, label: d }))} />
+            <Select
+              size="sm"
+              emphasize
+              value={f.diet}
+              onChange={(diet) => set({ diet })}
+              placeholder="Any diet"
+              options={DIETS.map((d) => ({ value: d, label: d }))}
+            />
           </Field>
           <Field label="Resident score">
             <Select size="sm" emphasize value={f.score} onChange={(v) => set({ score: v as ScoreFilter })} placeholder="Any score" options={SCORES} />

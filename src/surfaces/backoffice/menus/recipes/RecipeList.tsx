@@ -152,7 +152,9 @@ export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOp
                 <td>
                   <Sold sc={sc} />
                 </td>
-                <td className={s.end}>{global ? <GlobalActions r={r} onAddLinked={onAddLinked} onCopy={onCopy} /> : <ChevronRight size={18} aria-hidden className={s.chev} />}</td>
+                <td className={s.end}>
+                  {global ? <GlobalActions r={r} onAddLinked={onAddLinked} onCopy={onCopy} /> : <ChevronRight size={18} aria-hidden className={s.chev} />}
+                </td>
               </tr>
             );
           })}

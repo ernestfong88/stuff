@@ -33,7 +33,8 @@ export function ruleIsSet(r: ModRule): boolean {
 /** "Required · pick 1 · 3 included, then $1.00 each" */
 export function ruleText(r: ModRule): string {
   let a: string;
-  if (r.required) a = r.max === 1 ? 'Required · pick 1' : 'Required · pick ' + (r.min > 1 ? r.min + ' or more' : 'at least 1') + (r.max ? ', up to ' + r.max : '');
+  if (r.required)
+    a = r.max === 1 ? 'Required · pick 1' : 'Required · pick ' + (r.min > 1 ? r.min + ' or more' : 'at least 1') + (r.max ? ', up to ' + r.max : '');
   else a = r.max === 1 ? 'Optional · pick 1' : r.max ? 'Optional · up to ' + r.max : 'Optional';
   return a + (r.extra > 0 ? ' · ' + (r.included ?? 0) + ' included, then $' + r.extra.toFixed(2) + ' each' : '');
 }

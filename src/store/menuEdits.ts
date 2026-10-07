@@ -211,7 +211,10 @@ export interface BoMenuEdits {
 
 /** Item fields Back Office can change on the tablet menu. */
 export type LiveItemPatch = Partial<
-  Pick<MenuItem, 'name' | 'desc' | 'residentPrice' | 'guestPrice' | 'alaPrice' | 'day' | 'allergens' | 'cookNotes' | 'etype' | 'route' | 'defaultSideIds' | 'special'>
+  Pick<
+    MenuItem,
+    'name' | 'desc' | 'residentPrice' | 'guestPrice' | 'alaPrice' | 'day' | 'allergens' | 'cookNotes' | 'etype' | 'route' | 'defaultSideIds' | 'special'
+  >
 >;
 
 export interface LiveRuledGroup {

@@ -30,7 +30,9 @@ export function PricingPage() {
   const query = q.trim().toLowerCase();
   const rows = onMenu
     .map((id) => byId.get(id))
-    .filter((r): r is Recipe => !!r && (!cat || r.cat === cat) && (!query || r.name.toLowerCase().includes(query) || dishLong(r.name).toLowerCase().includes(query)))
+    .filter(
+      (r): r is Recipe => !!r && (!cat || r.cat === cat) && (!query || r.name.toLowerCase().includes(query) || dishLong(r.name).toLowerCase().includes(query)),
+    )
     .sort((a, b) => CATEGORIES.indexOf(a.cat) - CATEGORIES.indexOf(b.cat) || a.name.localeCompare(b.name));
   const orphans = venue ? orphanPrices(bo.prices, venue.id, onMenu) : [];
 
@@ -64,8 +66,8 @@ export function PricingPage() {
 
       {orphans.length > 0 && (
         <BoCallout tone="warning">
-          {orphans.length} price {orphans.length === 1 ? 'row' : 'rows'} in {venue.name} {orphans.length === 1 ? 'belongs' : 'belong'} to recipes no longer on its menu (
-          {orphans.map((o) => byId.get(o.recipeId)?.name ?? o.recipeId).join(', ')}).{' '}
+          {orphans.length} price {orphans.length === 1 ? 'row' : 'rows'} in {venue.name} {orphans.length === 1 ? 'belongs' : 'belong'} to recipes no longer on
+          its menu ({orphans.map((o) => byId.get(o.recipeId)?.name ?? o.recipeId).join(', ')}).{' '}
           <button
             className={s.inlineLink}
             onClick={() => {
@@ -79,7 +81,9 @@ export function PricingPage() {
       )}
 
       {venue.id !== DINING_VENUE_ID && venue.menuId === venues.find((v) => v.id === DINING_VENUE_ID)?.menuId && (
-        <BoCallout tone="info">The dining room tablets ring up {venues.find((v) => v.id === DINING_VENUE_ID)?.name} prices. Prices here print on {venue.name}&apos;s menus.</BoCallout>
+        <BoCallout tone="info">
+          The dining room tablets ring up {venues.find((v) => v.id === DINING_VENUE_ID)?.name} prices. Prices here print on {venue.name}&apos;s menus.
+        </BoCallout>
       )}
 
       <TableFrame>

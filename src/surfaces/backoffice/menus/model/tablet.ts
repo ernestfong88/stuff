@@ -28,7 +28,17 @@ export function sectionGroup(category: string): string {
 /** Back Office category for a tablet section. */
 export function sectionCategory(category: string): RecipeCategory {
   const g = sectionGroup(category);
-  return g === 'app' ? 'Starters' : g === 'side' ? 'Sides' : g === 'dessert' ? 'Desserts' : g === 'drink' || g === 'alc' ? 'Drinks' : g === 'fee' ? 'Snacks' : 'Entrees';
+  return g === 'app'
+    ? 'Starters'
+    : g === 'side'
+      ? 'Sides'
+      : g === 'dessert'
+        ? 'Desserts'
+        : g === 'drink' || g === 'alc'
+          ? 'Drinks'
+          : g === 'fee'
+            ? 'Snacks'
+            : 'Entrees';
 }
 
 export interface TabletIndex {

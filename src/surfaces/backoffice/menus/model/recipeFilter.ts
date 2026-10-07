@@ -22,13 +22,22 @@ export interface RecipeFilters {
   sort: RecipeSort;
 }
 
-export const NO_FILTERS: RecipeFilters = { q: '', cat: '', sub: '', protein: '', diet: '', score: '', onMenu: '', status: 'active', favorites: false, sort: 'name' };
+export const NO_FILTERS: RecipeFilters = {
+  q: '',
+  cat: '',
+  sub: '',
+  protein: '',
+  diet: '',
+  score: '',
+  onMenu: '',
+  status: 'active',
+  favorites: false,
+  sort: 'name',
+};
 
 /** How many filters narrow the list (sort does not count). */
 export function filterCount(f: RecipeFilters): number {
-  return (
-    [f.sub, f.protein, f.diet, f.score, f.onMenu, f.cat, f.q.trim()].filter(Boolean).length + (f.favorites ? 1 : 0) + (f.status !== 'active' ? 1 : 0)
-  );
+  return [f.sub, f.protein, f.diet, f.score, f.onMenu, f.cat, f.q.trim()].filter(Boolean).length + (f.favorites ? 1 : 0) + (f.status !== 'active' ? 1 : 0);
 }
 
 export function isActive(r: Recipe): boolean {
@@ -52,7 +61,12 @@ function scoreOk(sc: RecipeScore | null, f: ScoreFilter): boolean {
 export function matchesText(r: Recipe, q: string, shortOf: (r: Recipe) => string): boolean {
   const s = q.trim().toLowerCase();
   if (!s) return true;
-  return r.name.toLowerCase().includes(s) || dishLong(r.name).toLowerCase().includes(s) || (r.desc || '').toLowerCase().includes(s) || shortOf(r).toLowerCase().includes(s);
+  return (
+    r.name.toLowerCase().includes(s) ||
+    dishLong(r.name).toLowerCase().includes(s) ||
+    (r.desc || '').toLowerCase().includes(s) ||
+    shortOf(r).toLowerCase().includes(s)
+  );
 }
 
 export function filterRecipes(recipes: Recipe[], f: RecipeFilters, c: FilterContext): Recipe[] {

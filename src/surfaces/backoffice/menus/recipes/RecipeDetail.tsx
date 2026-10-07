@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { Archive, ChevronLeft, RotateCcw } from 'lucide-react';
 import { useConfig } from '../../../../store/config';
 import type { Recipe } from '../../../../store/menuEdits';
-import { cx, toast } from '../../../../ui';
+import { Button, cx, toast } from '../../../../ui';
 import { updateRecipe, useBo } from '../data';
 import { useRecipeScores } from '../feedback';
 import { autofill } from '../model/recipeDraft';
@@ -51,14 +51,29 @@ export function RecipeDetail({ recipe, mine, onBack }: { recipe: Recipe; mine: b
         <button className={s.back} onClick={onBack}>
           <ChevronLeft size={16} aria-hidden /> Recipe Book
         </button>
-        {mine && (
-          <button className={cx(s.fav, fav && s.favOn)} aria-pressed={fav} onClick={() => toggleFavorite(r)}>
-            <span aria-hidden className={s.star}>
-              {fav ? '★' : '☆'}
-            </span>
-            {fav ? 'Favorite' : 'Add to favorites'}
-          </button>
-        )}
+        <span className={s.barEnd}>
+          {mine && !readOnly && !r.placeholder && (
+            <Button
+              size="sm"
+              variant={r.retired ? 'secondary' : 'softDanger'}
+              icon={r.retired ? <RotateCcw size={14} /> : <Archive size={14} />}
+              onClick={() => {
+                updateRecipe(r.id, { retired: r.retired ? undefined : true });
+                toast(r.retired ? 'Restored. It can go on menus again.' : 'Retired. It stays on menus it is already on.', { tone: 'success' });
+              }}
+            >
+              {r.retired ? 'Restore' : 'Retire'}
+            </Button>
+          )}
+          {mine && (
+            <button className={cx(s.fav, fav && s.favOn)} aria-pressed={fav} onClick={() => toggleFavorite(r)}>
+              <span aria-hidden className={s.star}>
+                {fav ? '★' : '☆'}
+              </span>
+              {fav ? 'Favorite' : 'Add to favorites'}
+            </button>
+          )}
+        </span>
       </div>
       <RecipeForm
         r={r}

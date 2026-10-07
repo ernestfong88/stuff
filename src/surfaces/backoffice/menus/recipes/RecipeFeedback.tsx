@@ -27,8 +27,14 @@ export function RecipeFeedback({ score: sc }: { score: RecipeScore | null }) {
       {sc && (
         <p className={s.summary}>
           Built from {sc.sales ? `${sc.sales.orders} ${sc.sales.src}` : 'no sales yet'}
-          {sc.n ? ` and ${sc.n} resident ${sc.n === 1 ? 'comment' : 'comments'}: ${sc.pos} positive, ${sc.neu} neutral, ${sc.neg} negative.` : ', with no resident comments yet.'}
-          {sc.trend === 'up' ? ' Comments in the last 3 weeks are warmer than before.' : sc.trend === 'down' ? ' Comments in the last 3 weeks are cooler than before.' : ''}
+          {sc.n
+            ? ` and ${sc.n} resident ${sc.n === 1 ? 'comment' : 'comments'}: ${sc.pos} positive, ${sc.neu} neutral, ${sc.neg} negative.`
+            : ', with no resident comments yet.'}
+          {sc.trend === 'up'
+            ? ' Comments in the last 3 weeks are warmer than before.'
+            : sc.trend === 'down'
+              ? ' Comments in the last 3 weeks are cooler than before.'
+              : ''}
         </p>
       )}
       {!fb.length && <p className={s.muted}>No feedback linked to this recipe yet. Servers link it from a voice note or a check line.</p>}

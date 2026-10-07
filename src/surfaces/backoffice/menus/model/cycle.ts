@@ -69,7 +69,9 @@ export function servingAt(v: VenueSchedule, at: number): { menuId: string | null
 export function venuesAt(venues: VenueSchedule[], at: number): VenueSchedule[] {
   return venues.map((v) => {
     const s = servingAt(v, at);
-    return s.menuId === v.menuId && s.upcoming.length === (v.upcoming ?? []).length ? v : { ...v, menuId: s.menuId, menuStartDt: s.start, upcoming: s.upcoming };
+    return s.menuId === v.menuId && s.upcoming.length === (v.upcoming ?? []).length
+      ? v
+      : { ...v, menuId: s.menuId, menuStartDt: s.start, upcoming: s.upcoming };
   });
 }
 
@@ -121,7 +123,8 @@ export function menuAnchor(menu: BoMenu | undefined, venues: VenueSchedule[], le
   const options: Array<{ a: CycleAnchor; at: number }> = [];
   for (const v of venues) {
     if (v.menuId === menu.id && v.menuStartDt != null) options.push({ a: fromStart(v.menuStartDt, v.name), at: v.menuStartDt });
-    for (const u of v.upcoming ?? []) if (u.menuId === menu.id) options.push({ a: { start: dayStart(u.startDt), live: false, today: null, venueName: v.name }, at: u.startDt });
+    for (const u of v.upcoming ?? [])
+      if (u.menuId === menu.id) options.push({ a: { start: dayStart(u.startDt), live: false, today: null, venueName: v.name }, at: u.startDt });
   }
   options.sort((x, y) => Number(y.a.live) - Number(x.a.live) || x.at - y.at);
   return options[0]?.a ?? null;

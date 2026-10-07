@@ -48,7 +48,14 @@ export function RecipeHeader({ r, update, rename, short, onShort, readOnly, glob
         <DishPic name={r.name} drink={cat === 'Drinks'} size={160} className={s.pic} />
         <div className={s.main}>
           <div className={s.kicker}>{line}</div>
-          <input className={s.title} disabled={readOnly} value={r.name} aria-label="Menu name" placeholder="Recipe name" onChange={(e) => rename(e.target.value)} />
+          <input
+            className={s.title}
+            disabled={readOnly}
+            value={r.name}
+            aria-label="Menu name"
+            placeholder="Recipe name"
+            onChange={(e) => rename(e.target.value)}
+          />
           <label className={s.field}>
             <span className={s.label}>Description</span>
             <textarea
@@ -164,8 +171,9 @@ export function RecipeHeader({ r, update, rename, short, onShort, readOnly, glob
           <span className={s.scoreLabel}>Recipe score</span>
           <ScoreChip sc={score} />
           <span className={s.scoreText}>
-            {(score.n ? `${score.n} resident ${score.n === 1 ? 'comment' : 'comments'}: ${score.pos} positive, ${score.neg} negative` : 'No resident comments yet') +
-              (score.sales ? ` · ${score.sales.orders} sold` : '')}
+            {(score.n
+              ? `${score.n} resident ${score.n === 1 ? 'comment' : 'comments'}: ${score.pos} positive, ${score.neg} negative`
+              : 'No resident comments yet') + (score.sales ? ` · ${score.sales.orders} sold` : '')}
           </span>
           {score.n > 0 && onSeeFeedback && (
             <button className={s.scoreLink} onClick={onSeeFeedback}>

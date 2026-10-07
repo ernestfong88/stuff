@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import modifierRulesSeed from '../../../../data/seed/modifierRules.json';
-import { pinSeq } from '../../../../data';
-import { RULE_DEFAULTS, SEED } from '../data';
+import { catalog, getItem, menuVersion, pinSeq } from '../../../../data';
+import { resetMenuEdits, RULE_DEFAULTS, SEED, updateBo } from '../data';
 import { computeLive, liveModifiers } from '../model/liveOverlay';
 import { tabletIndex } from '../model/tablet';
 import type { BoState } from '../model/types';
@@ -57,5 +57,21 @@ describe('liveModifiers', () => {
   it('reproduces the shipped modifier rules from the seed groups', () => {
     const m = liveModifiers(SEED, idx, RULE_DEFAULTS, pinSeq);
     expect(m.modifierRules).toEqual(modifierRulesSeed);
+  });
+});
+
+describe('the floor sees Back Office edits', () => {
+  it('renames, reprices and restores tablet items through src/data', () => {
+    const v0 = menuVersion();
+    updateBo((s) => ({
+      recipes: s.recipes.map((r) => (r.id === 'l_burger' ? { ...r, name: 'Terrace Burger' } : r)),
+      prices: [{ recipeId: 'l_burger', venueId: 'v1', res: null, guest: 15, ala: null }],
+    }));
+    expect(menuVersion()).toBeGreaterThan(v0);
+    expect(getItem('d_burger')?.name).toBe('Terrace Burger');
+    expect(getItem('l_burger')?.guestPrice).toBe(15);
+    expect(catalog.filter((i) => i.name === 'Terrace Burger').length).toBeGreaterThan(1);
+    resetMenuEdits();
+    expect(getItem('d_burger')?.name).not.toBe('Terrace Burger');
   });
 });

@@ -98,9 +98,32 @@ export function scoreTone(v: number): 'good' | 'ok' | 'bad' {
 
 // ─── Linking a server's note to a dish ───────────────────────────────────
 
-const STOP = new Set(['the', 'and', 'with', 'her', 'his', 'their', 'side', 'plate', 'tonight', 'today', 'lunch', 'dinner', 'was', 'too', 'said', 'style', 'house', 'fresh', 'over']);
+const STOP = new Set([
+  'the',
+  'and',
+  'with',
+  'her',
+  'his',
+  'their',
+  'side',
+  'plate',
+  'tonight',
+  'today',
+  'lunch',
+  'dinner',
+  'was',
+  'too',
+  'said',
+  'style',
+  'house',
+  'fresh',
+  'over',
+]);
 const GENERIC = /^(chicken|beef|pork|turkey|soup|salad|sandwich|fish|cake|pie|bowl|pasta|cookies?|steak|tacos?|wrap)$/;
-const tokens = (name: string) => normName(name).split(' ').filter((w) => w.length > 2 && !STOP.has(w));
+const tokens = (name: string) =>
+  normName(name)
+    .split(' ')
+    .filter((w) => w.length > 2 && !STOP.has(w));
 
 /** How strongly a note's text names a dish (0 = not at all). */
 export function mentionScore(text: string, name: string, short?: string): number {

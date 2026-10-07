@@ -24,7 +24,23 @@ const NUTRIENTS: Array<[keyof Nutrition, string, string]> = [
 ];
 
 /** Numbered steps, each a small text area, with remove and add. */
-function StepList({ steps, readOnly, onChange, addLabel, empty, tone, label }: { steps: string[]; readOnly: boolean; onChange: (v: string[]) => void; addLabel: string; empty: string; tone: 'ink' | 'clay'; label: string }) {
+function StepList({
+  steps,
+  readOnly,
+  onChange,
+  addLabel,
+  empty,
+  tone,
+  label,
+}: {
+  steps: string[];
+  readOnly: boolean;
+  onChange: (v: string[]) => void;
+  addLabel: string;
+  empty: string;
+  tone: 'ink' | 'clay';
+  label: string;
+}) {
   return (
     <div className={s.steps}>
       {steps.map((t, i) => (
@@ -57,7 +73,19 @@ function StepList({ steps, readOnly, onChange, addLabel, empty, tone, label }: {
   );
 }
 
-function ToggleChips({ all, on, readOnly, onChange, tone }: { all: string[]; on: string[]; readOnly: boolean; onChange: (v: string[]) => void; tone: 'warn' | 'good' }) {
+function ToggleChips({
+  all,
+  on,
+  readOnly,
+  onChange,
+  tone,
+}: {
+  all: string[];
+  on: string[];
+  readOnly: boolean;
+  onChange: (v: string[]) => void;
+  tone: 'warn' | 'good';
+}) {
   return (
     <div className={s.chips}>
       {all.map((x) => {
@@ -99,7 +127,14 @@ export function IngredientsSection({ r, update, readOnly, scale, setScale }: P &
         <span className={s.scale}>
           <AiTag r={r} part="ingredients" />
           Scale to
-          <input type="number" min={1} className={s.scaleInput} value={mul} aria-label="Scale to servings" onChange={(e) => setScale(Math.max(1, Number(e.target.value) || 1))} />
+          <input
+            type="number"
+            min={1}
+            className={s.scaleInput}
+            value={mul}
+            aria-label="Scale to servings"
+            onChange={(e) => setScale(Math.max(1, Number(e.target.value) || 1))}
+          />
           servings
           {scale != null && scale !== 1 && (
             <button className={s.link} onClick={() => setScale(null)}>
@@ -124,9 +159,27 @@ export function IngredientsSection({ r, update, readOnly, scale, setScale }: P &
         {!list.length && <span className={s.muted}>None yet. Add them below, or let AI Autofill draft a starting point.</span>}
         {!readOnly && mul === 1 && (
           <div className={s.addIng}>
-            <Input size="sm" type="number" min={0} step="any" placeholder="Qty" value={qty} onChange={(e) => setQty(e.target.value)} className={s.qtyIn} aria-label="Quantity" />
+            <Input
+              size="sm"
+              type="number"
+              min={0}
+              step="any"
+              placeholder="Qty"
+              value={qty}
+              onChange={(e) => setQty(e.target.value)}
+              className={s.qtyIn}
+              aria-label="Quantity"
+            />
             <Input size="sm" placeholder="Unit" value={unit} onChange={(e) => setUnit(e.target.value)} className={s.unitIn} aria-label="Unit" />
-            <Input size="sm" placeholder="Ingredient" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add()} className={s.grow} aria-label="Ingredient" />
+            <Input
+              size="sm"
+              placeholder="Ingredient"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && add()}
+              className={s.grow}
+              aria-label="Ingredient"
+            />
             <Button size="sm" iconOnly icon={<Plus size={14} />} aria-label="Add ingredient" disabled={!name.trim() || !qty} onClick={add} />
           </div>
         )}
@@ -190,17 +243,42 @@ export function PlatingSection({ r, update, readOnly }: P) {
     <RecipeSection id="plating" title="Plating and presentation" hint="How it should look when it reaches the resident.">
       <div className={s.grid}>
         <Field label="Portion">
-          <Input disabled={readOnly} value={r.servingDesc ?? r.servingSize ?? ''} placeholder="e.g. 6 oz fillet, or 1 cup (8 fl oz)" onChange={(e) => update({ servingDesc: e.target.value })} />
+          <Input
+            disabled={readOnly}
+            value={r.servingDesc ?? r.servingSize ?? ''}
+            placeholder="e.g. 6 oz fillet, or 1 cup (8 fl oz)"
+            onChange={(e) => update({ servingDesc: e.target.value })}
+          />
         </Field>
         <Field label="Garnish">
-          <Input disabled={readOnly} value={r.garnish ?? ''} placeholder="e.g. Thyme sprig and sliced peaches" onChange={(e) => update({ garnish: e.target.value })} />
+          <Input
+            disabled={readOnly}
+            value={r.garnish ?? ''}
+            placeholder="e.g. Thyme sprig and sliced peaches"
+            onChange={(e) => update({ garnish: e.target.value })}
+          />
         </Field>
       </div>
       <Field label="Plating steps">
-        <StepList steps={r.plating ?? []} readOnly={readOnly} onChange={(plating) => update({ plating })} addLabel="Add plating step" empty="No plating steps yet." tone="clay" label="Plating step" />
+        <StepList
+          steps={r.plating ?? []}
+          readOnly={readOnly}
+          onChange={(plating) => update({ plating })}
+          addLabel="Add plating step"
+          empty="No plating steps yet."
+          tone="clay"
+          label="Plating step"
+        />
       </Field>
       <Field label="Cook notes" hint="The cook line sees these with the photo.">
-        <textarea className={s.area} disabled={readOnly} rows={2} value={r.cookNotes ?? ''} placeholder="e.g. Rest 4 min. Sauce under, not over." onChange={(e) => update({ cookNotes: e.target.value })} />
+        <textarea
+          className={s.area}
+          disabled={readOnly}
+          rows={2}
+          value={r.cookNotes ?? ''}
+          placeholder="e.g. Rest 4 min. Sauce under, not over."
+          onChange={(e) => update({ cookNotes: e.target.value })}
+        />
       </Field>
     </RecipeSection>
   );
@@ -254,7 +332,9 @@ export function SettingsSection({ r, update, readOnly, draft }: P) {
   const unpinned = bo.modGroups.filter((g) => g.active && !g.pinned.includes(r.id));
   const saved = bo.recipes.some((x) => x.id === r.id);
   const pin = (gid: string, on: boolean) =>
-    updateBo((st) => ({ modGroups: st.modGroups.map((g) => (g.id === gid ? { ...g, pinned: on ? [...g.pinned, r.id] : g.pinned.filter((x) => x !== r.id) } : g)) }));
+    updateBo((st) => ({
+      modGroups: st.modGroups.map((g) => (g.id === gid ? { ...g, pinned: on ? [...g.pinned, r.id] : g.pinned.filter((x) => x !== r.id) } : g)),
+    }));
   const route = r.route ?? 'kds';
   return (
     <RecipeSection id="menu" title="KDS & Recipe Book Settings">
@@ -310,7 +390,15 @@ export function SettingsSection({ r, update, readOnly, draft }: P) {
                 ['expo', 'Server makes it'],
               ] as const
             ).map(([k, label]) => (
-              <button key={k} type="button" role="radio" aria-checked={route === k} disabled={readOnly} className={cx(s.segBtn, route === k && s.segOn)} onClick={() => update({ route: k })}>
+              <button
+                key={k}
+                type="button"
+                role="radio"
+                aria-checked={route === k}
+                disabled={readOnly}
+                className={cx(s.segBtn, route === k && s.segOn)}
+                onClick={() => update({ route: k })}
+              >
                 {label}
               </button>
             ))}
@@ -331,7 +419,14 @@ export function SettingsSection({ r, update, readOnly, draft }: P) {
               </span>
             ))}
             {!readOnly && (
-              <Select size="sm" value="" onChange={(v) => v && pin(v, true)} placeholder="+ Pin a group…" options={unpinned.map((g) => ({ value: g.id, label: g.name }))} aria-label="Pin a modifier group" />
+              <Select
+                size="sm"
+                value=""
+                onChange={(v) => v && pin(v, true)}
+                placeholder="+ Pin a group…"
+                options={unpinned.map((g) => ({ value: g.id, label: g.name }))}
+                aria-label="Pin a modifier group"
+              />
             )}
             {readOnly && !pinned.length && <span className={s.muted}>Communities pin their own groups to this recipe.</span>}
           </div>
@@ -354,7 +449,10 @@ function Reminders({ r, update, readOnly }: Pick<P, 'r' | 'update' | 'readOnly'>
     setT('');
   };
   return (
-    <Field label="Don't forget" hint="Shows on the Expo ticket and the server's run step like a modifier. It never goes to the cook and has no price. The server can remove it for a guest.">
+    <Field
+      label="Don't forget"
+      hint="Shows on the Expo ticket and the server's run step like a modifier. It never goes to the cook and has no price. The server can remove it for a guest."
+    >
       <div className={s.chips}>
         {list.map((x) => (
           <span key={x} className={s.tag}>
@@ -369,7 +467,16 @@ function Reminders({ r, update, readOnly }: Pick<P, 'r' | 'update' | 'readOnly'>
       </div>
       {!readOnly && (
         <div className={s.addIng}>
-          <Input size="sm" className={s.grow} value={t} maxLength={40} placeholder="e.g. Steak knife, Extra lemon" aria-label="Add a reminder" onChange={(e) => setT(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add()} />
+          <Input
+            size="sm"
+            className={s.grow}
+            value={t}
+            maxLength={40}
+            placeholder="e.g. Steak knife, Extra lemon"
+            aria-label="Add a reminder"
+            onChange={(e) => setT(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && add()}
+          />
           <Button size="sm" variant="ghost" onClick={add} disabled={!t.trim()}>
             Add
           </Button>
@@ -404,13 +511,22 @@ export function SharingSection({ r, readOnly, global }: P) {
       <div className={s.sharing}>
         {global && <span>This is a Kisco recipe. Home Office manages it, and their updates reach every community that uses it.</span>}
         {linked && <span>Linked to a Kisco recipe. When Home Office updates it, the change shows here too.</span>}
-        {r.submittedToHO && <span>Submitted to Home Office on {formatDayShort(r.submittedToHO)}. If approved it joins the Kisco library with your community credited.</span>}
+        {r.submittedToHO && (
+          <span>Submitted to Home Office on {formatDayShort(r.submittedToHO)}. If approved it joins the Kisco library with your community credited.</span>
+        )}
         {r.importedFrom && <span>Drafted from {r.importedFrom === 'photo' ? 'your photo' : 'your text'}. Review every line before publishing.</span>}
       </div>
       {readOnly && (
         <Field label="Suggest a change to Home Office" hint="The recipe owner sees it on the recipe.">
           <div className={s.addIng}>
-            <Input size="sm" className={s.grow} value={sug} placeholder="e.g. use a cup of milk instead of three tablespoons" onChange={(e) => setSug(e.target.value)} aria-label="Suggested change" />
+            <Input
+              size="sm"
+              className={s.grow}
+              value={sug}
+              placeholder="e.g. use a cup of milk instead of three tablespoons"
+              onChange={(e) => setSug(e.target.value)}
+              aria-label="Suggested change"
+            />
             <Button
               size="sm"
               variant="primary"

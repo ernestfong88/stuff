@@ -21,8 +21,7 @@ export const TEMPLATES: Array<{ id: TemplateId; name: string; use: string }> = [
   { id: 'bistro', name: 'Bistro Card', use: 'casual venues' },
 ];
 
-export const RAW_FOOD_NOTICE =
-  'Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness.';
+export const RAW_FOOD_NOTICE = 'Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness.';
 
 const SECTIONS: Array<[PrintCat, string]> = [
   ['Starters', 'To Start'],
@@ -109,7 +108,11 @@ export function printContext(bo: BoState, o: PrintOptions, sidesOf: (menuId: str
         .sort((a, b) => a.g.sort - b.g.sort);
     },
     sides(day, recipeId) {
-      return menuId ? sidesOf(menuId, day, recipeId).map((id) => recipes.get(id)?.name ?? tabletItem(id)?.name ?? '').filter(Boolean) : [];
+      return menuId
+        ? sidesOf(menuId, day, recipeId)
+            .map((id) => recipes.get(id)?.name ?? tabletItem(id)?.name ?? '')
+            .filter(Boolean)
+        : [];
     },
     dateOf: (day) => addDays(start, day - 1),
   };
@@ -162,11 +165,21 @@ function doc(title: string, body: string, o: PrintOptions, landscape = false): s
 }
 
 function head(kicker: string, title: string): string {
-  return '<div class="hd"><div class="kick">' + esc(kicker) + '</div><div class="brand">' + esc(COMMUNITY_NAME) + '</div><div class="ttl">' + esc(title) + '</div></div>';
+  return (
+    '<div class="hd"><div class="kick">' +
+    esc(kicker) +
+    '</div><div class="brand">' +
+    esc(COMMUNITY_NAME) +
+    '</div><div class="ttl">' +
+    esc(title) +
+    '</div></div>'
+  );
 }
 
 const FOOT =
-  '<div class="ft">Please tell your server about any food allergies or dietary needs. Menu items may change based on availability.<br>' + esc(RAW_FOOD_NOTICE) + '</div>';
+  '<div class="ft">Please tell your server about any food allergies or dietary needs. Menu items may change based on availability.<br>' +
+  esc(RAW_FOOD_NOTICE) +
+  '</div>';
 
 function diets(r: Recipe, o: PrintOptions): string {
   return o.diet ? (r.dietFlags ?? []).map((d) => '<span class="dt">' + esc(d) + '</span>').join('') : '';
@@ -190,7 +203,11 @@ function snacksBlock(C: PrintContext, day: number): string {
   if (!C.options.snacks) return '';
   const list = [...C.at(day, 'Snacks'), ...(day ? C.at(0, 'Snacks') : [])];
   if (!list.length) return '';
-  return '<div class="diet-only"><div class="cat">Snacks · dietitian copy, not for residents</div><p class="any">' + esc(list.map((x) => dishLong(x.r.name)).join(' · ')) + '</p></div>';
+  return (
+    '<div class="diet-only"><div class="cat">Snacks · dietitian copy, not for residents</div><p class="any">' +
+    esc(list.map((x) => dishLong(x.r.name)).join(' · ')) +
+    '</p></div>'
+  );
 }
 
 /** The day's menu by meal. Meals with no specials list the everyday entrées. */
@@ -225,7 +242,9 @@ export function dailyMenuHtml(C: PrintContext, day: number): string {
     );
   };
   const cycleMeals = PRINT_MEALS.filter((m) => C.at(day, m).length);
-  const everyday = PRINT_MEALS.filter((m) => !C.at(day, m).length).map(block).join('');
+  const everyday = PRINT_MEALS.filter((m) => !C.at(day, m).length)
+    .map(block)
+    .join('');
   const cy = cycleMeals.map(block);
   const body =
     '<style>.meal,h2{text-align:center}.pair{display:flex;gap:30px}.pair>div{flex:1}</style>' +
@@ -272,7 +291,14 @@ export function weekHtml(C: PrintContext, w: number): string {
     )
     .join('');
   const heads = ds
-    .map((d) => '<th>' + C.dateOf(d).toLocaleDateString('en-US', { weekday: 'long' }) + '<span>' + C.dateOf(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</span></th>')
+    .map(
+      (d) =>
+        '<th>' +
+        C.dateOf(d).toLocaleDateString('en-US', { weekday: 'long' }) +
+        '<span>' +
+        C.dateOf(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+        '</span></th>',
+    )
     .join('');
   return doc(
     'Week at a glance',
@@ -306,7 +332,8 @@ export function alaCarteItems(C: PrintContext): Array<{ x: PrintLine; meals: Set
 /** The Any Day menu: Breakfast, then Lunch and Dinner, in two columns. */
 export function alaCarteHtml(C: PrintContext): string {
   const o = C.options;
-  const css = '<style>.cols{column-count:2;column-gap:28px}.sl{font-size:12.5px;line-height:1.5;margin:0 0 6px}.only{font-weight:normal;font-style:italic;font-size:11.5px;color:#5E6B74}</style>';
+  const css =
+    '<style>.cols{column-count:2;column-gap:28px}.sl{font-size:12.5px;line-height:1.5;margin:0 0 6px}.only{font-weight:normal;font-style:italic;font-size:11.5px;color:#5E6B74}</style>';
   const all = alaCarteItems(C);
   const sec = (title: string, L: typeof all, tag?: (x: (typeof all)[number]) => string) => {
     if (!L.length) return '';
@@ -343,7 +370,15 @@ export function alaCarteHtml(C: PrintContext): string {
       all.filter((e) => e.meals.has('Lunch') || e.meals.has('Dinner')),
       (e) => (e.meals.has('Lunch') && e.meals.has('Dinner') ? '' : e.meals.has('Lunch') ? 'lunch only' : 'dinner only'),
     );
-  return doc('A la carte menu', css + head(C.venueName, 'À la carte · available every day') + (body || '<p class="note">Nothing is on the à la carte menu yet.</p>') + snacksBlock(C, 0) + FOOT, o);
+  return doc(
+    'A la carte menu',
+    css +
+      head(C.venueName, 'À la carte · available every day') +
+      (body || '<p class="note">Nothing is on the à la carte menu yet.</p>') +
+      snacksBlock(C, 0) +
+      FOOT,
+    o,
+  );
 }
 
 /** The weekly order form for residents who pick up, with tick boxes and lines. */
@@ -381,7 +416,14 @@ export function orderFormHtml(C: PrintContext, w: number): string {
   };
   const lunch = rng('Lunch');
   const dinner = rng('Dinner');
-  const ranges = lunch && dinner ? `Lunch pick up runs ${lunch} and dinner ${dinner}. ` : lunch ? `Lunch pick up runs ${lunch}. ` : dinner ? `Dinner pick up runs ${dinner}. ` : '';
+  const ranges =
+    lunch && dinner
+      ? `Lunch pick up runs ${lunch} and dinner ${dinner}. `
+      : lunch
+        ? `Lunch pick up runs ${lunch}. `
+        : dinner
+          ? `Dinner pick up runs ${dinner}. `
+          : '';
   return doc(
     'Weekly order form',
     css +

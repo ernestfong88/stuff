@@ -49,3 +49,8 @@
 .favOn .star {
   color: #e2a21b;
 }
+.barEnd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

@@ -1,13 +1,4 @@
-import type {
-  BoMenu,
-  BoModGroup,
-  GridEntry,
-  ModRuleEdit,
-  PriceRow,
-  Recipe,
-  SideOverrides,
-  VenueSchedule,
-} from '../../../../store/menuEdits';
+import type { BoMenu, BoModGroup, GridEntry, ModRuleEdit, PriceRow, Recipe, SideOverrides, VenueSchedule } from '../../../../store/menuEdits';
 
 /** Back Office's menu data: the seed with every saved edit applied. */
 export interface BoState {

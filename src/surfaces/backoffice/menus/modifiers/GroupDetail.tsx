@@ -11,7 +11,15 @@ import s from './GroupDetail.module.css';
 const money = (v?: number) => (v ? '+$' + v.toFixed(2).replace(/\.00$/, '') : 'Included');
 
 /** One modifier group: its name, choices, ordering rules and the recipes it is pinned to. */
-export function GroupDetail({ group: g, onChange, onRetire }: { group: BoModGroup; onChange: (fn: (g: BoModGroup) => BoModGroup) => void; onRetire: () => void }) {
+export function GroupDetail({
+  group: g,
+  onChange,
+  onRetire,
+}: {
+  group: BoModGroup;
+  onChange: (fn: (g: BoModGroup) => BoModGroup) => void;
+  onRetire: () => void;
+}) {
   const bo = useBo();
   const [newName, setNewName] = useState('');
   const [newPrice, setNewPrice] = useState<number | null>(null);
@@ -32,7 +40,9 @@ export function GroupDetail({ group: g, onChange, onRetire }: { group: BoModGrou
   const q = pinQ.trim().toLowerCase();
   const pinHits =
     q.length > 1
-      ? bo.recipes.filter((r) => !r.retired && !g.pinned.includes(r.id) && (r.name.toLowerCase().includes(q) || dishLong(r.name).toLowerCase().includes(q))).slice(0, 8)
+      ? bo.recipes
+          .filter((r) => !r.retired && !g.pinned.includes(r.id) && (r.name.toLowerCase().includes(q) || dishLong(r.name).toLowerCase().includes(q)))
+          .slice(0, 8)
       : [];
   const nameOf = (id: string) => {
     const r = bo.recipes.find((x) => x.id === id);
@@ -101,7 +111,14 @@ export function GroupDetail({ group: g, onChange, onRetire }: { group: BoModGrou
             placeholder="Add a choice, e.g. Sourdough"
             aria-label="New choice"
           />
-          <MoneyInput value={newPrice} onChange={setNewPrice} placeholder="Up-charge" width={110} aria-label="Up-charge for the new choice" onKeyDown={(e) => e.key === 'Enter' && addChoice()} />
+          <MoneyInput
+            value={newPrice}
+            onChange={setNewPrice}
+            placeholder="Up-charge"
+            width={110}
+            aria-label="Up-charge for the new choice"
+            onKeyDown={(e) => e.key === 'Enter' && addChoice()}
+          />
           <Button size="sm" variant="primary" iconOnly icon={<Plus size={15} />} aria-label="Add choice" disabled={!newName.trim()} onClick={addChoice} />
         </div>
         <p className={s.note}>Servers choose Add, No, Sub, Extra, Light or On the side when they order.</p>
@@ -193,7 +210,15 @@ function RulesCard({ group: g }: { group: BoModGroup }) {
         <Toggle checked={rule.required} onChange={(v) => set({ req: v, min: v ? Math.max(1, rule.min) : 0 })} label="Required" />
         <label className={s.ruleField}>
           <span>Pick up to</span>
-          <Input size="sm" type="number" min={0} value={rule.max || ''} placeholder="Any" onChange={(e) => set({ max: num(e.target.value) })} className={s.ruleNum} />
+          <Input
+            size="sm"
+            type="number"
+            min={0}
+            value={rule.max || ''}
+            placeholder="Any"
+            onChange={(e) => set({ max: num(e.target.value) })}
+            className={s.ruleNum}
+          />
         </label>
         <label className={s.ruleField}>
           <span>Included</span>
@@ -209,7 +234,13 @@ function RulesCard({ group: g }: { group: BoModGroup }) {
         </label>
         <label className={s.ruleField}>
           <span>Then each</span>
-          <MoneyInput value={rule.extra || null} placeholder="Free" width={96} onChange={(v) => set({ extra: v ?? 0 })} aria-label="Charge for each extra pick" />
+          <MoneyInput
+            value={rule.extra || null}
+            placeholder="Free"
+            width={96}
+            onChange={(v) => set({ extra: v ?? 0 })}
+            aria-label="Charge for each extra pick"
+          />
         </label>
       </div>
       <div className={s.rules}>
@@ -222,7 +253,9 @@ function RulesCard({ group: g }: { group: BoModGroup }) {
           <Input size="sm" value={rule.label} placeholder={g.name} onChange={(e) => set({ lbl: e.target.value })} className={s.ruleLabel} />
         </label>
       </div>
-      <p className={s.note}>The kiosk asks each pinned group as its own step and the server&apos;s Modify screen holds to the same rules. A group with no rule stays free and open.</p>
+      <p className={s.note}>
+        The kiosk asks each pinned group as its own step and the server&apos;s Modify screen holds to the same rules. A group with no rule stays free and open.
+      </p>
     </section>
   );
 }
