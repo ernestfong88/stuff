@@ -1,0 +1,156 @@
+.card {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  padding: 14px 16px;
+  box-shadow: inset 0 0 0 2px rgba(232, 196, 106, 0.85), var(--shadow-1);
+}
+
+.open {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  text-align: left;
+  border-radius: var(--r-md);
+}
+.open:hover .more {
+  text-decoration: underline;
+}
+
+.kind {
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.name {
+  flex: 1;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.amount {
+  font-family: var(--font-serif);
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--clay-600);
+  font-variant-numeric: tabular-nums;
+}
+.sides {
+  font-size: 12.5px;
+  color: var(--s700);
+  margin-top: 3px;
+}
+.swapped {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--clay-600);
+  margin-top: 3px;
+}
+.forecast,
+.setBy {
+  font-size: 12px;
+  margin-top: 5px;
+}
+.forecast {
+  color: var(--s500);
+}
+.setBy {
+  color: var(--s700);
+  font-weight: 700;
+}
+.more {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-end;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ocean);
+  margin-top: 4px;
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 50px;
+  margin-top: 10px;
+  border-radius: var(--r-lg);
+  font-size: 15px;
+  font-weight: 800;
+  background: var(--flora-100);
+  color: var(--flora);
+  box-shadow: inset 0 0 0 2px rgba(93, 117, 69, 0.45);
+}
+.mark:hover {
+  background: #d9e3cd;
+}
+.markBox {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 2px var(--flora);
+}
+
+.doneRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 14px;
+  text-align: left;
+  border-radius: var(--r-lg);
+  background: var(--limestone);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+.doneBox {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--s400);
+  color: #fff;
+}
+.doneText {
+  flex: 1;
+  min-width: 0;
+}
+.doneName {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--s500);
+  text-decoration: line-through;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.doneMeta {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--s400);
+  margin-top: 1px;
+}
+.undo {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ocean);
+}

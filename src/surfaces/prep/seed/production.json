@@ -1,0 +1,1117 @@
+{
+ "covers": {
+  "Breakfast": 25,
+  "Lunch": 40,
+  "Dinner": 80
+ },
+ "menus": {
+  "cycle": {
+   "specials": [
+    {
+     "Breakfast": [
+      {
+       "name": "Strawberry Banana Pancakes",
+       "kind": "entree",
+       "desc": "Buttermilk pancakes with fresh strawberries, banana, whipped cream and maple syrup",
+       "cook": "Three pancakes, golden. Strawberries and banana on top as it goes out, whipped cream last, warm maple syrup over.",
+       "sides": []
+      }
+     ],
+     "Lunch": [
+      {
+       "name": "Reuben Sandwich",
+       "kind": "entree",
+       "desc": "Corned beef, Swiss, sauerkraut and Thousand Island on grilled rye",
+       "cook": "Rye grilled golden, cheese fully melted. Cut on the bias, potato salad in a ramekin.",
+       "sides": [
+        "Creamy Potato Salad"
+       ]
+      },
+      {
+       "name": "BBQ Chopped Chicken Salad",
+       "kind": "entree",
+       "desc": "Chopped greens with BBQ chicken, corn, tomato and cheddar",
+       "cook": "Chicken chopped small and warm. Dressing on the side unless asked, roll on the plate rim.",
+       "sides": [
+        "Baked Roll"
+       ]
+      },
+      {
+       "name": "Cheeseburger Soup",
+       "kind": "soup",
+       "desc": "Creamy soup with ground beef, potato and cheddar",
+       "cook": "",
+       "sides": []
+      },
+      {
+       "name": "Cereal Bar",
+       "kind": "dessert",
+       "desc": "Crispy rice cereal treat bar",
+       "cook": "",
+       "sides": []
+      }
+     ],
+     "Dinner": [
+      {
+       "name": "Peach Glazed Chicken Breast",
+       "kind": "entree",
+       "desc": "Roasted chicken breast with a sweet peach glaze",
+       "cook": "Glaze in the last 5 minutes so it sets, not burns. Whole breast, spoon the peaches over. Mashed potatoes and green beans alongside.",
+       "sides": [
+        "Mashed Potatoes",
+        "Garlic Green Beans"
+       ],
+       "share": 0.5
+      },
+      {
+       "name": "Cheese Stuffed Shells with Marinara",
+       "kind": "entree",
+       "desc": "Pasta shells filled with ricotta and mozzarella, baked in marinara",
+       "cook": "Three shells, bubbling. Marinara under and over, parmesan and basil to finish. Garlic knot on the side.",
+       "sides": [
+        "Garlic Green Beans",
+        "Garlic Knot"
+       ],
+       "share": 0.375
+      },
+      {
+       "name": "Cheeseburger Soup",
+       "kind": "soup",
+       "desc": "Creamy soup with ground beef, potato and cheddar",
+       "cook": "",
+       "sides": []
+      },
+      {
+       "name": "Pineapple Trifle",
+       "kind": "dessert",
+       "desc": "Layers of pound cake, pineapple, vanilla pudding and whipped cream",
+       "cook": "",
+       "sides": []
+      }
+     ]
+    },
+    {
+     "Breakfast": [],
+     "Lunch": [
+      {
+       "name": "Hummus Veggie Wrap",
+       "kind": "entree",
+       "desc": "Hummus, roasted vegetables, spinach and feta in a spinach tortilla",
+       "cook": "Vegetables at room temperature so the wrap holds. Cut on the bias.",
+       "sides": [
+        "Three Bean Salad"
+       ]
+      },
+      {
+       "name": "Tuna Nicoise Salad",
+       "kind": "entree",
+       "desc": "Seared tuna with green beans, potato, egg, olives and Dijon vinaigrette",
+       "cook": "Sear the tuna and slice it thin. Arrange the components, dressing on the side.",
+       "sides": [
+        "Warm Pita Bread"
+       ]
+      },
+      {
+       "name": "Turkey Vegetable Soup",
+       "kind": "soup",
+       "desc": "Turkey, vegetables and herbs in a light broth",
+       "cook": "Serve hot.",
+       "sides": []
+      },
+      {
+       "name": "Chocolate Pudding",
+       "kind": "dessert",
+       "desc": "Rich chocolate pudding with whipped cream",
+       "cook": "Portion in cups, chilled.",
+       "sides": []
+      }
+     ],
+     "Dinner": [
+      {
+       "name": "Shrimp Enchiladas Suizas",
+       "kind": "entree",
+       "desc": "Shrimp enchiladas in a creamy tomatillo sauce with melted jack",
+       "cook": "Two enchiladas, sauce to the edges, cheese melted.",
+       "sides": [
+        "Cilantro Lime Rice"
+       ]
+      },
+      {
+       "name": "Santa Maria Tri-Tip",
+       "kind": "entree",
+       "desc": "Oak grilled tri-tip, sliced thin, with salsa fresca",
+       "cook": "Cook to the temp asked, rest 10 minutes, slice thin across the grain.",
+       "sides": [
+        "Santa Maria Pinquito Beans",
+        "Side Salad"
+       ]
+      },
+      {
+       "name": "Turkey Vegetable Soup",
+       "kind": "soup",
+       "desc": "Turkey, vegetables and herbs in a light broth",
+       "cook": "Serve hot.",
+       "sides": []
+      },
+      {
+       "name": "Fig and Almond Tart",
+       "kind": "dessert",
+       "desc": "Mission figs over almond cream in a butter crust",
+       "cook": "One slice per plate. Contains tree nuts.",
+       "sides": []
+      }
+     ]
+    }
+   ],
+   "production": [
+    {
+     "cycleDay": 15,
+     "cycleLength": 35,
+     "rows": [
+      {
+       "id": "tg0",
+       "kind": "special",
+       "meal": "Breakfast",
+       "name": "Strawberry Banana Pancakes",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 30,
+       "basis": "solo special · last runs 27 to 32"
+      },
+      {
+       "id": "any_b_hamsteak_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Ham Steak Plate",
+       "weekly": 102.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_bburrito_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Breakfast Burrito",
+       "weekly": 81.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_waffle_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Waffle",
+       "weekly": 76.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_ftoast_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "French Toast",
+       "weekly": 57.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_bsandwich_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Breakfast Sandwich",
+       "weekly": 55.0,
+       "unit": "sandwich setups"
+      },
+      {
+       "id": "tg51",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Cheeseburger Soup",
+       "category": "Starters",
+       "entree": false,
+       "recommended": 31,
+       "basis": "last runs 28 to 33"
+      },
+      {
+       "id": "tg52",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Reuben Sandwich",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 36,
+       "basis": "paired special · last runs 33 to 38"
+      },
+      {
+       "id": "tg53",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "BBQ Chopped Chicken Salad",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 33,
+       "basis": "paired special · last runs 30 to 35"
+      },
+      {
+       "id": "tg71",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Creamy Potato Salad",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 25,
+       "basis": "last runs 22 to 27"
+      },
+      {
+       "id": "tg72",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Baked Roll",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 28,
+       "basis": "last runs 25 to 30"
+      },
+      {
+       "id": "tg91",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Cereal Bar",
+       "category": "Desserts",
+       "entree": false,
+       "recommended": 35,
+       "basis": "last runs 32 to 37"
+      },
+      {
+       "id": "any_l_wings_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "BBQ Chicken Wings",
+       "weekly": 116.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_chicken_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Chicken Breast",
+       "weekly": 84.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_salmonburger_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Salmon Burger",
+       "weekly": 74.0,
+       "unit": "burger setups"
+      },
+      {
+       "id": "any_l_pbj_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "PB & Jelly Sandwich",
+       "weekly": 71.0,
+       "unit": "sandwich setups"
+      },
+      {
+       "id": "any_l_orange_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Orange Chicken Bowl",
+       "weekly": 58.0,
+       "unit": "portions"
+      },
+      {
+       "id": "tg155",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Cheeseburger Soup",
+       "category": "Starters",
+       "entree": false,
+       "recommended": 31,
+       "basis": "last runs 28 to 33"
+      },
+      {
+       "id": "tg156",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Peach Glazed Chicken Breast",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 31,
+       "basis": "paired special · last runs 28 to 33"
+      },
+      {
+       "id": "tg157",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Cheese Stuffed Shells with Marinara",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 28,
+       "basis": "paired special · last runs 25 to 30"
+      },
+      {
+       "id": "tg174",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Mashed Potatoes",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 34,
+       "basis": "last runs 31 to 36"
+      },
+      {
+       "id": "tg175",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Garlic Green Beans",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 31,
+       "basis": "last runs 28 to 33"
+      },
+      {
+       "id": "tg176",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Garlic Knot",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 34,
+       "basis": "last runs 31 to 36"
+      },
+      {
+       "id": "tg197",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Pineapple Trifle",
+       "category": "Desserts",
+       "entree": false,
+       "recommended": 31,
+       "basis": "last runs 28 to 33"
+      },
+      {
+       "id": "any_l_salmonburger_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Salmon Burger",
+       "weekly": 111.0,
+       "unit": "burger setups"
+      },
+      {
+       "id": "any_b_omelet_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Build Your Own Omelet",
+       "weekly": 109.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_quesa_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Chicken Quesadilla",
+       "weekly": 99.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_pizza_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Build Your Own Pizza",
+       "weekly": 98.0,
+       "unit": "pizza setups"
+      },
+      {
+       "id": "any_l_deli_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Build Your Own Deli Sandwich",
+       "weekly": 90.0,
+       "unit": "sandwich setups"
+      }
+     ]
+    },
+    {
+     "cycleDay": 16,
+     "cycleLength": 35,
+     "rows": [
+      {
+       "id": "any_b_hamsteak_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Ham Steak Plate",
+       "weekly": 102.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_bburrito_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Breakfast Burrito",
+       "weekly": 81.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_waffle_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Waffle",
+       "weekly": 76.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_ftoast_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "French Toast",
+       "weekly": 57.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_bsandwich_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Breakfast Sandwich",
+       "weekly": 55.0,
+       "unit": "sandwich setups"
+      },
+      {
+       "id": "vf168",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Turkey Vegetable Soup",
+       "category": "Starters",
+       "entree": false,
+       "recommended": 37,
+       "basis": "last runs 34 to 39"
+      },
+      {
+       "id": "vf169",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Hummus Veggie Wrap",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 29,
+       "basis": "paired special · last runs 26 to 31"
+      },
+      {
+       "id": "vf170",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Tuna Nicoise Salad",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 26,
+       "basis": "paired special · last runs 23 to 28"
+      },
+      {
+       "id": "vf171",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Three Bean Salad",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 29,
+       "basis": "last runs 26 to 31"
+      },
+      {
+       "id": "vf172",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Warm Pita Bread",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 29,
+       "basis": "last runs 26 to 31"
+      },
+      {
+       "id": "vf173",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Chocolate Pudding",
+       "category": "Desserts",
+       "entree": false,
+       "recommended": 30,
+       "basis": "last runs 27 to 32"
+      },
+      {
+       "id": "any_l_wings_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "BBQ Chicken Wings",
+       "weekly": 116.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_chicken_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Chicken Breast",
+       "weekly": 84.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_salmonburger_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Salmon Burger",
+       "weekly": 74.0,
+       "unit": "burger setups"
+      },
+      {
+       "id": "any_l_pbj_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "PB & Jelly Sandwich",
+       "weekly": 71.0,
+       "unit": "sandwich setups"
+      },
+      {
+       "id": "any_l_orange_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Orange Chicken Bowl",
+       "weekly": 58.0,
+       "unit": "portions"
+      },
+      {
+       "id": "vf174",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Turkey Vegetable Soup",
+       "category": "Starters",
+       "entree": false,
+       "recommended": 37,
+       "basis": "last runs 34 to 39"
+      },
+      {
+       "id": "vf175",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Shrimp Enchiladas Suizas",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 35,
+       "basis": "paired special · last runs 32 to 37"
+      },
+      {
+       "id": "vf176",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Santa Maria Tri-Tip",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 26,
+       "basis": "paired special · last runs 23 to 28"
+      },
+      {
+       "id": "vf177",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Cilantro Lime Rice",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 37,
+       "basis": "last runs 34 to 39"
+      },
+      {
+       "id": "vf178",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Santa Maria Pinquito Beans",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 27,
+       "basis": "last runs 24 to 29"
+      },
+      {
+       "id": "vf179",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Fig and Almond Tart",
+       "category": "Desserts",
+       "entree": false,
+       "recommended": 34,
+       "basis": "last runs 31 to 36"
+      },
+      {
+       "id": "any_l_salmonburger_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Salmon Burger",
+       "weekly": 111.0,
+       "unit": "burger setups"
+      },
+      {
+       "id": "any_b_omelet_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Build Your Own Omelet",
+       "weekly": 109.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_quesa_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Chicken Quesadilla",
+       "weekly": 99.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_pizza_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Build Your Own Pizza",
+       "weekly": 98.0,
+       "unit": "pizza setups"
+      },
+      {
+       "id": "any_l_deli_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Build Your Own Deli Sandwich",
+       "weekly": 90.0,
+       "unit": "sandwich setups"
+      }
+     ]
+    },
+    {
+     "cycleDay": 17,
+     "cycleLength": 35,
+     "rows": [
+      {
+       "id": "any_b_hamsteak_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Ham Steak Plate",
+       "weekly": 102.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_bburrito_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Breakfast Burrito",
+       "weekly": 81.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_waffle_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Waffle",
+       "weekly": 76.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_ftoast_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "French Toast",
+       "weekly": 57.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_b_bsandwich_Breakfast",
+       "kind": "anyDay",
+       "meal": "Breakfast",
+       "name": "Breakfast Sandwich",
+       "weekly": 55.0,
+       "unit": "sandwich setups"
+      },
+      {
+       "id": "vf180",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "French Onion Soup",
+       "category": "Starters",
+       "entree": false,
+       "recommended": 36,
+       "basis": "last runs 33 to 38"
+      },
+      {
+       "id": "vf181",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Turkey Meatball Sub",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 34,
+       "basis": "paired special · last runs 31 to 36"
+      },
+      {
+       "id": "vf182",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Chicken Fajita Bowl",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 25,
+       "basis": "paired special · last runs 22 to 27"
+      },
+      {
+       "id": "vf183",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Side Caesar Salad",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 36,
+       "basis": "last runs 33 to 38"
+      },
+      {
+       "id": "vf184",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Seasoned Black Beans",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 37,
+       "basis": "last runs 34 to 39"
+      },
+      {
+       "id": "vf185",
+       "kind": "special",
+       "meal": "Lunch",
+       "name": "Banana Pudding",
+       "category": "Desserts",
+       "entree": false,
+       "recommended": 27,
+       "basis": "last runs 24 to 29"
+      },
+      {
+       "id": "any_l_wings_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "BBQ Chicken Wings",
+       "weekly": 116.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_chicken_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Chicken Breast",
+       "weekly": 84.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_salmonburger_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Salmon Burger",
+       "weekly": 74.0,
+       "unit": "burger setups"
+      },
+      {
+       "id": "any_l_pbj_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "PB & Jelly Sandwich",
+       "weekly": 71.0,
+       "unit": "sandwich setups"
+      },
+      {
+       "id": "any_l_orange_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Orange Chicken Bowl",
+       "weekly": 58.0,
+       "unit": "portions"
+      },
+      {
+       "id": "vf186",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "French Onion Soup",
+       "category": "Starters",
+       "entree": false,
+       "recommended": 36,
+       "basis": "last runs 33 to 38"
+      },
+      {
+       "id": "vf187",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Slow Roasted Prime Rib",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 37,
+       "basis": "paired special · last runs 34 to 39"
+      },
+      {
+       "id": "vf188",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Cedar Plank Salmon",
+       "category": "Entrees",
+       "entree": true,
+       "recommended": 27,
+       "basis": "paired special · last runs 24 to 29"
+      },
+      {
+       "id": "vf189",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Creamed Spinach",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 29,
+       "basis": "last runs 26 to 31"
+      },
+      {
+       "id": "vf190",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Wild Rice Pilaf with Cranberries",
+       "category": "Sides",
+       "entree": false,
+       "recommended": 30,
+       "basis": "last runs 27 to 32"
+      },
+      {
+       "id": "vf191",
+       "kind": "special",
+       "meal": "Dinner",
+       "name": "Sweet Potato Pie",
+       "category": "Desserts",
+       "entree": false,
+       "recommended": 31,
+       "basis": "last runs 28 to 33"
+      },
+      {
+       "id": "any_l_salmonburger_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Salmon Burger",
+       "weekly": 111.0,
+       "unit": "burger setups"
+      },
+      {
+       "id": "any_b_omelet_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Build Your Own Omelet",
+       "weekly": 109.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_quesa_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Chicken Quesadilla",
+       "weekly": 99.0,
+       "unit": "portions"
+      },
+      {
+       "id": "any_l_pizza_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Build Your Own Pizza",
+       "weekly": 98.0,
+       "unit": "pizza setups"
+      },
+      {
+       "id": "any_l_deli_Dinner",
+       "kind": "anyDay",
+       "meal": "Dinner",
+       "name": "Build Your Own Deli Sandwich",
+       "weekly": 90.0,
+       "unit": "sandwich setups"
+      }
+     ]
+    }
+   ]
+  },
+  "fixed": {
+   "specials": null,
+   "production": [
+    {
+     "cycleDay": 0,
+     "cycleLength": 0,
+     "rows": [
+      {
+       "id": "any_l_burger_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Classic Terrace Burger",
+       "weekly": 62.0,
+       "unit": "burger setups"
+      },
+      {
+       "id": "any_l_deli_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Build Your Own Deli Sandwich",
+       "weekly": 38.75,
+       "unit": "sandwich setups"
+      }
+     ]
+    },
+    {
+     "cycleDay": 0,
+     "cycleLength": 0,
+     "rows": [
+      {
+       "id": "any_l_burger_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Classic Terrace Burger",
+       "weekly": 62.0,
+       "unit": "burger setups"
+      },
+      {
+       "id": "any_l_deli_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Build Your Own Deli Sandwich",
+       "weekly": 38.75,
+       "unit": "sandwich setups"
+      }
+     ]
+    },
+    {
+     "cycleDay": 0,
+     "cycleLength": 0,
+     "rows": [
+      {
+       "id": "any_l_burger_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Classic Terrace Burger",
+       "weekly": 62.0,
+       "unit": "burger setups"
+      },
+      {
+       "id": "any_l_deli_Lunch",
+       "kind": "anyDay",
+       "meal": "Lunch",
+       "name": "Build Your Own Deli Sandwich",
+       "weekly": 38.75,
+       "unit": "sandwich setups"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "recipes": {
+  "Peach Glazed Chicken Breast": {
+   "base": 8,
+   "serving": "1 breast (6 oz) · 1 oz glaze",
+   "ingredients": [
+    [
+     8,
+     "",
+     "boneless chicken breasts, 6 oz"
+    ],
+    [
+     2,
+     "tbsp",
+     "olive oil"
+    ],
+    [
+     2,
+     "tsp",
+     "kosher salt"
+    ],
+    [
+     1,
+     "tsp",
+     "black pepper"
+    ],
+    [
+     1.5,
+     "cups",
+     "peach preserves"
+    ],
+    [
+     2,
+     "tbsp",
+     "apple cider vinegar"
+    ],
+    [
+     1,
+     "tbsp",
+     "dijon mustard"
+    ],
+    [
+     2,
+     "cloves",
+     "garlic, minced"
+    ],
+    [
+     1,
+     "tbsp",
+     "thyme leaves"
+    ]
+   ],
+   "method": [
+    "Season the chicken on both sides; sear in oil until golden, 3 min a side.",
+    "Roast at 375°F until 160°F inside, about 15 min.",
+    "Simmer the preserves, vinegar, mustard, garlic and thyme until glossy, 4 min.",
+    "Brush the glaze on in the last 5 min so it sets without burning.",
+    "Rest 5 min; hold at 145°F or above, glaze reserved for the pass."
+   ]
+  },
+  "Cheese Stuffed Shells with Marinara": {
+   "base": 6,
+   "serving": "3 shells · 4 oz marinara",
+   "ingredients": [
+    [
+     18,
+     "",
+     "jumbo pasta shells"
+    ],
+    [
+     2,
+     "lb",
+     "whole milk ricotta"
+    ],
+    [
+     2,
+     "cups",
+     "mozzarella, shredded"
+    ],
+    [
+     0.75,
+     "cup",
+     "parmesan, grated"
+    ],
+    [
+     1,
+     "",
+     "egg"
+    ],
+    [
+     2,
+     "tbsp",
+     "parsley, chopped"
+    ],
+    [
+     0.5,
+     "tsp",
+     "kosher salt"
+    ],
+    [
+     4,
+     "cups",
+     "house marinara"
+    ],
+    [
+     6,
+     "leaves",
+     "basil, torn"
+    ]
+   ],
+   "method": [
+    "Boil the shells 2 min short of al dente; cool on an oiled tray.",
+    "Mix ricotta, half the mozzarella, the parmesan, egg, parsley and salt.",
+    "Spread marinara in the hotel pan; fill each shell and set it open side up.",
+    "Top with more marinara and the rest of the mozzarella; cover with foil.",
+    "Bake at 375°F for 25 min, uncover for 10 until bubbling. Basil at the pass."
+   ]
+  }
+ }
+}
