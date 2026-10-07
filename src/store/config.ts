@@ -7,22 +7,36 @@ import { useMemo } from 'react';
 import { DEFAULT_CONFIG, type DiningConfig, type HospiceStatus } from '../domain/config';
 import { hospiceStatus, nextHospiceStatus } from '../domain/waivers';
 import { createSharedStore, useShared } from '../lib/sharedStore';
+import { kdsOn, phaseOnStore, phasePlanStore } from './phases';
 
 export const configStore = createSharedStore<DiningConfig>(() => structuredClone(DEFAULT_CONFIG), {
   persistKey: 'kisco.dining.config.v1',
   channel: 'kisco-dining-config',
 });
 
+/**
+ * The settings in force: the saved ones with defaults filled in, and printers
+ * whenever the kitchen screens' release phase is switched off.
+ */
+function effective(saved: DiningConfig, kds: boolean): DiningConfig {
+  const cfg = { ...DEFAULT_CONFIG, ...saved };
+  return kds ? cfg : { ...cfg, kitchenMode: 'printers' };
+}
+
 /** The current settings, with defaults filled in for anything a saved copy lacks. */
 export function getConfig(): DiningConfig {
-  return { ...DEFAULT_CONFIG, ...configStore.get() };
+  return effective(configStore.get(), kdsOn());
 }
 
 /** Read the settings in a component. */
 export function useConfig(): DiningConfig {
   const saved = useShared(configStore);
-  return useMemo(() => ({ ...DEFAULT_CONFIG, ...saved }), [saved]);
+  const kds = kdsOn(useShared(phasePlanStore), useShared(phaseOnStore));
+  return useMemo(() => effective(saved, kds), [saved, kds]);
 }
+
+/** The kitchen mode as saved, before the release phases have their say. */
+export const savedKitchenMode = (saved: DiningConfig = configStore.get()) => saved.kitchenMode;
 
 /** Merge a change into the settings. */
 export function updateConfig(patch: Partial<DiningConfig> | ((cfg: DiningConfig) => Partial<DiningConfig>)): void {

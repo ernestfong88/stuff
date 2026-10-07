@@ -21,7 +21,7 @@ describe('release phases', () => {
   it('lists Phase 2 pages after the Phase 1 pages of their section', () => {
     const menus = BO_SECTIONS.find((s) => s.id === 'menus')!;
     setPhase('recipes', 2);
-    const ids = visiblePages(menus, 'all', phasePlanStore.get()).map((p) => p.id);
+    const ids = visiblePages(menus, {}, phasePlanStore.get()).map((p) => p.id);
     expect(ids[ids.length - 1]).toBe('recipes');
     expect(ids.slice(0, -1)).toEqual(menus.pages.filter((p) => p.id !== 'recipes').map((p) => p.id));
   });
@@ -33,12 +33,12 @@ describe('release phases', () => {
     expect(orderedSections(phasePlanStore.get()).map((s) => s.id)).toEqual(BO_SECTIONS.map((s) => s.id));
   });
 
-  it('"Phase 1 only" hides Phase 2 pages but keeps the page you are on', () => {
+  it('a phase switched off hides its pages but keeps the page you are on', () => {
     const menus = BO_SECTIONS.find((s) => s.id === 'menus')!;
     setPhase('export', 2);
     const plan = phasePlanStore.get();
-    expect(visiblePages(menus, 'p1', plan).map((p) => p.id)).not.toContain('export');
-    expect(visiblePages(menus, 'p1', plan, 'export').map((p) => p.id)).toContain('export');
+    expect(visiblePages(menus, { 2: false }, plan).map((p) => p.id)).not.toContain('export');
+    expect(visiblePages(menus, { 2: false }, plan, 'export').map((p) => p.id)).toContain('export');
   });
 
   it('puts Phase 2 screens at the end of the screen menu', () => {

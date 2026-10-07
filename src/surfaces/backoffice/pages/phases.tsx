@@ -2,20 +2,35 @@
  * Release Phases (HO Settings): mark each screen in the mode menu and each
  * back office page Phase 1, 2 or 3. Later phases take their own colour (purple
  * for 2, brown for 3) and move below the earlier ones (a section with no
- * earlier page moves down the side menu too), and the "Phase 1 only" view
- * hides them.
+ * earlier page moves down the side menu too). Phase 2 and 3 can be switched
+ * off for the whole system.
  */
 import { Copy, RotateCcw } from 'lucide-react';
 import { Button, Tabs, toast } from '../../../ui';
 import { BoCallout, BoPage, BoRow, BoSection, BoStatRow, BoStatTile } from '../kit';
 import { MODES, modePhase, modePhaseKey } from '../../../shell/modes';
 import { BO_SECTIONS } from '../nav';
-import { PHASES, pagesInPhase, phaseListText, phaseOf, resetPhases, setPhase, setPhaseView, usePhasePlan, usePhaseView, type Phase } from '../phases';
+import {
+  PHASES,
+  pagesInPhase,
+  phaseIsOn,
+  phaseListText,
+  phaseOf,
+  resetPhases,
+  setPhase,
+  setPhaseOn,
+  usePhaseOn,
+  usePhasePlan,
+  type Phase,
+} from '../phases';
+import { Toggle } from '../../../ui';
 import s from './phases/phases.module.css';
+
+const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 export default function Page() {
   const plan = usePhasePlan();
-  const view = usePhaseView();
+  const on = usePhaseOn();
 
   const isDefault = Object.keys(plan).length === 0;
   const screensIn = (ph: Phase) => MODES.filter((m) => modePhase(m.id, plan) === ph).length;
@@ -48,7 +63,7 @@ export default function Page() {
   return (
     <BoPage
       title="Release Phases"
-      sub="Mark which screens and back office pages ship in Phase 1, Phase 2 or Phase 3. Phase 2 items show in purple and Phase 3 in brown, below the earlier ones, and a later page has a banner at the top."
+      sub="Mark which screens and back office pages ship in Phase 1, Phase 2 or Phase 3. Phase 2 items show in purple and Phase 3 in brown, below the earlier ones. Switch a phase off to take it out of the whole system."
       actions={
         <>
           <Button icon={<Copy size={15} />} onClick={copy}>
@@ -69,27 +84,40 @@ export default function Page() {
     >
       <BoStatRow>
         {PHASES.map((ph) => (
-          <BoStatTile key={ph} label={`Phase ${ph}: screens · pages`} value={`${screensIn(ph)} · ${pagesIn(ph)}`} tone={ph === 1 ? 'ocean' : undefined} />
+          <BoStatTile
+            key={ph}
+            label={`Phase ${ph}: screens · pages`}
+            value={`${screensIn(ph)} · ${pagesIn(ph)}`}
+            tone={ph === 1 ? 'ocean' : undefined}
+          />
         ))}
       </BoStatRow>
 
-      <BoSection title="Menus show" sub="The same switch is at the bottom of the side menu. It applies to the screens menu too.">
-        <BoRow
-          label="Screens and pages"
-          hint={view === 'p1' ? 'Phase 2 and 3 screens and pages are hidden. Search still finds pages.' : 'Everything, with Phase 2 below in purple and Phase 3 below that in brown.'}
-        >
-          <Tabs
-            variant="segmented"
-            size="sm"
-            aria-label="Screens and pages in the menus"
-            value={view}
-            onChange={(v) => setPhaseView(v)}
-            options={[
-              { id: 'all', label: 'All pages' },
-              { id: 'p1', label: 'Phase 1 only' },
-            ]}
-          />
-        </BoRow>
+      <BoSection
+        title="Phases switched on"
+        sub="For the whole system. A phase that is off hides its screens from the screen menu, its pages from this menu and search, and turns off what it brings. Switching it back on brings everything back as it was."
+      >
+        {([2, 3] as Phase[]).map((ph) => (
+          <BoRow
+            key={ph}
+            label={`Phase ${ph}`}
+            hint={
+              phaseIsOn(ph, on)
+                ? `On: ${count(screensIn(ph), 'screen')} and ${count(pagesIn(ph), 'page')} in use.`
+                : `Off: ${count(screensIn(ph), 'screen')} and ${count(pagesIn(ph), 'page')} hidden.${ph === 2 ? ' Kitchens run on printers while the kitchen screens are off.' : ''}`
+            }
+          >
+            <Toggle
+              checked={phaseIsOn(ph, on)}
+              onChange={(v) => {
+                setPhaseOn(ph, v);
+                toast(v ? `Phase ${ph} is on everywhere` : `Phase ${ph} is off everywhere`, { tone: 'success' });
+              }}
+              label={<span className="sr-only">Phase {ph}</span>}
+            />
+          </BoRow>
+        ))}
+        <p className={s.note}>Turning Phase 2 off also turns Phase 3 off; turning Phase 3 on also turns Phase 2 on.</p>
       </BoSection>
 
       <BoSection title="Screens" sub="The devices in the top-right screen menu: tablets, kitchen screens, the kiosk and the rest.">
@@ -111,8 +139,8 @@ export default function Page() {
       ))}
 
       <BoCallout tone="info">
-        The phases are saved in this browser. To share the split, use Copy as a list and send it on, or have it built into the app so every
-        device starts with it.
+        The phases are saved in this browser. To share the split, use Copy as a list and send it on, or have it built into the app so every device
+        starts with it.
       </BoCallout>
     </BoPage>
   );

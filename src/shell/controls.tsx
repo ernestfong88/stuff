@@ -5,8 +5,8 @@ import { Avatar, MenuDivider, MenuItem, Popover, useConfirm, useViewportWidth } 
 import { cx } from '../ui/cx';
 import { useDemoActions } from './demoTools';
 import { enterFullscreen, exitFullscreen, useFullscreen } from './fullscreen';
-import { usePhasePlan, usePhaseView } from '../store/phases';
-import { getMode, modePhase, orderedModes } from './modes';
+import { usePhaseOn, usePhasePlan } from '../store/phases';
+import { getMode, modeOn, modePhase, orderedModes } from './modes';
 import { navigate, useRoute } from './router';
 import { signOut, useMe, useVenue, venueCode, venueColor } from './session';
 import s from './controls.module.css';
@@ -35,9 +35,9 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
   const { mode } = useRoute();
   const m = getMode(mode);
   const plan = usePhasePlan();
-  const view = usePhaseView();
-  // Phase 2 screens sit below a divider, in their own colour; "Phase 1 only" hides them (except this one).
-  const modes = orderedModes(plan).filter((x) => view === 'all' || x.id === mode || modePhase(x.id, plan) === 1);
+  const on = usePhaseOn();
+  // Later phases sit below a divider, in their own colour; a phase switched off hides its screens (except this one).
+  const modes = orderedModes(plan).filter((x) => x.id === mode || modeOn(x.id, plan, on));
   // A heading wherever the phase steps up (Phase 2, Phase 3).
   const startsPhase = (i: number) => i > 0 && modePhase(modes[i].id, plan) !== modePhase(modes[i - 1].id, plan);
   const demo = useDemoActions();

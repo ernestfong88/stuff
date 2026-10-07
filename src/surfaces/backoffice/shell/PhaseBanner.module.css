@@ -34,3 +34,40 @@
 .three .icon {
   color: var(--clay-600);
 }
+.off {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 520px;
+  margin: 60px auto;
+  padding: 32px;
+  text-align: center;
+  border-radius: var(--r-xl, 16px);
+  background: var(--plum-100);
+  color: var(--plum);
+}
+.offTitle {
+  margin: 0;
+  font-size: 20px;
+  color: var(--ink);
+}
+.offBody {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--s700);
+}
+.offActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.offBtn {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--plum);
+  color: #fff;
+  font-weight: 700;
+}

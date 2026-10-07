@@ -1,7 +1,8 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { cx, useViewportWidth } from '../../../ui';
 import { PageErrorBoundary } from './PageErrorBoundary';
-import { PhaseBanner } from './PhaseBanner';
+import { PhaseBanner, PhaseOffPage } from './PhaseBanner';
+import { pageOn, phaseOf, usePhaseOn, usePhasePlan } from '../phases';
 import { PageLoading } from './PageLoading';
 import { PagePalette } from './PagePalette';
 import { useBoPage } from './route';
@@ -16,6 +17,8 @@ const DRAWER_BELOW = 1200;
 /** The culinary back office: side nav, breadcrumb bar, Ctrl K page search and the current page. */
 export function BackOfficeShell() {
   const { section, page, goto: go } = useBoPage();
+  const plan = usePhasePlan();
+  const pageIsOn = pageOn(page.id, plan, usePhaseOn());
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawer = useViewportWidth() < DRAWER_BELOW;
@@ -60,7 +63,12 @@ export function BackOfficeShell() {
 
   return (
     <div className={s.shell}>
-      <aside id="bo-side-nav" className={cx(s.nav, drawerOpen && s.navOpen)} aria-label="Back office menu" inert={drawer && !drawerOpen ? true : undefined}>
+      <aside
+        id="bo-side-nav"
+        className={cx(s.nav, drawerOpen && s.navOpen)}
+        aria-label="Back office menu"
+        inert={drawer && !drawerOpen ? true : undefined}
+      >
         <SideNav
           pageId={page.id}
           section={section}
@@ -78,9 +86,13 @@ export function BackOfficeShell() {
         <div className={s.content}>
           <PhaseBanner pageId={page.id} goto={goto} />
           <PageErrorBoundary resetKey={page.id} pageLabel={page.label}>
-            <Suspense fallback={<PageLoading />}>
-              <Page key={page.id} goto={goto} />
-            </Suspense>
+            {pageIsOn ? (
+              <Suspense fallback={<PageLoading />}>
+                <Page key={page.id} goto={goto} />
+              </Suspense>
+            ) : (
+              <PhaseOffPage phase={phaseOf(page.id, plan)} goto={goto} />
+            )}
           </PageErrorBoundary>
         </div>
       </main>

@@ -1,6 +1,7 @@
 import { MonitorPlay, Printer } from 'lucide-react';
 import { printerMode, type KitchenMode } from '../../../domain/config';
 import { updateConfig, useConfig } from '../../../store/config';
+import { kdsOn, kdsPhase, usePhaseOn, usePhasePlan } from '../../../store/phases';
 import { cx, toast } from '../../../ui';
 import { BoSection } from '../kit';
 import { PrinterRouting } from './PrinterRouting';
@@ -31,6 +32,9 @@ const CHOICES: Array<{ id: KitchenMode; title: string; icon: typeof Printer; lin
 /** Printers or kitchen screens: how orders reach the kitchen, for every venue. */
 export function KitchenModeSetting() {
   const cfg = useConfig();
+  const plan = usePhasePlan();
+  // With the kitchen screens' phase switched off, every kitchen runs on printers.
+  const kdsAllowed = kdsOn(plan, usePhaseOn());
   const current: KitchenMode = printerMode(cfg) ? 'printers' : 'kds';
   return (
     <>
@@ -38,18 +42,22 @@ export function KitchenModeSetting() {
         <div className={s.choices} role="radiogroup" aria-label="How orders reach the kitchen">
           {CHOICES.map((c) => {
             const on = c.id === current;
+            const locked = c.id === 'kds' && !kdsAllowed;
             const Icon = c.icon;
             return (
               <button
                 key={c.id}
                 role="radio"
                 aria-checked={on}
-                className={cx(s.choice, on && s.on)}
+                className={cx(s.choice, on && s.on, locked && s.locked)}
+                disabled={locked}
                 onClick={() => {
-                  if (on) return;
+                  if (on || locked) return;
                   updateConfig({ kitchenMode: c.id });
                   toast(
-                    c.id === 'printers' ? 'Printer mode: each printer prints its items and nothing is tracked' : 'Kitchen screens: orders go to Cook and Expo',
+                    c.id === 'printers'
+                      ? 'Printer mode: each printer prints its items and nothing is tracked'
+                      : 'Kitchen screens: orders go to Cook and Expo',
                     {
                       tone: 'success',
                     },
@@ -61,6 +69,9 @@ export function KitchenModeSetting() {
                   {c.title}
                   {on && <span className={s.tag}>On</span>}
                 </span>
+                {locked && (
+                  <span className={s.lockNote}>Phase {kdsPhase(plan)} is switched off. Switch it on in Release Phases to use kitchen screens.</span>
+                )}
                 {c.lines.map((l) => (
                   <span key={l} className={s.line}>
                     {l}

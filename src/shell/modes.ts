@@ -3,21 +3,9 @@
  * of them; the URL hash picks which (#/cook, #/expo, #/server ...), so a
  * kitchen screen can be bookmarked straight to its surface.
  */
-import { byPhase, type Phase, type PhasePlan } from '../store/phases';
+import { byPhase, KDS_DEFAULT_PHASE, phaseIsOn, type Phase, type PhasePlan, type PhaseSwitches } from '../store/phases';
 
-export type ModeId =
-  | 'server'
-  | 'manager'
-  | 'host'
-  | 'bar'
-  | 'pud'
-  | 'cook'
-  | 'expo'
-  | 'prep'
-  | 'assocphone'
-  | 'kiosk'
-  | 'display'
-  | 'backoffice';
+export type ModeId = 'server' | 'manager' | 'host' | 'bar' | 'pud' | 'cook' | 'expo' | 'prep' | 'assocphone' | 'kiosk' | 'display' | 'backoffice';
 
 /** The device class decides the chrome: tablet header, dark kitchen screen, phone frame ... */
 export type DeviceKind = 'tablet' | 'kitchen' | 'phone' | 'kiosk' | 'display' | 'desktop';
@@ -41,7 +29,7 @@ export const MODES: Mode[] = [
   { id: 'bar', label: 'Bar', device: 'tablet', blurb: 'Drinks sent to the bar' },
   { id: 'pud', label: 'PU & Delivery', device: 'tablet', blurb: 'Pick up and delivery queue' },
   // Kitchen displays come in Phase 2: the kitchen starts on printed tickets.
-  { id: 'cook', label: 'Cook', device: 'kitchen', dark: true, blurb: 'Kitchen display for the line', phase: 2 },
+  { id: 'cook', label: 'Cook', device: 'kitchen', dark: true, blurb: 'Kitchen display for the line', phase: KDS_DEFAULT_PHASE },
   { id: 'expo', label: 'Expo', device: 'kitchen', dark: true, blurb: 'Pass: course pacing and runs', phase: 2 },
   { id: 'prep', label: 'Production Prep', device: 'kitchen', blurb: 'Production plan and checklists' },
   { id: 'assocphone', label: 'Associate Phone', device: 'phone', blurb: 'Associates plan their shift meals' },
@@ -67,4 +55,9 @@ export function orderedModes(plan: PhasePlan): Mode[] {
 
 export function getMode(id: string | null | undefined): Mode {
   return MODES.find((m) => m.id === id) ?? MODES[0];
+}
+
+/** Is this screen's release phase switched on? Back Office always is, so phases can be switched back on. */
+export function modeOn(id: ModeId, plan: PhasePlan, on: PhaseSwitches): boolean {
+  return id === 'backoffice' || phaseIsOn(modePhase(id, plan), on);
 }

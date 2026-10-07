@@ -48,3 +48,14 @@
   line-height: 1.4;
   color: var(--s700);
 }
+.locked,
+.locked:hover {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--paper);
+}
+.lockNote {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--plum);
+}

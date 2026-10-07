@@ -44,6 +44,7 @@ const DEVICE_KEYS = new Set([
   'kisco_backoffice_community',
   'kisco_backoffice_phases',
   'kisco_backoffice_phase_view',
+  'kisco_phases_on',
   'kisco_text_zoom',
   'kisco_clock_offset',
   'kisco_kds_screen',

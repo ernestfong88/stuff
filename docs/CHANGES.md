@@ -220,6 +220,13 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Phases switched on or off for the whole system
+- **Phase 2 and Phase 3 switches.** They are at the bottom of the Back Office side menu and on *Release Phases* (HO Settings). Phase 1 is always on. Turning Phase 2 off also turns Phase 3 off, and turning Phase 3 on also turns Phase 2 on. The switches are saved and survive a demo reset. They replace the old *All pages / Phase 1 only* view.
+- **What a phase that is off does everywhere:**
+  - its screens leave the screen menu, and opening one shows "part of Phase N" with a link to Release Phases;
+  - its Back Office pages leave the side menu and search, and opening one shows "Phase N is switched off" with a button to switch it on;
+  - while the kitchen screens' phase (Cook, Phase 2 by default) is off, every kitchen runs on printers and the *Kitchen screens* choice is locked.
+
 ### Printer routing, Kiosk section, simpler pick up & delivery, P-Mix today
 - **What each printer prints.** In printer mode, each kitchen printer prints either the whole ticket or only some groups: Drinks, Starters, Entrées, Sides or Desserts. The demo sets the Hot Line to entrées and sides, Cold / Pantry to starters and desserts, and the Expo Receipt to the whole ticket. The setting is under *How orders reach the kitchen*. A warning shows when a kitchen has a group no printer prints.
 - **Send names the printers.** After Send, the check says where the tickets printed, for example "Printed at Hot Line (2 items) · Expo Receipt (whole ticket)". It warns when a printer can't be reached.

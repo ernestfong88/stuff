@@ -1,7 +1,9 @@
 import { Suspense } from 'react';
 import { Providers } from './app/Providers';
 import { ErrorBoundary } from './shell/ErrorBoundary';
-import { getMode } from './shell/modes';
+import { getMode, modeOn, modePhase } from './shell/modes';
+import { PhaseOff } from './shell/PhaseOff';
+import { usePhaseOn, usePhasePlan } from './store/phases';
 import { useRoute } from './shell/router';
 import { useSignedIn } from './shell/session';
 import { SignIn } from './shell/SignIn';
@@ -19,11 +21,15 @@ export function App() {
   const Surface = SURFACES[mode];
   const m = getMode(mode);
   const gated = NEEDS_SIGN_IN.has(mode) && !signedIn;
+  const plan = usePhasePlan();
+  const off = !modeOn(m.id, plan, usePhaseOn());
   return (
     <Providers>
       <div className={m.device === 'desktop' ? undefined : 'no-select'} data-mode={mode} style={{ height: '100%' }}>
         <ErrorBoundary resetKey={mode}>
-          <Suspense fallback={<Loading />}>{gated ? <SignIn /> : <Surface />}</Suspense>
+          <Suspense fallback={<Loading />}>
+            {off ? <PhaseOff label={m.label} phase={modePhase(m.id, plan)} /> : gated ? <SignIn /> : <Surface />}
+          </Suspense>
         </ErrorBoundary>
         <TouchLock />
         <Toaster />

@@ -2,7 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import { Search } from 'lucide-react';
 import { cx } from '../../../ui';
 import { BO_ALIASES, BO_MORE_PAGES, BO_SECTIONS, findPage, type BoSectionDef } from '../nav';
-import { phaseOf, usePhasePlan } from '../phases';
+import { pageOn, phaseOf, usePhaseOn, usePhasePlan } from '../phases';
 import { searchPages, type SearchablePage } from './search';
 import s from './PagePalette.module.css';
 
@@ -29,7 +29,10 @@ export function PagePalette({ onClose, goto }: { onClose: () => void; goto: (pag
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLDivElement>(null);
   const listId = useId();
-  const results = useMemo(() => searchPages(ENTRIES, query), [query]);
+  const on = usePhaseOn();
+  const phasePlan = usePhasePlan();
+  // Pages in a phase that is switched off don't come up.
+  const results = useMemo(() => searchPages(ENTRIES, query).filter((r) => pageOn(r.id, phasePlan, on)), [query, phasePlan, on]);
   const plan = usePhasePlan();
 
   useEffect(() => {

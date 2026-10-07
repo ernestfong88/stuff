@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ChevronDown, Search, X } from 'lucide-react';
-import { Tabs, cx } from '../../../ui';
+import { Toggle, cx, toast } from '../../../ui';
 import { navPageId, type BoSectionDef } from '../nav';
-import { orderedSections, phaseOf, sectionPhase, setPhaseView, usePhasePlan, usePhaseView, visiblePages, type Phase } from '../phases';
+import { orderedSections, phaseIsOn, phaseOf, sectionPhase, setPhaseOn, usePhaseOn, usePhasePlan, visiblePages, type Phase } from '../phases';
 import { AccountCard } from './AccountCard';
 import { CommunitySwitcher } from './CommunitySwitcher';
 import { KiscoMark } from './KiscoMark';
@@ -35,7 +35,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
   useEffect(() => setOpen(section.id), [section.id]);
   const current = navPageId(pageId);
   const plan = usePhasePlan();
-  const view = usePhaseView();
+  const on = usePhaseOn();
 
   return (
     <div className={s.side}>
@@ -65,7 +65,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
       <nav className={s.nav} aria-label="Back office pages">
         <ul className={s.sections}>
           {orderedSections(plan).map((sec, si, all) => {
-            const pages = visiblePages(sec, view, plan, current);
+            const pages = visiblePages(sec, on, plan, current);
             if (!pages.length) return null;
             const secPhase = sectionPhase(sec, plan);
             const laterSection = secPhase > 1;
@@ -95,7 +95,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
                 >
                   <Icon size={17} strokeWidth={1.9} className={s.sectionIcon} aria-hidden />
                   <span className={s.sectionLabel}>{sec.label}</span>
-                  {single && view === 'all' && phaseOf(pages[0].id, plan) > secPhase && <PhaseTag phase={phaseOf(pages[0].id, plan)} />}
+                  {single && phaseOf(pages[0].id, plan) > secPhase && <PhaseTag phase={phaseOf(pages[0].id, plan)} />}
                   {!single && <ChevronDown size={14} className={cx(s.chev, isOpen && s.chevOpen)} aria-hidden />}
                 </button>
                 {isOpen && (
@@ -114,7 +114,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
                             }}
                           >
                             <span className={s.pageLabel}>{p.label}</span>
-                            {view === 'all' && phaseOf(p.id, plan) > secPhase && <PhaseTag phase={phaseOf(p.id, plan)} />}
+                            {phaseOf(p.id, plan) > secPhase && <PhaseTag phase={phaseOf(p.id, plan)} />}
                           </a>
                         </li>
                       );
@@ -128,21 +128,34 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
       </nav>
 
       <div className={s.footer}>
-        <Tabs
-          variant="segmented"
-          size="sm"
-          className={s.phaseSwitch}
-          aria-label="Pages to show"
-          value={view}
-          onChange={(v) => setPhaseView(v)}
-          options={[
-            { id: 'all', label: 'All pages' },
-            { id: 'p1', label: 'Phase 1 only' },
-          ]}
-        />
+        <PhaseSwitches />
         <CommunitySwitcher />
         <AccountCard />
       </div>
+    </div>
+  );
+}
+
+/** Phase 2 and Phase 3 on or off, for every screen and page. Release Phases (HO Settings) has the same switches. */
+export function PhaseSwitches() {
+  const on = usePhaseOn();
+  return (
+    <div className={s.phaseSwitches} role="group" aria-label="Release phases switched on">
+      {([2, 3] as Phase[]).map((ph) => (
+        <span key={ph} className={cx(s.phaseSwitchRow, phaseClass(ph))}>
+          <span className={s.phaseSwitchLabel}>Phase {ph}</span>
+          <Toggle
+            checked={phaseIsOn(ph, on)}
+            onChange={(v) => {
+              setPhaseOn(ph, v);
+              toast(v ? `Phase ${ph} is on everywhere` : `Phase ${ph}${ph === 2 ? ' and 3 are' : ' is'} off: those screens and pages are hidden`, {
+                tone: 'success',
+              });
+            }}
+            label={<span className="sr-only">Phase {ph}</span>}
+          />
+        </span>
+      ))}
     </div>
   );
 }

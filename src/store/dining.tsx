@@ -58,7 +58,7 @@ import type {
 import { now } from '../lib/clock';
 import { uid } from '../lib/id';
 import { resetPersistedStores, useShared } from '../lib/sharedStore';
-import { configStore, getConfig, updateConfig } from './config';
+import { getConfig, updateConfig, useConfig } from './config';
 import { resetProduction } from './production';
 import { claimPacingLeadership, createDiningEngine, releasePacingLeadership, type DiningEngine } from './diningEngine';
 import { residentPrefsStore, updateResidentPref, type ResidentPrefs } from './residentPrefs';
@@ -205,7 +205,7 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
   const [modUsage, setModUsage] = useState<Record<string, Record<string, number>>>({});
   const [expoActive, setExpoActive] = useState(true);
   // How orders reach the kitchen, from the setting (KDS Settings, Service Flow).
-  const kitchenMode = printerMode(useShared(configStore)) ? 'printers' : 'kds_expo';
+  const kitchenMode = printerMode(useConfig()) ? 'printers' : 'kds_expo';
   const [pendingTakeover, setPendingTakeover] = useState<(PendingTakeover & { go: () => void }) | null>(null);
   const runUndos = useRef(new Map<string, RunUndo>());
 
