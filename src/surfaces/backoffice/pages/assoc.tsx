@@ -1,7 +1,8 @@
 /**
  * Associate Meals: the standard associate menu (one chef special per meal
- * period from the day's menu cycle, plus the standing choices, each a
- * Recipe Book recipe) and how associates plan meals by shift in the
+ * period from the day's menu cycle, the associate special of the week,
+ * plus the standing choices, each a Recipe Book recipe; the soup is always
+ * the soup of the day) and how associates plan meals by shift in the
  * Associate App. Edits go to the service settings, so every associate's
  * phone has them at once.
  */
@@ -16,13 +17,16 @@ import { useAssocSettings } from '../../../domain/assocMeals/settings';
 import { assocWindows, isLive, windowMinutes, type AssocMealName } from '../../../domain/assocMeals/windows';
 import {
   assocMenuFor,
+  daySoup,
   daySpecial,
   setDaySpecial,
   setDaySpecialCap,
   setStandingRecipe,
   setWeekScheduled,
+  setWeekSpecial,
   standingRecipe,
   useAssocMenuSettings,
+  weekSpecial,
   type AssocMenuSettings,
 } from '../../../store/assocMenu';
 import { recipesIn } from '../../../store/recipes';
@@ -30,7 +34,6 @@ import { BoPage, BoRow, BoSection, NumberBox } from '../kit';
 import type { BoPageProps } from '../nav';
 import { spansText } from './assocRanges';
 import s from './assoc.module.css';
-
 
 /** What each week state means for associates, in plain words. */
 const WEEK_TEXT: Record<WeekState, string> = {
@@ -68,7 +71,7 @@ export default function Page({ goto }: BoPageProps) {
   return (
     <BoPage title="Associate Meals">
       <MenuSection settings={menuSettings} todayIso={todayIso} />
-      <StandingChoices settings={menuSettings} />
+      <StandingChoices settings={menuSettings} todayIso={todayIso} />
 
       <div className={s.stats}>
         <Stat value={live.length} label="Planned this week" />
@@ -79,7 +82,12 @@ export default function Page({ goto }: BoPageProps) {
 
       <BoSection title="Ordering">
         <BoRow label="Associate meal venue" hint="Exactly one per community. Its pick up ranges decide when associates can pick up.">
-          <select className={s.select} value={settings.venue} onChange={(e) => setSetting('am.venue', e.target.value)} aria-label="Associate meal venue">
+          <select
+            className={s.select}
+            value={settings.venue}
+            onChange={(e) => setSetting('am.venue', e.target.value)}
+            aria-label="Associate meal venue"
+          >
             {Object.entries(rooms).map(([id, r]) => (
               <option key={id} value={id}>
                 {r.name}
@@ -88,7 +96,13 @@ export default function Page({ goto }: BoPageProps) {
           </select>
         </BoRow>
         <BoRow label="Ordering closes" hint="Minutes before a pick up range starts. NOC orders close this long before the dinner line closes.">
-          <NumberBox value={settings.cutoffMin} min={0} unit="min" aria-label="Ordering closes, minutes before pickup" onChange={(v) => v != null && v >= 0 && setSetting('am.cut', Math.floor(v))} />
+          <NumberBox
+            value={settings.cutoffMin}
+            min={0}
+            unit="min"
+            aria-label="Ordering closes, minutes before pickup"
+            onChange={(v) => v != null && v >= 0 && setSetting('am.cut', Math.floor(v))}
+          />
         </BoRow>
         <BoRow
           align="start"
@@ -107,8 +121,8 @@ export default function Page({ goto }: BoPageProps) {
           </Button>
         </BoRow>
         <p className={s.note}>
-          Eligibility: a scheduled shift unlocks ordering (ADP identity, no PIN). Salaried and management associates can plan any day. A call-off in the Scheduling App cancels the order
-          automatically. Coverage shifts are entered at the community tablet as Associate diners.
+          Eligibility: a scheduled shift unlocks ordering (ADP identity, no PIN). Salaried and management associates can plan any day. A call-off in
+          the Scheduling App cancels the order automatically. Coverage shifts are entered at the community tablet as Associate diners.
         </p>
       </BoSection>
     </BoPage>
@@ -127,13 +141,19 @@ function MenuSection({ settings, todayIso }: { settings: AssocMenuSettings; toda
   const schedule = (sched: boolean) => {
     setWeekScheduled(monday, sched);
     if (!sched) toast(`Back to draft, associates can't plan ${weekLabel(monday)}`);
-    else toast(todayIso >= monday ? `Live now, associates can plan ${weekLabel(monday)}` : `Scheduled, live ${shortDay(monday)}. Associates can plan it now.`, { tone: 'success' });
+    else
+      toast(
+        todayIso >= monday
+          ? `Live now, associates can plan ${weekLabel(monday)}`
+          : `Scheduled, live ${shortDay(monday)}. Associates can plan it now.`,
+        { tone: 'success' },
+      );
   };
 
   return (
     <BoSection
       title="Associate menu"
-      sub="Each lunch and dinner gets one chef special from that day's menu cycle, first come, first served up to the daily limit. Overnight (NOC) meals get the dinner special."
+      sub="Each lunch and dinner gets one chef special from that day's menu cycle, first come, first served up to the daily limit. Overnight (NOC) meals get the dinner special. The special of the week is on every day of its week."
       actions={
         <span className={s.status}>
           {!week.sched ? (
@@ -164,6 +184,7 @@ function MenuSection({ settings, todayIso }: { settings: AssocMenuSettings; toda
         />
         <span className={s.weekText}>{WEEK_TEXT[state]}</span>
       </div>
+      <WeekSpecialPicker monday={monday} settings={settings} />
       <div className={s.tableWrap}>
         <table className={s.table}>
           <thead>
@@ -219,7 +240,14 @@ function SpecialPicker({ date, period, settings, past }: { date: string; period:
         <option value="">No special</option>
       </select>
       {sp.recipe && (
-        <NumberBox value={sp.cap} min={0} width={60} unit="a day" aria-label={`Associates who can have the ${label}`} onChange={(v) => v != null && v >= 0 && setDaySpecialCap(date, period, v)} />
+        <NumberBox
+          value={sp.cap}
+          min={0}
+          width={60}
+          unit="a day"
+          aria-label={`Associates who can have the ${label}`}
+          onChange={(v) => v != null && v >= 0 && setDaySpecialCap(date, period, v)}
+        />
       )}
       {!sp.options.length && !sp.recipe && <span className={s.hint}>No entrée special on the cycle</span>}
       {sp.chosen && sp.options.length > 0 && (
@@ -231,16 +259,59 @@ function SpecialPicker({ date, period, settings, past }: { date: string; period:
   );
 }
 
-/** The four standing choices, each made from a Recipe Book recipe the chef can swap. */
-function StandingChoices({ settings }: { settings: AssocMenuSettings }) {
-  const soup = standingRecipe(STANDING_SLOTS.find((x) => x.id === 'am_soup')!, settings);
+/** The associate special of the week: one recipe offered every day of the week, set per week. */
+function WeekSpecialPicker({ monday, settings }: { monday: string; settings: AssocMenuSettings }) {
+  const r = weekSpecial(monday, settings);
+  const options = recipesIn('Entrees');
+  return (
+    <div className={s.weekSpecial}>
+      <span className={s.weekSpecialLabel}>Special of the week</span>
+      <div className={s.special}>
+        <select
+          className={s.select}
+          aria-label={`Associate special of the week, ${weekLabel(monday)}`}
+          value={r?.id ?? ''}
+          onChange={(e) => setWeekSpecial(monday, e.target.value || undefined)}
+        >
+          <option value="">No special of the week</option>
+          {r && !options.some((o) => o.id === r.id) && <option value={r.id}>{r.name}</option>}
+          {options.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.name}
+            </option>
+          ))}
+        </select>
+        <span className={s.hint}>
+          {r
+            ? `On the associate menu every day, ${weekLabel(monday)}, after the chef's special.`
+            : 'Pick a Recipe Book entrée to offer associates all week.'}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** The standing choices, each made from a Recipe Book recipe the chef can swap; the soup is always the soup of the day. */
+function StandingChoices({ settings, todayIso }: { settings: AssocMenuSettings; todayIso: string }) {
+  const soup = daySoup(todayIso, 'Lunch', settings) ?? daySoup(todayIso, 'Dinner', settings);
   return (
     <BoSection
       title="Standing choices · always on"
-      sub="Each choice is a Recipe Book recipe, so allergens and production counts match. Change the recipe when the sandwich of the month or soup of the week changes."
+      sub="Each choice is a Recipe Book recipe, so allergens and production counts match. Change the recipe when the sandwich of the month changes. The soup follows the dining room's soup of the day."
     >
       <div className={s.choices}>
         {STANDING_SLOTS.map((slot) => {
+          if (slot.daySoup)
+            return (
+              <div key={slot.id} className={s.choice}>
+                <div className={s.choiceHead}>
+                  <span className={s.choiceName}>Soup of the day</span>
+                  <Chip size="xs">Automatic</Chip>
+                </div>
+                <div className={s.choiceSub}>Soup: always the soup of the day (today: {soup?.name ?? 'no soup on the menu cycle'})</div>
+                <div className={s.choiceMods}>{slot.mods.map((g) => `${g.group}: ${g.options.join(', ')}`).join(' · ')}</div>
+              </div>
+            );
           const r = standingRecipe(slot, settings);
           const options = recipesIn(slot.cat, slot.sub);
           const isStandard = !settings.std[slot.id] || settings.std[slot.id] === slot.defaultRecipe;
@@ -256,7 +327,7 @@ function StandingChoices({ settings }: { settings: AssocMenuSettings }) {
                   </button>
                 )}
               </div>
-              {slot.withSoup && <div className={s.choiceSub}>Cup of the soup of the week{soup ? ` (${soup.name})` : ''}, plus</div>}
+              {slot.withSoup && <div className={s.choiceSub}>Cup of the soup of the day{soup ? ` (today: ${soup.name})` : ''}, plus</div>}
               <select
                 className={s.select}
                 value={r?.id ?? ''}

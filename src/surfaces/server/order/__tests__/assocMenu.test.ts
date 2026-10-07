@@ -3,7 +3,20 @@ import type { CatalogItem } from '../../../../domain/types';
 import { assocMealOf, assocSections, tabletItemFor } from '../menu/assocMenu';
 
 const item = (id: string, name: string, meal: CatalogItem['meal']) =>
-  ({ id, name, meal, category: 'Entrées', desc: '', residentPrice: 0, guestPrice: 0, alaPrice: 0, day: 0, avail: null, mods: [], allergens: [] }) as CatalogItem;
+  ({
+    id,
+    name,
+    meal,
+    category: 'Entrées',
+    desc: '',
+    residentPrice: 0,
+    guestPrice: 0,
+    alaPrice: 0,
+    day: 0,
+    avail: null,
+    mods: [],
+    allergens: [],
+  }) as CatalogItem;
 const items = [item('l_club', 'Turkey Club', 'Lunch'), item('d_club', 'Turkey Club', 'Dinner'), item('l_soup', 'Cheeseburger Soup', 'Lunch')];
 
 describe('the associate menu on the tablet', () => {
@@ -18,6 +31,8 @@ describe('the associate menu on the tablet', () => {
     const secs = assocSections(
       [
         { id: 'am_special', name: 'Turkey Club', sub: '', recipeIds: ['l_club'], allergens: [], mods: [], special: true },
+        { id: 'am_week', name: 'Turkey Club', sub: '', recipeIds: ['l_club'], allergens: [], mods: [], weekly: true },
+        { id: 'am_soup', name: 'Cheeseburger Soup', sub: '', recipeIds: ['l_soup'], allergens: [], mods: [], soupOfDay: true },
         { id: 'am_combo', name: 'Soup & Salad Combo', sub: '', recipeIds: ['l_soup', 'l_club'], allergens: [], mods: [] },
       ],
       'Dinner',
@@ -25,8 +40,11 @@ describe('the associate menu on the tablet', () => {
     );
     expect(secs.map((x) => [x.label, x.items.map((i) => i.id)])).toEqual([
       ["Chef's special · Turkey Club", ['d_club']],
+      ['Special of the week · Turkey Club', ['d_club']],
+      ['Soup of the day · Cheeseburger Soup', ['l_soup']],
       ['Soup & Salad Combo', ['l_soup', 'd_club']],
     ]);
+    expect(secs.map((x) => x.special)).toEqual([true, true, false, false]);
     expect(assocMealOf('Breakfast')).toBe('Lunch');
   });
 });

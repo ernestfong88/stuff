@@ -47,7 +47,9 @@
   font-size: 13px;
 }
 .select:focus-visible {
-  box-shadow: inset 0 0 0 1px var(--ocean), var(--focus);
+  box-shadow:
+    inset 0 0 0 1px var(--ocean),
+    var(--focus);
 }
 .status {
   display: inline-flex;
@@ -154,4 +156,18 @@
 .weekText {
   font-size: 13px;
   color: var(--s700);
+}
+.weekSpecial {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--clay-100);
+}
+.weekSpecialLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
 }

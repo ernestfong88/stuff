@@ -1,12 +1,14 @@
 /**
  * The associate menu for a date and meal: the chef's special from that
- * day's menu cycle, then the standing choices, each made from a Recipe Book
- * recipe. The Associate App, the Manager tablet and Back Office all read it
+ * day's menu cycle, the associate special of the week, then the standing
+ * choices, each made from a Recipe Book recipe. The soup is always the
+ * dining room's soup of the day from the menu cycle. The Associate App, the Manager tablet and Back Office all read it
  * here, so the three never disagree.
  *
  * Back Office keeps the chef's calls with the other service settings:
  *   am.days[date][Lunch|Dinner]  {recipeId (null: none), cap}
  *   am.std[slotId]               recipe for a standing choice
+ *   am.wk[monday]                recipe for the associate special of the week (absent: none)
  *   am.weeks[monday].sched       the week is open to plan
  *   am.venue                     the venue whose cycle and kitchen serve associates
  */
@@ -17,7 +19,9 @@ import {
   DEFAULT_SPECIAL_CAP,
   STANDING_SLOTS,
   closedReason,
+  soupOfTheDay,
   specialPeriodOf,
+  weekSpecialFor,
   type AssocMealKind,
   type AssocMenuItem,
   type DayPicks,
@@ -28,7 +32,7 @@ import {
 import { DEFAULT_ASSOC_VENUE } from '../domain/assocMeals/settings';
 import { useShared } from '../lib/sharedStore';
 import { menuEditsStore } from './menuEdits';
-import { cycleEntrees } from './production';
+import { cycleEntrees, cycleItems } from './production';
 import { recipeInfo, type RecipeInfo } from './recipes';
 import { getSetting, serviceConfig, setSetting } from './serviceConfig';
 import { venueSettingsStore } from './venueSettings';
@@ -37,6 +41,8 @@ export interface AssocMenuSettings {
   days: Record<string, DayPicks>;
   std: Record<string, string>;
   weeks: Record<string, Partial<MenuWeek>>;
+  /** Associate special of the week, by the week's Monday. */
+  wk: Record<string, string>;
   /** Room key of the venue that serves associates. */
   venue: string;
 }
@@ -47,6 +53,7 @@ export function assocMenuSettings(): AssocMenuSettings {
     days: getSetting<Record<string, DayPicks> | undefined>('am.days') ?? {},
     std: getSetting<Record<string, string> | undefined>('am.std') ?? {},
     weeks: getSetting<Record<string, Partial<MenuWeek>> | undefined>('am.weeks') ?? {},
+    wk: getSetting<Record<string, string> | undefined>('am.wk') ?? {},
     venue: venue && rooms[venue] ? venue : DEFAULT_ASSOC_VENUE,
   };
 }
@@ -89,19 +96,64 @@ export function daySpecial(date: string, period: 'Lunch' | 'Dinner', s: AssocMen
   };
 }
 
+// ─── Special of the week ─────────────────────────────────────────────────
+
+/** The associate special of the week a date falls in, or undefined when none is set. */
+export function weekSpecial(date: string, s: AssocMenuSettings = assocMenuSettings()): RecipeInfo | undefined {
+  return recipeInfo(weekSpecialFor(date, s.wk));
+}
+
+function weekItem(date: string, s: AssocMenuSettings): AssocMenuItem[] {
+  const r = weekSpecial(date, s);
+  if (!r) return [];
+  return [
+    {
+      id: 'am_week',
+      name: r.name,
+      sub: `All week${r.desc ? ` · ${r.desc}` : ''}`,
+      recipeIds: [r.id],
+      allergens: r.allergens ?? [],
+      weekly: true,
+      mods: [],
+    },
+  ];
+}
+
+// ─── Soup of the day ─────────────────────────────────────────────────────
+
+/** The dining room's soup of the day for a date's meal period, from the venue's menu cycle. */
+export function daySoup(date: string, period: 'Lunch' | 'Dinner', s: AssocMenuSettings = assocMenuSettings()): RecipeInfo | undefined {
+  return recipeInfo(soupOfTheDay(cycleItems(s.venue, date, period), (id) => recipeInfo(id)?.sub));
+}
+
 // ─── Standing choices ────────────────────────────────────────────────────
 
-/** The recipe behind a standing choice: the chef's pick, else the standard one. */
+/** The recipe behind a hand-picked standing choice: the chef's pick, else the standard one. */
 export function standingRecipe(slot: StandingSlot, s: AssocMenuSettings = assocMenuSettings()): RecipeInfo | undefined {
   return recipeInfo(s.std[slot.id]) ?? recipeInfo(slot.defaultRecipe);
 }
 
-const slotById = (id: string) => STANDING_SLOTS.find((x) => x.id === id)!;
-
-/** The standing choices as menu items, named after their recipes. */
-export function standingItems(s: AssocMenuSettings = assocMenuSettings()): AssocMenuItem[] {
-  const soup = standingRecipe(slotById('am_soup'), s);
+/**
+ * The standing choices as menu items, named after their recipes. The soup
+ * (alone and in the combo) is the given soup of the day; with no soup that
+ * day, both are left off.
+ */
+export function standingItems(soup: RecipeInfo | undefined, s: AssocMenuSettings = assocMenuSettings()): AssocMenuItem[] {
   return STANDING_SLOTS.flatMap((slot): AssocMenuItem[] => {
+    if (slot.daySoup) {
+      if (!soup) return [];
+      return [
+        {
+          id: slot.id,
+          name: soup.name,
+          sub: `Today's soup${soup.desc ? ` · ${soup.desc}` : ''}`,
+          recipeIds: [soup.id],
+          allergens: soup.allergens ?? [],
+          soupOfDay: true,
+          mods: slot.mods,
+        },
+      ];
+    }
     const r = standingRecipe(slot, s);
     if (!r) return [];
     if (slot.withSoup) {
@@ -117,7 +169,16 @@ export function standingItems(s: AssocMenuSettings = assocMenuSettings()): Assoc
         },
       ];
     }
-    return [{ id: slot.id, name: r.name, sub: `${slot.label} · ${r.desc ?? ''}`.replace(/ · $/, ''), recipeIds: [r.id], allergens: r.allergens ?? [], mods: slot.mods }];
+    return [
+      {
+        id: slot.id,
+        name: r.name,
+        sub: `${slot.label} · ${r.desc ?? ''}`.replace(/ · $/, ''),
+        recipeIds: [r.id],
+        allergens: r.allergens ?? [],
+        mods: slot.mods,
+      },
+    ];
   });
 }
 
@@ -147,16 +208,36 @@ function specialItem(sp: DaySpecial, meal: AssocMealKind): AssocMenuItem[] {
  * far out, or the week is still a draft); `anyDay` skips that check, for a
  * manager fixing an order.
  */
-export function assocMenuFor(date: string, meal: AssocMealKind, todayIso: string, s: AssocMenuSettings = assocMenuSettings(), anyDay = false): AssocMenuItem[] | null {
+export function assocMenuFor(
+  date: string,
+  meal: AssocMealKind,
+  todayIso: string,
+  s: AssocMenuSettings = assocMenuSettings(),
+  anyDay = false,
+): AssocMenuItem[] | null {
   if (!anyDay && closedReason(date, todayIso, s.weeks)) return null;
-  return [...specialItem(daySpecial(date, specialPeriodOf(meal), s), meal), ...standingItems(s)];
+  const period = specialPeriodOf(meal);
+  return [...specialItem(daySpecial(date, period, s), meal), ...weekItem(date, s), ...standingItems(daySoup(date, period, s), s)];
 }
 
-/** Every item that could be ordered on a date (both specials and the standing choices), for lists and sorting. */
+/**
+ * Every item that could be ordered on a date (both chef's specials, the
+ * special of the week and the standing choices with lunch's and, when it
+ * differs, dinner's soup), for lists and sorting.
+ */
 export function assocMenuForDay(date: string, s: AssocMenuSettings = assocMenuSettings()): AssocMenuItem[] {
   const lunch = specialItem(daySpecial(date, 'Lunch', s), 'Lunch').map((x) => ({ ...x, id: 'am_special_lunch' }));
   const dinner = specialItem(daySpecial(date, 'Dinner', s), 'Dinner').map((x) => ({ ...x, id: 'am_special_dinner' }));
-  return [...lunch, ...dinner, ...standingItems(s)];
+  const lunchSoup = daySoup(date, 'Lunch', s);
+  const dinnerSoup = daySoup(date, 'Dinner', s);
+  const standing = standingItems(lunchSoup ?? dinnerSoup, s);
+  const dinnerOnly =
+    lunchSoup && dinnerSoup && dinnerSoup.id !== lunchSoup.id
+      ? standingItems(dinnerSoup, s)
+          .filter((x) => x.recipeIds.includes(dinnerSoup.id))
+          .map((x) => ({ ...x, id: `${x.id}_dinner` }))
+      : [];
+  return [...lunch, ...dinner, ...weekItem(date, s), ...standing, ...dinnerOnly];
 }
 
 /** Find an item on a date's menu by the name an order carries. */
@@ -183,6 +264,11 @@ export function setDaySpecialCap(date: string, period: 'Lunch' | 'Dinner', cap: 
 /** Swap the recipe behind a standing choice (undefined: back to the standard recipe). */
 export function setStandingRecipe(slotId: string, recipeId: string | undefined): void {
   setSetting(`am.std.${slotId}`, recipeId);
+}
+
+/** Set the associate special of the week for the week starting this Monday (undefined: none). */
+export function setWeekSpecial(monday: string, recipeId: string | undefined): void {
+  setSetting(`am.wk.${monday}`, recipeId || undefined);
 }
 
 export function setWeekScheduled(monday: string, sched: boolean): void {
@@ -216,7 +302,8 @@ export function recipeAsItem(r: RecipeInfo): CatalogItem {
 
 /**
  * Make every dish on the associate menu orderable from the tablet: the
- * standing choices and this week's specials. A recipe the dining room menu
+ * standing choices, the soups of the day and the next two weeks' specials
+ * (chef's specials and specials of the week). A recipe the dining room menu
  * already carries keeps its own item.
  */
 export function syncAssocItems(todayIso: string, s: AssocMenuSettings = assocMenuSettings()): void {

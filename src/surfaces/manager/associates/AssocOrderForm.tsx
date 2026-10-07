@@ -4,7 +4,18 @@ import { now } from '../../../lib/clock';
 import { Button, TextField, useConfirm } from '../../../ui';
 import { itemsLeft, missingChoice } from '../../../domain/assocMeals/menu';
 import { assocMenuFor, useAssocMenuSettings } from '../../../store/assocMenu';
-import { CUTOFF_MIN, PROGRAM_NAMES, isLive, mealOfWindow, orderChoices, orderFormReady, orderFormTodo, rangeLabel, windowOpen, type AssocWindow } from './assocProgram';
+import {
+  CUTOFF_MIN,
+  PROGRAM_NAMES,
+  isLive,
+  mealOfWindow,
+  orderChoices,
+  orderFormReady,
+  orderFormTodo,
+  rangeLabel,
+  windowOpen,
+  type AssocWindow,
+} from './assocProgram';
 import s from './AssocOrderForm.module.css';
 
 export interface AssocFormValue {
@@ -87,7 +98,14 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
         <div className={s.who}>{editing.associate}</div>
       ) : (
         <>
-          <TextField list={listId} autoFocus value={v.associate} onChange={(e) => set('associate', e.target.value)} placeholder="Associate name" aria-label="Associate name" />
+          <TextField
+            list={listId}
+            autoFocus
+            value={v.associate}
+            onChange={(e) => set('associate', e.target.value)}
+            placeholder="Associate name"
+            aria-label="Associate name"
+          />
           <datalist id={listId}>
             {names.map((n) => (
               <option key={n} value={n} />
@@ -104,7 +122,13 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
           const soldOut = left === 0;
           return (
             <option key={m.id} value={m.name} disabled={soldOut}>
-              {m.special ? `Chef's special: ${m.name}` : m.name}
+              {m.special
+                ? `Chef's special: ${m.name}`
+                : m.weekly
+                  ? `Special of the week: ${m.name}`
+                  : m.soupOfDay
+                    ? `Soup of the day: ${m.name}`
+                    : m.name}
               {m.cap != null ? ` (${m.cap - (left ?? 0)}/${m.cap}${soldOut ? ', sold out' : ''})` : ''}
             </option>
           );
@@ -112,7 +136,13 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
       </select>
 
       {item?.mods.map((g) => (
-        <select key={g.group} className={s.select} value={v.mods[g.group] ?? ''} onChange={(e) => set('mods', { ...v.mods, [g.group]: e.target.value })} aria-label={g.group}>
+        <select
+          key={g.group}
+          className={s.select}
+          value={v.mods[g.group] ?? ''}
+          onChange={(e) => set('mods', { ...v.mods, [g.group]: e.target.value })}
+          aria-label={g.group}
+        >
           <option value="">{g.group}, pick one</option>
           {g.options.map((o) => (
             <option key={o} value={o}>
@@ -144,7 +174,12 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
       {overCutoff && (
         <div className={s.override}>
           <span className={s.overrideTitle}>Past the {CUTOFF_MIN} minute cutoff. Manager override, say why.</span>
-          <TextField value={v.reason} onChange={(e) => set('reason', e.target.value)} placeholder="Reason, for example covering a shift" aria-label="Reason for the override" />
+          <TextField
+            value={v.reason}
+            onChange={(e) => set('reason', e.target.value)}
+            placeholder="Reason, for example covering a shift"
+            aria-label="Reason for the override"
+          />
         </div>
       )}
 
@@ -154,7 +189,12 @@ export function AssocOrderForm({ date, all, windows, window: from, editing, onSa
           {editing ? 'Save change' : 'Place order'}
         </Button>
         {editing && onCancelOrder && (
-          <Button variant="softDanger" disabled={!canCancel} onClick={cancelOrder} title={canCancel ? undefined : 'Add a reason for the override first'}>
+          <Button
+            variant="softDanger"
+            disabled={!canCancel}
+            onClick={cancelOrder}
+            title={canCancel ? undefined : 'Add a reason for the override first'}
+          >
             Cancel order
           </Button>
         )}

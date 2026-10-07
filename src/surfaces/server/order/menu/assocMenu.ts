@@ -1,7 +1,8 @@
 /**
  * The associate menu on the tablet: when a server orders an associate's
- * meal, the menu is only the day's chef special and the standing choices,
- * each shown as the tablet items its recipes are.
+ * meal, the menu is only the day's chef special, the special of the week
+ * and the standing choices (the soup is the soup of the day), each shown as
+ * the tablet items its recipes are.
  */
 import { catalog } from '../../../../data';
 import type { AssocMealKind, AssocMenuItem } from '../../../../domain/assocMeals/menu';
@@ -13,7 +14,17 @@ export interface AssocSection {
   key: string;
   label: string;
   sub: string;
+  /** Shown as a special: the chef's special of the day or the special of the week. */
+  special: boolean;
   items: MenuItem[];
+}
+
+/** The section heading for a choice: what kind of choice it is, then its name. */
+export function assocSectionLabel(m: AssocMenuItem): string {
+  if (m.special) return `Chef's special · ${m.name}`;
+  if (m.weekly) return `Special of the week · ${m.name}`;
+  if (m.soupOfDay) return `Soup of the day · ${m.name}`;
+  return m.name;
 }
 
 /** The meal an associate order counts as: breakfast and lunch get the lunch special, dinner the dinner one. */
@@ -33,8 +44,9 @@ export function tabletItemFor(recipeId: string, meal: MealName, items: CatalogIt
 export function assocSections(menu: AssocMenuItem[], meal: MealName, items: CatalogItem[] = catalog): AssocSection[] {
   return menu.map((m) => ({
     key: m.id,
-    label: m.special ? `Chef's special · ${m.name}` : m.name,
+    label: assocSectionLabel(m),
     sub: m.sub,
+    special: !!(m.special || m.weekly),
     items: m.recipeIds.map((id) => tabletItemFor(id, meal, items)).filter((x): x is MenuItem => !!x),
   }));
 }

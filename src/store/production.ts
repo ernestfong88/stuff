@@ -22,6 +22,7 @@
  *   checkMark(state, venueId, iso, meal, itemId) → CheckMark | null
  *   productionDay(venueId, dayOffset) → ProductionDay               (dayOffset 0 to PLAN_DAYS - 1)
  *   cycleEntrees(venueId, iso, meal) → [{recipeId, name}]           (the day's entrée specials)
+ *   cycleItems(venueId, iso, meal) → [{recipeId, name, category}]   (everything the cycle places that day)
  *   productionCount(state, venueId, iso, row) → ProductionCount
  *   productionOpen(state, dayOffsets?) → {open, total, byMeal}      (counts still to confirm)
  *   prepTasks(state) → PrepTask[]
@@ -403,7 +404,8 @@ export function specialForecast(special: Pick<PrepSpecial, 'share'>, meal: PrepM
 export function specialAmount(state: ProductionState, venueId: string, iso: string, meal: PrepMeal, special: PrepSpecial): SpecialAmount {
   const set = state.amounts[specialKey(venueId, iso, meal, special.slot)];
   const offset = dayOffsetOf(iso);
-  const row = offset == null ? undefined : productionDay(venueId, offset).rows.find((r) => r.kind === 'special' && r.meal === meal && r.name === special.slot);
+  const row =
+    offset == null ? undefined : productionDay(venueId, offset).rows.find((r) => r.kind === 'special' && r.meal === meal && r.name === special.slot);
   const count = row && productionCount(state, venueId, iso, row);
   const confirmed = count?.ok && count.by ? { n: count.make, by: count.by, at: count.at ?? 0 } : null;
   const latest = set && confirmed ? (confirmed.at > set.at ? confirmed : set) : (set ?? confirmed);
@@ -474,7 +476,11 @@ export function addPrepNote(venueId: string, iso: string, meal: PrepMeal, name: 
 
 export function removePrepNote(venueId: string, iso: string, meal: PrepMeal, name: string, noteId: string): void {
   const current = prepNotes(productionStore.get(), venueId, iso, meal, name);
-  patchMap('notes', noteKey(venueId, iso, meal, name), current.filter((n) => n.id !== noteId));
+  patchMap(
+    'notes',
+    noteKey(venueId, iso, meal, name),
+    current.filter((n) => n.id !== noteId),
+  );
 }
 
 // ─── Prep checklist ──────────────────────────────────────────────────────
@@ -695,7 +701,9 @@ export function productionDay(venueId: string, dayOffset: number): ProductionDay
     ];
   });
   const cycle = venue.menu === 'cycle' ? cycleRows(venue, date) : { cycleDay: 0, rows: [] };
-  const rows = [...cycle.rows, ...anyDay].sort((a, b) => MEAL_ORDER[a.meal] - MEAL_ORDER[b.meal] || (a.kind === 'anyDay' ? 1 : 0) - (b.kind === 'anyDay' ? 1 : 0));
+  const rows = [...cycle.rows, ...anyDay].sort(
+    (a, b) => MEAL_ORDER[a.meal] - MEAL_ORDER[b.meal] || (a.kind === 'anyDay' ? 1 : 0) - (b.kind === 'anyDay' ? 1 : 0),
+  );
   return { offset: dayOffset, iso: isoDate(dayOffset), date, cycleDay: cycle.cycleDay, rows };
 }
 
@@ -704,12 +712,19 @@ export function productionDay(venueId: string, dayOffset: number): ProductionDay
  * meal, in menu order: what the chef can offer associates that day.
  */
 export function cycleEntrees(venueId: string, iso: string, meal: PrepMeal): Array<{ recipeId: string; name: string }> {
+  return cycleItems(venueId, iso, meal)
+    .filter((r) => r.category === 'Entrees')
+    .map(({ recipeId, name }) => ({ recipeId, name }));
+}
+
+/** Everything a venue's menu cycle places on a date ("YYYY-MM-DD") for a meal, in menu order, with its menu category. */
+export function cycleItems(venueId: string, iso: string, meal: PrepMeal): Array<{ recipeId: string; name: string; category: string }> {
   const venue = getProductionVenue(venueId);
   if (venue.menu !== 'cycle') return [];
   const [y, m, d] = iso.split('-').map(Number);
   return cycleRows(venue, new Date(y, m - 1, d))
-    .rows.filter((r) => r.meal === meal && r.entree && r.recipeId)
-    .map((r) => ({ recipeId: r.recipeId!, name: r.name }));
+    .rows.filter((r) => r.meal === meal && r.recipeId)
+    .map((r) => ({ recipeId: r.recipeId!, name: r.name, category: r.category }));
 }
 
 /** The morning crew already confirmed breakfast and most of lunch today; a few dinner counts are left. */
@@ -718,7 +733,13 @@ function seedCount(venueId: string, iso: string, row: ProductionRow): Production
   const h = seedHash(venueId + row.id);
   const done = row.meal === 'Breakfast' || (row.meal === 'Lunch' && h % 7 !== 0) || (row.meal === 'Dinner' && h % 5 > 1);
   if (!done) return null;
-  return { ok: true, make: row.recommended, assoc: row.entree ? 1 + (seedHash(row.id) % 4) : null, by: 'J. Rivera', at: Math.min(todayAt(6, 0), now()) };
+  return {
+    ok: true,
+    make: row.recommended,
+    assoc: row.entree ? 1 + (seedHash(row.id) % 4) : null,
+    by: 'J. Rivera',
+    at: Math.min(todayAt(6, 0), now()),
+  };
 }
 
 export function productionCount(state: ProductionState, venueId: string, iso: string, row: ProductionRow): ProductionCount {
@@ -739,7 +760,10 @@ export function updateProductionCounts(venueId: string, iso: string, rows: Produ
 }
 
 /** Counts not yet confirmed across every venue (the dashboard's "to confirm"). */
-export function productionOpen(state: ProductionState, dayOffsets: number[] = [0]): { open: number; total: number; byMeal: Partial<Record<PrepMeal, number>> } {
+export function productionOpen(
+  state: ProductionState,
+  dayOffsets: number[] = [0],
+): { open: number; total: number; byMeal: Partial<Record<PrepMeal, number>> } {
   let open = 0;
   let total = 0;
   const byMeal: Partial<Record<PrepMeal, number>> = {};
@@ -797,7 +821,13 @@ export interface SpecialTally {
  * production count) and ordered so far: every line sent today on an open or
  * closed check, plus associate meals not cancelled.
  */
-export function specialsMadeAndOrdered(state: ProductionState, venueId: string, orders: Order[], assocMeals: AssocMeal[], at = now()): SpecialTally[] {
+export function specialsMadeAndOrdered(
+  state: ProductionState,
+  venueId: string,
+  orders: Order[],
+  assocMeals: AssocMeal[],
+  at = now(),
+): SpecialTally[] {
   const start = new Date(at);
   start.setHours(0, 0, 0, 0);
   const iso = isoDate(0);

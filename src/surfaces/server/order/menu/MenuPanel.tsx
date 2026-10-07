@@ -74,7 +74,7 @@ export function MenuPanel({
   const tabs = menuTabs(o.meal);
   const sections = menuSections(o.meal, tab, { drinkGroup, room: o.room, search, cfg });
   const isResident = diner.kind === 'resident' && !diner.isGuest;
-  // An associate's meal is locked to the associate menu: the chef's special and the standing choices.
+  // An associate's meal is locked to the associate menu: the chef's special, the special of the week and the standing choices.
   const assocOnly = !!o.assoc || diner.kind === 'associate';
   useAssocMenuSettings();
   const assoc = assocOnly ? assocSections(todaysAssocMenu(o.meal, isoDate(0)), o.meal) : [];
@@ -99,7 +99,7 @@ export function MenuPanel({
       <DinerHead diner={diner} onProfile={onProfile} />
       {assocOnly && (
         <div className={s.assocNote}>
-          <b>Associate menu.</b> Only the chef's special and the standing choices can be ordered for an associate.
+          <b>Associate menu.</b> Only the chef's special, the special of the week and the standing choices can be ordered for an associate.
         </div>
       )}
       {!assocOnly && <SearchField value={search} onChange={setSearch} placeholder={`Search ${o.meal.toLowerCase()} menu`} className={s.search} />}
@@ -127,13 +127,13 @@ export function MenuPanel({
       {assocOnly && (
         <div className={s.grid}>
           {assoc.map((sec) => (
-            <SectionBlock key={sec.key} section={{ key: sec.key, kind: sec.key === 'am_special' ? 'special' : 'everyday', label: sec.label, items: sec.items }}>
+            <SectionBlock key={sec.key} section={{ key: sec.key, kind: sec.special ? 'special' : 'everyday', label: sec.label, items: sec.items }}>
               {sec.items.map((it) => (
                 <MenuTile
                   key={it.id}
                   item={it}
                   price={0}
-                  special={sec.key === 'am_special'}
+                  special={sec.special}
                   allergic={it.allergens.some((a) => person?.allergies?.includes(a))}
                   left={availableCount(it.id, dining.orders)}
                   onAdd={() => tap(it)}
@@ -147,33 +147,33 @@ export function MenuPanel({
         </div>
       )}
       {!assocOnly && (
-      <div className={s.grid}>
-        {tab === 'Sides' && !search && sideWait === diner.id && (
-          <div className={s.sideNote}>This entree has no side. Adding one is optional: tap a side, another item, the next diner or Send.</div>
-        )}
-        {sections.map((sec) => (
-          <SectionBlock key={sec.key} section={sec}>
-            {sec.items.map((it) => (
-              <MenuTile
-                key={it.id}
-                item={it}
-                price={isResident ? it.residentPrice : it.guestPrice}
-                special={it.day === TODAY_MENU_DAY || !!it.special}
-                allergic={it.allergens.some((a) => person?.allergies?.includes(a))}
-                left={availableCount(it.id, dining.orders)}
-                tint={sec.tint}
-                onAdd={() => tap(it)}
-                onModify={() => setModItem(it)}
-              />
-            ))}
-          </SectionBlock>
-        ))}
-        {sections.length === 0 && (
-          <div className={s.empty}>
-            {search ? `No ${o.meal.toLowerCase()} items match “${search}”.` : "Nothing on today's menu in this category."}
-          </div>
-        )}
-      </div>
+        <div className={s.grid}>
+          {tab === 'Sides' && !search && sideWait === diner.id && (
+            <div className={s.sideNote}>This entree has no side. Adding one is optional: tap a side, another item, the next diner or Send.</div>
+          )}
+          {sections.map((sec) => (
+            <SectionBlock key={sec.key} section={sec}>
+              {sec.items.map((it) => (
+                <MenuTile
+                  key={it.id}
+                  item={it}
+                  price={isResident ? it.residentPrice : it.guestPrice}
+                  special={it.day === TODAY_MENU_DAY || !!it.special}
+                  allergic={it.allergens.some((a) => person?.allergies?.includes(a))}
+                  left={availableCount(it.id, dining.orders)}
+                  tint={sec.tint}
+                  onAdd={() => tap(it)}
+                  onModify={() => setModItem(it)}
+                />
+              ))}
+            </SectionBlock>
+          ))}
+          {sections.length === 0 && (
+            <div className={s.empty}>
+              {search ? `No ${o.meal.toLowerCase()} items match “${search}”.` : "Nothing on today's menu in this category."}
+            </div>
+          )}
+        </div>
       )}
       {modItem && (
         <ModifierEditor

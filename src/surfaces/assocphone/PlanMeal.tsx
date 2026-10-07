@@ -9,15 +9,7 @@ import { assocMenuFor, useAssocMenuSettings } from '../../store/assocMenu';
 import type { AssocSettings } from '../../domain/assocMeals/settings';
 import { openWindows } from '../../domain/assocMeals/planning';
 import { dayName, nearestToBreak, shiftMeals, type Shift } from '../../domain/assocMeals/shifts';
-import {
-  loadTag,
-  minutesLabel,
-  rangeLabel,
-  windowCap,
-  windowLoad,
-  windowMinutes,
-  type AssocMealName,
-} from '../../domain/assocMeals/windows';
+import { loadTag, minutesLabel, rangeLabel, windowCap, windowLoad, windowMinutes, type AssocMealName } from '../../domain/assocMeals/windows';
 import { pickedMods } from './myMeals';
 import s from './PlanMeal.module.css';
 
@@ -74,7 +66,11 @@ export function PlanMeal({ shift, editing, anyTime, todayIso, settings, meals, o
         : editing
           ? 'Save changes'
           : 'Plan this meal';
-  const summary = item ? [item.name + (modsText(item, picked) ? ` (${modsText(item, picked)})` : ''), pickup && rangeLabel(windowMinutes(pickup) ?? 0)].filter(Boolean).join(' · ') : '';
+  const summary = item
+    ? [item.name + (modsText(item, picked) ? ` (${modsText(item, picked)})` : ''), pickup && rangeLabel(windowMinutes(pickup) ?? 0)]
+        .filter(Boolean)
+        .join(' · ')
+    : '';
 
   const place = () => {
     if (!ready || !item || !pickup) return;
@@ -100,9 +96,7 @@ export function PlanMeal({ shift, editing, anyTime, todayIso, settings, meals, o
           <ChevronLeft size={18} strokeWidth={2.6} aria-hidden />
           Back
         </button>
-        <h1 className={s.title}>
-          {editing ? `Change meal · ${dayName(shift.date, todayIso)}` : `${dayName(shift.date, todayIso)} · ${meal}`}
-        </h1>
+        <h1 className={s.title}>{editing ? `Change meal · ${dayName(shift.date, todayIso)}` : `${dayName(shift.date, todayIso)} · ${meal}`}</h1>
       </header>
       {mealChoices.length > 1 && (
         <div className={s.mealChips} role="group" aria-label="Meal">
@@ -137,6 +131,7 @@ export function PlanMeal({ shift, editing, anyTime, todayIso, settings, meals, o
                       }}
                     >
                       <span className={s.optionText}>
+                        {(x.weekly || x.soupOfDay) && <span className={s.optionKicker}>{x.weekly ? 'Special of the week' : 'Soup of the day'}</span>}
                         <span className={s.optionName}>{x.name}</span>
                         <span className={s.optionSub}>{x.sub}</span>
                         {x.allergens.length > 0 && <span className={s.optionAllergens}>Contains: {x.allergens.join(', ')}</span>}

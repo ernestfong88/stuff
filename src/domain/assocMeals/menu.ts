@@ -5,8 +5,11 @@
  *     (lunch and dinner; overnight NOC meals get the dinner special, since
  *     the dinner line makes them). The chef picks which entrée special and
  *     how many associates can have it, first come, first served;
- *   - the four standing choices, always on, each a Recipe Book recipe the
- *     chef can swap (this month's sandwich, this week's soup ...).
+ *   - the associate special of the week: one Recipe Book recipe the chef
+ *     sets per week (weeks start Monday), on every day of that week;
+ *   - the standing choices, always on, each a Recipe Book recipe the chef
+ *     can swap (this month's sandwich ...). The soup isn't picked by hand:
+ *     it is always the dining room's soup of the day, from the menu cycle.
  *
  * A week is a Draft until the chef schedules it, Scheduled until its
  * Monday, then Active. Associates plan only on scheduled or active weeks, up
@@ -42,6 +45,10 @@ export interface AssocMenuItem {
   /** The meals that share the cap (dinner and NOC share the dinner special). */
   capMeals?: AssocMealKind[];
   special?: boolean;
+  /** The associate special of the week. */
+  weekly?: boolean;
+  /** The dining room's soup of the day (alone, not the combo). */
+  soupOfDay?: boolean;
   mods: ModChoice[];
 }
 
@@ -79,8 +86,10 @@ export interface StandingSlot {
   sub: string;
   defaultRecipe: string;
   mods: ModChoice[];
-  /** The combo: a cup of the Soup of the Week plus this slot's side salad. */
+  /** The combo: a cup of the soup of the day plus this slot's side salad. */
   withSoup?: boolean;
+  /** Not picked by hand: always the dining room's soup of the day. */
+  daySoup?: boolean;
 }
 
 export const STANDING_SLOTS: StandingSlot[] = [
@@ -105,11 +114,12 @@ export const STANDING_SLOTS: StandingSlot[] = [
   },
   {
     id: 'am_soup',
-    label: 'Soup of the week',
+    label: 'Soup of the day',
     cat: 'Starters',
     sub: 'Soup',
     defaultRecipe: 'l_cbsoup',
     mods: [{ group: 'Size', options: ['Cup', 'Bowl'] }],
+    daySoup: true,
   },
   {
     id: 'am_combo',
@@ -123,6 +133,22 @@ export const STANDING_SLOTS: StandingSlot[] = [
 ];
 
 export const COMBO_NAME = 'Soup & Salad Combo';
+
+/**
+ * The soup of the day: the first Starters item on the day's menu cycle for
+ * the meal whose recipe is a soup. Null when the cycle has no soup that day.
+ */
+export function soupOfTheDay(
+  cycleItems: Array<{ recipeId?: string; category: string }>,
+  subOf: (recipeId: string) => string | undefined,
+): string | null {
+  return cycleItems.find((x) => x.category === 'Starters' && x.recipeId && subOf(x.recipeId) === 'Soup')?.recipeId ?? null;
+}
+
+/** The associate special of the week a date falls in (weeks keyed by their Monday), or null. */
+export function weekSpecialFor(date: string, weekly: Record<string, string | null | undefined> | undefined): string | null {
+  return weekly?.[mondayOf(date)] || null;
+}
 
 // ─── Dates and weeks ─────────────────────────────────────────────────────
 
@@ -168,7 +194,8 @@ export const CLOSED_TEXT: Record<ClosedReason, string> = {
 export function itemsLeft(meals: AssocMeal[], date: string, item: AssocMenuItem, skipId?: string): number | null {
   if (item.cap == null) return null;
   const taken = meals.filter(
-    (o) => o.date === date && o.item === item.name && o.id !== skipId && isLive(o) && (!item.capMeals || item.capMeals.includes(o.meal as AssocMealKind)),
+    (o) =>
+      o.date === date && o.item === item.name && o.id !== skipId && isLive(o) && (!item.capMeals || item.capMeals.includes(o.meal as AssocMealKind)),
   ).length;
   return Math.max(0, item.cap - taken);
 }
