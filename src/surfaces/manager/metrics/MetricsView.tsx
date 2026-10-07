@@ -67,7 +67,7 @@ export function MetricsView({ onOpen }: { onOpen: (o: Order) => void }) {
     <div className={s.scroll}>
       <div className={s.head}>
         <h2 className={s.title}>Steps of Service</h2>
-        <Tabs<MealName> variant="pills" size="sm" value={meal} onChange={setMeal} aria-label="Meal" options={MEALS.map((m) => ({ id: m, label: m }))} />
+        <Tabs<MealName> variant="pills" size="md" value={meal} onChange={setMeal} aria-label="Meal" options={MEALS.map((m) => ({ id: m, label: m }))} />
         <span className={s.note}>
           {plural(sum.n, 'seated table')} · compared with the last 7 {ml}s
         </span>

@@ -172,7 +172,7 @@ export function HostView({ tab, onTab, onOpen }: Props) {
             (seating ? (
               <span className={s.seating} role="status">
                 {pick ? 'Seating' : 'Tap a table for'} {partyName(seating)}, party of {seating.size}
-                <Button size="sm" onClick={closePanel}>
+                <Button onClick={closePanel}>
                   Cancel
                 </Button>
               </span>

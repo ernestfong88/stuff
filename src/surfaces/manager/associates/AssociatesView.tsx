@@ -301,7 +301,7 @@ function WindowCard({ win, date, at, orders, sort, textsOn, history, setHistory,
               </div>
               {status && <span className={cx(s.status, status.cls)}>{status.text}</span>}
               {o.status !== 'Picked up' && (
-                <Button size="sm" variant="soft" onClick={() => onEdit(o)}>
+                <Button variant="soft" onClick={() => onEdit(o)}>
                   Change
                 </Button>
               )}

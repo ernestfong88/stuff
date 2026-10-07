@@ -65,7 +65,7 @@ export function SeatPanel(p: Props) {
       <div className={s.head}>
         <h2 className={s.title}>{p.table.label}</h2>
         <span className={s.sub}>{p.checks.length ? (p.checks.length === 1 ? '1 check open' : `${p.checks.length} checks open`) : 'free'}</span>
-        <Button variant="ghost" size="sm" className={s.close} onClick={p.onClose}>
+        <Button variant="ghost" className={s.close} onClick={p.onClose}>
           Close
         </Button>
       </div>
@@ -152,7 +152,7 @@ export function SeatPanel(p: Props) {
                 {x.name}
                 {x.guest ? ` (${x.guest.rel && x.guest.rel !== 'Guest' ? x.guest.rel : 'guest'})` : ''}
               </span>
-              <Button variant="ghost" size="sm" onClick={() => p.onSeats(p.seats.filter((_, j) => j !== i))}>
+              <Button variant="ghost" onClick={() => p.onSeats(p.seats.filter((_, j) => j !== i))}>
                 Remove
               </Button>
             </li>
@@ -207,7 +207,7 @@ function HeldNote({ r, at, onSeat }: { r: Reservation; at: number; onSeat: (r: R
       <span>
         Reserved <b>{hm(r.time)}</b> for {partyName(r)}, party of {r.size} ({when}). You can still seat a walk-in here.
       </span>
-      <Button size="sm" className={s.heldBtn} onClick={() => onSeat(r)}>
+      <Button className={s.heldBtn} onClick={() => onSeat(r)}>
         They’re here, seat the reservation
       </Button>
     </div>
