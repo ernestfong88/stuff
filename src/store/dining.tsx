@@ -56,14 +56,10 @@ import type {
 } from '../domain/types';
 import { now } from '../lib/clock';
 import { uid } from '../lib/id';
-import { useShared } from '../lib/sharedStore';
-import { getConfig, configStore } from './config';
+import { resetPersistedStores, useShared } from '../lib/sharedStore';
+import { getConfig } from './config';
 import { resetProduction } from './production';
-import { serviceConfig } from './serviceConfig';
 import { claimPacingLeadership, createDiningEngine, releasePacingLeadership, type DiningEngine } from './diningEngine';
-import { eightySixStore } from './eightySix';
-import { notesStore } from './notes';
-import { noticesStore } from './notices';
 import { residentPrefsStore, updateResidentPref, type ResidentPrefs } from './residentPrefs';
 import { sessionStore } from './session';
 
@@ -541,7 +537,9 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
       clearAll: () => engine.update((s) => ({ ...s, orders: [], history: [] })),
       resetDemo() {
         engine.reset();
-        for (const store of [configStore, serviceConfig, noticesStore, eightySixStore, notesStore, residentPrefsStore]) store.reset();
+        // Every persisted store across the surfaces (settings, notes, side work,
+        // layouts ...), not just the dining ones; device settings stay.
+        resetPersistedStores();
         resetProduction();
         setRecentBumps([]);
         setModUsage({});

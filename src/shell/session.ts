@@ -5,6 +5,7 @@
 import { rooms, staff } from '../data';
 import type { StaffMember } from '../domain/types';
 import { createSharedStore, useShared } from '../lib/sharedStore';
+import { pinOverrides } from '../store/pins';
 
 interface SessionState {
   /** Staff id of the signed-in associate, or null when signed out. */
@@ -15,7 +16,7 @@ interface SessionState {
 
 export const session = createSharedStore<SessionState>(
   { staffId: staff[0]?.id ?? null, venue: 'sequoia' },
-  { persistKey: 'kisco_session' },
+  { persistKey: 'kisco_session', deviceSetting: true },
 );
 
 export function useSignedIn(): StaffMember | null {
@@ -38,7 +39,8 @@ export function signOut(): void {
 
 /** Check a PIN against the roster; returns the staff member on success. */
 export function checkPin(pin: string): StaffMember | null {
-  return staff.find((s) => s.pin === pin) ?? null;
+  const reset = pinOverrides.get();
+  return staff.find((s) => (reset[s.id] ?? s.pin) === pin) ?? null;
 }
 
 export function useVenue(): [string, (v: string) => void] {

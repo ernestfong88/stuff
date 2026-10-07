@@ -7,7 +7,7 @@ import { createSharedStore, useShared } from '../../../lib/sharedStore';
 import { ALL_COMMUNITIES } from '../seed/shell';
 
 const communityStore = createSharedStore<string>(() => COMMUNITY_NAME, {
-  persistKey: 'kisco_backoffice_community',
+  persistKey: 'kisco_backoffice_community', deviceSetting: true,
   channel: 'kisco-backoffice-community',
 });
 

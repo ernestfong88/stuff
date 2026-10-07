@@ -23,6 +23,47 @@ export interface SharedStoreOptions {
   persistKey?: string;
   /** BroadcastChannel name; omit to keep the state local to this tab. */
   channel?: string;
+  /**
+   * A setting of this device (who is signed in, which community it shows)
+   * rather than demo data: "Reset demo data" leaves it alone.
+   */
+  deviceSetting?: boolean;
+}
+
+/** Persisted stores holding demo data, so one action can reset them all. */
+const demoStores = new Set<SharedStore<unknown>>();
+
+/**
+ * Keys that describe this device, not demo data: who is signed in, text
+ * size, which kitchen screen or venue it shows, bump bar keys, the demo
+ * clock, the pacing leader lease.
+ */
+const DEVICE_KEYS = new Set([
+  'kisco_session',
+  'kisco_backoffice_community',
+  'kisco_text_zoom',
+  'kisco_clock_offset',
+  'kisco_kds_screen',
+  'kisco_bump_keys',
+  'kisco_prep_venue',
+  'kisco_sw_venue',
+  'kisco-dining-leader',
+]);
+
+/**
+ * Reset every persisted store except device settings, in every tab. Stores
+ * of surfaces this tab never opened aren't registered here, so their saved
+ * copies are cleared from storage too; they start fresh when next opened.
+ */
+export function resetPersistedStores(): void {
+  demoStores.forEach((store) => store.reset());
+  try {
+    for (const key of Object.keys(window.localStorage)) {
+      if (/^kisco[._-]/.test(key) && !DEVICE_KEYS.has(key)) window.localStorage.removeItem(key);
+    }
+  } catch {
+    /* storage unavailable */
+  }
 }
 
 const instanceId = Math.random().toString(36).slice(2);
@@ -52,7 +93,7 @@ export function createSharedStore<T>(initial: T | (() => T), opts: SharedStoreOp
     emit();
   };
 
-  return {
+  const store: SharedStore<T> = {
     get: () => state,
     set(next) {
       commit(typeof next === 'function' ? (next as (p: T) => T)(state) : next, true);
@@ -66,6 +107,8 @@ export function createSharedStore<T>(initial: T | (() => T), opts: SharedStoreOp
       commit(init(), true);
     },
   };
+  if (opts.persistKey && !opts.deviceSetting) demoStores.add(store as SharedStore<unknown>);
+  return store;
 }
 
 /** Read a shared store (optionally a slice of it) in a component. */

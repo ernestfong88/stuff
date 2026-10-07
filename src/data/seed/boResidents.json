@@ -46,7 +46,7 @@
  {
   "id": "r3",
   "name": "Tom Beaumont",
-  "apt": "114",
+  "apt": "308",
   "level": "AL",
   "planId": "pl1",
   "startDay": 1,
@@ -62,7 +62,7 @@
  {
   "id": "r4",
   "name": "Rose Delgado",
-  "apt": "312",
+  "apt": "412",
   "level": "IL",
   "planId": "pl2",
   "startDay": 1,
@@ -78,7 +78,7 @@
  {
   "id": "r7",
   "name": "Frank Dellacroce",
-  "apt": "145",
+  "apt": "331",
   "level": "AL",
   "planId": "pl3",
   "startDay": 1,
@@ -91,8 +91,8 @@
  },
  {
   "id": "r6",
-  "name": "Walter Griggs",
-  "apt": "221",
+  "name": "Joan Petrovic",
+  "apt": "224",
   "level": "AL",
   "planId": "pl1",
   "startDay": 8,

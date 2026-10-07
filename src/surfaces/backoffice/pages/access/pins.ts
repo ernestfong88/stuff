@@ -3,19 +3,9 @@
  * a new PIN at once; the old one stops working.
  */
 import { staff } from '../../../../data';
-import { createSharedStore, useShared } from '../../../../lib/sharedStore';
 import type { AdpAssociate } from '../../seed/associates';
 
-/** PINs reset in the back office, by associate id. */
-const pinStore = createSharedStore<Record<string, string>>({}, { persistKey: 'kisco_backoffice_pins', channel: 'kisco-backoffice-pins' });
-
-export function usePinOverrides(): Record<string, string> {
-  return useShared(pinStore);
-}
-
-export function setPin(id: string, pin: string): void {
-  pinStore.set((p) => ({ ...p, [id]: pin }));
-}
+export { setPin, usePinOverrides } from '../../../../store/pins';
 
 /** The associate's PIN now: a reset one, else the dining roster's (tablet users), else ADP's. */
 export function currentPin(a: AdpAssociate, overrides: Record<string, string>): string | undefined {
