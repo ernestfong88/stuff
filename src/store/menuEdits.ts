@@ -101,7 +101,6 @@ export interface Recipe {
   /** Parts of the recipe AI drafted and a chef has not reviewed yet. */
   aiDrafted?: string[];
   importedFrom?: 'photo' | 'text';
-  submittedToHO?: number;
   photo?: string;
 }
 

@@ -23,7 +23,7 @@ export interface MenuName {
   status: string;
 }
 
-export type AttentionKind = 'eightySix' | 'late' | 'sick' | 'charges' | 'menuSoon' | 'noMenu';
+export type AttentionKind = 'eightySix' | 'late' | 'sick' | 'charges' | 'recipes' | 'menuSoon' | 'noMenu';
 
 export interface AttentionItem {
   kind: AttentionKind;
@@ -52,6 +52,8 @@ export interface AttentionInput {
   waiversUsedUp: string[];
   chargesToReview: number;
   amountToReview: number;
+  /** Recipes the communities sent that wait for Home Office's approval. */
+  recipesWaiting?: number;
   venues: VenueMenus[];
   menus: MenuName[];
   at: number;
@@ -100,6 +102,16 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
       title: x.chargesToReview === 1 ? 'charge to review' : 'charges to review',
       detail: `$${x.amountToReview.toFixed(2)} waiting for approval before billing.`,
       goto: { page: 'chargeReview', label: 'Review charges' },
+    });
+  if (x.recipesWaiting)
+    items.push({
+      kind: 'recipes',
+      action: `Review ${x.recipesWaiting} ${x.recipesWaiting === 1 ? 'recipe' : 'recipes'} waiting for approval`,
+      tone: 'info',
+      n: x.recipesWaiting,
+      title: x.recipesWaiting === 1 ? 'recipe waiting for approval' : 'recipes waiting for approval',
+      detail: 'Sent by the communities to Home Office.',
+      goto: { page: 'recipeApproval', label: 'Review recipes' },
     });
   const soon = x.venues.flatMap((v) =>
     v.upcoming

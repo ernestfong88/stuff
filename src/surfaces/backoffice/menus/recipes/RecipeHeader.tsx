@@ -1,14 +1,15 @@
-import { Send, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Send, Sparkles, Undo2 } from 'lucide-react';
 import { inferAllergens } from '../../../../domain/allergens';
 import { useConfig } from '../../../../store/config';
-import { Button, Chip, toast } from '../../../../ui';
+import { Button, Chip } from '../../../../ui';
 import { useBo } from '../data';
 import { categoryLabel, normCategory, proteinLabel, proteinOf, subOf } from '../model/categories';
 import { choiceWords, minutesText } from '../model/recipeDraft';
 import { defaultShort, sameShortAs } from '../model/shortNames';
-import { now } from '../../../../lib/clock';
 import { DishPic } from '../ui/DishPic';
 import { ScoreChip } from '../ui/recipeBits';
+import { ApprovalChip, canSubmit, SendForApprovalDialog, useApproval, withdrawWithUndo } from './ApprovalBits';
 import type { RecipeFormProps } from './RecipeForm';
 import s from './RecipeHeader.module.css';
 
@@ -25,6 +26,10 @@ export function RecipeHeader({ r, update, rename, short, onShort, readOnly, glob
   // No allergens recorded: show what the recipe's words suggest, marked so a chef confirms them.
   const suggested = (r.allergens ?? []).length ? [] : inferAllergens(r);
   const total = (r.prepMin ?? 0) + (r.cookMin ?? 0);
+  const approval = useApproval(r);
+  const [sending, setSending] = useState(false);
+  // The community's own saved recipes go to Home Office for approval; a new one in the dialog is saved first.
+  const approvable = !global && !draft && !readOnly && canSubmit(r);
   const line = [categoryLabel(cat), subOf(r), cat === 'Entrees' ? proteinLabel(proteinOf(r), true) : ''].filter(Boolean).join(' · ');
 
   const num = (label: string, value: number | undefined, set: (v: number | undefined) => void) => (
@@ -126,24 +131,23 @@ export function RecipeHeader({ r, update, rename, short, onShort, readOnly, glob
             <Chip tone="info">Kisco recipe · Home Office manages it</Chip>
           ) : r.scope === 'linked' ? (
             <Chip tone="outline">Linked to a Kisco recipe</Chip>
-          ) : r.submittedToHO ? (
-            <Chip tone="info" icon={<Send size={11} />}>
-              Submitted to Home Office
-            </Chip>
+          ) : approvable ? (
+            <ApprovalChip info={approval} />
           ) : null}
           <Button variant="primary" icon={<Sparkles size={15} />} disabled={busy || readOnly} onClick={onAi}>
             {busy ? 'Drafting…' : 'AI Autofill'}
           </Button>
-          {!readOnly && !draft && !r.submittedToHO && (
-            <Button
-              onClick={() => {
-                update({ submittedToHO: now() });
-                toast('Sent to Home Office for review. If approved it joins the Kisco library with your community credited.', { tone: 'success' });
-              }}
-            >
-              Submit to Home Office
+          {approvable && approval.canSend && (
+            <Button icon={<Send size={14} />} onClick={() => setSending(true)}>
+              {approval.step === 'none' ? 'Send to Home Office for approval' : 'Send again for approval'}
             </Button>
           )}
+          {approvable && approval.step === 'waiting' && (
+            <Button icon={<Undo2 size={14} />} onClick={() => withdrawWithUndo(approval)}>
+              Withdraw from approval
+            </Button>
+          )}
+          {sending && <SendForApprovalDialog r={r} info={approval} onClose={() => setSending(false)} />}
         </div>
       </div>
       <div className={s.stats}>

@@ -322,6 +322,13 @@ export const BO_SECTIONS: BoSectionDef[] = [
         component: lazy(() => import('./pages/credits')),
       },
       {
+        id: 'recipeApproval',
+        label: 'Recipe Approval',
+        blurb: 'Recipes the communities send to Home Office, to approve or deny',
+        keywords: 'recipe approval approve deny review submit submitted send home office community queue pending waiting changes requested',
+        component: lazy(() => import('./pages/recipeApproval')),
+      },
+      {
         id: 'phases',
         label: 'Release Phases',
         blurb: 'Which back office pages ship in Phase 1 and which come later',

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AlertTriangle, BadgeCheck, CalendarClock, ChevronDown, ChevronRight, Clock, Store, Ban, type LucideIcon } from 'lucide-react';
+import { AlertTriangle, BadgeCheck, CalendarClock, ChefHat, ChevronDown, ChevronRight, Clock, Store, Ban, type LucideIcon } from 'lucide-react';
 import { getItem, getResident } from '../../../../data';
 import { courseSummaries } from '../../../../domain/courses';
 import { sickConfig, sickWaiversThisMonth } from '../../../../domain/waivers';
@@ -12,7 +12,9 @@ import { navigate } from '../../../../shell/router';
 import { cx } from '../../../../ui';
 import { BoCaption, amountToReview, chargesToReview, useBilling, useCommunity } from '../../kit';
 import { useVenueSettings } from '../../../../store/venueSettings';
+import { useSubmissions } from '../../menus/approvals';
 import { useBo } from '../../menus/data';
+import { queueCounts } from '../../menus/model/recipeApproval';
 import { attentionItems, type AttentionKind } from './model/attention';
 import { useRemembered } from './parts';
 import s from './dashboard.module.css';
@@ -22,6 +24,7 @@ const ICONS: Record<AttentionKind, LucideIcon> = {
   late: Clock,
   sick: AlertTriangle,
   charges: BadgeCheck,
+  recipes: ChefHat,
   menuSoon: CalendarClock,
   noMenu: Store,
 };
@@ -35,6 +38,7 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
   const { charges } = useBilling();
   const venueSettings = useVenueSettings();
   const bo = useBo();
+  const recipesWaiting = queueCounts(useSubmissions()).waiting;
   const [open, setOpen] = useRemembered('attention', true);
   // Re-read when the late threshold changes in Alerts & Timing.
   useSetting('t.floorCook');
@@ -63,11 +67,12 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
         .map(([rid, k]) => `${getResident(rid)?.name ?? 'A resident'} (${k} of ${sick.allow})`),
       chargesToReview: chargesToReview(charges).length,
       amountToReview: amountToReview(charges),
+      recipesWaiting,
       venues: venueSettings.venues,
       menus: bo.menus,
       at: now(),
     });
-  }, [marks, cfg, community, orders, history, charges, venueSettings, bo]);
+  }, [marks, cfg, community, orders, history, charges, recipesWaiting, venueSettings, bo]);
 
   if (!items.length) return null;
   return (

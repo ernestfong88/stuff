@@ -4,6 +4,7 @@ import type { Recipe } from '../../../../store/menuEdits';
 import { cx } from '../../../../ui';
 import { BoCallout } from '../../kit';
 import type { RecipeScore } from '../model/score';
+import { ApprovalBanner, canSubmit, useApproval } from './ApprovalBits';
 import { RecipeHeader } from './RecipeHeader';
 import { IngredientsSection, MethodSection, NotesSection, NutritionSection, PlatingSection, SettingsSection, SharingSection } from './recipeSections';
 import s from './RecipeForm.module.css';
@@ -46,6 +47,7 @@ export function RecipeForm(p: RecipeFormProps) {
   const { r, readOnly, page } = p;
   const [scale, setScale] = useState<number | null>(null);
   const drafted = r.aiDrafted ?? [];
+  const approval = useApproval(r);
   const go = (k: string) =>
     document
       .getElementById('recipe-sec-' + k)
@@ -54,6 +56,7 @@ export function RecipeForm(p: RecipeFormProps) {
   return (
     <div className={s.form}>
       <RecipeHeader {...p} />
+      {page && !readOnly && !p.global && canSubmit(r) && <ApprovalBanner r={r} info={approval} />}
       {readOnly && (
         <BoCallout tone="info">
           <span className={s.calloutRow}>

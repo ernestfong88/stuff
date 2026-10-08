@@ -220,6 +220,15 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Recipe Approval
+- **New page: HO Settings › Recipe Approval.** Recipes the communities send to Home Office wait in a queue with tabs **Waiting · Approved · Denied** and their counts. Each row shows the recipe, its category, the community and who sent it when, and their note (or, once decided, who decided and their comment).
+- **Opening a recipe** shows it read-only: description, allergens and diets, portion and times, ingredients, method and equipment, plating and garnish, cook notes, nutrition and chef's notes. A re-submission lists **what changed since the version approved before**, field by field (lines added and taken out, old and new values).
+- **Approve** takes an optional comment; **Deny** needs a reason. Both record who and when, show a toast with **Undo**, and a decided recipe can be **Reopened**.
+- **In the Recipe Book**, a community's own recipe has **Send to Home Office for approval**, with an optional *What changed / why* note. It then shows a status chip on the recipe and in the list: **Pending approval**, **Approved**, **Denied**, or **Edited since approval** when an approved recipe is changed (send it again). A note under the header gives the decision and Home Office's comment; a pending recipe can be **withdrawn**. This replaces the old one-click *Submit to Home Office*.
+- **Dashboard:** *Needs your attention* adds "Review 3 recipes waiting for approval", linking to the queue.
+- The demo seeds 4 waiting recipes (Valencia Terrace's Cheeseburger Soup, and recipes from Cardinal at North Hills, La Posada and The Carnegie, one of them a re-submission), 2 approved and 1 denied with its reason. Saved in `src/store/recipeApprovals.ts` and cleared by Reset demo data.
+
+
 ### Charge Approval and Order History: filters
 - **Charge Approval has a filter bar** under the tabs. **Category** chips (All · Meal · Guest meal · Delivery · Alcohol · Added by hand, plus any other item code on file) each show how many charges they hold in the current tab and dates; pick one or several. **Date range** offers Any date, Today, Yesterday, Last 7 days, This month and Custom, which shows From and To days.
 - The filters work with every tab (To review, Ready for billing, Last 60 days). The bar shows *5 of 10 shown · $14.00* with **Clear filters**; the total leaves out voided charges. The tab counts still show the whole queue.

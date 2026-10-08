@@ -1,11 +1,14 @@
 import { ChevronRight, Copy } from 'lucide-react';
 import type { Recipe } from '../../../../store/menuEdits';
 import { Button, Chip, cx } from '../../../../ui';
+import { RECIPE_BOOK_COMMUNITY, useSubmissions } from '../approvals';
 import { dishLong } from '../model/categories';
+import { approvalStatus, type RecipeApprovalInfo } from '../model/recipeApproval';
 import type { RecipeScore } from '../model/score';
 import { TableFrame, tableClass } from '../ui/controls';
 import { DishPic } from '../ui/DishPic';
 import { CategoryCell, DietChips, FavStar, ScoreChip } from '../ui/recipeBits';
+import { ApprovalChip, canSubmit } from './ApprovalBits';
 import s from './RecipeList.module.css';
 
 export interface RecipeListProps {
@@ -33,10 +36,11 @@ function Sold({ sc }: { sc: RecipeScore | null }) {
   );
 }
 
-function Status({ r, global, onMenu, pins }: { r: Recipe; global: boolean; onMenu: boolean; pins: number }) {
+function Status({ r, global, onMenu, pins, approval }: { r: Recipe; global: boolean; onMenu: boolean; pins: number; approval: RecipeApprovalInfo | null }) {
   return (
     <span className={s.status}>
       {global && <Chip tone="info">Global · HO managed</Chip>}
+      {approval && <ApprovalChip info={approval} />}
       {r.scope === 'linked' && <Chip tone="outline">Linked to Global</Chip>}
       {r.placeholder && <Chip tone="warning">Fee / placeholder</Chip>}
       {r.retired && <Chip>Retired</Chip>}
@@ -88,6 +92,8 @@ function GlobalActions({
 
 /** Recipes as a table or as photo cards. */
 export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOpen, onAddLinked, onCopy, ownedFrom }: RecipeListProps) {
+  const subs = useSubmissions();
+  const approvalOf = (r: Recipe) => (global || !canSubmit(r) ? null : approvalStatus(subs, RECIPE_BOOK_COMMUNITY, r));
   if (!list.length) return <div className={s.none}>No recipes match these filters.</div>;
 
   if (view === 'cards') {
@@ -121,7 +127,7 @@ export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOp
                   <Sold sc={sc} />
                 </div>
                 {(r.dietFlags ?? []).length > 0 && <DietChips r={r} />}
-                <Status r={r} global={global} onMenu={onMenu.has(r.id)} pins={pinCount(r.id)} />
+                <Status r={r} global={global} onMenu={onMenu.has(r.id)} pins={pinCount(r.id)} approval={approvalOf(r)} />
                 {global && <GlobalActions r={r} owned={ownedFrom?.(r)} onAddLinked={onAddLinked} onCopy={onCopy} onOpen={onOpen} />}
               </div>
             </article>
@@ -161,7 +167,7 @@ export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOp
                           {dishLong(r.name)}
                         </button>
                       )}
-                      <Status r={r} global={global} onMenu={onMenu.has(r.id)} pins={pinCount(r.id)} />
+                      <Status r={r} global={global} onMenu={onMenu.has(r.id)} pins={pinCount(r.id)} approval={approvalOf(r)} />
                     </div>
                   </div>
                 </td>

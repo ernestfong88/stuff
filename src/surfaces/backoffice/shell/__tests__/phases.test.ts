@@ -74,7 +74,7 @@ describe('phase 3', () => {
 
 describe('the standard phase split', () => {
   it('matches the agreed list', () => {
-    expect(phaseListText({})).toBe(`Phase 1 (24 items)
+    expect(phaseListText({})).toBe(`Phase 1 (25 items)
   Screen › Server
   Screen › Manager
   Screen › PU & Delivery
@@ -98,6 +98,7 @@ describe('the standard phase split', () => {
   Back Office › HO Settings › Alerts & Timing
   Back Office › HO Settings › Shift Metrics
   Back Office › HO Settings › Meal Credits
+  Back Office › HO Settings › Recipe Approval
   Back Office › HO Settings › Release Phases
 
 Phase 2 (6 items)

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { inferAllergens } from '../../../../domain/allergens';
-import { formatDayShort } from '../../../../lib/format';
 import type { Ingredient, Nutrition, RecipeCategory } from '../../../../store/menuEdits';
 import { Button, cx, toast } from '../../../../ui';
 import { updateBo, useBo } from '../data';
@@ -519,15 +518,12 @@ export function NotesSection({ r, update, readOnly }: P) {
 export function SharingSection({ r, readOnly, global }: P) {
   const [sug, setSug] = useState('');
   const linked = r.scope === 'linked';
-  if (!(global || linked || r.submittedToHO || r.importedFrom)) return null;
+  if (!(global || linked || r.importedFrom)) return null;
   return (
     <RecipeSection title="Sharing" hint="Where this recipe comes from and who else uses it.">
       <div className={s.sharing}>
         {global && <span>This is a Kisco recipe. Home Office manages it, and their updates reach every community that uses it.</span>}
         {linked && <span>Linked to a Kisco recipe. When Home Office updates it, the change shows here too.</span>}
-        {r.submittedToHO && (
-          <span>Submitted to Home Office on {formatDayShort(r.submittedToHO)}. If approved it joins the Kisco library with your community credited.</span>
-        )}
         {r.importedFrom && <span>Drafted from {r.importedFrom === 'photo' ? 'your photo' : 'your text'}. Review every line before publishing.</span>}
       </div>
       {readOnly && (
