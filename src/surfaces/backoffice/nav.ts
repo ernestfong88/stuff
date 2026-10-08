@@ -118,9 +118,17 @@ export const BO_SECTIONS: BoSectionDef[] = [
         id: 'prepList',
         label: 'Prep Checklist',
         blurb: 'What Production Prep checks off at each meal, per venue',
-        keywords: 'prep checklist deli line reach-in reach in cleaning opening closing side work task stocked backup',
+        keywords: 'prep checklist deli line reach-in reach in stocking opening side work task stocked backup',
         phase: 3,
         component: lazy(() => import('./pages/prepList')),
+      },
+      {
+        id: 'cleaningLog',
+        label: 'Cleaning Log',
+        blurb: 'Daily and weekly cleaning, assigned and signed off with a PIN',
+        keywords: 'cleaning log sanitize sanitation weekly daily opening closing hood filters delime walk-in sign off pin assign cook',
+        phase: 3,
+        component: lazy(() => import('./pages/cleaningLog')),
       },
       {
         id: 'swLib',

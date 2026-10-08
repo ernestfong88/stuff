@@ -8,7 +8,7 @@ describe('release phases', () => {
 
   it('starts with the agreed split: KDS Settings in Phase 2, production, side work, kiosk and export in Phase 3', () => {
     expect(phaseTwoPages(phasePlanStore.get()).map((p) => p.id)).toEqual(['kds']);
-    expect(BO_PAGES.filter((p) => phaseOf(p.id) === 3).map((p) => p.id)).toEqual(['export', 'production', 'prepList', 'swLib', 'swAssign', 'svcKiosk']);
+    expect(BO_PAGES.filter((p) => phaseOf(p.id) === 3).map((p) => p.id)).toEqual(['export', 'production', 'prepList', 'cleaningLog', 'swLib', 'swAssign', 'svcKiosk']);
     expect(MODES.filter((m) => modePhase(m.id, {}) === 2).map((m) => m.id)).toEqual(['host', 'bar', 'cook', 'expo', 'assocphone']);
   });
 
@@ -108,13 +108,14 @@ Phase 2 (6 items)
   Screen › Associate Phone
   Back Office › KDS › KDS Settings
 
-Phase 3 (9 items)
+Phase 3 (10 items)
   Screen › Production Prep
   Screen › Resident Kiosk
   Screen › Specials Display
   Back Office › Menus & Recipes › Menu Export
   Back Office › Productions and Checklists › Production
   Back Office › Productions and Checklists › Prep Checklist
+  Back Office › Productions and Checklists › Cleaning Log
   Back Office › Productions and Checklists › Side Work Tasks
   Back Office › Productions and Checklists › Assign Side Work
   Back Office › Kiosk › Kiosk Settings`);

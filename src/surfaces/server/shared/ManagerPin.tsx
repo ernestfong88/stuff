@@ -9,8 +9,11 @@ import s from './ManagerPin.module.css';
  */
 export const MANAGER_PIN = '9999';
 
-/** Four-digit keypad; calls onOk once the manager PIN is entered. Digits can be typed too. */
-export function PinPad({ onOk }: { onOk: () => void }) {
+/**
+ * Four-digit keypad; calls onOk once the manager PIN (or a PIN `accept`
+ * takes) is entered. Digits can be typed too.
+ */
+export function PinPad({ onOk, accept = (pin) => pin === MANAGER_PIN }: { onOk: (pin: string) => void; accept?: (pin: string) => boolean }) {
   const [value, setValue] = useState('');
   const [bad, setBad] = useState(false);
   const press = (k: string) => {
@@ -20,7 +23,7 @@ export function PinPad({ onOk }: { onOk: () => void }) {
     setBad(false);
     setValue(next);
     if (next.length === 4) {
-      if (next === MANAGER_PIN) onOk();
+      if (accept(next)) onOk(next);
       else {
         setBad(true);
         setTimeout(() => setValue(''), 250);

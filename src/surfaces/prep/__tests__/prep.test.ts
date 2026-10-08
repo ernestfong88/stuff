@@ -91,8 +91,12 @@ describe('production store', () => {
 
   it('shows only the meal’s checklist items', () => {
     const groups = checklistForMeal(productionStore.get(), 'sequoia', 'Breakfast');
-    expect(groups.map((g) => g.name)).toEqual(['Reach-ins', 'Cleaning AM']);
-    expect(groups.reduce((n, g) => n + g.items.length, 0)).toBe(8);
+    expect(groups.map((g) => g.name)).toEqual(['Reach-ins']);
+    expect(groups.reduce((n, g) => n + g.items.length, 0)).toBe(5);
+  });
+
+  it('keeps cleaning out of the starter checklist (it is in the Cleaning Log)', () => {
+    expect(starterChecklist().map((g) => g.name)).toEqual(['Deli line', 'Reach-ins']);
   });
 
   it('never seeds a check later than now', () => {
@@ -101,7 +105,7 @@ describe('production store', () => {
     const iso = isoDate(0);
     // Breakfast Reach-ins start at 6:20 AM + 9 min per group.
     expect(checkMark(productionStore.get(), 'sequoia', iso, 'Breakfast', item)).toMatchObject({ by: 'J. Rivera' });
-    const later = starterChecklist()[2].items[2];
+    const later = starterChecklist()[1].items[4];
     expect(checkMark(productionStore.get(), 'sequoia', iso, 'Breakfast', later)).toBeNull();
   });
 

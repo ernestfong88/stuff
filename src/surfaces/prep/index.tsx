@@ -6,13 +6,16 @@
  * the venue's own checklist from Back Office (Prep Checklist), showing only
  * the items for the meal on screen. Every check records who and when for
  * that venue, date and meal, so tomorrow starts fresh.
+ *
+ * The Cleaning log tab holds the kitchen's daily and weekly cleaning; each
+ * task is signed off with the cook's PIN.
  */
 import { useState } from 'react';
 import { ModeChip, TextZoom } from '../../shell/controls';
 import { useSignedIn } from '../../shell/session';
 import { isoDate } from '../../domain/pickup';
 import { today } from '../../lib/clock';
-import { useNow } from '../../ui';
+import { cx, useNow } from '../../ui';
 import {
   checkMark,
   checklistForMeal,
@@ -24,8 +27,10 @@ import {
   type ChecklistItem,
   type PrepSpecial,
 } from '../../store/production';
+import { useCleaning } from '../../store/cleaning';
 import { Checklist } from './Checklist';
-import { mealAt, signature } from './logic';
+import { CleaningLog } from './CleaningLog';
+import { cleaningToday, mealAt, signature } from './logic';
 import { MealPicker, type MealSelection } from './MealPicker';
 import { RecipeSheet } from './RecipeSheet';
 import { SpecialCard } from './SpecialCard';
@@ -36,6 +41,8 @@ import s from './Prep.module.css';
 /** The kitchen sign-in has no name behind it, so work here is signed as the prep cook unless someone signed in. */
 const PREP_COOK = 'L. Ortega';
 
+type View = 'prep' | 'cleaning';
+
 export default function ProductionPrep() {
   const state = useProduction();
   const nowMs = useNow(30_000);
@@ -45,6 +52,8 @@ export default function ProductionPrep() {
   const venue = getProductionVenue(venueId);
   const [sel, setSel] = useState<MealSelection>(() => ({ offset: 0, meal: mealAt(today().getHours()) }));
   const [openSlot, setOpenSlot] = useState<string | null>(null);
+  const [view, setView] = useState<View>('prep');
+  const cleaning = cleaningToday(useCleaning(), venueId, nowMs);
 
   const iso = isoDate(sel.offset);
   const meal = sel.meal;
@@ -64,6 +73,7 @@ export default function ProductionPrep() {
   // The header counts everything for the meal on screen: specials and checklist.
   const allDone = done + preppedCount;
   const allTotal = total + specials.length;
+  const cleaningLate = cleaning.rows.filter((r) => r.status === 'overdue').length;
 
   return (
     <div className={s.screen} data-prep={`${sel.offset}|${meal}`}>
@@ -72,73 +82,104 @@ export default function ProductionPrep() {
           <h1 className={s.title}>Prep · Production plan</h1>
           <VenueTabs value={venueId} onChange={setVenueId} />
           <span className={s.right}>
-            <span
-              className={allDone === allTotal && allTotal > 0 ? s.tallyDone : s.tally}
-              aria-label={`${allDone} of ${allTotal} specials and checklist items done`}
-              title="Specials prepped and checklist items done for the meal on screen"
-            >
-              {allDone} of {allTotal} <small>done</small>
-            </span>
+            {view === 'prep' ? (
+              <span
+                className={allDone === allTotal && allTotal > 0 ? s.tallyDone : s.tally}
+                aria-label={`${allDone} of ${allTotal} specials and checklist items done`}
+                title="Specials prepped and checklist items done for the meal on screen"
+              >
+                {allDone} of {allTotal} <small>done</small>
+              </span>
+            ) : (
+              <span
+                className={cleaning.done === cleaning.rows.length && cleaning.rows.length > 0 ? s.tallyDone : s.tally}
+                aria-label={`${cleaning.done} of ${cleaning.rows.length} cleaning tasks signed off`}
+              >
+                {cleaning.done} of {cleaning.rows.length} <small>signed off</small>
+              </span>
+            )}
             <TextZoom tall />
             <ModeChip tall />
           </span>
         </div>
-        <MealPicker value={sel} onChange={setSel} base={new Date(nowMs)} />
+        <div className={s.subRow}>
+          <div className={s.views} role="tablist" aria-label="Prep or cleaning">
+            <button role="tab" aria-selected={view === 'prep'} className={cx(s.view, view === 'prep' && s.viewOn)} onClick={() => setView('prep')}>
+              Prep checklist
+            </button>
+            <button
+              role="tab"
+              aria-selected={view === 'cleaning'}
+              className={cx(s.view, view === 'cleaning' && s.viewOn)}
+              onClick={() => setView('cleaning')}
+            >
+              Cleaning log
+              {cleaningLate > 0 && (
+                <span className={s.viewLate} aria-label={`${cleaningLate} overdue`}>
+                  {cleaningLate}
+                </span>
+              )}
+            </button>
+          </div>
+          {view === 'prep' && <MealPicker value={sel} onChange={setSel} base={new Date(nowMs)} />}
+        </div>
       </header>
 
-      <main className={s.body}>
-        <div className={s.sectionHead}>
-          <h2 className={s.capSpecials}>{when} specials · make this many</h2>
-          {specials.length > 0 && (
-            <span className={s.checklistCount}>
-              {preppedCount} of {specials.length} prepped
-            </span>
-          )}
-        </div>
-        {specials.length > 0 ? (
-          <div className={s.specials}>
-            {ordered.map((sp) => (
-              <SpecialCard
-                key={sp.slot}
-                special={sp}
-                amount={specialAmount(state, venueId, iso, meal, sp)}
-                prepped={prepped(sp)}
-                venueId={venueId}
-                iso={iso}
-                meal={meal}
-                cook={cook}
-                onOpen={(x) => setOpenSlot(x.slot)}
-              />
-            ))}
+      {view === 'cleaning' ? (
+        <main className={s.body}>
+          <CleaningLog venueId={venueId} nowMs={nowMs} />
+        </main>
+      ) : (
+        <main className={s.body}>
+          <div className={s.sectionHead}>
+            <h2 className={s.capSpecials}>{when} specials · make this many</h2>
+            {specials.length > 0 && (
+              <span className={s.checklistCount}>
+                {preppedCount} of {specials.length} prepped
+              </span>
+            )}
           </div>
-        ) : (
-          <p className={s.empty}>
-            {venue.menu === 'cycle'
-              ? `No ${meal.toLowerCase()} specials on the cycle for ${sel.offset ? 'tomorrow' : 'today'}.`
-              : `${venue.fullName} serves the same menu every day, so there are no specials to prep.`}
-          </p>
-        )}
-
-        <div className={s.checklistHead}>
-          <h2 className={s.capChecklist}>{when} checklist</h2>
-          {total > 0 && (
-            <span className={s.checklistCount}>
-              {done} of {total} done
-            </span>
+          {specials.length > 0 ? (
+            <div className={s.specials}>
+              {ordered.map((sp) => (
+                <SpecialCard
+                  key={sp.slot}
+                  special={sp}
+                  amount={specialAmount(state, venueId, iso, meal, sp)}
+                  prepped={prepped(sp)}
+                  venueId={venueId}
+                  iso={iso}
+                  meal={meal}
+                  cook={cook}
+                  onOpen={(x) => setOpenSlot(x.slot)}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className={s.empty}>
+              {venue.menu === 'cycle'
+                ? `No ${meal.toLowerCase()} specials on the cycle for ${sel.offset ? 'tomorrow' : 'today'}.`
+                : `${venue.fullName} serves the same menu every day, so there are no specials to prep.`}
+            </p>
           )}
-        </div>
-        {groups.length > 0 ? (
-          <Checklist groups={groups} markOf={markOf} venueId={venueId} iso={iso} meal={meal} cook={cook} />
-        ) : (
-          <p className={s.empty}>Nothing on the checklist for {meal.toLowerCase()}. Back Office sets it up under Prep Checklist.</p>
-        )}
-      </main>
 
-      <RecipeSheet
-        special={opened}
-        make={opened ? specialAmount(state, venueId, iso, meal, opened).n : 0}
-        onClose={() => setOpenSlot(null)}
-      />
+          <div className={s.checklistHead}>
+            <h2 className={s.capChecklist}>{when} checklist</h2>
+            {total > 0 && (
+              <span className={s.checklistCount}>
+                {done} of {total} done
+              </span>
+            )}
+          </div>
+          {groups.length > 0 ? (
+            <Checklist groups={groups} markOf={markOf} venueId={venueId} iso={iso} meal={meal} cook={cook} />
+          ) : (
+            <p className={s.empty}>Nothing on the checklist for {meal.toLowerCase()}. Back Office sets it up under Prep Checklist.</p>
+          )}
+        </main>
+      )}
+
+      <RecipeSheet special={opened} make={opened ? specialAmount(state, venueId, iso, meal, opened).n : 0} onClose={() => setOpenSlot(null)} />
     </div>
   );
 }

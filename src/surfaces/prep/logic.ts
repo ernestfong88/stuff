@@ -1,4 +1,6 @@
 /** Pure helpers for Production Prep. */
+import { cleaningStatus, isoOf, shortName, sortForShift, type CleaningSignOff, type CleaningStatus, type CleaningTask } from '../../domain/cleaning';
+import { cleaningSign, cleaningTasksFor, type CleaningState } from '../../store/cleaning';
 import type { CheckHow, PrepMeal } from '../../store/production';
 
 /** The meal being served at this hour: breakfast before 10, lunch until 3, then dinner. */
@@ -55,8 +57,20 @@ export function dayLabel(base: Date, offset: number): string {
 }
 
 /** "Adriana Alvarado" → "A. Alvarado", the way the kitchen signs its work. */
-export function signature(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length < 2) return name.trim();
-  return `${parts[0][0]}. ${parts[parts.length - 1]}`;
+export const signature = shortName;
+
+export interface CleaningRow {
+  task: CleaningTask;
+  sign: CleaningSignOff | null;
+  status: CleaningStatus;
+}
+
+/** Today's daily cleaning and this week's weekly cleaning at a kitchen, each with where it stands, and how many are signed off. */
+export function cleaningToday(state: CleaningState, venueId: string, nowMs: number): { iso: string; rows: CleaningRow[]; done: number } {
+  const iso = isoOf(new Date(nowMs));
+  const rows = sortForShift(cleaningTasksFor(state, venueId)).map((task) => {
+    const sign = cleaningSign(state, venueId, task, iso, nowMs);
+    return { task, sign, status: cleaningStatus(task, iso, sign, nowMs) };
+  });
+  return { iso, rows, done: rows.filter((r) => r.sign).length };
 }

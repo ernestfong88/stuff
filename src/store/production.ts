@@ -534,6 +534,8 @@ export function removePrepNote(venueId: string, iso: string, meal: PrepMeal, nam
 /**
  * The starter checklist every venue opens with until Back Office edits its
  * own: [subcategory, [[item, meals as B L D, stocked or backed up rather than just done]]].
+ * Cleaning lives in the Cleaning Log (store/cleaning.ts), where each task is
+ * signed off with a PIN.
  */
 const STARTER_CHECKLIST: Array<[string, Array<[string, string, boolean]>]> = [
   [
@@ -561,26 +563,6 @@ const STARTER_CHECKLIST: Array<[string, Array<[string, string, boolean]>]> = [
       ['Thickened liquids, labeled by consistency', 'BLD', true],
       ['Side salads, undressed', 'LD', true],
       ['Desserts portioned and labeled', 'LD', true],
-    ],
-  ],
-  [
-    'Cleaning AM',
-    [
-      ['Check and log walk-in and reach-in temperatures', 'BL', false],
-      ['Set up sanitizer buckets and test the strips', 'BL', false],
-      ['Sanitize prep tables and cutting boards', 'BL', false],
-      ['Wipe down the slicer after the deli set', 'L', false],
-    ],
-  ],
-  [
-    'Cleaning PM',
-    [
-      ['Break down and clean the slicer', 'D', false],
-      ['Label, date and rotate leftovers, and toss anything expired', 'D', false],
-      ['Clean reach-in gaskets and shelves', 'D', false],
-      ['Drain and clean the steam table wells', 'D', false],
-      ['Sweep and mop the prep area', 'D', false],
-      ['Log closing temperatures', 'D', false],
     ],
   ],
 ];

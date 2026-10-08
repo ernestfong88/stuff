@@ -5,7 +5,7 @@
  */
 import { productionCount, recipeFor, type ProductionDay, type ProductionState } from '../../../store/production';
 
-const esc = (t: string | number) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c);
+export const esc = (t: string | number) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c);
 
 /** Quantities on a sheet round to the nearest quarter. */
 const quarter = (q: number) => String(Math.max(0.25, Math.round(q * 4) / 4));
@@ -60,7 +60,7 @@ export function productionWeekHtml(venueName: string, days: Array<{ label: strin
   return documentHtml(`Production · ${venueName} · week`, body);
 }
 
-function printHtml(html: string): void {
+export function printHtml(html: string): void {
   const frame = document.createElement('iframe');
   frame.setAttribute('aria-hidden', 'true');
   frame.style.cssText = 'position:fixed;width:0;height:0;border:0;opacity:0';

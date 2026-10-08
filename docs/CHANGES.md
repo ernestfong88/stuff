@@ -220,6 +220,26 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Cleaning Log, separate from the Prep Checklist
+The prep checklist used to hold the kitchen's cleaning too (*Cleaning AM* and *Cleaning PM*). Cleaning now has its own log, so a cook signs off each task with their PIN and the log shows who did it and when.
+
+- **Prep Checklist** is stocking and prep only. A venue whose checklist was already edited in this browser keeps its own list, cleaning groups included, until someone removes them or uses *Reset to the starter list*.
+- **Cleaning tasks** are kept per kitchen (Sequoia, Evergreen, The Bistro):
+  - **Daily** tasks are done at *Opening*, *Mid-day* or *Closing*. The old Cleaning AM and PM items are now daily tasks.
+  - **Weekly** tasks are due on one day of the week (weeks run Sunday to Saturday) and can be signed off any day that week. The starter list adds: delime the dish machine, clean the hood filters, deep-clean the walk-in shelves, clean the ice machine, deep-clean the ovens and scrub the floor drains.
+  - Each task is assigned to a cook from *Associates & PINs* (the line cooks, prep cook and dishwasher) or to *Anyone on shift*.
+- **Production Prep** has two tabs, **Prep checklist** and **Cleaning log**.
+  - The Cleaning log shows today's daily tasks by Opening, Mid-day and Closing, then this week's weekly tasks.
+  - A weekly task due today is highlighted. A task past its time is red, and the tab shows how many are overdue.
+  - Tapping a task opens *Sign off: (task)* and the cook enters their PIN. The log records who signed and when. Someone other than the assignee can sign, and the log shows that too.
+  - *Undo* removes a sign-off after a confirmation.
+- **Back Office → Productions and Checklists → Cleaning Log** (Phase 3, next to Prep Checklist):
+  - **Tasks**: add, edit and remove daily and weekly tasks, set when each is due, and assign a person.
+  - **Log**: one week per page, task by task and day by day. Each day shows who signed off and at what time, or *Missed*, *Overdue* or *Not yet*. You can look back three weeks, and *Print this week* prints the sheet.
+  - The tab shows how many tasks were missed or are overdue this week.
+- The demo starts with four weeks of sign-offs. One weekly task is overdue this week, and none are signed later than the current time.
+
+
 ### Table map: no colour key
 The row of status colours (Ready to run, Cooking, Late…) above the table map is gone. Each table still says its status in words, and the server chips stay.
 
