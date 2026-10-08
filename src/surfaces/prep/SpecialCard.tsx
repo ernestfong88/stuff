@@ -65,7 +65,7 @@ export function SpecialCard({ special, amount, prepped, venueId, iso, meal, cook
           {amount.set ? `Set by ${amount.by}. Make only this many.` : "Forecast. The director hasn't set an amount yet."}
         </span>
         <span className={s.more}>
-          {special.recipe ? `Recipe scaled to ${amount.n}` : 'Cook notes'}
+          Recipe
           <ChevronRight size={14} strokeWidth={2.6} aria-hidden />
         </span>
       </button>

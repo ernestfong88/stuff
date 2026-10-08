@@ -14,7 +14,7 @@ import {
   starterChecklist,
   updateProductionCounts,
 } from '../../../store/production';
-import { formatQuantity, formatScale, mealAt, noteWhen, signature } from '../logic';
+import { formatQuantity, formatScale, kitchenAmount, mealAt, noteWhen, signature } from '../logic';
 
 /** Pin the demo clock to a time of day today. */
 function clockAt(h: number, m = 0) {
@@ -114,5 +114,18 @@ describe('production store', () => {
     const any = day.rows.find((r) => r.kind === 'anyDay')!;
     expect(any.basis).toMatch(/^avg \w{3} breakfast, last 4 weeks: [\d.]+$/);
     expect(productionCount(productionStore.get(), 'sequoia', day.iso, any).ok).toBe(true);
+  });
+});
+
+describe('kitchenAmount', () => {
+  it('moves a scaled amount up to the unit a cook measures in', () => {
+    expect(kitchenAmount(70, 'tbsp')).toBe('4½ cups');
+    expect(kitchenAmount(35, 'tsp')).toBe('11¾ tbsp');
+    expect(kitchenAmount(70, 'oz')).toBe('4 lb 6 oz');
+    expect(kitchenAmount(32, 'oz')).toBe('2 lb');
+    expect(kitchenAmount(210, 'fl oz')).toBe('6½ qt');
+    expect(kitchenAmount(12, 'fl oz')).toBe('1½ cups');
+    expect(kitchenAmount(2, 'tbsp')).toBe('2 tbsp');
+    expect(kitchenAmount(3, 'each')).toBe('3 each');
   });
 });

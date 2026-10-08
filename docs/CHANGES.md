@@ -220,6 +220,13 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Production Prep: tap a special for its recipe
+- Tapping a special opens its **Recipe Book** recipe, scaled to the amount to make. It reads the chef's live edits, so a change in the Recipe Book shows on the tablet straight away.
+- **What the sheet shows:** prep and cook times, garnish, equipment, allergens, ingredients, method, plating and cook notes.
+- **Units:** scaled amounts move up to the unit a cook measures in, for example 70 tbsp is 4½ cups, 70 oz is 4 lb 6 oz and 210 fl oz is 6½ qt.
+- **No written recipe yet:** the sheet shows the description, allergens and cook notes, and says to add the recipe in the Recipe Book.
+- The link on each card now just says **Recipe**.
+
 ### Temperature Log
 Kitchens can now log food temperatures during meal service. Each reading is signed with the cook's PIN, and a reading out of range is kept with what was done about it.
 

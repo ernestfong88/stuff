@@ -90,3 +90,20 @@
   color: var(--s500);
   margin-top: 16px;
 }
+
+/* Times, garnish, equipment and allergens: one wrapped line above the recipe. */
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--s700);
+}
+.allergens {
+  color: var(--danger);
+}
+.more {
+  margin-top: 18px;
+}

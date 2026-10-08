@@ -25,6 +25,26 @@ export function formatQuantity(q: number): string {
   return (whole > 0 ? String(whole) : '') + frac || '0';
 }
 
+/**
+ * A scaled amount in the unit a cook would measure it in, to the nearest
+ * quarter: 70 tbsp is "4½ cups", 70 oz is "4 lb 6 oz", 210 fl oz is "6½ qt".
+ * Other units, and amounts too small to move up a unit, stay as they are.
+ */
+export function kitchenAmount(q: number, unit: string): string {
+  const u = unit.trim().toLowerCase();
+  const fmt = (n: number, name: string) => `${formatQuantity(n)}${name ? ' ' + name : ''}`;
+  if (u === 'tsp' && q >= 3) return kitchenAmount(q / 3, 'tbsp');
+  if (u === 'tbsp' && q >= 16) return fmt(q / 16, 'cups');
+  if ((u === 'fl oz' || u === 'floz') && q >= 32) return fmt(q / 32, 'qt');
+  if ((u === 'fl oz' || u === 'floz') && q >= 8) return fmt(q / 8, q / 8 === 1 ? 'cup' : 'cups');
+  if (u === 'oz' && q >= 16) {
+    const lb = Math.floor(q / 16);
+    const oz = Math.round(q - lb * 16);
+    return oz ? `${lb} lb ${oz} oz` : `${lb} lb`;
+  }
+  return fmt(q, unit);
+}
+
 /** Scale factor from the recipe's base batch to the amount to make, e.g. "×5". */
 export function formatScale(make: number, base: number): string {
   return '×' + formatQuantity(make / base);
