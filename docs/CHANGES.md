@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Back Office: Closing Reports
+- New page **Closing Reports** in Back Office → Metrics & Reporting, after Dashboard and P-Mix. Search finds it by words such as *closing*, *end of day*, *sign off* and *comps*.
+- Pick a day (previous and next day buttons, or a date) and a meal: Breakfast, Lunch or Dinner, each with its count of closed checks. Today opens on the meal being served; a past day opens on its last meal with checks.
+- Each shift shows the same numbers as the manager's closing report: total charges (card and apartment), comps, checks closed and covers, ticket times against the last dinner (or lunch, breakfast) and the last 7, and the day's dining feedback.
+- Sign-off: *Signed off by Dana Ruiz at 8:42 PM* in green, or *Not signed off yet* in amber, with how many tables are still open and how many servers have not signed off.
+- **Servers** lists who worked the shift with their checks, covers, charges and comps, and the time each signed off their own shift in Shift Review (or *Not signed off*). Pick up and delivery orders are a row of their own. **Comps** lists each comp with its table, diner, reason, server and amount.
+- **Print** and **Export a copy** (the manager's text format, plus the servers and comps).
+- A day with no closed checks shows a short message instead of empty tables. A small note says sign-offs come from the tablets in this browser.
+- The manager tablet's feedback line can now name another day, so a past day reads *on Tuesday* rather than *today*.
+
 ### Back Office: section and page names
 - The **Today** section is now **Metrics & Reporting** (Dashboard and P-Mix).
 - **Modifiers** moved from Menus & Recipes to **POS Settings**, after Messages. The page itself is unchanged, and search still finds it.

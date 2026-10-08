@@ -175,8 +175,8 @@ function countBy<T>(rows: T[], key: (r: T) => string | null): Array<[string, num
   return [...m.entries()].sort((a, b) => b[1] - a[1]);
 }
 
-/** __kFbSummary over the dining feedback servers noted today. */
-export function feedbackSummary(notes: Array<Pick<ResidentNote, 'rid' | 'text'>>): FeedbackSummary | null {
+/** __kFbSummary over the dining feedback servers noted today; `when` names another day ("on Tuesday"). */
+export function feedbackSummary(notes: Array<Pick<ResidentNote, 'rid' | 'text'>>, when = 'today'): FeedbackSummary | null {
   if (!notes.length) return null;
   const rows = notes.map((n) => {
     const t = n.text.toLowerCase();
@@ -206,7 +206,7 @@ export function feedbackSummary(notes: Array<Pick<ResidentNote, 'rid' | 'text'>>
   const s = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
   const are = (dish: string) => (dish.endsWith('s') ? 'are' : 'is');
   let head =
-    `${s(rows.length, 'comment')} from ${s(residents, 'resident')} today: ${pos.length} positive, ${s(neg.length, 'concern')}` +
+    `${s(rows.length, 'comment')} from ${s(residents, 'resident')} ${when}: ${pos.length} positive, ${s(neg.length, 'concern')}` +
     (ask.length ? `, ${s(ask.length, 'request')}` : '') +
     '.';
   if (liked[0]) head += ` The ${liked[0][0]} ${are(liked[0][0])} the standout, with ${liked[0][1]} positive ${liked[0][1] === 1 ? 'comment' : 'comments'}.`;

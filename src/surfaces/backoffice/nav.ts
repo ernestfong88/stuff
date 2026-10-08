@@ -61,6 +61,13 @@ export const BO_SECTIONS: BoSectionDef[] = [
         keywords: 'sales mix popular report best sellers',
         component: lazy(() => import('./pages/pmix')),
       },
+      {
+        id: 'closing',
+        label: 'Closing Reports',
+        blurb: "Each shift's closing report: sales, comps, ticket times, feedback and sign-offs",
+        keywords: 'closing report end of day close out shift sign off manager server comps charges',
+        component: lazy(() => import('./pages/closing')),
+      },
     ],
   },
   {
