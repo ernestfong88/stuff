@@ -31,6 +31,9 @@
   --rose: #a8456b;
   --rose-700: #7e2f4f;
   --rose-100: #f8e7ee;
+  --sky: #0a7ea4;
+  --sky-700: #075e7b;
+  --sky-100: #dcf0f7;
   --teal: #2e7d78;
   --teal-700: #1e5a56;
   --teal-100: #dcefed;
@@ -129,9 +132,9 @@
   --bo-accent-ink: var(--flora-700);
 }
 [data-bo-section='service'] {
-  --bo-accent: var(--coast);
-  --bo-accent-soft: var(--coast-100);
-  --bo-accent-ink: var(--coast-700);
+  --bo-accent: var(--sky);
+  --bo-accent-soft: var(--sky-100);
+  --bo-accent-ink: var(--sky-700);
 }
 [data-bo-section='residents'] {
   --bo-accent: var(--rose);

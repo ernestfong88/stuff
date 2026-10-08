@@ -235,7 +235,7 @@ The final order is:
   - Today: ocean blue
   - Menus & Recipes: amber
   - Venues: flora green
-  - POS Settings: coast blue
+  - POS Settings: sky (a brighter cyan, so it stands out from the page background)
   - Resident Dining Profile: rose
   - Billing: gold
   - Associates & PINs: teal
