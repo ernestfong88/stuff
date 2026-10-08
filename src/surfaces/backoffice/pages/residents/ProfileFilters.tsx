@@ -3,7 +3,7 @@ import { Button, Popover, SearchField, Tabs, cx } from '../../../../ui';
 import { BoSelect } from '../../kit';
 import { careLevel } from '../../../server/features/residents/residentInfo';
 import { tagLabel, type TagCategory } from './dietTags';
-import { ALL, NOTHING_ON_FILE, anyOf, isFiltered, type ProfileFacets, type ProfileFilter } from './profileFilters';
+import { ALL, NOTHING_ON_FILE, anyOf, isFiltered, type ProfileFacets, type ProfileFilter } from './residentFilters';
 import s from './ProfileFilters.module.css';
 
 const GROUPS: Array<{ cat: TagCategory; title: string; any: string }> = [

@@ -8,7 +8,7 @@ import { BoCallout, BoField, BoPage, BoSection, BoSelect, NumberBox, updateResid
 import { diningResident, type BoResident } from '../../seed/residents';
 import { HospiceCard } from './HospiceCard';
 import { RecentOrders } from './RecentOrders';
-import { unlistedAllergens } from './profileFilters';
+import { unlistedAllergens } from './residentFilters';
 import { changePlanWithUndo } from './residentActions';
 import s from './residents.module.css';
 

@@ -13,7 +13,7 @@ import {
   profileFacets,
   profileRows,
   unlistedAllergens,
-} from '../profileFilters';
+} from '../residentFilters';
 
 const plans = seedPlans();
 const records = seedBoResidents();

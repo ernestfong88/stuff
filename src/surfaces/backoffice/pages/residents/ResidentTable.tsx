@@ -11,7 +11,7 @@ import { useResidentRecords } from '../../kit/residentRecords';
 import { careLevel, planStatus } from '../../../server/features/residents/residentInfo';
 import type { BoMealPlan } from '../../seed/billing';
 import type { BoResident } from '../../seed/residents';
-import { unlistedAllergens } from './profileFilters';
+import { unlistedAllergens } from './residentFilters';
 import { changePlanWithUndo, toggleHospiceWithUndo } from './residentActions';
 import s from './ResidentTable.module.css';
 

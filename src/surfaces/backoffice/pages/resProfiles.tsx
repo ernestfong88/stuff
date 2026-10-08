@@ -19,7 +19,7 @@ import {
   profileRows,
   type ProfileFilter,
   type ProfileRow,
-} from './residents/profileFilters';
+} from './residents/residentFilters';
 import { ResidentProfile } from '../../server/features/residents/ResidentProfile';
 import { storyPick } from '../../server/features/residents/storyPick';
 import s from './resProfiles.module.css';
