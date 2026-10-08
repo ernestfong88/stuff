@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { rooms } from '../../../data';
-import { COURSE_MODES, flag, printerMode, type CourseMode, type FlowFlag } from '../../../domain/config';
+import { COURSE_MODES, COURSE_SAFETY_NET, flag, printerMode, type CourseMode, type FlowFlag } from '../../../domain/config';
 import type { MealName } from '../../../domain/types';
 import { updateConfig, useConfig } from '../../../store/config';
 import { getSetting, setSetting, useSetting } from '../../../store/serviceConfig';
@@ -54,18 +54,9 @@ function PerVenue({ label, hint, control }: { label: string; hint?: string; cont
   );
 }
 
-/** One-line key to the short coursing option names. */
-const COURSE_KEY: Array<[string, string]> = [
-  ['Fire all', 'at send'],
-  ['Fire on drop', 'when the one before lands'],
-  ['Auto-fire +5 / +8', 'min after it fired'],
-  ['Manual fire', 'by server or expo'],
-  ['Backup', '15 min after a drop'],
-];
-
 /**
  * Coursing is the culinary director's call for each venue and meal, not
- * something a server sets on each check. Every mode has one backup, counted
+ * something a server sets on each check. Every mode has one safety net, counted
  * from when the course before was run, so a table never stalls: a held course
  * fires on its own 15 min after the one before is dropped, and dessert waits
  * for a manual fire or those 15 min.
@@ -99,20 +90,21 @@ function Coursing() {
     ),
   ];
   return (
-    <BoSection
-      flush
-      title="Coursing"
-      sub={
-        <span className={css.key}>
-          {COURSE_KEY.map(([name, what]) => (
-            <span key={name}>
-              <b>{name}</b> {what}
-            </span>
-          ))}
-        </span>
-      }
-    >
+    <BoSection flush title="Coursing" sub="When each course goes to the kitchen, set for each venue and meal.">
       <BoTable columns={columns} rows={venues} rowKey={(v) => v.key} />
+      {/* What each option means, one per line, and the safety net they all share. */}
+      <dl className={css.key}>
+        {COURSE_MODES.map((m) => (
+          <div key={m.id} className={css.keyRow}>
+            <dt>{m.label}</dt>
+            <dd>{m.what}</dd>
+          </div>
+        ))}
+        <div className={css.keyRow}>
+          <dt>Safety net</dt>
+          <dd>{COURSE_SAFETY_NET}</dd>
+        </div>
+      </dl>
     </BoSection>
   );
 }
@@ -244,7 +236,13 @@ export default function Page({ goto }: BoPageProps) {
         />
       }
     >
-      <Tabs aria-label="Pacing and coursing" variant="underline" value={tab} onChange={setTab} options={TABS.map((id) => ({ id, label: TAB_LABELS[id] }))} />
+      <Tabs
+        aria-label="Pacing and coursing"
+        variant="underline"
+        value={tab}
+        onChange={setTab}
+        options={TABS.map((id) => ({ id, label: TAB_LABELS[id] }))}
+      />
       {tab === 'courses' && (
         <>
           <KitchenModeSetting />

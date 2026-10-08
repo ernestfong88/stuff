@@ -19,7 +19,7 @@ export const COURSE_BACKUP_MIN = 15;
 /** Dessert's course: it waits for a manual fire or the backup in every mode. */
 export const DESSERT_COURSE = 3;
 
-/** Fire all: every course but dessert fires the moment it is sent. */
+/** All at once: every course but dessert fires the moment it is sent. */
 export const firesAtSend = (o: Pick<Order, 'room' | 'meal'>, course: number, cfg: DiningConfig = DEFAULT_CONFIG): boolean =>
   courseMode(o, cfg) === 'off' && course < DESSERT_COURSE;
 
@@ -58,7 +58,7 @@ export function courseDue(
   const mode = courseMode(o, cfg);
   const runAt = prev.length ? Math.max(...prev.map((i) => i.clearedAt || i.firedAt || 0)) : o.openedAt || 0;
   const backup = allRun && now() - runAt >= COURSE_BACKUP_MIN * 60_000;
-  // Dessert always waits for a manual fire or the backup, even with Fire all.
+  // Dessert always waits for a manual fire or the backup, even with All at once.
   if (course >= DESSERT_COURSE) return backup;
   switch (mode) {
     case 'off':

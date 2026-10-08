@@ -94,7 +94,7 @@ const sendCourse = (i: OrderLine) => i.course || i.courseOverride || itemCourse(
 /**
  * What the courses in a send do, the way sendOrder treats them: a course
  * fires now unless an earlier course is still out (on the check unsent, in
- * the kitchen or at the pass), and with Fire all only dessert waits.
+ * the kitchen or at the pass), and with All at once only dessert waits.
  * "C1 fires now, C2 waits", "C2 waits for C1".
  */
 export function courseSendText(o: Order, food: OrderLine[], cfg: DiningConfig = DEFAULT_CONFIG): string {

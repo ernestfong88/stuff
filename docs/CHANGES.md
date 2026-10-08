@@ -220,6 +220,18 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Coursing options in plain POS wording
+The coursing choices on *Pacing & Coursing* are renamed. They work the same as before.
+
+| Before | Now | What it does |
+| --- | --- | --- |
+| Fire all | **All at once** | Every course but dessert fires when the order is sent |
+| Fire on drop | **Fire when served** | The next course fires once the one before is served (the default) |
+| Auto-fire +5 / +8 | **Timed 5 min / Timed 8 min** | The next course fires 5 or 8 min after the one before |
+| Manual fire | **Hold for server** | Each course waits until the server or expo fires it |
+
+The 15-minute backup is now called the **safety net**. Under the venue table, a key lists each option with one line on what it does.
+
 ### Steps of Service drill-down: what to do next, first
 Both Steps of Service drill-downs now open with a **Do this next** box.
 

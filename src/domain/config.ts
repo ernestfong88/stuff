@@ -11,22 +11,26 @@ import type { MealName } from './types';
 
 /**
  * When the next course fires:
- *   off     Fire all: every course fires together
- *   expo    Fire on drop: once the prior course is dropped at the table (default)
- *   timer5  Auto-fire +5 / +8: 5 / 8 minutes after the prior course fired
- *   manual  Manual fire: only when a server or expo fires it
- * Every mode has a 15 minute backup counted from when the prior course was
- * run, so nothing stalls; dessert always waits for that backup or a manual fire.
+ *   off     All at once: every course fires when the order is sent
+ *   expo    Fire when served: once the prior course is served at the table (default)
+ *   timer5  Timed 5 / 8 min: 5 / 8 minutes after the prior course fired
+ *   manual  Hold for server: only when a server or expo fires it
+ * Every mode has a 15 minute safety net counted from when the prior course was
+ * served, so nothing stalls; dessert always waits for that or a manual fire.
  */
 export type CourseMode = 'off' | 'expo' | 'timer5' | 'timer8' | 'manual';
 
-export const COURSE_MODES: ReadonlyArray<{ id: CourseMode; label: string; short: string }> = [
-  { id: 'off', label: 'Fire all', short: 'fire all' },
-  { id: 'expo', label: 'Fire on drop', short: 'fire on drop' },
-  { id: 'timer5', label: 'Auto-fire +5', short: 'auto-fire +5' },
-  { id: 'timer8', label: 'Auto-fire +8', short: 'auto-fire +8' },
-  { id: 'manual', label: 'Manual fire', short: 'manual fire, backup 15m' },
+export const COURSE_MODES: ReadonlyArray<{ id: CourseMode; label: string; short: string; what: string }> = [
+  { id: 'off', label: 'All at once', short: 'all at once', what: 'Every course but dessert fires when the order is sent' },
+  { id: 'expo', label: 'Fire when served', short: 'fire when served', what: 'The next course fires once the one before is served' },
+  { id: 'timer5', label: 'Timed 5 min', short: 'timed 5 min', what: 'The next course fires 5 min after the one before' },
+  { id: 'timer8', label: 'Timed 8 min', short: 'timed 8 min', what: 'The next course fires 8 min after the one before' },
+  { id: 'manual', label: 'Hold for server', short: 'hold for server', what: 'Each course waits until the server or expo fires it' },
 ];
+
+/** The safety net every coursing mode has, in one line. */
+export const COURSE_SAFETY_NET =
+  'A held course fires on its own 15 min after the one before is served. Dessert waits for the server or those 15 min.';
 
 /** Feature switches. A flag that is not set counts as on. */
 export type FlowFlag =
@@ -144,9 +148,12 @@ const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : 
 
 /** "1 starter + 1 entrée + 2 sides + 1 dessert per credit · a 3rd side and added proteins are à la carte" */
 export function mealCreditText(r: MealCreditRules): string {
-  const parts = [count(r.starters, 'starter', 'starters'), count(r.entrees, 'entrée', 'entrées'), count(r.sides, 'side', 'sides'), count(r.desserts, 'dessert', 'desserts')].filter(
-    (t) => !t.startsWith('0 '),
-  );
+  const parts = [
+    count(r.starters, 'starter', 'starters'),
+    count(r.entrees, 'entrée', 'entrées'),
+    count(r.sides, 'side', 'sides'),
+    count(r.desserts, 'dessert', 'desserts'),
+  ].filter((t) => !t.startsWith('0 '));
   const nth = r.sides + 1;
   const ord = nth === 1 ? '1st' : nth === 2 ? '2nd' : nth === 3 ? '3rd' : `${nth}th`;
   const extras = r.extraSidesAla ? `a ${ord} side and added proteins are à la carte` : 'added proteins are à la carte';
