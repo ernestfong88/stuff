@@ -2,55 +2,38 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   padding: 12px 16px;
   border-radius: var(--r-xl);
 }
 .bandBig {
-  padding: 14px 16px;
   box-shadow: inset 4px 0 0 var(--clay);
 }
 .plan {
   background: var(--flora-100);
-  --tone-amt: var(--flora);
   --tone-ink: #3e5a2e;
   --tone-dot: var(--flora);
 }
 .charge {
   background: var(--clay-100);
-  --tone-amt: var(--ink);
   --tone-ink: #7a4f24;
   --tone-dot: var(--clay);
 }
 .comp {
-  background: #f0f3f6;
-  --tone-amt: var(--s400);
+  background: var(--paper);
   --tone-ink: var(--s700);
-  --tone-dot: var(--s400);
+  --tone-dot: var(--s500);
 }
 .bandIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--r-md);
   flex-shrink: 0;
   background: var(--tone-dot);
   color: #fff;
-}
-.bandAmt {
-  font-family: var(--font-serif);
-  font-size: 26px;
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--tone-amt);
-  font-variant-numeric: tabular-nums;
-}
-.bandAmtBig {
-  font-size: 34px;
-  font-weight: 600;
 }
 .bandText {
   flex: 1;
@@ -59,34 +42,31 @@
   flex-direction: column;
 }
 .bandTitle {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.3;
   color: var(--tone-ink);
 }
-.bandBig .bandTitle {
-  font-size: 17px;
-}
 .bandSub {
-  margin-top: 3px;
-  font-size: 13px;
+  margin-top: 2px;
+  font-size: 15px;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--s700);
 }
 
 .summary {
-  margin-bottom: 14px;
-  padding: 4px 16px 2px;
+  margin-bottom: 16px;
+  padding: 4px 20px 2px;
   border-radius: var(--r-2xl);
   background: var(--surface);
-  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.07);
 }
 .sumRow {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--hair);
 }
 .dot {
@@ -102,7 +82,7 @@
   background: var(--clay);
 }
 .dot_comp {
-  background: var(--s400);
+  background: var(--s500);
 }
 .sumWho {
   flex: 1;
@@ -114,14 +94,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
+  line-height: 1.35;
   color: var(--ink);
 }
 .sumTitle {
   margin-top: 1px;
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 700;
+  line-height: 1.35;
 }
 .ink_plan {
   color: #3e5a2e;
@@ -133,7 +115,7 @@
   color: var(--s700);
 }
 .sumAmt {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -148,21 +130,19 @@
   color: var(--ink);
 }
 .amt_comp {
-  color: var(--s400);
+  color: var(--s500);
 }
 .sumTotal {
   display: flex;
   align-items: baseline;
   gap: 12px;
-  padding: 12px 0 10px;
+  padding: 14px 0 12px;
 }
 .sumTotalLabel {
   flex: 1;
-  font-size: 12px;
+  font-size: 17px;
   font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--s500);
+  color: var(--ink);
 }
 .sumTotalAmt {
   font-family: var(--font-serif);
@@ -177,19 +157,18 @@
 }
 
 .total {
-  flex: 1;
+  flex: 1 1 220px;
   min-width: 0;
 }
 .totalLabel {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--s500);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--s700);
 }
 .totalAmt {
   font-family: var(--font-serif);
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 600;
   line-height: 1.1;
   color: var(--ink);
@@ -197,7 +176,8 @@
 }
 .totalParts {
   margin-top: 2px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 600;
-  color: var(--s500);
+  line-height: 1.35;
+  color: var(--s700);
 }

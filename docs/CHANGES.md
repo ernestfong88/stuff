@@ -220,6 +220,17 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Close & charge: easier to read
+- Close & charge on the server tablet is reworked for reading at a glance. Nothing it does or adds up has changed.
+- Every person's card leads with their name in large type and one plain line under it: apartment and meal plan, or who a guest is with. Below that, one coloured status line says where their meal goes, such as *Covered by meal plan* or *Charged to Rose's resident account*, with the meals left. The big amount that used to repeat in that line is gone; each card ends with a clear *Total for Rose* instead.
+- Items are 16px with prices in one right-aligned column. *Meal plan* and *No charge* read in place of a price.
+- *How the meal is counted* is a pair of large buttons, **Meal credit** and **À la carte** (**Guest prices** for a guest paying their own way), next to **Comp…**. The credit count and the meal credit rule sit under it; a guest paying their own way no longer shows a meal credit count. *Another credit* / *À la carte* for an extra dish are the same kind of buttons.
+- *Charge $X to* is two large labelled buttons, **Apartment charge** (with whose account) and **Card** (Square terminal), with a tick on the one chosen.
+- The footer says **Total to charge** (or *Nothing to charge*) in large type, then in plain words where it goes: *Charged to Harold's resident account* for one person, or the split across accounts and cards for a table. The main button is 60px tall with 18px text; *Print table* is a smaller outlined button.
+- The table summary, card payment for the table, the corkage counter (now inside the scrolling area, so it no longer takes room at the top), the guest meal credit offer, the terminal and the delivery fee and the sick and hospice waivers (which look the same on the check screen) all use the same larger type. No text the server reads is under 14px, helper lines are at least 13px, and grey text is darker.
+- The content sits in one centred column up to 880px wide, so names and prices stay close together on a landscape tablet; portrait is a single column. It fits at 130% text size with no sideways scrolling.
+
+
 ### Cook: All day counts plates not fired yet
 - **The All day strip shows two numbers for each dish.** The solid white one is plates on the line now. The amber outlined one ("+1") is plates sent to the kitchen but not fired yet: a later course still waiting, or a pick up booked for later.
 - **What counts:** entrées and anything else the screen makes on its own, but not the sides that go with a plate. Only plates for this screen count, and only plates already sent, so nothing the server is still holding.

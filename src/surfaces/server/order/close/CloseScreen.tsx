@@ -159,7 +159,7 @@ export function CloseScreen({
       )}
       <header className={s.header}>
         <button className={s.back} onClick={onBack}>
-          <ChevronLeft size={18} aria-hidden /> Check
+          <ChevronLeft size={20} aria-hidden /> Check
         </button>
         <div className={s.titles}>
           <h1 className={s.title}>Close &amp; charge</h1>
@@ -185,7 +185,7 @@ export function CloseScreen({
                 aria-pressed={on}
                 onClick={() => setClosing((c) => (on ? (c.length > 1 ? c.filter((x) => x !== d.id) : c) : [...c, d.id]))}
               >
-                {on && <Check size={13} strokeWidth={3} aria-hidden />}
+                {on && <Check size={16} strokeWidth={3} aria-hidden />}
                 {dinerName(d).split(' ')[0]}
               </button>
             );
@@ -193,9 +193,9 @@ export function CloseScreen({
           <span className={s.hint}>{closing.length < o.diners.length ? 'The rest stay open at the table.' : 'Whole table.'}</span>
         </div>
       )}
-      <CorkageStep order={o} />
 
       <div className={cx(s.scroll, 'scroll')}>
+        <CorkageStep order={o} />
         {rows.length > 1 && <CloseSummary rows={rows} views={views} total={total} />}
         {/* In the scroll, not the footer, so the people being closed keep the room on a short tablet. */}
         {total > 0 && (
@@ -249,16 +249,16 @@ export function CloseScreen({
       <footer className={s.footer}>
         {blocked && (
           <div className={s.warn} role="status">
-            <AlertCircle size={14} aria-hidden /> The terminal has not reported this payment yet. Send it, then wait for the tap to settle.
+            <AlertCircle size={18} aria-hidden /> The terminal has not reported this payment yet. Send it, then wait for the tap to settle.
           </div>
         )}
         <div className={s.actions}>
           <CloseTotal views={views} total={total} />
           <button className={cx(s.printTable, printed.table && s.printed)} title="Print a receipt for the whole table" onClick={() => print('table')}>
-            {printed.table ? <Check size={15} aria-hidden /> : <Printer size={15} aria-hidden />} {printed.table ? 'Printed' : 'Print table'}
+            {printed.table ? <Check size={16} aria-hidden /> : <Printer size={16} aria-hidden />} {printed.table ? 'Printed' : 'Print table'}
           </button>
           <button className={s.close} disabled={blocked} onClick={finish}>
-            <Check size={17} aria-hidden />{' '}
+            <Check size={20} aria-hidden />{' '}
             {blocked ? 'Take card payment on the terminal first' : closeButtonLabel(views, total, closing.length, o.diners.length)}
           </button>
         </div>

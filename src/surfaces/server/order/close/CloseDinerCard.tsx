@@ -69,25 +69,31 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
   const cork = d.seat === 1 && !o.comp ? corkageAmount(o, cfg) : 0;
   const deliveryAmt = c.delivery - cork;
   const host = row.person?.name.split(' ')[0];
+  const firstName = dinerName(d).split(' ')[0];
+  const meta = d.isGuest
+    ? d.guestName
+      ? `Guest · ${d.guestRel || 'guest'} of ${host}`
+      : 'Guest'
+    : [row.person?.apt && `Apt ${row.person.apt}`, c.planLabel].filter(Boolean).join(' · ');
+  // A guest paying their own way uses no meal credits, so there is no credit count to show.
+  const showCredits = !d.isGuest || c.hostCredit;
+  const compOn = p.mode === 'comp' || !!o.comp || hospice;
 
   return (
     <div className={cx(s.card, 'fade-in')}>
       <div className={s.head}>
-        <Avatar person={dinerFace(d, row.person)} size={40} />
+        <Avatar person={dinerFace(d, row.person)} size={44} />
         <div className={s.who}>
-          <div className={s.name}>
-            {dinerName(d)}
-            {d.isGuest ? (d.guestName ? `, ${d.guestRel || 'guest'} of ${host}` : ' (guest)') : ''}
-          </div>
-          <div className={s.plan}>{c.planLabel}</div>
+          <div className={s.name}>{dinerName(d)}</div>
+          {meta && <div className={s.meta}>{meta}</div>}
         </div>
         <button
           className={cx(s.print, p.printed && s.printed)}
-          title={`Print a receipt for ${dinerName(d).split(' ')[0]}`}
-          aria-label={`Print a receipt for ${dinerName(d).split(' ')[0]}`}
+          title={`Print a receipt for ${firstName}`}
+          aria-label={`Print a receipt for ${firstName}`}
           onClick={p.onPrint}
         >
-          {p.printed ? <Check size={15} aria-hidden /> : <Printer size={15} strokeWidth={1.75} aria-hidden />}
+          {p.printed ? <Check size={17} aria-hidden /> : <Printer size={17} strokeWidth={1.75} aria-hidden />}
         </button>
       </div>
 
@@ -102,48 +108,65 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
         onChange={p.onGuestOnHost}
       />
 
-      <div className={s.counting}>
-        {d.kind !== 'associate' &&
-          (p.mode === 'comp' || o.comp || hospice ? (
-            <div className={s.compRow}>
-              <span className={s.compTag}>
-                {autoHospice
-                  ? 'Comped · Hospice · automatic, no meal credit used'
-                  : `Comped · ${o.comp?.reason || p.compReason || 'Manager'} · manager approved${o.comp ? ' at ring-in' : ''}`}
-              </span>
-              {!autoHospice && !o.comp && (
-                <button className={s.link} onClick={() => p.onMode('count')}>
-                  Undo
-                </button>
-              )}
-            </div>
-          ) : (
-            <div>
-              <div className={s.eyebrow}>Meal plan · counted automatically</div>
-              <div className={s.credits}>
-                {p.mode === 'alacarte' ? (
-                  <span className={s.ala}>Everything à la carte</span>
-                ) : (
-                  <span className={s.creditCount}>
-                    {p.use ? p.use.credits : 1} credit{p.use && p.use.credits !== 1 ? 's' : ''}
-                    {p.use && p.use.ala > 0 && <span className={s.ala}> + {p.use.ala} à la carte</span>}
-                  </span>
-                )}
-                <span className={s.rule}>{mealCreditText(mealCreditRules(cfg))}</span>
-                <button className={s.link} onClick={() => p.onMode(p.mode === 'alacarte' ? 'count' : 'alacarte')}>
-                  {p.mode === 'alacarte' ? 'use credits instead' : 'all à la carte instead'}
-                </button>
+      {d.kind !== 'associate' &&
+        (compOn ? (
+          <div className={s.compRow}>
+            <span className={s.compTag}>
+              {autoHospice
+                ? 'Comped · Hospice · automatic, no meal credit used'
+                : `Comped · ${o.comp?.reason || p.compReason || 'Manager'} · manager approved${o.comp ? ' at ring-in' : ''}`}
+            </span>
+            {!autoHospice && !o.comp && (
+              <button className={s.link} onClick={() => p.onMode('count')}>
+                Undo
+              </button>
+            )}
+            {p.mode !== 'comp' && (
+              <button className={s.compBtn} onClick={p.onComp}>
+                Comp…
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className={s.counting}>
+            <div className={s.label}>How the meal is counted</div>
+            <div className={s.modes}>
+              <div className={s.seg} role="radiogroup" aria-label="How the meal is counted">
+                {(
+                  [
+                    ['count', showCredits ? 'Meal credit' : 'Guest prices'],
+                    ['alacarte', 'À la carte'],
+                  ] as const
+                ).map(([m, label]) => (
+                  <button key={m} role="radio" aria-checked={p.mode === m} className={cx(s.segBtn, p.mode === m && s.segOn)} onClick={() => p.onMode(m)}>
+                    {p.mode === m && <Check size={16} strokeWidth={3} aria-hidden />} {label}
+                  </button>
+                ))}
               </div>
-              {p.mode !== 'alacarte' &&
-                p.use?.overflow.map((line) =>
-                  isExtraSide(d, line) ? (
-                    <div key={line.id} className={s.overflow}>
-                      <span className={s.overflowText}>Third side, {getItem(line.itemId)?.name}:</span>
-                      <span className={s.alaTag}>À la carte ${alaCartePrice(line)}</span>
-                    </div>
-                  ) : (
-                    <div key={line.id} className={s.overflow}>
-                      <span className={s.overflowText}>{getItem(line.itemId)?.name} is more than one credit covers:</span>
+              <button className={s.compBtn} onClick={p.onComp}>
+                Comp…
+              </button>
+            </div>
+            {p.mode !== 'alacarte' && showCredits && (
+              <div className={s.credits}>
+                <span className={s.creditCount}>
+                  Uses {p.use ? p.use.credits : 1} meal credit{p.use && p.use.credits !== 1 ? 's' : ''}
+                  {p.use && p.use.ala > 0 && <span className={s.ala}> + {p.use.ala} à la carte</span>}
+                </span>
+                <span className={s.rule}>{mealCreditText(mealCreditRules(cfg))}</span>
+              </div>
+            )}
+            {p.mode !== 'alacarte' &&
+              p.use?.overflow.map((line) =>
+                isExtraSide(d, line) ? (
+                  <div key={line.id} className={s.overflow}>
+                    <span className={s.overflowText}>Third side, {getItem(line.itemId)?.name}:</span>
+                    <span className={s.alaTag}>À la carte ${alaCartePrice(line)}</span>
+                  </div>
+                ) : (
+                  <div key={line.id} className={s.overflow}>
+                    <span className={s.overflowText}>{getItem(line.itemId)?.name} is more than one credit covers:</span>
+                    <span className={s.seg} role="radiogroup" aria-label={`${getItem(line.itemId)?.name}: how to count it`}>
                       {(
                         [
                           ['credit', 'Another credit'],
@@ -152,24 +175,20 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
                       ).map(([v, label]) => (
                         <button
                           key={v}
-                          className={cx(s.choice, (p.overflowChoice[line.id] ?? 'credit') === v && s.choiceOn)}
-                          aria-pressed={(p.overflowChoice[line.id] ?? 'credit') === v}
+                          role="radio"
+                          className={cx(s.segBtn, (p.overflowChoice[line.id] ?? 'credit') === v && s.segOn)}
+                          aria-checked={(p.overflowChoice[line.id] ?? 'credit') === v}
                           onClick={() => p.onOverflow(line.id, v)}
                         >
                           {label}
                         </button>
                       ))}
-                    </div>
-                  ),
-                )}
-            </div>
-          ))}
-        {d.kind !== 'associate' && p.mode !== 'comp' && (
-          <button className={s.compBtn} onClick={p.onComp}>
-            Comp…
-          </button>
-        )}
-      </div>
+                    </span>
+                  </div>
+                ),
+              )}
+          </div>
+        ))}
 
       <div className={s.lines}>
         {d.items.map((line) => {
@@ -189,7 +208,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
         {d.seat === 1 && !hospiceOnOrder(o, cfg) && o.sickTray && <FeeRow label="Delivery fee waived (sick)" amount={0} />}
         {cork > 0 && <FeeRow label={`Corkage · ${o.corkage} ${o.corkage === 1 ? 'bottle' : 'bottles'}`} amount={cork} />}
         <div className={cx(s.sum, view.amt <= 0 && s[`sum_${view.tone}`])}>
-          <span>{view.title}</span>
+          <span>Total for {firstName}</span>
           <span className={s.sumAmt}>{formatMoney(view.amt)}</span>
         </div>
       </div>
@@ -203,39 +222,45 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
       {c.needsDrop && (
         <div className={s.pay}>
           {d.seat === 1 && fee.kind && !o.sickTray && !hospiceOnOrder(o, cfg) && (
-            <div className={s.fees}>
-              <div className={s.eyebrow}>Fees</div>
-              <div className={s.feeBox}>
-                <span className={s.feeName}>
-                  {fee.kind} <span className={s.feeSub}>· {o.queueType === 'delivery' ? 'delivery order' : 'pick up order'}</span>
-                </span>
-                {p.feeComp || o.comp ? (
-                  <>
-                    <span className={s.compTag}>Comped · {p.feeComp?.reason || o.comp?.reason} · manager approved</span>
-                    {p.feeComp && (
-                      <button className={s.link} onClick={p.onFeeUndo}>
-                        Undo
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <span className={s.feeAmt}>${fee.amt}</span>
-                    <button className={s.compBtn} onClick={p.onFeeComp}>
-                      Comp
+            <div className={s.feeBox}>
+              <span className={s.feeName}>
+                {fee.kind} <span className={s.feeSub}>· {o.queueType === 'delivery' ? 'delivery order' : 'pick up order'}</span>
+              </span>
+              {p.feeComp || o.comp ? (
+                <>
+                  <span className={s.compTag}>Comped · {p.feeComp?.reason || o.comp?.reason} · manager approved</span>
+                  {p.feeComp && (
+                    <button className={s.link} onClick={p.onFeeUndo}>
+                      Undo
                     </button>
-                  </>
-                )}
-              </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <span className={s.feeAmt}>{formatMoney(fee.amt)}</span>
+                  <button className={s.compBtn} onClick={p.onFeeComp}>
+                    Comp
+                  </button>
+                </>
+              )}
             </div>
           )}
-          <div className={s.chargeTo}>Charge {formatMoney(c.outOfPlan)} to</div>
-          <div className={s.hows} role="radiogroup" aria-label="Charge to">
+          <div className={s.label}>
+            Charge <span className={s.chargeAmt}>{formatMoney(c.outOfPlan)}</span> to
+          </div>
+          <div className={cx(s.seg, s.hows)} role="radiogroup" aria-label="Charge to">
             {(['apt', 'card'] as const).map((h) => {
               const Icon = h === 'apt' ? Home : CreditCard;
+              const on = p.how === h;
+              const big = h === 'card' ? 'Card' : d.kind === 'associate' ? 'Associate account' : 'Apartment charge';
+              const small = h === 'card' ? 'Square terminal' : d.kind === 'associate' ? '' : payLabel(h, d, row.person);
               return (
-                <button key={h} role="radio" aria-checked={p.how === h} className={cx(s.how, p.how === h && s.howOn)} onClick={() => p.onHow(h)}>
-                  <Icon size={15} strokeWidth={2} aria-hidden /> {payLabel(h, d, row.person)}
+                <button key={h} role="radio" aria-checked={on} className={cx(s.segBtn, s.how, on && s.segOn)} onClick={() => p.onHow(h)}>
+                  {on ? <Check size={18} strokeWidth={3} aria-hidden /> : <Icon size={18} strokeWidth={2} aria-hidden />}
+                  <span className={s.howText}>
+                    <span className={s.howBig}>{big}</span>
+                    {small && <span className={s.howSmall}>{small}</span>}
+                  </span>
                 </button>
               );
             })}

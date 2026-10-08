@@ -94,7 +94,7 @@ export function TablePayment({
   return (
     <div className={s.table}>
       <div className={s.eyebrow}>Card payment for the table</div>
-      <p className={s.lede}>Pick how the table pays by card. The terminal only takes the tap: no tip screen, no second total.</p>
+      <p className={s.lede}>Only if someone pays by card. The terminal just takes the tap: no tip screen, no second total.</p>
       <div className={s.modes} role="radiogroup" aria-label="Card payment">
         {(
           [
