@@ -1,3 +1,18 @@
+.mode {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.modeNote {
+  font-size: 13.5px;
+  color: var(--s600);
+}
 .stats {
   display: flex;
   gap: 10px;

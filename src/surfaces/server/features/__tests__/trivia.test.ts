@@ -7,6 +7,7 @@ import {
   questionIndex,
   seededDays,
   serverTrivia,
+  triviaOn,
   withAnswers,
   withoutSave,
   type TriviaState,
@@ -108,5 +109,14 @@ describe('reveal text', () => {
     expect(revealHeadline(['Ann', 'Bob'], ['Ann', 'Bob'], 'B')).toBe('Everyone is right!');
     expect(revealHeadline(['Ann', 'Bob'], ['Bob'], 'B')).toBe('Bob got it right!');
     expect(revealHeadline(['Ann'], [], 'B')).toBe('A tricky one. Nobody got it right today.');
+  });
+});
+
+describe('trivia mode', () => {
+  it('is on unless Back Office turns it off', () => {
+    const base = { days: {}, tables: {}, prize: null };
+    expect(triviaOn(base)).toBe(true);
+    expect(triviaOn({ ...base, enabled: false })).toBe(false);
+    expect(triviaOn({ ...base, enabled: true })).toBe(true);
   });
 });

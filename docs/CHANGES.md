@@ -220,6 +220,11 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Trivia mode switch
+- Back Office → Resident Dining Profile → Trivia scoreboard has a **Trivia mode** switch at the top, with a line saying what on and off mean. Turning it off or on shows a toast with Undo.
+- Off hides trivia on the server tablets: the Trivia button on table cards and closed checks, and the Trivia scoreboard tab in Shift Review (an open tab falls back to Checks and payments). Scores, the scoreboard and prizes are kept and still show in Back Office.
+- Trivia stays on by default, and copies saved before this change count as on.
+
 ### Server: a clock, and when each table ordered
 - The server tablet's top bar shows the time of day, such as *5:45 PM*, in the same format as the kitchen screens. It sits with the right-hand buttons, before the menu reference (or the More menu), in 16px bold figures, and follows a pinned demo clock (`?clock=17:45`).
 - The clock takes part in the header's folding. It stays on screen at every fold; once the side work chip and the text size % have stepped aside it drops the AM/PM (*5:45*). It never pushes the venue, the mode menu or the avatar off screen.

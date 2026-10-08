@@ -463,6 +463,8 @@ export interface TriviaState {
   tables: Record<string, string>;
   /** Prize text set in Back Office; null keeps the default. */
   prize: string | null;
+  /** Back Office switch: false hides trivia on the server tablets. Missing (older saves) means on. */
+  enabled?: boolean;
 }
 
 export const triviaStore = createSharedStore<TriviaState>({ days: {}, tables: {}, prize: null }, {
@@ -662,6 +664,19 @@ export function undoTriviaAnswers(save: TriviaSave): void {
 
 export function setTriviaPrize(text: string): void {
   triviaStore.set((s) => ({ ...s, prize: text }));
+}
+
+/** Trivia of the day is on unless Back Office has turned it off. */
+export function triviaOn(state: TriviaState): boolean {
+  return state.enabled !== false;
+}
+
+export function setTriviaOn(on: boolean): void {
+  triviaStore.set((s) => ({ ...s, enabled: on }));
+}
+
+export function useTriviaOn(): boolean {
+  return triviaOn(useShared(triviaStore));
 }
 
 export function triviaPrize(state: TriviaState): string {

@@ -12,13 +12,15 @@ import {
   monthBoard,
   questionFor,
   serverTrivia,
+  setTriviaOn,
   setTriviaPrize,
   todayIso,
+  triviaOn,
   triviaPrize,
   useTrivia,
   type BoardEntry,
 } from '../../../store/trivia';
-import { Avatar, Button, Modal, Tabs, TextArea, toast } from '../../../ui';
+import { Avatar, Button, Modal, Tabs, TextArea, Toggle, toast } from '../../../ui';
 import { RankBadge } from '../../server/features/trivia/RankBadge';
 import { TriviaServersCard } from '../../server/features/trivia/TriviaServersCard';
 import { escapeHtml, printHtml, printableDocument } from '../../server/features/shared/print';
@@ -64,6 +66,7 @@ export default function Page(_props: BoPageProps) {
   const todays = Object.values(dayScores(state, iso));
   const answers = board.reduce((a, e) => a + e.days, 0);
   const points = board.reduce((a, e) => a + e.pts, 0);
+  const on = triviaOn(state);
 
   const columns: Array<BoColumn<BoardEntry>> = [
     { key: 'rank', header: '#', width: 52, render: (e) => <RankBadge rank={e.rank} size={26} /> },
@@ -98,6 +101,24 @@ export default function Page(_props: BoPageProps) {
         </>
       }
     >
+      <section className={s.mode}>
+        <Toggle
+          checked={on}
+          onChange={(v) => {
+            setTriviaOn(v);
+            toast(v ? 'Trivia mode on' : 'Trivia mode off', {
+              tone: 'success',
+              action: { label: 'Undo', onClick: () => setTriviaOn(!v) },
+            });
+          }}
+          label={<b>Trivia mode</b>}
+        />
+        <span className={s.modeNote}>
+          {on
+            ? 'On: servers see a Trivia button on each table at the end of the meal, and the scoreboard in Shift Review.'
+            : 'Off: the Trivia button and the scoreboard are hidden on the server tablets. Scores and prizes are kept.'}
+        </span>
+      </section>
       <div className={s.stats}>
         <div className={s.stat}>
           <b>{board.length}</b>

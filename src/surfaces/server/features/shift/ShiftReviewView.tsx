@@ -9,6 +9,7 @@ import { useShared } from '../../../../lib/sharedStore';
 import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
 import { useNotes } from '../../../../store/notes';
+import { useTriviaOn } from '../../../../store/trivia';
 import { sideWorkDate } from '../../../../store/sideWork';
 import { Chip, Tabs, toast, useNow } from '../../../../ui';
 import { mealAt } from '../menu/menuSections';
@@ -38,7 +39,10 @@ export function ShiftReviewView({ server, onOpenCheck }: { server?: string; onOp
   const notes = useNotes();
   const feedback = useTodaysFeedback();
   const t = useNow(30_000);
-  const [tab, setTab] = useState<ShiftTab>(() => requestedTab.get() ?? 'checks');
+  const [picked, setTab] = useState<ShiftTab>(() => requestedTab.get() ?? 'checks');
+  const trivia = useTriviaOn();
+  // Back Office can turn trivia off while its tab is open.
+  const tab = !trivia && picked === 'trivia' ? 'checks' : picked;
   const day = sideWorkDate();
   const signedAt = useSignedOffAt(who, day);
 
@@ -109,7 +113,7 @@ export function ShiftReviewView({ server, onOpenCheck }: { server?: string; onOp
             countTone: tab === 'notes' ? undefined : 'plum',
           },
           { id: 'feedback', label: 'Dining feedback', count: feedback.length, countTone: tab === 'feedback' ? undefined : 'success' },
-          { id: 'trivia', label: 'Trivia scoreboard', icon: <CircleHelp size={15} aria-hidden /> },
+          ...(trivia ? [{ id: 'trivia' as const, label: 'Trivia scoreboard', icon: <CircleHelp size={15} aria-hidden /> }] : []),
         ]}
       />
       <div role="tabpanel" aria-label={tab}>
