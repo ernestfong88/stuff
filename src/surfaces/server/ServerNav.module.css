@@ -119,3 +119,19 @@ button.ref {
     padding: 0;
   }
 }
+
+/* The time of day: a quiet pill at the header's 44px, readable at arm's length. */
+.clock {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 11px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  background: rgba(20, 35, 48, 0.05);
+  font-variant-numeric: tabular-nums;
+}

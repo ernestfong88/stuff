@@ -3,7 +3,7 @@ import { GlassWater } from 'lucide-react';
 import { courseWork } from '../../../domain/courses';
 import { leadDiner, tableName } from '../../../domain/orders';
 import type { Order } from '../../../domain/types';
-import { formatElapsed } from '../../../lib/format';
+import { formatElapsed, formatTime } from '../../../lib/format';
 import { useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
 import { cx, toast, useNow } from '../../../ui';
@@ -12,6 +12,7 @@ import { drinkQueue } from '../shared/lines';
 import { checkInWakeMinutes, tableRoom, venueHasExpo } from '../../../domain/venue';
 import { cardActions, type CardAction } from './cardActions';
 import { DrinksDialog, GetItemsDialog } from './CardDialogs';
+import { orderTime, orderTimeLabel } from './orderTime';
 import { ReminderRow } from './ReminderRow';
 import s from './TableCard.module.css';
 import { isLate, minutesBetween, type TableStage } from '../../../domain/tableStage';
@@ -233,6 +234,7 @@ export function TableCard({ order: o, stage, since, covered, onOpen, plain }: Ta
 
   const runCourse = grab?.course ?? serveCourse?.course ?? null;
   const readyCourse = courseWork(o).run;
+  const when = orderTime(o);
   return (
     <div
       className={cx(s.card, plain ? s.plainCard : s[`lane_${stage.key}`], !plain && late && s.late, !plain && stage.key === 'run' && !late && s.loud)}
@@ -240,11 +242,21 @@ export function TableCard({ order: o, stage, since, covered, onOpen, plain }: Ta
     >
       <button
         className={s.head}
-        aria-label={`Open ${tableName(o)}${lead ? `, ${lead.name}${lead.more ? ` and ${lead.more} more` : ''}` : ''}`}
+        aria-label={`Open ${tableName(o)}${lead ? `, ${lead.name}${lead.more ? ` and ${lead.more} more` : ''}` : ''}, ${orderTimeLabel(when)}`}
         onClick={stop(() => onOpen(o.id))}
       >
         <span className={s.table}>{tableName(o)}</span>
-        <span className={cx(s.lead, !lead && s.nobody)}>{lead ? lead.name + (lead.more ? ' +' + lead.more : '') : 'No one yet'}</span>
+        {/* Who, and under it when the order went in: two short lines inside the head's 44px, so the card is no taller. */}
+        <span className={s.who}>
+          <span className={cx(s.lead, !lead && s.nobody)}>{lead ? lead.name + (lead.more ? ' +' + lead.more : '') : 'No one yet'}</span>
+          <span
+            className={cx(s.when, when.kind === 'opened' && s.whenOpened)}
+            title={when.kind === 'ordered' ? 'When the first items went to the kitchen' : 'Nothing sent yet: when the check was opened'}
+          >
+            <span className={s.whenWord}>{when.kind === 'ordered' ? 'Ordered' : 'Opened'}</span>
+            <span className={s.whenAt}>{formatTime(when.at)}</span>
+          </span>
+        </span>
         {!plain && late && stage.key !== 'check' && <span className={s.lateTag}>LATE</span>}
         <span className={cx(s.timer, !plain && late && s.timerLate)}>{formatElapsed(ms)}</span>
       </button>

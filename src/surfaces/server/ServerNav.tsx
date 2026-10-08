@@ -1,8 +1,9 @@
 import { ArrowLeft, Check, ChevronDown, ClipboardList, ListChecks, Map as MapIcon, ShoppingBag, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { Order } from '../../domain/types';
+import { formatTime } from '../../lib/format';
 import { useHeaderFit } from '../../shell/headerFit';
-import { cx, MenuItem, Popover } from '../../ui';
+import { cx, MenuItem, Popover, useNow } from '../../ui';
 import type { MineMode } from '../../store/serverMine';
 import { MenuReferenceButton, PointsChip, SideWorkChip } from './features';
 import { HeaderMore } from './HeaderMore';
@@ -123,22 +124,42 @@ export function ServerNavLeft({
   );
 }
 
-/** Right side of the header: the menu reference, Residents and Shift Review; a More menu when the header is short of room. */
+/**
+ * The time of day, as on the kitchen screens ("5:45 PM"). It never folds
+ * away: once the least-used chips have stepped aside (fold 4) it drops the
+ * AM/PM. Its own component, so the tick redraws only the clock.
+ */
+export function ServerClock() {
+  const fit = useHeaderFit();
+  const t = useNow(1000);
+  const full = formatTime(t);
+  return (
+    <time className={s.clock} dateTime={new Date(t).toISOString()} aria-label={`Time ${full}`} title={full}>
+      {fit >= 4 ? full.replace(/\s*[AP]M$/, '') : full}
+    </time>
+  );
+}
+
+/** Right side of the header: the clock, the menu reference, Residents and Shift Review; a More menu when the header is short of room. */
 export function ServerNavRight({ view, onResidents, onShift }: { view: ServerView; onResidents: () => void; onShift: () => void }) {
   const fit = useHeaderFit();
   if (fit >= 3) {
     return (
-      <HeaderMore
-        pages={[
-          { label: 'Residents', icon: <Users size={16} strokeWidth={2} />, active: view === 'residents', onClick: onResidents },
-          { label: 'Shift Review', icon: <ListChecks size={16} strokeWidth={2} />, active: view === 'shift', onClick: onShift },
-        ]}
-      />
+      <>
+        <ServerClock />
+        <HeaderMore
+          pages={[
+            { label: 'Residents', icon: <Users size={16} strokeWidth={2} />, active: view === 'residents', onClick: onResidents },
+            { label: 'Shift Review', icon: <ListChecks size={16} strokeWidth={2} />, active: view === 'shift', onClick: onShift },
+          ]}
+        />
+      </>
     );
   }
   const short = fit >= 1;
   return (
     <>
+      <ServerClock />
       <MenuReferenceButton short={short} className={s.ref} />
       <button
         className={cx(s.btn, view === 'residents' && s.onResidents)}

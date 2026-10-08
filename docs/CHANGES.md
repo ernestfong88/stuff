@@ -220,6 +220,14 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Server: a clock, and when each table ordered
+- The server tablet's top bar shows the time of day, such as *5:45 PM*, in the same format as the kitchen screens. It sits with the right-hand buttons, before the menu reference (or the More menu), in 16px bold figures, and follows a pinned demo clock (`?clock=17:45`).
+- The clock takes part in the header's folding. It stays on screen at every fold; once the side work chip and the text size % have stepped aside it drops the AM/PM (*5:45*). It never pushes the venue, the mode menu or the avatar off screen.
+- Each table on My tables shows when its order went in, under the diner names: *Ordered 5:32 PM* is the first time anything was sent to the kitchen (the same time as on the kitchen ticket). Before anything is sent it reads *Opened 5:30 PM*, in grey, the time the check was opened.
+- The time is 13px and fits inside the card's existing head, so cards are no taller. On a very narrow card the word gives way and the time stays.
+- Only the server's My tables cards show it; the manager's floor and tables views have their own cards and are unchanged.
+- Checked at 1180×820, 820×1180 and 1024×768 at 100% and 130% text with no sideways scrolling in the header or the board.
+
 ### Temperature Log: extra checks
 - On the prep tablet's Temp log, every dish has **Add a check** after its scheduled checks, for an extra reading at any time: a new batch coming out, a re-check after reheating, or a spot check.
 - Tap it, pick a reason (*New batch*, *Re-check*, *Spot check*, *Other*, or skip it), enter the temperature on the number pad and sign with your PIN. A reading out of range asks for the corrective action and an optional recheck, the same as the regular checks.
@@ -228,7 +236,6 @@ The final order is:
 - Extra checks are never due, overdue or missed. They add to *readings taken*, and one out of range counts in *out of range*.
 - Back Office → Temperature Log adds an **Extra checks** column to a meal when any dish has one, listing each with its reason, who and when, and the action taken. The printed log has the same column.
 - The demo shows a re-check after yesterday's dinner reheat and a new batch checked at lunch today. Saved logs from before this change still load.
-
 
 ### Close & charge: easier to read
 - Close & charge on the server tablet is reworked for reading at a glance. Nothing it does or adds up has changed.
@@ -239,7 +246,6 @@ The final order is:
 - The footer says **Total to charge** (or *Nothing to charge*) in large type, then in plain words where it goes: *Charged to Harold's resident account* for one person, or the split across accounts and cards for a table. The main button is 60px tall with 18px text; *Print table* is a smaller outlined button.
 - The table summary, card payment for the table, the corkage counter (now inside the scrolling area, so it no longer takes room at the top), the guest meal credit offer, the terminal and the delivery fee and the sick and hospice waivers (which look the same on the check screen) all use the same larger type. No text the server reads is under 14px, helper lines are at least 13px, and grey text is darker.
 - The content sits in one centred column up to 880px wide, so names and prices stay close together on a landscape tablet; portrait is a single column. It fits at 130% text size with no sideways scrolling.
-
 
 ### Cook: All day counts plates not fired yet
 - **The All day strip shows two numbers for each dish.** The solid white one is plates on the line now. The amber outlined one ("+1") is plates sent to the kitchen but not fired yet: a later course still waiting, or a pick up booked for later.
@@ -259,7 +265,6 @@ The final order is:
 - **Every table** is folded away by default: each timed table with its time for every step, late steps in red, steps still running shown as *10:02 so far*. Tap a table to open its check.
 - The seven-day sparklines under each card and the three separate cards are gone. All text is at least 14px, the meal buttons are full-size touch targets, and the page fits portrait and landscape at 130% text size; the rows stack with their own labels when the screen is narrow.
 
-
 ### Production Prep in the kitchen's dark look
 - Production Prep now wears the same dark look as Cook and Expo: the near-black screen, dark cards, white text, and the kitchen's heavy type. The title reads in capitals like *COOK* and *EXPO*.
 - The venue buttons are the kitchen's header buttons. Prep checklist / Cleaning log / Temp log, the days and the meals are dark groups; the one chosen is white, like Expo's filters. Today keeps its amber.
@@ -267,7 +272,6 @@ The final order is:
 - Special cards: the amount to make in amber, *Complete* a solid kitchen green, the voice note button amber, the typed note button a dark header button. A prepped special drops to a green line, as a finished plate does on Cook.
 - Every dialog opened from Prep is dark too: the recipe sheet, the PIN pad, the temperature pad and corrective actions, *Add a dish*, and the remove and un-sign confirms.
 - The layout and what everything does are unchanged; only the title grows to the kitchen's size. All text keeps at least 4.5:1 contrast. The shared buttons, text field and PIN pad read a few new colour settings so they can go dark in these dialogs; everywhere else they look as before.
-
 
 ### Coursing: Manual coursing is the default
 *Hold for server* is renamed **Manual coursing**, and it is now the default for every venue and meal: each course waits until the server or expo fires it, with the 15-minute safety net. A venue and meal still set to another option in *Pacing & Coursing* keeps it. Ones never changed, which were *Fire when served* until now, follow the new default.
