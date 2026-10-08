@@ -122,10 +122,11 @@ The minor and cosmetic findings were also worked through; most are fixed. Exampl
 - **Time to greet → "Don't count under"** has no live reader yet; Shift Metrics uses demo data. The page says so.
 - **Fill from recipe book** fills lunch and dinner only. The page now says so.
 
-## Decision needed
+## Meal plans: the Back Office plan always applies
 
-Two seed residents have a Back Office meal plan that disagrees with their dining record:
-- **r4:** 3 meals a day in the Back Office, 2 on the tablets.
-- **r7:** spend-down in the Back Office, 30 a month on the tablets.
+Two seed residents had a Back Office plan that disagreed with their dining record: r4 Rose (3 a day vs 2) and r7 Frank (spend-down vs 30 a month).
 
-For now, the Back Office plan applies only after someone has changed it there once. The recommendation is to correct those two seed records so the Back Office plan always applies.
+- Both seed records now match the tablets. Rose is on the new *AL 2x Meals a Day* plan, and Frank is on *IL Resident Meal Plan*.
+- The Back Office plan now always decides what Close & charge, billing, the server and the kiosk count. The dining record is only a fallback for a resident with no Back Office plan.
+- A test checks that every seed resident has the same plan in both places.
+- Copies already saved in a browser are brought up to date: an unchanged plan follows the seed, and the missing plan is added.

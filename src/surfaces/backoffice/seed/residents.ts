@@ -24,7 +24,7 @@ export interface BoResident {
 }
 
 /** The billing plan for a resident the back office has no record of yet, from the tablets' plan. */
-const PLAN_FOR: Record<string, string> = { monthly30: 'pl1', daily2: 'pl2', alacarte: 'pl4' };
+const PLAN_FOR: Record<string, string> = { monthly30: 'pl1', daily2: 'pl8', alacarte: 'pl4' };
 
 /** A back office record for a resident who only has a dining record so far. */
 function fromDining(d: Resident): BoResident {

@@ -232,6 +232,7 @@ All 6 blockers and the majors from the audit are fixed. See [`AUDIT.md`](AUDIT.m
 - Kitchen notes show on Cook and Expo tickets.
 - All 25 residents are in Dining Plans.
 - Every associate with a PIN can sign in.
+- The Back Office meal plan always decides what a resident's meals count as. A new *AL 2x Meals a Day* plan matches the tablets' 2-a-day plan.
 
 **Floor plan**
 - Floor plan edits reach every screen.

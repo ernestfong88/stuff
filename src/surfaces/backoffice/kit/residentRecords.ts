@@ -13,11 +13,16 @@ export const residentRecordsStore = createSharedStore<BoResident[]>(seedBoReside
   persistKey: 'kisco_backoffice_residents_v1',
   channel: 'kisco-backoffice-residents',
 });
-// A copy saved before every resident had a record (or with an old care level) is brought up to date.
+// A copy saved before every resident had a record (or with an old care level) is brought up to date,
+// and a plan nobody has changed here follows the shipped one.
 {
   const saved = residentRecordsStore.get();
-  const full = withAllResidents(saved);
-  if (full !== saved) residentRecordsStore.set(full);
+  const seed = seedBoResidents();
+  const full = withAllResidents(saved).map((r) => {
+    const planId = !r.planLog?.length && seed.find((x) => x.id === r.id && x.name === r.name)?.planId;
+    return planId && planId !== r.planId ? { ...r, planId } : r;
+  });
+  if (full.some((r, i) => r !== saved[i]) || full.length !== saved.length) residentRecordsStore.set(full);
 }
 
 export function useResidentRecords(): BoResident[] {
@@ -48,7 +53,9 @@ export function useKitchenNote(residentId: string | null | undefined): string {
 export function tabletPlan(bo: Pick<BoMealPlan, 'id' | 'text' | 'amt' | 'type'>): MealPlan {
   if ((bo.type === 'Monthly' || bo.type === 'Daily') && bo.amt > 0) {
     const same = Object.values(mealPlans).find((p) => p.type === bo.type && p.amt === bo.amt);
-    return same ?? { id: `bo:${bo.id}`, type: bo.type, label: `${bo.amt} meals / ${bo.type === 'Monthly' ? 'month' : 'day'}`, amt: bo.amt, unit: 'meals' };
+    return (
+      same ?? { id: `bo:${bo.id}`, type: bo.type, label: `${bo.amt} meals / ${bo.type === 'Monthly' ? 'month' : 'day'}`, amt: bo.amt, unit: 'meals' }
+    );
   }
   if (bo.type === 'Monthly $') return { id: `bo:${bo.id}`, type: 'A la carte', label: `${bo.text} · $${bo.amt} spend-down`, amt: 0, unit: null };
   return mealPlans.alacarte;
@@ -56,11 +63,9 @@ export function tabletPlan(bo: Pick<BoMealPlan, 'id' | 'text' | 'amt' | 'type'>)
 
 /**
  * A resident's meal plan as close & charge, the server and the kiosk count
- * it: once the plan has been changed in Back Office (Dining Plans & Notes,
- * which logs every change), that plan with its amounts from Meal Plans;
- * until then the dining record's plan. The shipped back office records were
- * keyed in separately and disagree with the dining records for a few
- * residents, so they only take over once someone sets the plan here.
+ * it: the Back Office plan (Dining Plans & Notes) with its amounts from Meal
+ * Plans. The dining record's plan is only a fallback, for a resident with no
+ * Back Office record or a plan that no longer exists.
  */
 export function residentPlan(
   residentId: string | null | undefined,
@@ -69,6 +74,6 @@ export function residentPlan(
 ): MealPlan {
   const seed = mealPlans[getResident(residentId ?? '')?.plan ?? ''] ?? mealPlans.alacarte;
   const rec = residentId ? records.find((r) => r.id === residentId) : undefined;
-  const bo = rec?.planLog?.length ? plans.find((p) => p.id === rec.planId) : undefined;
+  const bo = rec ? plans.find((p) => p.id === rec.planId) : undefined;
   return bo ? tabletPlan(bo) : seed;
 }
