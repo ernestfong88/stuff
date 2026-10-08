@@ -1,6 +1,6 @@
 /** Recipe Book filters and sorting. */
 import type { Recipe } from '../../../../store/menuEdits';
-import { CATEGORIES, dishLong, proteinOf, subOf } from './categories';
+import { CATEGORIES, dishLong, proteinOf, subcategoryGroups, subOf } from './categories';
 import type { RecipeScore } from './score';
 
 export type ScoreFilter = '' | 'love' | 'ok' | 'bad' | 'none';
@@ -11,6 +11,8 @@ export interface RecipeFilters {
   q: string;
   /** '' = all categories. */
   cat: string;
+  /** A named group of the category's subcategories, e.g. 'Alcoholic' or 'Non-Alcoholic' drinks; '' = any. */
+  group: string;
   sub: string;
   protein: string;
   diet: string;
@@ -25,6 +27,7 @@ export interface RecipeFilters {
 export const NO_FILTERS: RecipeFilters = {
   q: '',
   cat: '',
+  group: '',
   sub: '',
   protein: '',
   diet: '',
@@ -37,7 +40,7 @@ export const NO_FILTERS: RecipeFilters = {
 
 /** How many filters narrow the list (sort does not count). */
 export function filterCount(f: RecipeFilters): number {
-  return [f.sub, f.protein, f.diet, f.score, f.onMenu, f.cat, f.q.trim()].filter(Boolean).length + (f.favorites ? 1 : 0) + (f.status !== 'active' ? 1 : 0);
+  return [f.group, f.sub, f.protein, f.diet, f.score, f.onMenu, f.cat, f.q.trim()].filter(Boolean).length + (f.favorites ? 1 : 0) + (f.status !== 'active' ? 1 : 0);
 }
 
 export function isActive(r: Recipe): boolean {
@@ -69,12 +72,18 @@ export function matchesText(r: Recipe, q: string, shortOf: (r: Recipe) => string
   );
 }
 
+/** Whether a recipe's subcategory is in a named group of its category (Alcoholic / Non-Alcoholic drinks). */
+export function inGroup(r: Recipe, group: string): boolean {
+  return subcategoryGroups(r.cat).some(([name, subs]) => name === group && subs.includes(subOf(r)));
+}
+
 export function filterRecipes(recipes: Recipe[], f: RecipeFilters, c: FilterContext): Recipe[] {
   const list = recipes.filter(
     (r) =>
       (f.status === 'all' || (f.status === 'retired' ? !isActive(r) : isActive(r))) &&
       (!f.cat || r.cat === f.cat) &&
       matchesText(r, f.q, c.shortOf) &&
+      (!f.group || inGroup(r, f.group)) &&
       (!f.sub || subOf(r) === f.sub) &&
       (!f.protein || proteinOf(r) === f.protein) &&
       (!f.diet || (r.dietFlags ?? []).includes(f.diet)) &&

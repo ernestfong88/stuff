@@ -220,6 +220,11 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Recipe Book: alcoholic and non-alcoholic drinks
+With **Drinks** picked, the filters add a **Type** choice: Any · Non-alcoholic · Alcoholic. The subcategory list then only offers that type's subcategories:
+- **Non-alcoholic:** Soft Drinks, Juice, Coffee & Tea, Other, which covers the NA wines.
+- **Alcoholic:** Beer, Wine, Cocktails, Spirits.
+
 ### Menu builder uses wide screens
 - The cycle builder and the à la carte builder now fill the whole window instead of stopping at the Back Office's 1280px reading width (other pages are unchanged). The seven day columns grow with the screen, and above 1700px the cards, row labels and dates get a little more room and a slightly larger font. Narrow windows still scroll sideways as before.
 - **À la carte:** the sections sit side by side in as many 420px columns as fit, two at a laptop width and up to five on a 2560px screen. A long section carries on at the top of the next column, so every column fills evenly. The Breakfast, Lunch and Dinner labels on a locked menu are now centred in their pills.

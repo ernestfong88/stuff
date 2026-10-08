@@ -11,7 +11,7 @@ import { menuRows, quarterGaps } from '../model/menuList';
 import { andList, esc, printContext, dailyMenuHtml, orderFormHtml } from '../model/menuPrint';
 import { orphanPrices, setPrice } from '../model/pricing';
 import { choiceWords, fraction, parseRecipeText, qtyUnit } from '../model/recipeDraft';
-import { filterRecipes, NO_FILTERS } from '../model/recipeFilter';
+import { filterRecipes, inGroup, NO_FILTERS } from '../model/recipeFilter';
 import { mentionScore, noteDish, popularity, recipeScore, type FeedbackEntry } from '../model/score';
 
 const day = (iso: string) => new Date(iso + 'T12:00:00').getTime();
@@ -270,5 +270,20 @@ describe('typing a recipe into a slot', () => {
     expect(searchRecipes(book, 'pie', 'Entrees').list).toEqual([]);
     expect(searchRecipes(book, 'chicken breast', 'Entrees').exact).toBe(true);
     expect(searchRecipes(book, 'chicken bre', 'Entrees').exact).toBe(false);
+  });
+});
+
+describe('drinks: alcoholic vs non-alcoholic', () => {
+  const ctx = { scoreOf: () => null, onMenu: new Set<string>(), favorites: {}, shortOf: (x: { name: string }) => x.name };
+  it('splits the drinks by their subcategory group', () => {
+    const alc = filterRecipes(SEED.recipes, { ...NO_FILTERS, cat: 'Drinks', group: 'Alcoholic' }, ctx);
+    const na = filterRecipes(SEED.recipes, { ...NO_FILTERS, cat: 'Drinks', group: 'Non-Alcoholic' }, ctx);
+    const all = filterRecipes(SEED.recipes, { ...NO_FILTERS, cat: 'Drinks' }, ctx);
+    expect(alc.length).toBeGreaterThan(0);
+    expect(na.length).toBeGreaterThan(0);
+    expect(alc.length + na.length).toBe(all.length);
+    expect(alc.map((r) => r.name)).toContain('Captain Morgan Rum');
+    expect(na.map((r) => r.name)).toContain('BTL - Fre Cabernet No Alcohol');
+    expect(inGroup(alc[0], 'Non-Alcoholic')).toBe(false);
   });
 });

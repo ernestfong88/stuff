@@ -1,5 +1,5 @@
 import { SearchField, Tabs, cx } from '../../../../ui';
-import { DIETS, PROTEINS, subcategories } from '../model/categories';
+import { DIETS, PROTEINS, subcategories, subcategoryGroups } from '../model/categories';
 import type { RecipeFilters, RecipeSort, ScoreFilter, StatusFilter } from '../model/recipeFilter';
 import { Field, Select } from '../ui/controls';
 import s from './RecipeFiltersBar.module.css';
@@ -35,7 +35,9 @@ export function RecipeFiltersBar({
   onHide: () => void;
   onClear: () => void;
 }) {
-  const subs = f.cat ? subcategories(f.cat) : [];
+  // Named subcategory groups (Drinks: Non-Alcoholic / Alcoholic) get their own choice; the subcategories then follow it.
+  const groups = f.cat ? subcategoryGroups(f.cat).filter(([name]) => name) : [];
+  const subs = f.cat ? (f.group ? (groups.find(([g]) => g === f.group)?.[1] ?? []) : subcategories(f.cat)) : [];
   return (
     <section className={s.card} aria-label="Filters">
       <div className={s.row}>
@@ -47,7 +49,7 @@ export function RecipeFiltersBar({
             variant="segmented"
             size="sm"
             value={f.cat || 'All'}
-            onChange={(c) => set({ cat: c === 'All' ? '' : c, sub: '', ...(c !== 'All' && c !== 'Entrees' ? { protein: '' } : {}) })}
+            onChange={(c) => set({ cat: c === 'All' ? '' : c, group: '', sub: '', ...(c !== 'All' && c !== 'Entrees' ? { protein: '' } : {}) })}
             options={['All', ...categories].map((c) => ({ id: c, label: c === 'Entrees' ? 'Entrées' : c }))}
             aria-label="Category"
           />
@@ -55,6 +57,18 @@ export function RecipeFiltersBar({
       </div>
       {!global && (
         <div className={s.row}>
+          {groups.length > 0 && (
+            <Field label="Type">
+              <Tabs
+                variant="segmented"
+                size="sm"
+                value={f.group || 'Any'}
+                onChange={(g) => set({ group: g === 'Any' ? '' : g, sub: '' })}
+                options={['Any', ...groups.map(([g]) => g)].map((g) => ({ id: g, label: g === 'Any' ? 'Any' : g.charAt(0) + g.slice(1).toLowerCase() }))}
+                aria-label="Type"
+              />
+            </Field>
+          )}
           {subs.length > 0 && (
             <Field label="Subcategory">
               <Select
@@ -62,7 +76,7 @@ export function RecipeFiltersBar({
                 emphasize
                 value={f.sub}
                 onChange={(sub) => set({ sub })}
-                placeholder={'Any ' + f.cat.toLowerCase()}
+                placeholder={'Any ' + (f.group ? f.group.toLowerCase() + ' ' : '') + f.cat.toLowerCase()}
                 options={subs.map((x) => ({ value: x, label: x }))}
               />
             </Field>
