@@ -18,6 +18,17 @@
   border-top: 0;
   padding-top: 4px;
 }
+.printerFocus {
+  margin: 0 -10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: var(--r-md);
+  background: var(--amber-100, #fff4dc);
+}
+.printerFocus,
+.printerFocus + .printer {
+  border-top-color: transparent;
+}
 .printerIcon {
   flex-shrink: 0;
   margin-top: 10px;

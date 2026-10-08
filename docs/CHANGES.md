@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### All printer settings on Printers
+- **Venues › Printers is the one place for printers and card terminals.** The *Printers & terminals* tab is gone from each venue in Venue Settings; its tabs are now Menus & details, Prices, Floor plan and Kitchen routing (cook screens, unchanged).
+- **A venue picker** at the top of Printers: *All venues* or one venue. Picking a venue narrows every tab to it: its printers, what they print, its kitchen's menu items, and its card terminals.
+- **Printers tab:** add, rename and remove printers, change type and IP (same checks as before), add a printer to a venue, and Test. Picking a venue, **Add printer** also offers the community's existing printers. Taking a printer off a venue now asks first and offers **Undo**, as the venue tab did.
+- **New Card terminals tab:** each venue's Square Terminals with Online or Offline, and **Pair a terminal** for each venue, with the same pairing-code check.
+- **Fix links go to Printers.** "Expo Receipt printer can't be reached" on a venue card, or on the venue, opens Printers at that venue with the printer highlighted; an offline terminal opens Card terminals at that venue.
+- The bottom of a venue's Menus & details tab says *Printers and card terminals for this venue are on Printers*, with a link that opens Printers at that venue.
+- Old links to a venue's printers tab open Printers at that venue, and searching for *Card terminals* opens the Card terminals tab.
+
+
 ### Recipe Approval
 - **New page: HO Settings › Recipe Approval.** Recipes the communities send to Home Office wait in a queue with tabs **Waiting · Approved · Denied** and their counts. Each row shows the recipe, its category, the community and who sent it when, and their note (or, once decided, who decided and their comment).
 - **Opening a recipe** shows it read-only: description, allergens and diets, portion and times, ingredients, method and equipment, plating and garnish, cook notes, nutrition and chef's notes. A re-submission lists **what changed since the version approved before**, field by field (lines added and taken out, old and new values).

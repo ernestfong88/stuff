@@ -3,7 +3,7 @@ import { Plus, Printer as PrinterIcon, Search, TriangleAlert, X } from 'lucide-r
 import { rooms } from '../../../data';
 import { EMPTY_PICK, PRINT_GROUPS, printRoute, unprintedGroups, type PrintGroup, type PrintPick } from '../../../domain/printing';
 import { printOptions, type PrintOption } from '../../../store/printing';
-import { kitchenPrinters, setPrinterRoute, useVenueSettings, type Printer } from '../../../store/venueSettings';
+import { kitchenPrinters, setPrinterRoute, useVenueSettings, type Printer, type Venue } from '../../../store/venueSettings';
 import { useRecipeBookVersion } from '../../../store/recipes';
 import { cx, Tabs } from '../../../ui';
 import { BoSection } from '../kit';
@@ -14,14 +14,16 @@ import s from './PrinterRouting.module.css';
  * (the pass, a small kitchen with one printer) or only what it is set to:
  * whole groups (entrées and sides to the hot line), Recipe Book categories
  * (entrée salads to the pantry) or single recipes (the burger to the grill).
- * The most specific setting wins.
+ * The most specific setting wins. With a venue, only that venue's printers
+ * and its kitchen.
  */
-export function PrinterRouting() {
+export function PrinterRouting({ venue }: { venue?: Venue | null }) {
   const settings = useVenueSettings();
   const book = useRecipeBookVersion();
   // eslint-disable-next-line react-hooks/exhaustive-deps -- the options change when the Recipe Book does
   const options = useMemo(() => printOptions(), [book]);
-  const printers = settings.printers.filter((p) => p.active && p.type !== 'Label');
+  const own = venue ? new Set(settings.printerLinks.filter((l) => l.venueId === venue.id).map((l) => l.printerId)) : null;
+  const printers = settings.printers.filter((p) => p.active && p.type !== 'Label' && (!own || own.has(p.id)));
   const venuesOf = (id: string) =>
     settings.printerLinks
       .filter((l) => l.printerId === id)
@@ -29,6 +31,7 @@ export function PrinterRouting() {
       .filter(Boolean);
   const groupOf = new Map(options.map((o) => [o.key, o.group]));
   const gaps = Object.keys(rooms)
+    .filter((room) => !venue || venue.room === room)
     .map((room) => ({
       room,
       missing: unprintedGroups(
@@ -56,7 +59,9 @@ export function PrinterRouting() {
           </p>
         );
       })}
-      {printers.length === 0 && <p className={s.empty}>No kitchen printers yet. Add one on the Printers tab.</p>}
+      {printers.length === 0 && (
+        <p className={s.empty}>{venue ? `${venue.name} has no kitchen printers yet.` : 'No kitchen printers yet.'} Add one on the Printers tab.</p>
+      )}
       <ul className={s.list}>
         {printers.map((p) => (
           <PrinterRow key={p.id} printer={p} venues={venuesOf(p.id).join(', ')} options={options} />

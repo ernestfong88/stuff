@@ -1,7 +1,7 @@
 import { AlertTriangle, ChevronRight, RotateCcw } from 'lucide-react';
 import { Button, Chip, cx } from '../../../../ui';
 import type { Venue, VenueAdminView } from '../../../../store/venueSettings';
-import { venueIssues, type VenueTab } from './issues';
+import { venueIssues, type VenueIssue } from './issues';
 import { kitchenLine, servingLines, venueKind } from './summary';
 import s from './venues.module.css';
 
@@ -26,11 +26,14 @@ export function VenueOverview({
   settings,
   at,
   onOpen,
+  onFix,
   onBringBack,
 }: {
   settings: VenueAdminView;
   at: number;
-  onOpen: (id: string, tab?: VenueTab) => void;
+  onOpen: (id: string) => void;
+  /** Open where an issue is fixed: a tab of the venue, or Printers. */
+  onFix: (i: VenueIssue) => void;
   onBringBack: (v: Venue) => void;
 }) {
   const active = settings.venues.filter((v) => v.active);
@@ -69,7 +72,7 @@ export function VenueOverview({
                 <ul className={s.cardIssues} aria-label={`${v.name} needs attention`}>
                   {issues.map((i, n) => (
                     <li key={n}>
-                      <button className={cx(s.cardIssue, i.tone === 'danger' && s.cardIssueDanger)} onClick={() => onOpen(v.id, i.tab)}>
+                      <button className={cx(s.cardIssue, i.tone === 'danger' && s.cardIssueDanger)} onClick={() => onFix(i)}>
                         <AlertTriangle size={14} aria-hidden />
                         <span className={s.cardIssueText}>{i.text}</span>
                         <span className={s.issueFix}>

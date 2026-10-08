@@ -2,17 +2,18 @@
  * Venue Settings opens on an overview: one card per venue saying what kind
  * of place it is, what it serves now, which kitchen it uses and anything to
  * fix. A card opens that venue: its menus and details first, then tabs for
- * prices, floor plan, kitchen routing, and printers and terminals.
+ * prices, floor plan and kitchen routing. Printers and card terminals are
+ * on the Printers page, which a venue's printer issues open.
  *
  * #/backoffice/venues is the overview; #/backoffice/venues/<venueId>/<tab>
- * opens a venue on a tab ("first" for the first open venue).
+ * opens a venue on a tab ("first" for the first open venue). The old
+ * printers tab (venues/<venueId>/devices) opens Printers for that venue.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, ArrowLeft, ChevronRight, Plus } from 'lucide-react';
 import { navigate, useRoute } from '../../../shell/router';
 import { today } from '../../../lib/clock';
 import { Button, Chip, Tabs, cx, toast } from '../../../ui';
-import { VenueDevices } from '../../kitchen/admin/VenueDevices';
 import { resetRouting, routingEdited, RoutingEditor } from '../../kitchen/admin/RoutingEditor';
 import { FloorPlanEditor } from '../../manager/floor/FloorPlanEditor';
 import { useConfig } from '../../../store/config';
@@ -27,11 +28,12 @@ import { NewVenueDialog } from './venues/NewVenueDialog';
 import { VenueDetails } from './venues/VenueDetails';
 import { VenueMenu } from './venues/VenueMenu';
 import { VenueOverview } from './venues/VenueOverview';
-import { allVenueIssues, kitchenOf, venueIssues, type VenueTab } from './venues/issues';
+import { allVenueIssues, issueTab, kitchenOf, venueIssues, type VenueIssue, type VenueTab } from './venues/issues';
+import { openPrinters } from './printers/link';
 import { kitchenLine, venueKind } from './venues/summary';
 import s from './venues/venues.module.css';
 
-const TABS: VenueTab[] = ['menu', 'prices', 'floor', 'kitchen', 'devices', 'details'];
+const TABS: VenueTab[] = ['menu', 'prices', 'floor', 'kitchen', 'details'];
 
 export default function Page({ goto }: BoPageProps) {
   const stored = useVenueSettings();
@@ -69,13 +71,18 @@ export default function Page({ goto }: BoPageProps) {
   /** Open a venue (a new history entry, so Back returns to the overview), or switch its tab in place. */
   const open = (id: string, t: VenueTab = 'menu') => navigate('backoffice', ['venues', id, t], { replace: id === venue?.id });
   const overview = () => navigate('backoffice', ['venues']);
+  /** Open the venue tab that fixes an issue, or Printers at this venue (and printer). */
+  const fix = (i: VenueIssue) => ('tab' in i.fix ? open(i.venueId, i.fix.tab) : openPrinters({ ...i.fix.printers, venueId: i.venueId }));
   // An old link (#/backoffice/pricing) arrives as venues/first/prices: show the real venue in the address.
+  // The old printers tab (venues/<id>/devices) is now Printers for that venue.
   // A retired or unknown venue goes back to the overview.
+  const devices = route.path[2] === 'devices';
   useEffect(() => {
     if (!asked) return;
     if (!venue) navigate('backoffice', ['venues'], { replace: true });
+    else if (devices) openPrinters({ venueId: venue.id }, { replace: true });
     else if (asked !== venue.id) navigate('backoffice', ['venues', venue.id, tab], { replace: true });
-  }, [asked, venue, tab]);
+  }, [asked, venue, tab, devices]);
   const issues = allVenueIssues(settings);
   const at = today().getTime();
 
@@ -97,6 +104,7 @@ export default function Page({ goto }: BoPageProps) {
           venue={venue}
           tab={tab}
           onTab={(t) => open(venue.id, t)}
+          onFix={fix}
           onBack={overview}
           goto={goto}
           onRetired={overview}
@@ -110,7 +118,7 @@ export default function Page({ goto }: BoPageProps) {
       title="Venue Settings"
       sub={
         active.length
-          ? `${active.length} open venue${active.length === 1 ? '' : 's'}${issues.length ? ` · ${issues.length} thing${issues.length === 1 ? ' needs' : 's need'} attention` : ''}. Open one to change its menus, prices, floor plan, kitchen or printers.`
+          ? `${active.length} open venue${active.length === 1 ? '' : 's'}${issues.length ? ` · ${issues.length} thing${issues.length === 1 ? ' needs' : 's need'} attention` : ''}. Open one to change its menus, prices, floor plan or kitchen.`
           : undefined
       }
       actions={
@@ -128,6 +136,7 @@ export default function Page({ goto }: BoPageProps) {
         settings={settings}
         at={at}
         onOpen={open}
+        onFix={fix}
         onBringBack={(v) => {
           patchVenue(v.id, { active: true });
           toast(`${v.name} is back`);
@@ -148,6 +157,7 @@ function VenueDetail({
   venue,
   tab,
   onTab,
+  onFix,
   onBack,
   goto,
   onRetired,
@@ -156,12 +166,13 @@ function VenueDetail({
   venue: Venue;
   tab: VenueTab;
   onTab: (t: VenueTab) => void;
+  onFix: (i: VenueIssue) => void;
   onBack: () => void;
   goto: (pageId: string) => void;
   onRetired: () => void;
 }) {
   const issues = venueIssues(settings, venue);
-  const count = (t: VenueTab) => issues.filter((i) => i.tab === t).length || undefined;
+  const count = (t: VenueTab) => issues.filter((i) => issueTab(i) === t).length || undefined;
   const kitchen = kitchenOf(settings, venue);
   const cfg = useConfig();
   const sharing = venue.room ? settings.venues.filter((v) => v.active && v.id !== venue.id && v.room === venue.room) : [];
@@ -192,7 +203,7 @@ function VenueDetail({
         <ul className={s.headIssues} aria-label="Needs attention">
           {issues.map((i, n) => (
             <li key={n}>
-              <button className={cx(s.cardIssue, i.tone === 'danger' && s.cardIssueDanger)} onClick={() => onTab(i.tab)}>
+              <button className={cx(s.cardIssue, i.tone === 'danger' && s.cardIssueDanger)} onClick={() => onFix(i)}>
                 <AlertTriangle size={14} aria-hidden />
                 <span className={s.cardIssueText}>{i.text}</span>
                 <span className={s.issueFix}>
@@ -214,12 +225,11 @@ function VenueDetail({
             id: 'menu',
             label: 'Menus & details',
             count: count('menu'),
-            countTone: issues.some((i) => i.tab === 'menu' && i.tone === 'danger') ? 'danger' : undefined,
+            countTone: issues.some((i) => issueTab(i) === 'menu' && i.tone === 'danger') ? 'danger' : undefined,
           },
           { id: 'prices', label: 'Prices' },
           { id: 'floor', label: 'Floor plan' },
           { id: 'kitchen', label: 'Kitchen routing' },
-          { id: 'devices', label: 'Printers & terminals', count: count('devices') },
         ]}
       />
       <div className={s.tabBody}>
@@ -230,9 +240,15 @@ function VenueDetail({
             <div ref={detailsRef} className={s.anchor}>
               <VenueDetails settings={settings} venue={venue} onRetired={onRetired} />
             </div>
+            <p className={s.tabLine}>
+              Printers and card terminals for {venue.name} are on{' '}
+              <button className={s.link} onClick={() => openPrinters({ venueId: venue.id })}>
+                Printers
+              </button>
+              .
+            </p>
           </>
         )}
-        {shown === 'devices' && <VenueDevices settings={settings} venue={venue} />}
         {shown === 'prices' && (
           <BoEmbedded>
             <PricingPage venueId={venue.id} />

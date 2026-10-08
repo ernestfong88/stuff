@@ -164,16 +164,15 @@ export const BO_SECTIONS: BoSectionDef[] = [
       {
         id: 'venues',
         label: 'Venue Settings',
-        blurb: "Each venue's menu, prices, floor plan, kitchen routing, printers and terminals",
-        keywords:
-          'printer terminal square room price pricing cost guest a la carte floor plan tables layout seating map kitchen routing bar route tickets',
+        blurb: "Each venue's menu, prices, floor plan and kitchen routing",
+        keywords: 'room price pricing cost guest a la carte floor plan tables layout seating map kitchen routing bar route tickets',
         component: lazy(() => import('./pages/venues')),
       },
       {
         id: 'printers',
         label: 'Printers',
-        blurb: 'Add, rename and remove printers, and choose what each one prints, down to single menu items',
-        keywords: 'printer ticket kitchen print route receipt label ip test menu item send to',
+        blurb: "Each venue's printers and card terminals: add, rename and remove printers, and choose what each one prints",
+        keywords: 'printer ticket kitchen print route receipt label ip test menu item send to terminal square card pair devices',
         phase: 1,
         component: lazy(() => import('./pages/printers')),
       },
@@ -378,6 +377,7 @@ export interface BoPageAlias {
 export const BO_ALIASES: BoPageAlias[] = [
   { id: 'pricing', label: 'Prices', blurb: 'In Venue Settings, on each venue', keywords: 'pricing price cost guest a la carte', to: ['venues', 'first', 'prices'] },
   { id: 'floorplan', label: 'Floor plan', blurb: 'In Venue Settings, on each venue', keywords: 'floor plans tables layout seating map', to: ['venues', 'first', 'floor'] },
+  { id: 'terminals', label: 'Card terminals', blurb: 'In Printers, venue by venue', keywords: 'card terminal square pair payment tap devices printers & terminals', to: ['printers', 'terminals'] },
   { id: 'svcRoute', label: 'Kitchen routing', blurb: 'In Venue Settings, on each venue', keywords: 'kitchen routing kds expo bar station route', to: ['venues', 'first', 'kitchen'] },
   { id: 'fees', label: 'Delivery fees & sick waivers', blurb: 'In Pick Up & Delivery', keywords: 'delivery options tray room service fee sick waiver', to: ['svcWin', 'fees'] },
   { id: 'broadcasts', label: 'Broadcasts to staff', blurb: 'In Messages', keywords: 'broadcast notice announcement', to: ['svcTexts', 'broadcasts'] },

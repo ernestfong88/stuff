@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Venue, VenueAdminView } from '../../../../store/venueSettings';
-import { allVenueIssues, kitchenOf, venueIssues } from '../venues/issues';
+import { allVenueIssues, issueTab, kitchenOf, venueIssues } from '../venues/issues';
 
 const venue = (patch: Partial<Venue>): Venue => ({ id: 'v1', name: 'Sequoia', room: 'sequoia', menuId: 'm1', menuStartDt: 1, active: true, upcoming: [], ...patch });
 const base: VenueAdminView = {
@@ -24,16 +24,21 @@ const base: VenueAdminView = {
 
 describe('venue issues', () => {
   it('flags a venue with no menu, or a cycle menu with no week 1 date, on the Menu tab', () => {
-    expect(venueIssues(base, venue({ id: 'x', menuId: null }))).toEqual([{ venueId: 'x', tab: 'menu', tone: 'danger', text: 'No menu, so it serves nothing' }]);
+    expect(venueIssues(base, venue({ id: 'x', menuId: null }))).toEqual([{ venueId: 'x', fix: { tab: 'menu' }, tone: 'danger', text: 'No menu, so it serves nothing' }]);
     expect(venueIssues(base, venue({ id: 'x', menuStartDt: null }))[0].text).toMatch(/no week 1 date/);
     expect(venueIssues(base, venue({ id: 'x', menuId: 'm2', menuStartDt: null }))).toEqual([]);
     // Only an à la carte menu is enough.
     expect(venueIssues(base, venue({ id: 'x', menuId: null, alcMenuId: 'm2' }))).toEqual([]);
   });
 
-  it('flags printers that cannot be reached and terminals that are offline', () => {
-    expect(venueIssues(base, venue({})).map((i) => [i.tab, i.text])).toEqual([['devices', "Expo Receipt printer can't be reached at 10.1.20.13"]]);
-    expect(venueIssues(base, venue({ id: 'v2', menuId: 'm2' })).map((i) => i.text)).toEqual(['Bistro terminal is offline']);
+  it('flags printers that cannot be reached and terminals that are offline, fixed on Printers', () => {
+    expect(venueIssues(base, venue({})).map((i) => [i.fix, i.text])).toEqual([
+      [{ printers: { tab: 'list', printerId: 'p2' } }, "Expo Receipt printer can't be reached at 10.1.20.13"],
+    ]);
+    const offline = venueIssues(base, venue({ id: 'v2', menuId: 'm2' }));
+    expect(offline.map((i) => [i.fix, i.text])).toEqual([[{ printers: { tab: 'terminals' } }, 'Bistro terminal is offline']]);
+    // Not on any tab of the venue, so no tab counts it.
+    expect(offline.map(issueTab)).toEqual([null]);
   });
 
   it('skips retired venues', () => {

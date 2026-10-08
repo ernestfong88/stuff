@@ -4,7 +4,7 @@ import { rooms } from '../../../../data';
 import { itemPrinterIds, printersFor, printRoute, setItemPrinters, subLabel, type PrintItem, type RoutedPrinter } from '../../../../domain/printing';
 import { printMenuItems, type PrintMenuRow } from '../../../../store/printing';
 import { useRecipeBookVersion } from '../../../../store/recipes';
-import { kitchenPrinters, setPrinterRoutes, type Printer, type VenueSettings } from '../../../../store/venueSettings';
+import { kitchenPrinters, setPrinterRoutes, type Printer, type Venue, type VenueSettings } from '../../../../store/venueSettings';
 import { Chip, MenuDivider, MenuItem, Popover, SearchField, Tabs, cx, toast } from '../../../../ui';
 import { BoSection } from '../../kit';
 import s from './printers.module.css';
@@ -24,17 +24,19 @@ function reason(row: PrintItem, printers: RoutedPrinter[], picked: string[]): st
  * Every item on the tablet menu, where it prints in one kitchen today, and
  * a Send to control that sets a rule for that one item: it prints at exactly
  * the printers picked (and at the whole-ticket printers), or back to
- * Automatic, where its category or group decides.
+ * Automatic, where its category or group decides. With a venue picked on
+ * the page it shows that venue's kitchen.
  */
-export function ByMenuItem({ settings }: { settings: VenueSettings }) {
+export function ByMenuItem({ settings, venue }: { settings: VenueSettings; venue?: Venue | null }) {
   const book = useRecipeBookVersion();
   // eslint-disable-next-line react-hooks/exhaustive-deps -- the menu's recipes change when the Recipe Book does
   const rows = useMemo(() => printMenuItems(), [book]);
   const kitchens = Object.keys(rooms).filter((k) => settings.venues.some((v) => v.active && v.room === k));
-  const [room, setRoom] = useState(kitchens[0] ?? Object.keys(rooms)[0]);
+  const [picked, setRoom] = useState(kitchens[0] ?? Object.keys(rooms)[0]);
+  const room = venue ? venue.room : picked;
   const [q, setQ] = useState('');
   const [show, setShow] = useState<Show>('all');
-  const printers = kitchenPrinters(settings, room).filter((p) => p.active);
+  const printers = room ? kitchenPrinters(settings, room).filter((p) => p.active) : [];
   const venues = settings.venues.filter((v) => v.active && v.room === room).map((v) => v.name);
 
   const all = rows.map((row) => {
@@ -58,18 +60,25 @@ export function ByMenuItem({ settings }: { settings: VenueSettings }) {
     toast(ids.length ? `${row.name} now prints at ${names.join(' and ')}` : `${row.name} prints by its category or group again`, { tone: 'success' });
   };
 
+  if (venue && !room)
+    return (
+      <BoSection title="By menu item">
+        <p className={s.empty}>{venue.name} has no kitchen of its own, so there is no menu to send item by item.</p>
+      </BoSection>
+    );
+
   return (
     <BoSection
       title="By menu item"
       sub="Where each item on the tablet menu prints. Send an item to one or more printers to override its category and group; whole-ticket printers always get it too. A printer shared by two kitchens takes the same items in both."
     >
       <div className={s.toolbar}>
-        {kitchens.length > 1 && (
+        {!venue && kitchens.length > 1 && (
           <Tabs
             variant="segmented"
             size="sm"
             aria-label="Kitchen"
-            value={room}
+            value={picked}
             onChange={setRoom}
             options={kitchens.map((k) => ({ id: k, label: `${rooms[k].name} kitchen` }))}
           />
@@ -89,7 +98,7 @@ export function ByMenuItem({ settings }: { settings: VenueSettings }) {
         />
       </div>
       <p className={s.kitchenNote}>
-        {venues.length ? `${rooms[room].name} kitchen cooks for ${venues.join(' and ')}. ` : ''}
+        {room && venues.length ? `${rooms[room].name} kitchen cooks for ${venues.join(' and ')}. ` : ''}
         {printers.length ? `Its printers: ${printers.map((p) => p.name).join(', ')}.` : 'It has no printers yet. Add one on the Printers tab.'}
       </p>
       {nowhere > 0 && (
