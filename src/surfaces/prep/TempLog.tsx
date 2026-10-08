@@ -5,22 +5,27 @@ import {
   ACTION_LABEL,
   COOK_LABEL,
   COLD_HOLD_F,
+  EXTRA_REASONS,
+  EXTRA_REASON_LABEL,
   HOT_HOLD_F,
   SERVICE,
   TEMP_MEALS,
   actionsFor,
   clockLabel,
+  extraTarget,
   formatTemp,
   inRange,
   plausibleTemp,
   type HoldType,
   type TempAction,
   type TempCell,
+  type TempExtraCell,
+  type TempExtraReason,
   type TempMeal,
 } from '../../domain/tempLog';
 import { isoOf } from '../../domain/cleaning';
 import { formatTime } from '../../lib/format';
-import { addTempDish, mealLog, recordTemp, useTempLog, type DishLog } from '../../store/tempLog';
+import { addExtraTemp, addTempDish, mealLog, recordTemp, useTempLog, type DishLog } from '../../store/tempLog';
 import { Button, Modal, Tabs, TextField, cx, toast } from '../../ui';
 import { HeaderButton } from '../kitchen/KitchenShell';
 import k from '../kitchen/KitchenShell.module.css';
@@ -35,13 +40,16 @@ const STATUS_LABEL = { due: 'Due now', overdue: 'Overdue', missed: 'Missed' } as
  * menu, hot or cold, with its checks (as it goes on the line, then during
  * service). A cook taps a check, enters the temperature on the number pad
  * and signs it with their PIN; a reading out of range asks what was done
- * about it, and a recheck temperature.
+ * about it, and a recheck temperature. "Add a check" takes an extra reading
+ * on a dish whenever it's needed (a new batch, a re-check after reheating, a
+ * spot check), held to the holding target; it is never due or missed.
  */
 export function TempLog({ venueId, meal, onMeal, nowMs }: { venueId: string; meal: TempMeal; onMeal: (m: TempMeal) => void; nowMs: number }) {
   const state = useTempLog();
   const iso = isoOf(new Date(nowMs));
   const log = mealLog(state, venueId, iso, meal, nowMs);
-  const [entry, setEntry] = useState<{ dl: DishLog; cell: TempCell } | null>(null);
+  /** The check being taken; `cell: null` is an extra check. */
+  const [entry, setEntry] = useState<{ dl: DishLog; cell: TempCell | null } | null>(null);
   const [adding, setAdding] = useState(false);
   const { start, end } = SERVICE[meal];
   const groups = (['hot', 'cold'] as const).map((hold) => ({ hold, rows: log.dishes.filter((d) => d.dish.hold === hold) }));
@@ -98,6 +106,15 @@ export function TempLog({ venueId, meal, onMeal, nowMs }: { venueId: string; mea
                       {dl.cells.map((c) => (
                         <CheckButton key={c.check.id} cell={c} onTap={() => setEntry({ dl, cell: c })} />
                       ))}
+                      {dl.extras.map((x) => (
+                        <ExtraCell key={x.reading.id} x={x} />
+                      ))}
+                      <button className={cx(s.cell, s.tap, s.addCheck)} onClick={() => setEntry({ dl, cell: null })} aria-label={`Add a check on ${dl.dish.name}`}>
+                        <span className={s.addLabel}>
+                          <Plus size={16} aria-hidden /> Add a check
+                        </span>
+                        <span className={s.addSub}>New batch, re-check or spot check</span>
+                      </button>
                     </span>
                   </div>
                 ))}
@@ -169,6 +186,34 @@ function CheckButton({ cell, onTap }: { cell: TempCell; onTap: () => void }) {
   );
 }
 
+/** An extra reading on a dish: "Extra · 6:52 PM", the temperature, who and why. */
+function ExtraCell({ x }: { x: TempExtraCell }) {
+  const { reading, target, status } = x;
+  const out = status === 'out';
+  const why = reading.reason ? EXTRA_REASON_LABEL[reading.reason] : null;
+  return (
+    <span
+      className={cx(s.cell, out ? s.cellOut : s.cellOk)}
+      aria-label={`Extra check at ${formatTime(reading.at)}: ${formatTemp(reading.tempF)} by ${reading.by}${why ? ` (${why})` : ''}`}
+    >
+      <span className={s.cellHead}>
+        Extra · {formatTime(reading.at)} <span className={s.target}>{target.label}</span>
+      </span>
+      <span className={s.temp}>{formatTemp(reading.tempF)}</span>
+      <span className={s.stamp}>
+        {reading.by}
+        {why && ` · ${why}`}
+      </span>
+      {out && reading.action && (
+        <span className={s.fix}>
+          {ACTION_LABEL[reading.action]}
+          {reading.recheckF != null && ` · then ${formatTemp(reading.recheckF)}`}
+        </span>
+      )}
+    </span>
+  );
+}
+
 // ─── Entering a reading ──────────────────────────────────────────────────
 
 /** Number pad for °F: digits, a decimal point, delete. Digits can be typed too. */
@@ -200,7 +245,7 @@ function NumPad({ value, onChange, onEnter }: { value: string; onChange: (v: str
   );
 }
 
-type Step = 'temp' | 'fix' | 'pin';
+type Step = 'reason' | 'temp' | 'fix' | 'pin';
 
 function TempEntry({
   venueId,
@@ -214,21 +259,25 @@ function TempEntry({
   iso: string;
   meal: TempMeal;
   dl: DishLog;
-  cell: TempCell;
+  /** The scheduled check, or null for an extra one. */
+  cell: TempCell | null;
   onClose: () => void;
 }) {
-  const [step, setStep] = useState<Step>('temp');
+  const extra = !cell;
+  const [step, setStep] = useState<Step>(extra ? 'reason' : 'temp');
+  const [reason, setReason] = useState<TempExtraReason | null>(null);
   const [value, setValue] = useState('');
   const [action, setAction] = useState<TempAction | null>(null);
   const [recheck, setRecheck] = useState('');
   const tempF = parseFloat(value);
   const ok = plausibleTemp(tempF);
-  const inside = ok && inRange(cell.target, tempF);
+  const { dish } = dl;
+  const target = cell ? cell.target : extraTarget(dish.hold);
+  const inside = ok && inRange(target, tempF);
   const recheckF = recheck ? parseFloat(recheck) : undefined;
   const recheckOk = recheckF == null || plausibleTemp(recheckF);
-  const { dish } = dl;
-  const title = `${dish.name} · ${cell.check.label}`;
-  const which = dish.hold === 'hot' ? (cell.check.kind === 'line' ? 'cook temperature' : 'hot holding') : 'cold holding';
+  const title = `${dish.name} · ${cell ? cell.check.label : 'Extra check'}`;
+  const which = dish.hold === 'hot' ? (cell?.check.kind === 'line' ? 'cook temperature' : 'hot holding') : 'cold holding';
 
   const next = () => {
     if (!ok) return;
@@ -242,8 +291,32 @@ function TempEntry({
       width={400}
       className={k.dialog}
       title={title}
-      subtitle={step === 'pin' ? 'Enter your PIN to sign it' : `Target ${cell.target.label} (${which})`}
+      subtitle={
+        step === 'pin' ? 'Enter your PIN to sign it' : step === 'reason' ? 'Why are you checking it?' : `Target ${target.label} (${which})`
+      }
     >
+      {step === 'reason' && (
+        <>
+          <p className={s.reasonNote}>
+            An extra reading on top of this meal’s checks, held to {target.label}. Pick a reason, or skip it.
+          </p>
+          <div className={s.actions} role="group" aria-label="Reason">
+            {EXTRA_REASONS.map((r) => (
+              <button
+                key={r}
+                className={cx(s.action, reason === r && s.actionOn)}
+                aria-pressed={reason === r}
+                onClick={() => setReason(reason === r ? null : r)}
+              >
+                {EXTRA_REASON_LABEL[r]}
+              </button>
+            ))}
+          </div>
+          <Button variant="primary" block size="lg" onClick={() => setStep('temp')} className={s.next}>
+            Next
+          </Button>
+        </>
+      )}
       {step === 'temp' && (
         <>
           <div className={cx(s.readout, value && ok && !inside && s.readoutOut, value && inside && s.readoutOk)} aria-live="polite">
@@ -251,7 +324,7 @@ function TempEntry({
             <small>°F</small>
           </div>
           <div className={s.hint} role="alert">
-            {value && !ok ? 'That isn’t a temperature a probe reads.' : value && ok && !inside ? `Out of range: should be ${cell.target.label}` : ' '}
+            {value && !ok ? 'That isn’t a temperature a probe reads.' : value && ok && !inside ? `Out of range: should be ${target.label}` : ' '}
           </div>
           <NumPad value={value} onChange={setValue} onEnter={next} />
           <Button variant="primary" block size="lg" disabled={!ok} onClick={next} className={s.next}>
@@ -262,7 +335,7 @@ function TempEntry({
       {step === 'fix' && (
         <>
           <p className={s.outNote}>
-            <strong>{formatTemp(tempF)}</strong> is out of range for {dish.name} ({cell.target.label}). What did you do?
+            <strong>{formatTemp(tempF)}</strong> is out of range for {dish.name} ({target.label}). What did you do?
           </p>
           <div className={s.actions} role="group" aria-label="Corrective action">
             {actionsFor(dish.hold).map((a) => (
@@ -280,7 +353,7 @@ function TempEntry({
                 className={cx(
                   s.readout,
                   s.readoutSmall,
-                  recheckF != null && recheckOk && (inRange(cell.target, recheckF) ? s.readoutOk : s.readoutOut),
+                  recheckF != null && recheckOk && (inRange(target, recheckF) ? s.readoutOk : s.readoutOut),
                 )}
               >
                 {recheck || '–'}
@@ -297,6 +370,7 @@ function TempEntry({
       {step === 'pin' && (
         <>
           <p className={cx(s.summary, inside ? s.summaryOk : s.summaryOut)}>
+            {reason && `${EXTRA_REASON_LABEL[reason]} · `}
             {formatTemp(tempF)}
             {action && ` · ${ACTION_LABEL[action]}`}
             {recheckF != null && ` · recheck ${formatTemp(recheckF)}`}
@@ -306,16 +380,9 @@ function TempEntry({
             onOk={(pin) => {
               const who = checkPin(pin);
               if (!who) return;
-              recordTemp(
-                venueId,
-                iso,
-                meal,
-                dish.key,
-                cell.check.id,
-                { tempF, action: inside ? undefined : (action ?? undefined), recheckF: inside ? undefined : recheckF },
-                who.id,
-                who.name,
-              );
+              const r = { tempF, action: inside ? undefined : (action ?? undefined), recheckF: inside ? undefined : recheckF };
+              if (cell) recordTemp(venueId, iso, meal, dish.key, cell.check.id, r, who.id, who.name);
+              else addExtraTemp(venueId, iso, meal, dish.key, { ...r, reason: reason ?? undefined }, who.id, who.name);
               onClose();
               toast(`${dish.name}: ${formatTemp(tempF)} logged by ${who.name}`, { tone: inside ? 'success' : 'danger' });
             }}
@@ -325,10 +392,14 @@ function TempEntry({
       <Button
         variant="ghost"
         block
-        onClick={step === 'temp' ? onClose : () => setStep(step === 'pin' && !inside ? 'fix' : 'temp')}
+        onClick={
+          step === (extra ? 'reason' : 'temp')
+            ? onClose
+            : () => setStep(step === 'temp' ? 'reason' : step === 'pin' && !inside ? 'fix' : 'temp')
+        }
         className={s.cancel}
       >
-        {step === 'temp' ? 'Cancel' : 'Back'}
+        {step === (extra ? 'reason' : 'temp') ? 'Cancel' : 'Back'}
       </Button>
     </Modal>
   );

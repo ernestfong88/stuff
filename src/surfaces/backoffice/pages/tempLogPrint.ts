@@ -8,6 +8,7 @@ import {
   ACTION_LABEL,
   COLD_HOLD_F,
   COOK_MIN_F,
+  EXTRA_REASON_LABEL,
   HOT_HOLD_F,
   SERVICE,
   clockLabel,
@@ -16,6 +17,7 @@ import {
   type CookKind,
   type HoldType,
   type TempCell,
+  type TempExtraCell,
 } from '../../../domain/tempLog';
 import { formatTime } from '../../../lib/format';
 import type { MealLog } from '../../../store/tempLog';
@@ -46,10 +48,20 @@ export function tempCellText(c: TempCell): string {
   return `${formatTemp(r.tempF)} ${r.by} ${formatTime(r.at)}${fix}`;
 }
 
+/** What an extra check says: "152°F Re-check G. Kim 6:52 PM", and the action taken when out of range. */
+export function tempExtraText(x: TempExtraCell): string {
+  const r = x.reading;
+  const fix =
+    x.status === 'out'
+      ? ` · ${r.action ? ACTION_LABEL[r.action] : 'no action'}${r.recheckF != null ? `, recheck ${formatTemp(r.recheckF)}` : ''}`
+      : '';
+  return `${formatTemp(r.tempF)} ${r.reason ? EXTRA_REASON_LABEL[r.reason] : 'Extra'} ${r.by} ${formatTime(r.at)}${fix}`;
+}
+
 const CSS = `*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1b2630;margin:24px}
 h1{font-size:20px;margin:0 0 4px}h2{font-size:14px;margin:16px 0 6px}.sub{color:#5e6b74;font-size:12px;margin-bottom:8px}table{width:100%;border-collapse:collapse;font-size:11.5px}
 td,th{padding:5px 5px;border:1px solid #bbb;text-align:left;vertical-align:top}th{font-size:10px;text-transform:uppercase;letter-spacing:.04em;background:#f2f2f2}
-td.c{width:30%}.t{font-weight:bold}.w{color:#5e6b74;font-size:10px}.miss{color:#b23b2e;font-weight:bold}`;
+td.c{width:30%}td.x div+div{margin-top:3px}.t{font-weight:bold}.w{color:#5e6b74;font-size:10px}.miss{color:#b23b2e;font-weight:bold}`;
 
 export function tempLogHtml(venueName: string, dayLabel: string, iso: string, logs: MealLog[]): string {
   const date = dateOf(iso).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -57,16 +69,20 @@ export function tempLogHtml(venueName: string, dayLabel: string, iso: string, lo
     .filter((l) => l.dishes.length)
     .map((l) => {
       const checks = mealChecks(l.meal);
-      const head = checks.map((c) => `<th>${esc(c.label)} ${esc(clockLabel(c.due))}</th>`).join('');
+      const anyExtra = l.dishes.some((d) => d.extras.length);
+      const head = checks.map((c) => `<th>${esc(c.label)} ${esc(clockLabel(c.due))}</th>`).join('') + (anyExtra ? '<th>Extra checks</th>' : '');
       const rows = l.dishes
-        .map(({ dish, cells }) => {
+        .map(({ dish, cells, extras }) => {
           const tds = cells
             .map(
               (c) =>
                 `<td class="c${c.status === 'out' || c.status === 'missed' || c.status === 'overdue' ? ' miss' : ''}">${esc(tempCellText(c))}</td>`,
             )
             .join('');
-          return `<tr><td><div class="t">${esc(dish.name)}</div><div class="w">${esc(holdRule(dish.hold, dish.cook))}</div></td>${tds}</tr>`;
+          const xtd = anyExtra
+            ? `<td class="x">${extras.map((x) => `<div${x.status === 'out' ? ' class="miss"' : ''}>${esc(tempExtraText(x))}</div>`).join('') || 'None'}</td>`
+            : '';
+          return `<tr><td><div class="t">${esc(dish.name)}</div><div class="w">${esc(holdRule(dish.hold, dish.cook))}</div></td>${tds}${xtd}</tr>`;
         })
         .join('');
       const { start, end } = SERVICE[l.meal];

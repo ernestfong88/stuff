@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Temperature Log: extra checks
+- On the prep tablet's Temp log, every dish has **Add a check** after its scheduled checks, for an extra reading at any time: a new batch coming out, a re-check after reheating, or a spot check.
+- Tap it, pick a reason (*New batch*, *Re-check*, *Spot check*, *Other*, or skip it), enter the temperature on the number pad and sign with your PIN. A reading out of range asks for the corrective action and an optional recheck, the same as the regular checks.
+- Extra checks are held to the holding target (hot ≥ 135°F, cold ≤ 41°F), not the cooking temperature.
+- Each one shows on the dish as its own cell after the scheduled checks: *Extra · 6:52 PM*, the temperature, who took it and why. A dish can have any number.
+- Extra checks are never due, overdue or missed. They add to *readings taken*, and one out of range counts in *out of range*.
+- Back Office → Temperature Log adds an **Extra checks** column to a meal when any dish has one, listing each with its reason, who and when, and the action taken. The printed log has the same column.
+- The demo shows a re-check after yesterday's dinner reheat and a new batch checked at lunch today. Saved logs from before this change still load.
+
+
 ### Close & charge: easier to read
 - Close & charge on the server tablet is reworked for reading at a glance. Nothing it does or adds up has changed.
 - Every person's card leads with their name in large type and one plain line under it: apartment and meal plan, or who a guest is with. Below that, one coloured status line says where their meal goes, such as *Covered by meal plan* or *Charged to Rose's resident account*, with the meals left. The big amount that used to repeat in that line is gone; each card ends with a clear *Total for Rose* instead.

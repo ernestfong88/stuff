@@ -5,6 +5,8 @@ import {
   clockLabel,
   cookKind,
   dishKey,
+  extraCell,
+  extraTarget,
   inRange,
   inferHold,
   mealChecks,
@@ -115,5 +117,19 @@ describe('checks due', () => {
     const missed = { check: line, target: hold, reading: null, status: tempStatus('Lunch', line, '2026-10-08', null, hold, thu(17)) };
     expect([ok.status, out.status, missed.status]).toEqual(['ok', 'out', 'missed']);
     expect(tempTotals([ok, out, missed])).toEqual({ taken: 2, out: 1, missed: 1, overdue: 0, open: 0 });
+  });
+
+  it('an extra check is judged against the holding target, not the cook temperature, and adds to readings taken and out of range only', () => {
+    expect(extraTarget('hot')).toEqual(targetFor('hot', 'hold'));
+    expect(extraTarget('cold')).toEqual({ max: 41, label: '≤ 41°F' });
+    // 150°F would fail a poultry dish on the line (165°F) but is fine as an extra check.
+    expect(extraCell('hot', { ...reading(150), id: 'x1', reason: 'recheck' }).status).toBe('ok');
+    expect(extraCell('hot', { ...reading(130), id: 'x2' }).status).toBe('out');
+    expect(extraCell('cold', { ...reading(45), id: 'x3', reason: 'spot' }).status).toBe('out');
+    const [, mid] = mealChecks('Lunch');
+    const hold = targetFor('hot', 'hold');
+    const missed = { check: mid, target: hold, reading: null, status: tempStatus('Lunch', mid, '2026-10-08', null, hold, thu(17)) };
+    const extras = [extraCell('hot', { ...reading(150), id: 'a' }), extraCell('hot', { ...reading(130), id: 'b', action: 'reheat', recheckF: 170 })];
+    expect(tempTotals([missed], extras)).toEqual({ taken: 2, out: 1, missed: 1, overdue: 0, open: 0 });
   });
 });

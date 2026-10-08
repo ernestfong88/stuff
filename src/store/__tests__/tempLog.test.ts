@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { addDays, isoOf } from '../../domain/cleaning';
-import { TEMP_MEALS } from '../../domain/tempLog';
+import { TEMP_MEALS, tempTotals } from '../../domain/tempLog';
 import { now, setClockOffset } from '../../lib/clock';
-import { addTempDish, mealLog, menuDishesAround, recordTemp, setDishHold, tempDishes, tempLogStore } from '../tempLog';
+import { addExtraTemp, addTempDish, mealLog, menuDishesAround, recordTemp, setDishHold, tempDishes, tempLogStore } from '../tempLog';
 
 /** Pin the demo clock to Thursday Oct 8 2026 at h:m. */
 function clockAt(h: number, m = 0) {
@@ -86,5 +86,51 @@ describe('temperature log store', () => {
     expect(trifle).toMatchObject({ hold: 'none', inferred: 'cold' });
     setDishHold('sequoia', 'Pineapple Trifle', null);
     expect(tempDishes(tempLogStore.get(), 'sequoia', iso, 'Dinner').map((d) => d.name)).toContain('Pineapple Trifle');
+  });
+
+  it('adds extra checks on a dish, any number, judged against the holding target, in order after the seed’s and counted in the totals', () => {
+    const iso = todayIso();
+    const dish = tempDishes(tempLogStore.get(), 'sequoia', iso, 'Dinner').find((d) => d.hold === 'hot' && d.cook === 'poultry')!;
+    const before = mealLog(tempLogStore.get(), 'sequoia', iso, 'Dinner');
+    const totalsBefore = tempTotals(before.dishes.flatMap((d) => d.cells), before.dishes.flatMap((d) => d.extras));
+    const id = addExtraTemp('sequoia', iso, 'Dinner', dish.key, { tempF: 150, reason: 'batch' }, 'GK', 'Grace Kim');
+    addExtraTemp('sequoia', iso, 'Dinner', dish.key, { tempF: 128, reason: 'spot', action: 'reheat', recheckF: 168 }, 'GK', 'Grace Kim');
+    const after = mealLog(tempLogStore.get(), 'sequoia', iso, 'Dinner');
+    const dl = after.dishes.find((d) => d.dish.key === dish.key)!;
+    expect(dl.extras.map((x) => [x.reading.tempF, x.reading.reason, x.status])).toEqual([
+      [150, 'batch', 'ok'],
+      [128, 'spot', 'out'],
+    ]);
+    expect(dl.extras[0].reading).toMatchObject({ id, by: 'G. Kim', staffId: 'GK' });
+    expect(dl.extras[1].reading).toMatchObject({ action: 'reheat', recheckF: 168 });
+    expect(dl.extras[0].target.label).toBe('≥ 135°F');
+    // The scheduled checks are unchanged; the totals gain two readings and one out of range, nothing due or missed.
+    expect(dl.cells.map((c) => c.status)).toEqual(before.dishes.find((d) => d.dish.key === dish.key)!.cells.map((c) => c.status));
+    const totalsAfter = tempTotals(after.dishes.flatMap((d) => d.cells), after.dishes.flatMap((d) => d.extras));
+    expect(totalsAfter).toEqual({ ...totalsBefore, taken: totalsBefore.taken + 2, out: totalsBefore.out + 1 });
+    // Only that dish, at that meal and kitchen.
+    expect(after.dishes.filter((d) => d.extras.length)).toHaveLength(1);
+    expect(mealLog(tempLogStore.get(), 'bistro', iso, 'Dinner').dishes.every((d) => d.extras.length === 0)).toBe(true);
+  });
+
+  it('seeds an extra re-check after yesterday’s reheat and a new batch at lunch today, never later than now', () => {
+    const s = tempLogStore.get();
+    const yday = mealLog(s, 'sequoia', addDays(todayIso(), -1), 'Dinner').dishes.flatMap((d) => d.extras);
+    expect(yday.map((x) => [x.reading.reason, x.status])).toEqual([['recheck', 'ok']]);
+    const lunch = mealLog(s, 'sequoia', todayIso(), 'Lunch').dishes.flatMap((d) => d.extras);
+    expect(lunch.map((x) => x.reading.reason)).toEqual(['batch']);
+    for (const x of [...yday, ...lunch]) expect(x.reading.at).toBeLessThanOrEqual(now());
+    // Before lunch's new batch came out, there is none.
+    clockAt(12, 0);
+    expect(mealLog(tempLogStore.get(), 'sequoia', todayIso(), 'Lunch').dishes.flatMap((d) => d.extras)).toHaveLength(0);
+  });
+
+  it('loads state saved before extra checks', () => {
+    const iso = todayIso();
+    const dish = tempDishes(tempLogStore.get(), 'sequoia', iso, 'Dinner')[0];
+    tempLogStore.set({ readings: {}, added: {}, holds: {} });
+    expect(mealLog(tempLogStore.get(), 'sequoia', iso, 'Dinner').dishes.every((d) => d.extras.length === 0)).toBe(true);
+    addExtraTemp('sequoia', iso, 'Dinner', dish.key, { tempF: 38 }, 'GK', 'Grace Kim');
+    expect(tempLogStore.get().extras?.[`sequoia|${iso}|Dinner|${dish.key}`]).toHaveLength(1);
   });
 });

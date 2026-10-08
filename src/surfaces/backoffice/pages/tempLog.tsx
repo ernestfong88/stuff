@@ -1,8 +1,8 @@
 /**
  * Temperature Log: the food temperatures each kitchen took on the prep
  * tablet, a day at a time. Log: every dish at each meal with its readings
- * (who and when), out-of-range readings with the action taken, and missed
- * checks; printable. Targets: whether each dish on the menu is held hot or
+ * (who and when), out-of-range readings with the action taken, missed
+ * checks and any extra checks the cooks added; printable. Targets: whether each dish on the menu is held hot or
  * cold (or not logged), as the menu suggests or as set here.
  */
 import { useState } from 'react';
@@ -14,6 +14,7 @@ import {
   COLD_HOLD_F,
   COOK_LABEL,
   COOK_MIN_F,
+  EXTRA_REASON_LABEL,
   HOLD_LABEL,
   HOT_HOLD_F,
   SERVICE,
@@ -26,6 +27,7 @@ import {
   tempTotals,
   type HoldType,
   type TempCell,
+  type TempExtraCell,
 } from '../../../domain/tempLog';
 import { formatTime } from '../../../lib/format';
 import { PRODUCTION_VENUES, getProductionVenue } from '../../../store/production';
@@ -53,7 +55,10 @@ export default function Page(_props: BoPageProps) {
   const todayIso = isoOf(new Date(nowMs));
   const iso = addDays(todayIso, -+back);
   const logs = TEMP_MEALS.map((m) => mealLog(state, venueId, iso, m, nowMs));
-  const totals = tempTotals(logs.flatMap((l) => l.dishes.flatMap((d) => d.cells)));
+  const totals = tempTotals(
+    logs.flatMap((l) => l.dishes.flatMap((d) => d.cells)),
+    logs.flatMap((l) => l.dishes.flatMap((d) => d.extras)),
+  );
   const label = dayName(iso, +back);
 
   return (
@@ -100,8 +105,9 @@ export default function Page(_props: BoPageProps) {
             />
             {+back === 0 && <BoStatTile value={totals.open} label="due now" />}
           </BoStatRow>
-          {logs.map((log) =>
-            log.dishes.length ? (
+          {logs.map((log) => {
+            const anyExtra = log.dishes.some((d) => d.extras.length);
+            return log.dishes.length ? (
               <BoSection
                 key={log.meal}
                 flush
@@ -118,10 +124,11 @@ export default function Page(_props: BoPageProps) {
                             {c.label} <span className={s.due}>{clockLabel(c.due)}</span>
                           </th>
                         ))}
+                        {anyExtra && <th>Extra checks</th>}
                       </tr>
                     </thead>
                     <tbody>
-                      {log.dishes.map(({ dish, cells }) => (
+                      {log.dishes.map(({ dish, cells, extras }) => (
                         <tr key={dish.key}>
                           <th scope="row" className={s.dishCol}>
                             <span className={s.dishName}>{dish.name}</span>
@@ -135,6 +142,11 @@ export default function Page(_props: BoPageProps) {
                               <Cell cell={c} />
                             </td>
                           ))}
+                          {anyExtra && (
+                            <td>
+                              {extras.length ? extras.map((x) => <Extra key={x.reading.id} x={x} />) : <span className={s.state}>None</span>}
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -145,8 +157,8 @@ export default function Page(_props: BoPageProps) {
               <BoSection key={log.meal} title={log.meal}>
                 <p className={s.empty}>Nothing hot or cold on the menu.</p>
               </BoSection>
-            ),
-          )}
+            );
+          })}
         </>
       ) : (
         <TargetsTab venueId={venueId} todayIso={todayIso} />
@@ -178,6 +190,28 @@ function Cell({ cell }: { cell: TempCell }) {
   if (status === 'overdue') return <span className={s.missed}>Overdue</span>;
   if (status === 'due') return <span className={s.state}>Due now</span>;
   return <span className={s.state}>{check.kind === 'line' ? 'Not yet' : `At ${clockLabel(check.due)}`}</span>;
+}
+
+/** An extra check: the temperature, who, when and why, and what was done if it was out of range. */
+function Extra({ x }: { x: TempExtraCell }) {
+  const { reading, status, target } = x;
+  const fixed = reading.recheckF != null && inRange(target, reading.recheckF);
+  return (
+    <span className={cx(s.reading, s.extra, status === 'out' && s.extraOut)}>
+      <span className={cx(s.temp, status === 'out' && s.tempOut)}>
+        {formatTemp(reading.tempF)} <span className={s.reason}>{reading.reason ? EXTRA_REASON_LABEL[reading.reason] : 'Extra'}</span>
+      </span>
+      <span className={s.at}>
+        {reading.by} · {formatTime(reading.at)}
+      </span>
+      {status === 'out' && (
+        <span className={s.action}>
+          {reading.action ? ACTION_LABEL[reading.action] : 'No action recorded'}
+          {reading.recheckF != null && <span className={cx(fixed ? s.recheckOk : s.tempOut)}> · recheck {formatTemp(reading.recheckF)}</span>}
+        </span>
+      )}
+    </span>
+  );
 }
 
 // ─── Targets ─────────────────────────────────────────────────────────────

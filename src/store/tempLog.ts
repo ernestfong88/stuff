@@ -17,13 +17,15 @@
  *
  * ── Writing (sync to every open tab) ─────────────────────────────────────
  *   recordTemp(venueId, iso, meal, dishKey, checkId, {tempF, action?, recheckF?}, staffId, name)
+ *   addExtraTemp(venueId, iso, meal, dishKey, {tempF, reason?, action?, recheckF?}, staffId, name) → id
  *   addTempDish(venueId, iso, meal, name, hold)
  *   setDishHold(venueId, name, hold | null)        (null goes back to the inferred one)
  *   resetTempLog()
  *
  * Seed readings (the past week and today's meals so far) come from the demo
  * clock and never show a time later than now. A few are out of range, with
- * the action the cook took; a few checks were missed.
+ * the action the cook took; a few checks were missed. Yesterday's reheated
+ * dish has an extra re-check, and today at lunch a new batch was checked.
  */
 import { dateOf, isoOf, shortName } from '../domain/cleaning';
 import {
@@ -32,6 +34,7 @@ import {
   atMinute,
   cookKind,
   dishKey,
+  extraCell,
   inferHold,
   mealChecks,
   targetFor,
@@ -40,6 +43,9 @@ import {
   type HoldType,
   type TempAction,
   type TempCell,
+  type TempExtraCell,
+  type TempExtraReading,
+  type TempExtraReason,
   type TempMeal,
   type TempReading,
 } from '../domain/tempLog';
@@ -65,6 +71,8 @@ export interface TempDish {
 export interface DishLog {
   dish: TempDish;
   cells: TempCell[];
+  /** Extra readings taken beyond the meal's checks, oldest first. */
+  extras: TempExtraCell[];
 }
 
 export interface MealLog {
@@ -87,9 +95,11 @@ export interface TempLogState {
   added: Record<string, AddedDish[]>;
   /** "venue|dishKey" → how Back Office says the dish is held. */
   holds: Record<string, HoldType>;
+  /** "venue|iso|meal|dishKey" → extra readings on the dish at that meal. Missing in state saved before extra checks. */
+  extras?: Record<string, TempExtraReading[]>;
 }
 
-export const tempLogStore = createSharedStore<TempLogState>(() => ({ readings: {}, added: {}, holds: {} }), {
+export const tempLogStore = createSharedStore<TempLogState>(() => ({ readings: {}, added: {}, holds: {}, extras: {} }), {
   persistKey: 'kisco_templog_v1',
   channel: 'kisco-templog',
 });
@@ -104,6 +114,7 @@ export function resetTempLog(): void {
 
 const readingKey = (venueId: string, iso: string, meal: TempMeal, key: string, checkId: string) => `${venueId}|${iso}|${meal}|${key}|${checkId}`;
 const mealKey = (venueId: string, iso: string, meal: TempMeal) => `${venueId}|${iso}|${meal}`;
+const extraKey = (venueId: string, iso: string, meal: TempMeal, key: string) => `${venueId}|${iso}|${meal}|${key}`;
 const holdKey = (venueId: string, key: string) => `${venueId}|${key}`;
 
 // ─── Dishes ──────────────────────────────────────────────────────────────
@@ -165,11 +176,18 @@ const SEED_DAYS = 6;
  * was missed, now and then another is, and at the meal on now the last hot
  * dish hasn't gone on the line yet.
  */
-function seedMeal(venueId: string, iso: string, meal: TempMeal, dishes: TempDish[], at: number): Map<string, TempReading> {
+function seedMeal(
+  venueId: string,
+  iso: string,
+  meal: TempMeal,
+  dishes: TempDish[],
+  at: number,
+): { readings: Map<string, TempReading>; extras: Map<string, TempExtraReading[]> } {
   const out = new Map<string, TempReading>();
+  const extras = new Map<string, TempExtraReading[]>();
   const back = -offsetOf(iso, at);
   const crew = kitchenCrew();
-  if (back < 0 || back > SEED_DAYS || !crew.length) return out;
+  if (back < 0 || back > SEED_DAYS || !crew.length) return { readings: out, extras };
   const hot = dishes.filter((d) => d.hold === 'hot' && !d.added);
   const cold = dishes.filter((d) => d.hold === 'cold' && !d.added);
   const pick = (list: TempDish[]) => list[seedHash(venueId + iso + meal) % Math.max(1, list.length)]?.key;
@@ -195,14 +213,27 @@ function seedMeal(venueId: string, iso: string, meal: TempMeal, dishes: TempDish
         if (back === 0 && meal === 'Lunch' && dish.key === cold[cold.length - 1]?.key) [tempF, action] = [44, 'discard'];
       }
       out.set(`${dish.key}|${check.id}`, { tempF, at: time, staffId: by.id, by: by.short, action, recheckF });
+      // After the reheat, the cook checked the dish again 30 minutes on.
+      if (action === 'reheat' && time + 30 * 60_000 <= at)
+        extras.set(dish.key, [{ id: `seed-${dish.key}-1`, tempF: 152, at: time + 30 * 60_000, staffId: by.id, by: by.short, reason: 'recheck' }]);
     }
   }
-  return out;
+  // Today at lunch a new batch of the first hot dish came out and was checked.
+  const batchAt = atMinute(iso, SERVICE.Lunch.start + 75);
+  if (back === 0 && meal === 'Lunch' && hot.length && batchAt <= at) {
+    const by = crew[seedHash(venueId + iso + 'batch') % crew.length];
+    extras.set(hot[0].key, [{ id: `seed-${hot[0].key}-1`, tempF: 171, at: batchAt, staffId: by.id, by: by.short, reason: 'batch' }]);
+  }
+  return { readings: out, extras };
 }
 
 // ─── A meal's log ────────────────────────────────────────────────────────
 
-/** Every dish at a meal with its checks: the target, the reading (stored, else the seed's) and where it stands at `at`. */
+/**
+ * Every dish at a meal with its checks: the target, the reading (stored, else
+ * the seed's) and where it stands at `at`; then its extra readings (the
+ * seed's and those taken on the tablet), oldest first.
+ */
 export function mealLog(state: TempLogState, venueId: string, iso: string, meal: TempMeal, at = now()): MealLog {
   const dishes = tempDishes(state, venueId, iso, meal);
   const seed = seedMeal(venueId, iso, meal, dishes, at);
@@ -214,9 +245,12 @@ export function mealLog(state: TempLogState, venueId: string, iso: string, meal:
       cells: checks.map((check) => {
         const target = targetFor(dish.hold, check.kind, dish.cook);
         const stored = state.readings[readingKey(venueId, iso, meal, dish.key, check.id)];
-        const reading = stored ? ('off' in stored ? null : stored) : (seed.get(`${dish.key}|${check.id}`) ?? null);
+        const reading = stored ? ('off' in stored ? null : stored) : (seed.readings.get(`${dish.key}|${check.id}`) ?? null);
         return { check, target, reading, status: tempStatus(meal, check, iso, reading, target, at) };
       }),
+      extras: [...(seed.extras.get(dish.key) ?? []), ...(state.extras?.[extraKey(venueId, iso, meal, dish.key)] ?? [])]
+        .sort((a, b) => a.at - b.at)
+        .map((r) => extraCell(dish.hold, r)),
     })),
   };
 }
@@ -238,6 +272,25 @@ export function recordTemp(
   if (r.action) reading.action = r.action;
   if (r.recheckF != null) reading.recheckF = r.recheckF;
   tempLogStore.set((s) => ({ ...s, readings: { ...s.readings, [readingKey(venueId, iso, meal, key, checkId)]: reading } }));
+}
+
+/** Record an extra reading on a dish at a meal, beyond its checks, as the person whose PIN was entered; returns its id. */
+export function addExtraTemp(
+  venueId: string,
+  iso: string,
+  meal: TempMeal,
+  key: string,
+  r: { tempF: number; reason?: TempExtraReason; action?: TempAction; recheckF?: number },
+  staffId: string,
+  name: string,
+): string {
+  const reading: TempExtraReading = { id: uid('xt-'), tempF: r.tempF, at: now(), staffId, by: shortName(name) };
+  if (r.reason) reading.reason = r.reason;
+  if (r.action) reading.action = r.action;
+  if (r.recheckF != null) reading.recheckF = r.recheckF;
+  const k = extraKey(venueId, iso, meal, key);
+  tempLogStore.set((s) => ({ ...s, extras: { ...s.extras, [k]: [...(s.extras?.[k] ?? []), reading] } }));
+  return reading.id;
 }
 
 /** Add a dish that isn't on the menu to one meal's log; returns its key. */

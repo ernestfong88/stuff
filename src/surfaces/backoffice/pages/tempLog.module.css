@@ -130,3 +130,18 @@
 .hold {
   width: 140px;
 }
+.extra + .extra {
+  margin-top: 6px;
+}
+.reason {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--s500);
+}
+.extraOut {
+  margin-left: -6px;
+  margin-right: -6px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: var(--danger-bg);
+}

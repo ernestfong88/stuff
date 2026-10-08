@@ -10,6 +10,9 @@
  * Each meal has a check when the food goes on the line and one every
  * CHECK_INTERVAL_MIN minutes of service after it. A reading out of range is
  * kept with the corrective action the cook took, and a recheck temperature.
+ * A cook can also add an extra check on a dish at any time (a new batch, a
+ * re-check after reheating, a spot check): it is judged against the holding
+ * target and adds a reading, but is never due, overdue or missed.
  * Dates are "YYYY-MM-DD" in local time.
  */
 import { dateOf, isoOf } from './cleaning';
@@ -92,6 +95,19 @@ export interface TempReading {
   /** What was done about a reading out of range. */
   action?: TempAction;
   recheckF?: number;
+}
+
+/** Why an extra check was taken. */
+export type TempExtraReason = 'batch' | 'recheck' | 'spot' | 'other';
+
+export const EXTRA_REASONS: TempExtraReason[] = ['batch', 'recheck', 'spot', 'other'];
+
+export const EXTRA_REASON_LABEL: Record<TempExtraReason, string> = { batch: 'New batch', recheck: 'Re-check', spot: 'Spot check', other: 'Other' };
+
+/** An extra reading on a dish, taken whenever the cook wants, beyond the meal's checks. */
+export interface TempExtraReading extends TempReading {
+  id: string;
+  reason?: TempExtraReason;
 }
 
 /**
@@ -181,6 +197,11 @@ export function targetFor(hold: HoldType, kind: TempCheck['kind'], cook: CookKin
   return { min, label: `≥ ${min}°F` };
 }
 
+/** What an extra check must be: the holding target (hot ≥ 135°F, cold ≤ 41°F), never the cook temperature. */
+export function extraTarget(hold: HoldType): TempTarget {
+  return targetFor(hold, 'hold');
+}
+
 export function inRange(target: TempTarget, tempF: number): boolean {
   return (target.min == null || tempF >= target.min) && (target.max == null || tempF <= target.max);
 }
@@ -229,6 +250,18 @@ export interface TempCell {
   status: TempStatus;
 }
 
+/** An extra reading with its target: in range or out. */
+export interface TempExtraCell {
+  reading: TempExtraReading;
+  target: TempTarget;
+  status: 'ok' | 'out';
+}
+
+export function extraCell(hold: HoldType, reading: TempExtraReading): TempExtraCell {
+  const target = extraTarget(hold);
+  return { reading, target, status: inRange(target, reading.tempF) ? 'ok' : 'out' };
+}
+
 export interface TempTotals {
   taken: number;
   out: number;
@@ -238,7 +271,14 @@ export interface TempTotals {
   open: number;
 }
 
-export function tempTotals(cells: TempCell[]): TempTotals {
+/** Counts for the checks; extra readings add to readings taken and out of range, never to due, overdue or missed. */
+export function tempTotals(cells: TempCell[], extras: TempExtraCell[] = []): TempTotals {
   const n = (st: TempStatus) => cells.filter((c) => c.status === st).length;
-  return { taken: cells.filter((c) => c.reading).length, out: n('out'), missed: n('missed'), overdue: n('overdue'), open: n('due') + n('overdue') };
+  return {
+    taken: cells.filter((c) => c.reading).length + extras.length,
+    out: n('out') + extras.filter((x) => x.status === 'out').length,
+    missed: n('missed'),
+    overdue: n('overdue'),
+    open: n('due') + n('overdue'),
+  };
 }
