@@ -40,7 +40,21 @@ export class PageErrorBoundary extends Component<Props, State> {
         <Button variant="primary" onClick={() => this.setState({ error: null })}>
           Try again
         </Button>
+        {/* What went wrong, so it can be passed on to whoever fixes it. */}
+        <details className={s.details}>
+          <summary>What went wrong</summary>
+          <pre className={s.error}>{errorText(this.state.error, this.props.resetKey)}</pre>
+          <Button size="sm" onClick={() => void navigator.clipboard?.writeText(errorText(this.state.error!, this.props.resetKey)).catch(() => {})}>
+            Copy details
+          </Button>
+        </details>
       </div>
     );
   }
+}
+
+/** The error with the first lines of its stack, labelled with the page. */
+function errorText(error: Error, page: string): string {
+  const stack = (error.stack ?? '').split('\n').slice(1, 6).join('\n');
+  return `Page: ${page}\n${error.name}: ${error.message}${stack ? '\n' + stack : ''}`;
 }
