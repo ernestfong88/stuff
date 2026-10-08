@@ -115,19 +115,6 @@ export function SentimentCard({ data }: { data: DashboardData }) {
           <span className={s.trendVs}>vs the {n} days before</span>
         </span>
       </div>
-      {c.n > 0 && (
-        <div className={s.sentCounts}>
-          <span className={cx(s.sentCount, s.sentPos)}>
-            <b>{c.pos}</b> liked
-          </span>
-          <span className={cx(s.sentCount, s.sentNeu)}>
-            <b>{c.neu}</b> neutral
-          </span>
-          <span className={cx(s.sentCount, s.sentNeg)}>
-            <b>{c.neg}</b> disliked
-          </span>
-        </div>
-      )}
       {(praised || panned) && (
         <div className={s.sentDishes}>
           {praised && (

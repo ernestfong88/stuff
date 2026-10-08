@@ -220,6 +220,11 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Dashboard: lighter trend cards
+- **Resident meal sentiment** no longer has the liked / neutral / disliked count pills. The big % positive, the trend, most liked and most complaints stay.
+- **Steps of Service** no longer has "Met the goal on N of N days". The chart's dashed goal line already shows it.
+- **Revenue** shows only the budget and how far ahead or behind it is, e.g. "Budget $2,350 · $756 behind" (behind in red, ahead in green). The "% of budget" figure is gone.
+
 ### Recipe Book on a desktop screen
 - Nothing changes below 1500px wide: the list opens a recipe on its own page, as before.
 - **List and recipe side by side from 1500px:** in List view, opening a recipe keeps the list on the left and shows the recipe beside it, so a chef can click down the list without leaving the page. The list is compact (star, name and its approval and status chips, category, score, sold) and stays in view while the recipe scrolls; the open recipe is highlighted. *Close* puts the full list back.

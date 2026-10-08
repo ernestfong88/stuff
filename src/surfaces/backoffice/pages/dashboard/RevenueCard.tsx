@@ -26,7 +26,6 @@ export function RevenueCard({ data, goto }: { data: DashboardData; goto: (pageId
     return { ...d, made: made, comped, budget };
   });
   const last = running[running.length - 1];
-  const bp = budgetPct(last.made, last.budget);
   const action = revenueAction(cur, data.comps);
   return (
     <article className={s.card}>
@@ -49,8 +48,10 @@ export function RevenueCard({ data, goto }: { data: DashboardData; goto: (pageId
         </div>
       </div>
       <p className={s.cardLine}>
-        Budget {money0(last.budget)} · <b className={bp >= 100 ? s.good : bp >= 95 ? s.clay : s.bad}>{bp}% of budget</b> ·{' '}
-        {last.made >= last.budget ? `${money0(last.made - last.budget)} ahead` : `${money0(last.budget - last.made)} behind`}
+        Budget {money0(last.budget)} ·{' '}
+        <b className={last.made >= last.budget ? s.good : s.bad}>
+          {last.made >= last.budget ? `${money0(last.made - last.budget)} ahead` : `${money0(last.budget - last.made)} behind`}
+        </b>
       </p>
       <div className={s.legendRow}>
         <span>Running total · comped on top</span>

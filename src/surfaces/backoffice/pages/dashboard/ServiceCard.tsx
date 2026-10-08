@@ -31,7 +31,6 @@ export function ServiceCard({ data, goto }: { data: DashboardData; goto: (pageId
     const T = cur.filter((x) => x.day === d.a);
     return { ...d, T, v: avgTableTime(T) };
   });
-  const hit = perDay.filter((d) => d.v != null && d.v <= TABLE_TIME_GOAL).length;
   const ca = avgTableTime(cur);
   const pa = avgTableTime(servicePeriods[6]);
   const dr = ca != null && pa != null ? ca - pa : null;
@@ -65,12 +64,6 @@ export function ServiceCard({ data, goto }: { data: DashboardData; goto: (pageId
           <span className={s.trendVs}>vs the {n} days before</span>
         </span>
       </div>
-      <p className={s.cardLine}>
-        Met the goal on{' '}
-        <b>
-          {hit} of {n} days
-        </b>
-      </p>
       <div className={s.chart}>
         <BarChart
           label={`Average table time per day, last ${n} days`}
