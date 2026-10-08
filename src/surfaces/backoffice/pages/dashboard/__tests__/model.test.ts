@@ -4,7 +4,16 @@ import { HISTORY_SERVERS } from '../../../seed/dashboard';
 import { countSentiment, feedbackHistory, matchDish, readComment, sentimentOf, sentimentTrend } from '../model/feedback';
 import { currentDays, dayLabel, period } from '../model/periods';
 import { budgetPct, compsFor, revenuePeriod } from '../model/revenue';
-import { avgTableTime, bestWorstTables, lateTablesByServer, serviceAction, tableTime, timedTables } from '../model/service';
+import {
+  avgTableTime,
+  bestWorstTables,
+  lateTablesByServer,
+  serviceAction,
+  serviceDayAction,
+  serviceWeek,
+  tableTime,
+  timedTables,
+} from '../model/service';
 
 // A Wednesday; the prototype showed these same numbers for this day.
 const TODAY = new Date(2026, 9, 7).getTime();
@@ -42,6 +51,30 @@ describe('steps of service', () => {
     const groups = lateTablesByServer(timedTables(TODAY, HISTORY_SERVERS));
     for (let i = 1; i < groups.length; i++) expect(groups[i - 1].late.length).toBeGreaterThanOrEqual(groups[i].late.length);
     for (const g of groups) expect(g.late.every((t) => t.app + t.ent > 22)).toBe(true);
+    for (const g of groups) {
+      expect(['appetizer', 'entrée']).toContain(g.cause);
+      expect(g.late.some((t) => t.meal === g.meal)).toBe(true);
+    }
+  });
+  it('names one next step for a day: the server with the most late tables, their slow step, and the page that helps', () => {
+    const day = timedTables(TODAY, HISTORY_SERVERS);
+    const [g] = lateTablesByServer(day);
+    const a = serviceDayAction(day);
+    expect(a.act).toContain(`Talk to ${g.server.split(' ')[0]} about ${g.meal.toLowerCase()}`);
+    expect(a.why).toMatch(new RegExp(`^${g.late.length} of `));
+    expect(a.page).toBe(g.cause === 'entrée' ? 'svcFlow' : 'svcAlerts');
+  });
+  it('says there is nothing to fix on a day with every table under the goal', () => {
+    const fast = timedTables(TODAY, HISTORY_SERVERS).map((t) => ({ ...t, app: 5, ent: 12 }));
+    expect(serviceDayAction(fast)).toMatchObject({ tone: 'good', page: null, act: expect.stringMatching(/^Nothing to fix/) });
+    expect(serviceDayAction([]).page).toBeNull();
+  });
+  it('leads the range detail with the action, and the trend under it', () => {
+    const T = days7.flatMap((d) => timedTables(d, HISTORY_SERVERS));
+    const w = serviceWeek(T, 21, [20, 21, 22, 23, 21, 20, 22], 7);
+    expect(w.insight.head).toMatch(/^Review /);
+    expect(w.insight.body).toMatch(/average table time/);
+    expect(['svcFlow', 'svcAlerts']).toContain(w.page);
   });
 });
 

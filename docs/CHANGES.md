@@ -220,6 +220,19 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Steps of Service drill-down: what to do next, first
+Both Steps of Service drill-downs now open with a **Do this next** box.
+
+**Clicking a day's bar:**
+- The box names who to talk to, about which meal and which step, with one line on why. For example: "Talk to Maria about dinner entrée pacing. 8 of Maria's 13 tables went over 22 min, mostly waiting on the entrée."
+- A *Then* line names who to see next.
+- A button opens the setting that helps: *Pacing & Coursing* when the entrée is slow, *Alerts & Timing* when the appetizer is.
+- A day with nothing over the goal says *Nothing to fix*.
+- The five stat boxes are now three: average table time, tables over goal, and the slowest step.
+- *Who to follow up with* is one line per server (how many tables were over, mostly which step, the worst table). *Show tables* lists them.
+
+**Detail:** it opens with the action, the trend under it and the same settings button. The long paragraph that repeated *What is driving it* is gone.
+
 ### Steps of Service: slowest and fastest tables
 The Steps of Service drill-downs now show the 3 slowest and the 3 fastest tables side by side.
 

@@ -107,7 +107,13 @@ export function serviceAction(T: TimedTable[]): { tone: Tone; text: string } | n
 export interface ServiceWeek {
   insight: Insight;
   drivers: Driver[];
+  /** The settings page that helps with the slow step. */
+  page: ServicePage | null;
 }
+
+/** Back Office pages a manager can act on: when courses fire, and when slow plates are flagged. */
+export type ServicePage = 'svcFlow' | 'svcAlerts';
+const pageFor = (cause: StepCause): ServicePage => (cause === 'entrée' ? 'svcFlow' : 'svcAlerts');
 
 /** The range against the one before: headline, slowest meal, step and server. */
 export function serviceWeek(cur: TimedTable[], prevAvg: number | null, dayAverages: Array<number | null>, n: number): ServiceWeek {
@@ -125,14 +131,15 @@ export function serviceWeek(cur: TimedTable[], prevAvg: number | null, dayAverag
     ae / GOALS.ent >= aa / GOALS.app
       ? { name: 'Appetizer → entrée', v: ae, goal: GOALS.ent, fix: 'entrée' }
       : { name: 'Order → appetizer', v: aa, goal: GOALS.app, fix: 'appetizer' };
-  if (!meal || !srv) return { insight: { tone: 'good', head: 'No tables timed in this range.' }, drivers: [] };
+  if (!meal || !srv) return { insight: { tone: 'good', head: 'No tables timed in this range.' }, drivers: [], page: null };
   return {
+    // What to do first; how the range went underneath. The drivers below say why.
     insight: {
       tone: v != null && v <= TABLE_TIME_GOAL && dir !== 'Getting worse' ? 'good' : 'bad',
-      head: `${dir}: ${min1(v)} min average table time, against ${min1(prevAvg)} the ${n} days before. Met the ${TABLE_TIME_GOAL} min goal ${hit} of ${n} days.`,
-      body: `${meal.k} runs slowest at ${min1(meal.v)} min. The ${step.name.toLowerCase()} step averages ${min1(step.v)} min against ${step.goal}. ${srv.k}’s tables average ${min1(srv.v)} min, the slowest on the team.`,
-      next: `Review ${meal.k.toLowerCase()} ${step.fix} pacing with ${srv.k} and the line before the next ${meal.k.toLowerCase()} service.`,
+      head: `Review ${meal.k.toLowerCase()} ${step.fix} pacing with ${srv.k} and the line before the next ${meal.k.toLowerCase()} service.`,
+      body: `${dir}: ${min1(v)} min average table time, against ${min1(prevAvg)} the ${n} days before. Met the ${TABLE_TIME_GOAL} min goal ${hit} of ${n} days.`,
     },
+    page: pageFor(step.fix === 'entrée' ? 'entrée' : 'appetizer'),
     drivers: [
       { name: meal.k, what: 'slowest meal', value: `${min1(meal.v)} min`, tone: meal.v > TABLE_TIME_GOAL ? 'bad' : 'good' },
       {
@@ -146,18 +153,86 @@ export function serviceWeek(cur: TimedTable[], prevAvg: number | null, dayAverag
   };
 }
 
+/** Which step made a table late: waiting on the appetizer, or on the entrée. */
+export type StepCause = 'appetizer' | 'entrée';
+
 export interface ServerFollowUp {
   server: string;
   tables: number;
   late: TimedTable[];
+  /** The step that ran over its goal on more of their late tables. */
+  cause: StepCause;
+  /** The meal most of their late tables were in. */
+  meal: MealName;
+}
+
+/** The step behind a set of late tables: the one over its goal more often, else the one further over. */
+function causeOf(L: TimedTable[]): StepCause {
+  const app = L.filter((x) => x.app > GOALS.app).length;
+  const ent = L.filter((x) => x.ent > GOALS.ent).length;
+  if (app !== ent) return ent > app ? 'entrée' : 'appetizer';
+  const over = (k: 'app' | 'ent') => L.reduce((q, x) => q + x[k], 0) / L.length / GOALS[k];
+  return over('ent') >= over('app') ? 'entrée' : 'appetizer';
+}
+
+const mostCommon = <T>(xs: T[]): T => [...groupByKey(xs).entries()].sort((a, b) => b[1] - a[1])[0][0];
+function groupByKey<T>(xs: T[]): Map<T, number> {
+  const m = new Map<T, number>();
+  for (const x of xs) m.set(x, (m.get(x) ?? 0) + 1);
+  return m;
 }
 
 /** One day: tables over the goal grouped by server, most late first, slowest table first. */
 export function lateTablesByServer(day: TimedTable[]): ServerFollowUp[] {
   const late = day.filter((x) => tableTime(x) > TABLE_TIME_GOAL).sort((a, b) => tableTime(b) - tableTime(a));
   return [...groupBy(late, (x) => x.server).entries()]
-    .map(([server, L]) => ({ server, late: L, tables: day.filter((x) => x.server === server).length }))
+    .map(([server, L]) => ({
+      server,
+      late: L,
+      tables: day.filter((x) => x.server === server).length,
+      cause: causeOf(L),
+      meal: mostCommon(L.map((x) => x.meal)),
+    }))
     .sort((a, b) => b.late.length - a.late.length || tableTime(b.late[0]) - tableTime(a.late[0]));
+}
+
+export interface DayAction {
+  tone: Tone;
+  /** What to do, in one sentence. */
+  act: string;
+  /** Why, in one line. */
+  why: string;
+  /** Who to see after that, if anyone. */
+  after?: string;
+  page: ServicePage | null;
+}
+
+const stepWords = (c: StepCause) => (c === 'entrée' ? 'entrée pacing' : 'appetizer timing');
+
+/** One day's next step: who to talk to, about which meal and step, and the settings page that helps. */
+export function serviceDayAction(day: TimedTable[]): DayAction {
+  if (!day.length) return { tone: 'good', act: 'No tables were timed this day.', why: '', page: null };
+  const av = avgTableTime(day)!;
+  const late = lateTablesByServer(day);
+  if (!late.length)
+    return {
+      tone: 'good',
+      act: `Nothing to fix. Every table came in under ${TABLE_TIME_GOAL} min.`,
+      why: `Average table time ${min1(av)} min.`,
+      page: null,
+    };
+  const [g, next] = late;
+  const first = (name: string) => name.split(' ')[0];
+  const k = g.cause === 'entrée' ? 'ent' : 'app';
+  const stepAvg = g.late.reduce((q, x) => q + x[k], 0) / g.late.length;
+  const lateCount = late.reduce((q, x) => q + x.late.length, 0);
+  return {
+    tone: av > TABLE_TIME_GOAL || lateCount / day.length > 0.3 ? 'bad' : 'warn',
+    act: `Talk to ${first(g.server)} about ${g.meal.toLowerCase()} ${stepWords(g.cause)} before the next ${g.meal.toLowerCase()} service.`,
+    why: `${g.late.length} of ${first(g.server)}’s ${g.tables} tables went over ${TABLE_TIME_GOAL} min, mostly waiting on the ${g.cause} (${min1(stepAvg)} min against ${GOALS[k]}).`,
+    after: next ? `Then ${first(next.server)}: ${next.late.length} of ${next.tables} over, ${stepWords(next.cause)}.` : undefined,
+    page: pageFor(g.cause),
+  };
 }
 
 export interface TableRank {

@@ -1098,3 +1098,33 @@
   white-space: nowrap;
   color: var(--s500);
 }
+
+/* Steps of Service: the settings page that helps, under the next step. */
+.nextBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+/* Follow-up rows open to show that server's late tables. */
+summary.followHead {
+  cursor: pointer;
+  list-style: none;
+  margin-bottom: 0;
+}
+summary.followHead::-webkit-details-marker {
+  display: none;
+}
+details[open] > summary.followHead {
+  margin-bottom: 4px;
+}
+.followMore {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ocean);
+  white-space: nowrap;
+}
+details:not([open]) .whenOpen,
+details[open] .whenShut {
+  display: none;
+}

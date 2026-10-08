@@ -3,11 +3,22 @@ import { ChevronRight } from 'lucide-react';
 import { formatTime } from '../../../../lib/format';
 import { Button, cx } from '../../../../ui';
 import { BarChart, BoCaption, CHART } from '../../kit';
-import { GOALS, TABLE_TIME_GOAL, min1 } from './model/insight';
+import { GOALS, TABLE_TIME_GOAL, min1, type Tone } from './model/insight';
 import { dayLabel, longDay } from './model/periods';
-import { avgTableTime, bestWorstTables, lateTablesByServer, serviceAction, serviceWeek, tableTime, type TableRank } from './model/service';
+import {
+  avgTableTime,
+  bestWorstTables,
+  lateTablesByServer,
+  serviceAction,
+  serviceDayAction,
+  serviceWeek,
+  tableTime,
+  type ServicePage,
+  type TableRank,
+  type TimedTable,
+} from './model/service';
 import type { DashboardData } from './model/useDashboardData';
-import { CardHead, DayModal, DetailStat, Drivers, PeriodTrend, RangeModal, StartHere, TopAction } from './parts';
+import { CardHead, DayModal, DetailStat, Drivers, PeriodTrend, RangeModal, TopAction } from './parts';
 import s from './dashboard.module.css';
 
 /** Steps of Service: average table time against the goal, day by day. */
@@ -85,7 +96,7 @@ export function ServiceCard({ data, goto }: { data: DashboardData; goto: (pageId
         />
       </div>
       {action && <TopAction {...action} onClick={() => setRange(true)} />}
-      {day != null && <ServiceDayModal data={data} index={day} setIndex={setDay} onClose={() => setDay(null)} />}
+      {day != null && <ServiceDayModal data={data} goto={goto} index={day} setIndex={setDay} onClose={() => setDay(null)} />}
       {range && <ServiceRangeModal data={data} goto={goto} onClose={() => setRange(false)} />}
     </article>
   );
@@ -93,11 +104,13 @@ export function ServiceCard({ data, goto }: { data: DashboardData; goto: (pageId
 
 function ServiceDayModal({
   data,
+  goto,
   index,
   setIndex,
   onClose,
 }: {
   data: DashboardData;
+  goto: (pageId: string) => void;
   index: number;
   setIndex: (i: number) => void;
   onClose: () => void;
@@ -107,8 +120,8 @@ function ServiceDayModal({
   const av = avgTableTime(D);
   const late = lateTablesByServer(D);
   const lateCount = late.reduce((q, g) => q + g.late.length, 0);
-  const aa = D.length ? D.reduce((q, x) => q + x.app, 0) / D.length : null;
-  const ae = D.length ? D.reduce((q, x) => q + x.ent, 0) / D.length : null;
+  const action = serviceDayAction(D);
+  const slow = slowStep(D);
   return (
     <DayModal
       cap="Steps of Service"
@@ -118,62 +131,124 @@ function ServiceDayModal({
       setIndex={setIndex}
       onClose={onClose}
     >
+      {/* The next step first; the numbers that back it up after. */}
+      <NextStep
+        tone={action.tone}
+        head={action.act}
+        body={action.why}
+        after={action.after}
+        page={action.page}
+        open={(id) => {
+          onClose();
+          goto(id);
+        }}
+      />
       <div className={s.dstats3}>
-        <DetailStat value={`${min1(av)} min`} label="average table time" tone={av != null && av > TABLE_TIME_GOAL ? 'bad' : 'good'} />
-        <DetailStat value={`${TABLE_TIME_GOAL} min`} label="goal, order to entrée" />
+        <DetailStat
+          value={`${min1(av)} min`}
+          label={`average table time · goal ${TABLE_TIME_GOAL}`}
+          tone={av != null && av > TABLE_TIME_GOAL ? 'bad' : 'good'}
+        />
         <DetailStat value={`${lateCount} of ${D.length}`} label="tables over goal" tone={lateCount ? 'bad' : undefined} />
-      </div>
-      <div className={s.dstats2}>
-        <DetailStat
-          value={`${min1(aa)} min`}
-          label={`order → appetizer · goal ${GOALS.app}`}
-          tone={aa != null && aa > GOALS.app ? 'bad' : undefined}
-        />
-        <DetailStat
-          value={`${min1(ae)} min`}
-          label={`appetizer → entrée · goal ${GOALS.ent}`}
-          tone={ae != null && ae > GOALS.ent ? 'bad' : undefined}
-        />
+        {slow && (
+          <DetailStat
+            value={`${min1(slow.v)} of ${slow.goal} min`}
+            label={`slowest step · ${slow.name}`}
+            tone={slow.v > slow.goal ? 'bad' : 'good'}
+          />
+        )}
       </div>
       <BestWorst {...bestWorstTables(D)} />
-      <div className={s.block}>
-        <BoCaption>Follow up with · slowest tables first</BoCaption>
-        {late.length === 0 && <p className={s.muted}>Every table came in under {TABLE_TIME_GOAL} minutes.</p>}
-        {late.map((g, k) => (
-          <section key={g.server} className={cx(s.follow, k === 0 && g.late.length > 1 && s.followFirst)} aria-label={g.server}>
-            <header className={s.followHead}>
-              <span className={s.followName}>{g.server}</span>
-              <span className={s.followSub}>
-                {g.late.length} of {g.tables} tables over {TABLE_TIME_GOAL} min
-              </span>
-              {k === 0 && g.late.length > 1 && <span className={s.followStart}>Start here</span>}
-            </header>
-            <table className={s.followTable}>
-              <tbody>
-                {g.late.map((x, j) => (
-                  <tr key={j}>
-                    <th scope="row">{x.table}</th>
-                    <td className={s.followMeal}>
-                      {x.meal} · {formatTime(x.at)}
-                    </td>
-                    <td className={s.bad}>
-                      <b>{min1(tableTime(x))} min</b>
-                    </td>
-                    <td>
-                      <span className={x.app > GOALS.app ? s.bad : s.neutralText}>Appetizer {min1(x.app)}</span>{' '}
-                      <span className={x.ent > GOALS.ent ? s.bad : s.neutralText}>Entrée {min1(x.ent)}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        ))}
-      </div>
+      {late.length > 0 && (
+        <div className={s.block}>
+          <BoCaption>Who to follow up with</BoCaption>
+          {late.map((g) => (
+            <details key={g.server} className={s.follow}>
+              <summary className={s.followHead}>
+                <span className={s.followName}>{g.server}</span>
+                <span className={s.followSub}>
+                  {g.late.length} of {g.tables} over · mostly {g.cause === 'entrée' ? 'the entrée' : 'the appetizer'} · worst {g.late[0].table}{' '}
+                  {min1(tableTime(g.late[0]))} min
+                </span>
+                <span className={s.followMore} aria-hidden>
+                  <span className={s.whenShut}>Show tables</span>
+                  <span className={s.whenOpen}>Hide tables</span>
+                </span>
+              </summary>
+              <table className={s.followTable}>
+                <tbody>
+                  {g.late.map((x, j) => (
+                    <tr key={j}>
+                      <th scope="row">{x.table}</th>
+                      <td className={s.followMeal}>
+                        {x.meal} · {formatTime(x.at)}
+                      </td>
+                      <td className={s.bad}>
+                        <b>{min1(tableTime(x))} min</b>
+                      </td>
+                      <td>
+                        <span className={x.app > GOALS.app ? s.bad : s.neutralText}>Appetizer {min1(x.app)}</span>{' '}
+                        <span className={x.ent > GOALS.ent ? s.bad : s.neutralText}>Entrée {min1(x.ent)}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          ))}
+        </div>
+      )}
       <p className={s.chartNote}>
         Table time is the minutes from the order to the entrée served: {GOALS.app} to the appetizer plus {GOALS.ent} to the entrée.
       </p>
     </DayModal>
+  );
+}
+
+/** The step furthest over its goal on a day: order → appetizer, or appetizer → entrée. */
+function slowStep(D: TimedTable[]) {
+  if (!D.length) return null;
+  const aa = D.reduce((q, x) => q + x.app, 0) / D.length;
+  const ae = D.reduce((q, x) => q + x.ent, 0) / D.length;
+  return ae / GOALS.ent >= aa / GOALS.app
+    ? { name: 'appetizer → entrée', v: ae, goal: GOALS.ent }
+    : { name: 'order → appetizer', v: aa, goal: GOALS.app };
+}
+
+const PAGE_LABEL: Record<ServicePage, string> = { svcFlow: 'Pacing & Coursing', svcAlerts: 'Alerts & Timing' };
+const PAGE_WHY: Record<ServicePage, string> = { svcFlow: 'when each course fires', svcAlerts: 'flag slow plates sooner' };
+
+/** "Do this next": the action, why, who after that, and the settings page that helps. */
+function NextStep({
+  tone,
+  head,
+  body,
+  after,
+  page,
+  open,
+}: {
+  tone: Tone;
+  head: string;
+  body?: string;
+  after?: string;
+  page: ServicePage | null;
+  open: (id: string) => void;
+}) {
+  return (
+    <div className={cx(s.start, tone === 'good' ? s.startGood : s.startBad)}>
+      <div className={s.startCap}>Do this next</div>
+      <div className={s.startHead}>{head}</div>
+      {body && <div className={s.startBody}>{body}</div>}
+      {after && <div className={s.startBody}>{after}</div>}
+      {page && (
+        <div className={s.nextBtn}>
+          <Button size="sm" iconRight={<ChevronRight size={14} />} onClick={() => open(page)}>
+            {PAGE_LABEL[page]}
+          </Button>
+          <span className={s.muted}>{PAGE_WHY[page]}</span>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -184,7 +259,16 @@ function ServiceRangeModal({ data, goto, onClose }: { data: DashboardData; goto:
   const week = serviceWeek(P[7], avgTableTime(P[6]), dayAvgs, data.n);
   return (
     <RangeModal title="Steps of Service" n={data.n} onClose={onClose}>
-      <StartHere insight={week.insight} />
+      <NextStep
+        tone={week.insight.tone}
+        head={week.insight.head}
+        body={week.insight.body}
+        page={week.page}
+        open={(id) => {
+          onClose();
+          goto(id);
+        }}
+      />
       <Drivers rows={week.drivers} />
       <BestWorst {...bestWorstTables(P[7], { byTable: true })} range />
       <PeriodTrend
