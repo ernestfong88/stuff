@@ -232,12 +232,10 @@ The final order is:
 - The Recipe Book's *Send to Home Office for approval* stays, as before; its status notes never linked to the approval queue.
 
 
-
 ### Server: special diets at a glance
 - **Every resident's allergies and diets show on their card** on the server's Residents page: allergies in red, diets and textures in grey, in the kitchen ticket's own tags with the shorthand spelled out (*GF* reads *Gluten-free*, *NAS* *No salt added*, *Diab* *Diabetic*, *Puree* *Pureed*, *Nectar thick* *Nectar-thick liquids*). Touching a spelled-out tag shows the ticket wording.
 - **A row of counts under the search doubles as the filter:** *Special diets 8* shows only residents with any allergy, diet or texture; *Any allergy 5* shows everyone with an allergy; then one chip per allergy, diet and texture with how many residents have it (allergies first, a hairline between the groups). Tap one or several to see only those residents; *Clear* shows everyone again and says how many are shown. It works together with the name search.
 - The chips are full 44px touch targets and wrap onto a second row when the tablet is upright.
-
 
 
 ### Server, Manager and PU & Delivery: tuned for tablets
@@ -249,7 +247,6 @@ The final order is:
 - **Manager tabs upright:** the six tabs share the row instead of scrolling *86 list* out of sight.
 - **Touch targets:** header buttons, chips, the mode menu, the avatar and A−/A+ are 44px (A−/A+ and the % are also bigger to read); a table card's open-the-check area, tabs, the meal switch, Triage's *Fine for now* and the order screen's text size and mode controls (26px before) are 44px too. A check's course badges, the ⋯ line menu and Hold/Remove are 40px, with Hold and Remove further apart; Close & charge and Send are further apart. *Mod* on menu tiles is a little bigger.
 - **Safe areas:** the shell, the send bar and the Close & charge footer keep clear of the home indicator. The layouts follow the screen they are in rather than the window, so they also respond to text size.
-
 
 
 ### Dashboard: lighter trend cards
@@ -265,7 +262,6 @@ The final order is:
 - **Filters take less room:** search, category and the finer filters share one row while they fit (one row at 1920px, where it was two).
 - **The recipe uses the width:** on a desktop screen the recipe page is no longer held to 1120px. Plating sits beside Nutrition and diet, and the KDS & Recipe Book settings beside the chef's notes, as Ingredients already sat beside Method. Beside the list, the recipe's buttons go in a row under its name and the numbers (yield, portion, prep, cook, total, calories) stay on one line. Editing works as before; the recipe dialog is unchanged.
 - Cards view is unchanged: the cards stay about 240px wide at every width (6 across on a 1920px or 2560px screen), and opening a card still opens the full recipe page.
-
 
 ### Back Office: a colour for each section
 - **Each side menu section has its own colour**, so you can tell at a glance where you are. The section's icon is in its colour, and the page you are on is highlighted in a light tint of it.
@@ -284,7 +280,6 @@ The final order is:
 - **Settings cards:** each card's title sits on a light band of the section's colour, with a small marker at the card's left edge, so the groups of settings read as separate blocks. The cards themselves stay white.
 - **Tabs:** the line under the chosen tab is in the section's colour.
 - Text on the tints keeps AA contrast. Layouts, wording and the Dashboard charts are unchanged.
-
 
 ### Back Office uses the width on desktop
 - Nothing changes at 1280px wide and below.
