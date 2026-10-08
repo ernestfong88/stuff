@@ -38,19 +38,26 @@
   font-size: 12.5px;
   color: var(--s500);
 }
+/*
+ * Side-by-side columns once the page has room for 420px each. Newspaper
+ * columns: a long section carries on at the top of the next column (each piece
+ * keeps the card look), so every column fills evenly whatever the section count.
+ */
 .sections {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 960px;
+  columns: 420px;
+  column-gap: 12px;
 }
 .section {
+  margin-bottom: 12px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   padding: 14px 16px 10px;
   border-radius: var(--r-xl);
   background: var(--surface);
   box-shadow: var(--shadow-1);
 }
 .secHead {
+  break-after: avoid;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -71,6 +78,7 @@
   color: var(--s400);
 }
 .row {
+  break-inside: avoid;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -95,6 +103,8 @@
   gap: 4px;
 }
 .mealChip {
+  display: inline-flex;
+  align-items: center;
   height: 30px;
   padding: 0 10px;
   border-radius: var(--r-pill);

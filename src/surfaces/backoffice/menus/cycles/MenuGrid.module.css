@@ -350,3 +350,44 @@
   background: var(--paper);
   color: var(--ink);
 }
+
+/* Wide windows: the builder spans the whole page, so the day columns get roomy; give the cards a little more size to match. */
+@media (min-width: 1700px) {
+  .corner {
+    width: 120px;
+  }
+  .laneHead {
+    padding: 10px 12px;
+  }
+  .laneLabel {
+    font-size: 13px;
+  }
+  .laneSub {
+    font-size: 11px;
+  }
+  .cell {
+    padding: 5px 6px;
+  }
+  .stack {
+    gap: 5px;
+  }
+  .card {
+    min-height: 40px;
+    padding: 8px 18px 8px 10px;
+  }
+  .cardName {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .slot {
+    min-height: 40px;
+    padding: 0 10px;
+    font-size: 12.5px;
+  }
+  .slotSide {
+    min-height: 30px;
+  }
+  .dateNum {
+    font-size: 24px;
+  }
+}

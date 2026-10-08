@@ -100,6 +100,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
 
   return (
     <BoPage
+      wide
       title={m.name}
       sub={
         <span className={s.sub}>

@@ -34,6 +34,10 @@
   margin: 0 auto;
   padding: 24px 32px 56px;
 }
+/* Pages that are a work surface (BoPage wide, e.g. the menu builder) use the whole window. */
+.content:has([data-bo-wide]) {
+  max-width: none;
+}
 
 .scrim {
   display: none;

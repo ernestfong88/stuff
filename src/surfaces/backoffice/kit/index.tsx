@@ -25,11 +25,24 @@ export function BoEmbedded({ children }: { children: ReactNode }) {
   return <EmbeddedPage.Provider value={true}>{children}</EmbeddedPage.Provider>;
 }
 
-export function BoPage({ title, sub, actions, children }: { title: ReactNode; sub?: ReactNode; actions?: ReactNode; children?: ReactNode }) {
+/** A back office page. `wide` lets a work surface (the menu builder) use the whole window instead of the shell's reading width. */
+export function BoPage({
+  title,
+  sub,
+  actions,
+  wide,
+  children,
+}: {
+  title: ReactNode;
+  sub?: ReactNode;
+  actions?: ReactNode;
+  wide?: boolean;
+  children?: ReactNode;
+}) {
   const embedded = useContext(EmbeddedPage);
   if (embedded)
     return (
-      <div className={s.page}>
+      <div className={s.page} data-bo-wide={wide || undefined}>
         {(sub || actions) && (
           <header className={s.embedHead}>
             {sub && <p className={s.embedSub}>{sub}</p>}
@@ -40,7 +53,7 @@ export function BoPage({ title, sub, actions, children }: { title: ReactNode; su
       </div>
     );
   return (
-    <div className={s.page}>
+    <div className={s.page} data-bo-wide={wide || undefined}>
       <header className={s.pageHead}>
         <div className={s.pageTitles}>
           <h1 className={s.pageTitle}>{title}</h1>

@@ -121,6 +121,7 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
 
   return (
     <BoPage
+      wide
       title={everyDay ? `${m.name} · Every-day items` : m.name}
       sub={
         <span className={s.sub}>
