@@ -220,6 +220,10 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Production Prep: tighter cards, a week of prep days
+- **Prep days:** pick any day up to a week ahead (Today, Tomorrow, then Sat 10/10, Sun 10/11 and so on), then Breakfast, Lunch or Dinner. Before, only today and tomorrow could be picked.
+- **Special cards:** **✓ Complete** (was "Mark prepped") sits on one row with a small microphone button for a voice note and a pencil button to type one. The cards are shorter, so more fit on screen.
+
 ### 86 list: what's out first, search to add
 - The *86 list* on the manager tablet opens on what is out or low right now. Each line has **Back on**, and a counted item has a − / + to change how many are left. With nothing marked it says "Nothing is 86'd".
 - An item can be marked **Out** or given a **Count** ("4 left"). A count goes down as servers ring the item in, shows as "4 left" on the server order screen, and the tile becomes Sold out at zero. Out works as before: greyed "86 today" on the server tablets, gone from the kiosk and the specials display. Both come back on at midnight.

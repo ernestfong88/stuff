@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Mic } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import { Mic, Pencil } from 'lucide-react';
 import { useConfirm, useNow } from '../../ui';
 import { addPrepNote, prepNotes, removePrepNote, useProduction, type PrepMeal } from '../../store/production';
 import { noteWhen } from './logic';
@@ -13,6 +13,8 @@ interface PrepNotesProps {
   dish: string;
   /** Who signs notes made on this tablet. */
   cook: string;
+  /** The card's main action (Complete), on the same row as the note buttons. */
+  lead?: ReactNode;
 }
 
 /**
@@ -20,7 +22,7 @@ interface PrepNotesProps {
  * venue, service date, meal and dish, so one left tonight on tomorrow's
  * special is waiting for the morning cook.
  */
-export function PrepNotes({ venueId, iso, meal, dish, cook }: PrepNotesProps) {
+export function PrepNotes({ venueId, iso, meal, dish, cook, lead }: PrepNotesProps) {
   const state = useProduction();
   const nowMs = useNow(30_000);
   const notes = prepNotes(state, venueId, iso, meal, dish, nowMs);
@@ -63,28 +65,26 @@ export function PrepNotes({ venueId, iso, meal, dish, cook }: PrepNotesProps) {
               {speech.message}
             </p>
           )}
-          {speech.supported ? (
-            <div className={s.row}>
-              <button className={s.mic} onClick={speech.listen} aria-label={`Add a voice note to ${dish}`}>
-                <span className={s.micDot}>
-                  <Mic size={22} strokeWidth={2.4} aria-hidden />
-                </span>
-                Add a voice note
+          {/* One row: the main action, then a voice note and a typed note as compact icon buttons. */}
+          <div className={s.row}>
+            {lead}
+            {speech.supported && (
+              <button className={s.mic} onClick={speech.listen} aria-label={`Add a voice note to ${dish}`} title="Voice note">
+                <Mic size={22} strokeWidth={2.4} aria-hidden />
               </button>
-              <button className={s.secondary} onClick={speech.typeInstead}>
-                Type
-              </button>
-            </div>
-          ) : (
-            <>
-              <p className={s.hint}>Voice notes need Chrome or Edge. In this browser, type the note instead.</p>
-              <button className={s.secondaryWide} onClick={speech.typeInstead}>
-                Type a progress note
-              </button>
-            </>
-          )}
+            )}
+            <button
+              className={s.type}
+              onClick={speech.typeInstead}
+              aria-label={`Type a note on ${dish}`}
+              title={speech.supported ? 'Type a note' : 'Type a note (voice notes need Chrome or Edge)'}
+            >
+              <Pencil size={20} strokeWidth={2.4} aria-hidden />
+            </button>
+          </div>
         </>
       )}
+      {speech.stage !== 'idle' && lead && <div className={s.row}>{lead}</div>}
 
       {speech.stage === 'listen' && (
         <div className={s.live}>

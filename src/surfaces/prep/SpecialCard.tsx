@@ -34,7 +34,11 @@ export function SpecialCard({ special, amount, prepped, venueId, iso, meal, cook
             Prepped · {prepped.by} · {formatTime(prepped.at)}
           </span>
         </span>
-        <button className={s.undo} onClick={() => setPrepped(venueId, iso, meal, special.slot, false, cook)} aria-label={`Undo prepped for ${special.name}`}>
+        <button
+          className={s.undo}
+          onClick={() => setPrepped(venueId, iso, meal, special.slot, false, cook)}
+          aria-label={`Undo prepped for ${special.name}`}
+        >
           Undo
         </button>
       </div>
@@ -65,11 +69,19 @@ export function SpecialCard({ special, amount, prepped, venueId, iso, meal, cook
           <ChevronRight size={14} strokeWidth={2.6} aria-hidden />
         </span>
       </button>
-      <button className={s.mark} aria-pressed={false} onClick={() => setPrepped(venueId, iso, meal, special.slot, true, cook)}>
-        <span className={s.markBox} aria-hidden />
-        Mark prepped
-      </button>
-      <PrepNotes venueId={venueId} iso={iso} meal={meal} dish={special.name} cook={cook} />
+      <PrepNotes
+        venueId={venueId}
+        iso={iso}
+        meal={meal}
+        dish={special.name}
+        cook={cook}
+        lead={
+          <button className={s.mark} aria-pressed={false} onClick={() => setPrepped(venueId, iso, meal, special.slot, true, cook)}>
+            <Check size={20} strokeWidth={3} aria-hidden />
+            Complete
+          </button>
+        }
+      />
     </article>
   );
 }
