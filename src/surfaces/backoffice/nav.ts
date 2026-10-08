@@ -240,15 +240,15 @@ export const BO_SECTIONS: BoSectionDef[] = [
   },
   {
     id: 'residents',
-    label: 'Residents',
+    label: 'Resident Dining Profile',
     icon: Users,
     pages: [
       {
         id: 'resProfiles',
-        label: 'Residents',
-        blurb: 'Profiles as servers see them, allergies and diets, trivia',
+        label: 'Resident Dining Profile',
+        blurb: 'Care level, meal plan, allergies and diets for every resident, with filters; trivia',
         keywords:
-          'profile server view story family usuals preference allergy allergies diet texture puree thickened gluten shellfish trivia quiz score scoreboard prize',
+          'residents resident profiles dining profile server view story family usuals preference allergy allergies diet diets texture puree thickened gluten shellfish care level il al independent assisted meal plan a la carte filter trivia quiz score scoreboard prize',
         component: lazy(() => import('./pages/resProfiles')),
       },
     ],
@@ -374,8 +374,8 @@ export const BO_ALIASES: BoPageAlias[] = [
   { id: 'svcRoute', label: 'Kitchen routing', blurb: 'In Venue Settings, on each venue', keywords: 'kitchen routing kds expo bar station route', to: ['venues', 'first', 'kitchen'] },
   { id: 'fees', label: 'Delivery fees & sick waivers', blurb: 'In Pick Up & Delivery', keywords: 'delivery options tray room service fee sick waiver', to: ['svcWin', 'fees'] },
   { id: 'broadcasts', label: 'Broadcasts to staff', blurb: 'In Messages', keywords: 'broadcast notice announcement', to: ['svcTexts', 'broadcasts'] },
-  { id: 'resDiets', label: 'Allergies & diets', blurb: 'In Residents', keywords: 'allergy diet texture', to: ['resProfiles', 'diets'] },
-  { id: 'trivia', label: 'Trivia scoreboard', blurb: 'In Residents', keywords: 'trivia quiz score prize', to: ['resProfiles', 'trivia'] },
+  { id: 'resDiets', label: 'Allergies & diets', blurb: 'Filters in Resident Dining Profile', keywords: 'allergy diet texture', to: ['resProfiles'] },
+  { id: 'trivia', label: 'Trivia scoreboard', blurb: 'In Resident Dining Profile', keywords: 'trivia quiz score prize', to: ['resProfiles', 'trivia'] },
   { id: 'mealdrops', label: 'Meal counts', blurb: 'In Meal Plans', keywords: 'meal counts guest associate close', to: ['plans', 'counts'] },
   { id: 'corkage', label: 'Corkage', blurb: 'In Meal Plans', keywords: 'corkage wine bottle fee', to: ['plans', 'corkage'] },
 ];

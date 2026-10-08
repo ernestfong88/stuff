@@ -15,7 +15,7 @@ import { duplicateNames } from '../mealdrops/duplicates';
 import { buildRows, feedbackTag, filterRows } from '../orders/orderRows';
 import { mixFor, visibleItems } from '../pmix/mix';
 import { guestCreditOn, mealCreditText, DEFAULT_MEAL_CREDIT } from '../../../../domain/config';
-import { dietRows, filterDietRows, tagCounts } from '../resDiets/diets';
+import { dietRows, tagCounts } from '../residents/dietTags';
 
 const DAY = 86_400_000;
 
@@ -110,16 +110,6 @@ describe('allergies and diets', () => {
       { text: 'Nectar thick', cat: 'texture' },
     ]);
     expect(tagCounts(rows)[0].cat).toBe('allergy');
-  });
-  it('filters by category, tag and search, and hides people with nothing on file', () => {
-    const f = { query: '', cat: 'all' as const, tag: null, includeNone: false, sort: { key: 'name' as const, dir: 1 as const } };
-    expect(filterDietRows(rows, f)).toHaveLength(8);
-    expect(filterDietRows(rows, { ...f, includeNone: true })).toHaveLength(residents.length);
-    // Rose, Walter, Joan (peanuts), Mildred, Beatrice.
-    expect(filterDietRows(rows, { ...f, cat: 'allergy' })).toHaveLength(5);
-    expect(filterDietRows(rows, { ...f, tag: 'allergy|Gluten' }).map((x) => x.r.name)).toEqual(['Beatrice Sanderson', 'Mildred Vanholder']);
-    expect(filterDietRows(rows, { ...f, query: 'mussels' }).map((x) => x.r.name)).toEqual(['Rose Delgado']);
-    expect(filterDietRows(rows, { ...f, sort: { key: 'apt', dir: -1 } })[0].r.apt).toBe('412');
   });
 });
 

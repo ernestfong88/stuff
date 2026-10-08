@@ -127,7 +127,7 @@ export default function Page(_props: BoPageProps) {
     const pick = storyPick.get();
     return pick && getResident(pick) ? pick : residents[0].id;
   });
-  // The pick from Resident Profiles is used once.
+  // The pick from Resident Dining Profile is used once.
   useEffect(() => storyPick.set(null), []);
   const [query, setQuery] = useState('');
   const shown = searchResidents(residents, query);

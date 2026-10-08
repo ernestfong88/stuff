@@ -90,7 +90,7 @@ describe('the standard phase split', () => {
   Back Office › POS Settings › Pacing & Coursing
   Back Office › POS Settings › Pick Up & Delivery
   Back Office › POS Settings › Messages
-  Back Office › Residents › Residents
+  Back Office › Resident Dining Profile › Resident Dining Profile
   Back Office › Billing › Charge Approval
   Back Office › Billing › Order History
   Back Office › Billing › Meal Plans

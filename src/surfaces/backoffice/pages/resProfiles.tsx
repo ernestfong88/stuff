@@ -1,29 +1,68 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronLeft, SearchX } from 'lucide-react';
 import type { BoPageProps } from '../nav';
-import { BoPage, BoTabbedPage } from '../kit';
+import { BoPage, BoTabbedPage, useBilling, useResidentRecords } from '../kit';
 import { getResident, residents } from '../../../data';
 import { navigate, useRoute } from '../../../shell/router';
 import { useHubTab } from './pageTab';
-import AllergiesDietsPage from './resDiets';
 import TriviaPage from './trivia';
-import { Button, EmptyState, SearchField } from '../../../ui';
+import { Button, EmptyState } from '../../../ui';
 import { HospiceCard } from './residents/HospiceCard';
+import { ProfileFilters } from './residents/ProfileFilters';
 import { ResidentTable } from './residents/ResidentTable';
+import {
+  ALL,
+  NO_FILTER,
+  filterProfiles,
+  planBucket,
+  profileFacets,
+  profileRows,
+  type ProfileFilter,
+  type ProfileRow,
+} from './residents/profileFilters';
 import { ResidentProfile } from '../../server/features/residents/ResidentProfile';
-import { searchResidents } from '../../server/features/residents/residentInfo';
 import { storyPick } from '../../server/features/residents/storyPick';
 import s from './resProfiles.module.css';
 
+/** The filters (not the search) are remembered on this device. */
+const FILTER_KEY = 'kisco_bo_resident_filters_v1';
+
+/** The saved filters, less any plan or tag nobody has any more. */
+function savedFilter(rows: ProfileRow[]): ProfileFilter {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FILTER_KEY) ?? 'null') as Partial<ProfileFilter> | null;
+    if (!saved) return NO_FILTER;
+    const tagKeys = new Set(rows.flatMap((x) => x.tags.map((t) => `${t.cat}|${t.text}`)));
+    return {
+      query: '',
+      level: rows.some((x) => x.r.level === saved.level) ? String(saved.level) : ALL,
+      tags: (Array.isArray(saved.tags) ? saved.tags : []).filter(
+        (k): k is string => typeof k === 'string' && (tagKeys.has(k) || /^(any\||none$)/.test(k)),
+      ),
+      plan: rows.some((x) => x.plan.id === saved.plan) ? String(saved.plan) : ALL,
+    };
+  } catch {
+    return NO_FILTER;
+  }
+}
+
+function saveFilter({ level, tags, plan }: ProfileFilter) {
+  try {
+    localStorage.setItem(FILTER_KEY, JSON.stringify({ level, tags, plan }));
+  } catch {
+    /* not remembered */
+  }
+}
+
 /**
- * Resident Profiles: everyone with their meal plan, hospice switch and
- * allergies and diets, and each profile exactly as servers see it on the
- * tablet. A resident opens at #/backoffice/resProfiles/<id>, so the browser's back
+ * Resident Dining Profile: everyone with their meal plan, hospice switch and
+ * allergies and diets, filtered by care level, diet or allergy and meal
+ * plan, and each profile exactly as servers see it on the tablet. A
+ * resident opens at #/backoffice/resProfiles/<id>, so the browser's back
  * button returns to the list and a profile can be linked to.
  */
 function ResidentProfiles({ goto }: BoPageProps) {
   const route = useRoute();
-  const [query, setQuery] = useState('');
   const resident = route.path[0] === 'resProfiles' ? getResident(route.path[1]) : undefined;
   const open = (id: string | null) => navigate('backoffice', id ? ['resProfiles', id] : ['resProfiles']);
   const editStory = (id: string | null) => {
@@ -60,10 +99,33 @@ function ResidentProfiles({ goto }: BoPageProps) {
     );
   }
 
-  const shown = searchResidents(residents, query);
+  return <ResidentList goto={goto} editStory={editStory} open={open} />;
+}
+
+function ResidentList({
+  goto,
+  editStory,
+  open,
+}: {
+  goto: (page: string) => void;
+  editStory: (id: string | null) => void;
+  open: (id: string) => void;
+}) {
+  const records = useResidentRecords();
+  const { plans } = useBilling();
+  const rows = useMemo(
+    () => profileRows(residents, (r) => planBucket(records.find((x) => x.id === r.id && x.name === r.name)?.planId, plans)),
+    [records, plans],
+  );
+  const [filter, setFilterState] = useState(() => savedFilter(rows));
+  const setFilter = (f: ProfileFilter) => {
+    setFilterState(f);
+    saveFilter(f);
+  };
+  const shown = filterProfiles(rows, filter);
   return (
     <BoPage
-      title="Resident Profiles"
+      title="Resident Dining Profile"
       actions={
         <>
           <Button variant="ghost" onClick={() => goto('residents')}>
@@ -73,17 +135,32 @@ function ResidentProfiles({ goto }: BoPageProps) {
         </>
       }
     >
-      <SearchField value={query} onChange={setQuery} placeholder="Search name or apartment" className={s.search} />
-      {shown.length ? <ResidentTable list={shown} onOpen={open} /> : <EmptyState icon={<SearchX size={28} />} title="No resident matches that" />}
+      <ProfileFilters filter={filter} onChange={setFilter} facets={profileFacets(rows, filter)} shown={shown.length} total={rows.length} />
+      {shown.length ? (
+        <ResidentTable list={shown.map((x) => x.r)} onOpen={open} />
+      ) : (
+        <EmptyState
+          icon={<SearchX size={28} />}
+          title="No resident matches these filters"
+          action={
+            <Button variant="ghost" onClick={() => setFilter(NO_FILTER)}>
+              Clear filters
+            </Button>
+          }
+        />
+      )}
     </BoPage>
   );
 }
 
-const HUB_TABS = ['profiles', 'diets', 'trivia'] as const;
+const HUB_TABS = ['profiles', 'trivia'] as const;
 
 /**
- * Residents: everyone as servers see them, their allergies and diets, and
- * the trivia scoreboard. An open profile shows on its own, without the tabs.
+ * Resident Dining Profile: everyone as servers see them, with their
+ * allergies and diets, and the trivia scoreboard. An open profile shows on
+ * its own, without the tabs. The old Allergies & diets tab
+ * (#/backoffice/resProfiles/diets) is now the list's filters, and its
+ * address opens the list.
  */
 export default function Page(props: BoPageProps) {
   const route = useRoute();
@@ -92,12 +169,11 @@ export default function Page(props: BoPageProps) {
   return (
     <BoTabbedPage
       page="resProfiles"
-      title="Residents"
+      title="Resident Dining Profile"
       current={tab}
       onTab={go}
       tabs={[
         { id: 'profiles', label: 'Profiles', render: () => <ResidentProfiles {...props} /> },
-        { id: 'diets', label: 'Allergies & diets', render: () => <AllergiesDietsPage {...props} /> },
         { id: 'trivia', label: 'Trivia scoreboard', render: () => <TriviaPage {...props} /> },
       ]}
     />

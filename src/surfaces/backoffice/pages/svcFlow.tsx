@@ -294,7 +294,7 @@ export default function Page({ goto }: BoPageProps) {
           <BoSection title="Pick up">
             <PickupTracking />
           </BoSection>
-          <BoSection title="Comps" sub="For residents marked On hospice in Residents.">
+          <BoSection title="Comps" sub="For residents marked On hospice in Resident Dining Profile.">
             <FlowToggle k="hospiceAuto" label="Comp hospice residents' meals" hint="At close, reason Hospice. No manager PIN or meal credit." />
             <FlowToggle k="freeDeliveryComp" label="Waive hospice residents' delivery fees" hint="No manager PIN needed." />
           </BoSection>

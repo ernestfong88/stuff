@@ -1,5 +1,5 @@
 import { ArrowLeft, Info } from 'lucide-react';
-import { allergenKeysIn, avoidLabel, personAvoids } from '../../../../domain/allergens';
+import { avoidLabel } from '../../../../domain/allergens';
 import { formatTime } from '../../../../lib/format';
 import { navigate } from '../../../../shell/router';
 import { residentPref, updateResidentPref, useResidentPrefs } from '../../../../store/residentPrefs';
@@ -8,6 +8,7 @@ import { BoCallout, BoField, BoPage, BoSection, BoSelect, NumberBox, updateResid
 import { diningResident, type BoResident } from '../../seed/residents';
 import { HospiceCard } from './HospiceCard';
 import { RecentOrders } from './RecentOrders';
+import { unlistedAllergens } from './profileFilters';
 import { changePlanWithUndo } from './residentActions';
 import s from './residents.module.css';
 
@@ -25,8 +26,7 @@ export function ResidentDetail({ resident: r, onBack, goto }: { resident: BoResi
   const diet = [...(dining?.diet ?? r.diet), ...(dining?.foodPrep ? [`Food prep: ${dining.foodPrep}`] : [])];
   const set = (patch: Partial<BoResident>) => updateResidentRecord(r.id, patch);
   // A note like "NO peanut products — severe" that the allergy list doesn't carry.
-  const onFile = new Set(personAvoids({ allergies, diet: dining?.diet ?? r.diet }).map((a) => a.key));
-  const unlisted = allergenKeysIn(r.kitchenNotes).filter((k) => !onFile.has(k));
+  const unlisted = unlistedAllergens({ allergies, diet: dining?.diet ?? r.diet }, r.kitchenNotes);
   // The dining tablets read preferences from the shared store, so a change here shows at the table.
   const prefText = dining ? residentPref({ [r.id]: r.prefs, ...prefs }, r.id) : r.prefs;
   const setPref = (text: string) => (dining ? updateResidentPref(r.id, text) : set({ prefs: text }));

@@ -220,6 +220,20 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Resident Dining Profile: one list with filters
+- **Residents is now Resident Dining Profile** in the side menu, the page title, the breadcrumb and page search. Addresses are unchanged, so old links still work.
+- **Allergies & diets is no longer a separate tab.** Its old address, and the *See everyone's allergies and diets* link on a resident's Meal plan & kitchen notes page, open the one list.
+- **Filters above the list**, on one row that wraps on a 1024 screen:
+  - **Care level:** All · IL · AL, plus any other level on file, each with how many residents.
+  - **Diets & allergies:** a dropdown of checkboxes, grouped as Allergies, Diets, and Textures & liquids. Each shows how many residents have it, for example *Shellfish 1* or *Gluten-free 2*. *Any allergy*, *Any diet*, *Any texture* and *Nothing on file* are there too. The list shows anyone with any of the ticked items.
+  - **Meal plan:** each plan in use with its count. *À la carte* covers both the $0 plan and residents with no plan.
+  - Each filter's counts take the other filters into account. For example, with AL picked, *Gluten-free 2* means two AL residents.
+- **Search** finds a name or apartment first. It also matches diet and allergy wording, including the care assessment's own words, for example "mussels".
+- When filtered, the bar shows **Showing 3 of 25 · Clear filters**. The filters (not the search) are remembered on this device.
+- **Allergy warning on the list:** when a resident's kitchen notes mention an allergen that isn't on their allergy list, their row shows a red *Notes: …* flag. The warning on their Meal plan & kitchen notes page is unchanged. Hovering a row's diets shows the care assessment's wording.
+- *Meal plans & kitchen notes* and *Edit stories* are still at the top of the list.
+
+
 ### Recipe Book: alcoholic and non-alcoholic drinks
 With **Drinks** picked, the filters add a **Type** choice: Any · Non-alcoholic · Alcoholic. The subcategory list then only offers that type's subcategories:
 - **Non-alcoholic:** Soft Drinks, Juice, Coffee & Tea, Other, which covers the NA wines.

@@ -1,6 +1,6 @@
 /**
- * Allergies & Diets report: every resident's tags exactly as the kitchen
- * ticket prints them, grouped as allergy, diet or texture.
+ * Every resident's allergy and diet tags exactly as the kitchen ticket
+ * prints them, grouped as allergy, diet or texture.
  */
 import { residentPills } from '../../../../domain/residents';
 import type { Resident } from '../../../../domain/types';
@@ -52,36 +52,14 @@ export function tagCounts(rows: DietRow[]): TagCount[] {
   return [...tally.values()].sort((a, b) => CATEGORY_ORDER[a.cat] - CATEGORY_ORDER[b.cat] || b.n - a.n || a.text.localeCompare(b.text));
 }
 
-export type DietSortKey = 'name' | 'apt' | 'level' | 'tags';
-
-const sortValue: Record<DietSortKey, (x: DietRow) => string> = {
-  name: (x) => x.r.name.toLowerCase(),
-  apt: (x) => String(x.r.apt ?? '').padStart(6, '0'),
-  level: (x) => (x.r.level ?? '') + x.r.name.toLowerCase(),
-  tags: (x) => (x.tags.length ? CATEGORY_ORDER[x.tags[0].cat] + x.tags.map((t) => t.text.toLowerCase()).join(',') : '9'),
+/** Ticket shorthand in plain words, for filters ("GF" is "Gluten-free"). */
+const PLAIN: Record<string, string> = {
+  NAS: 'No salt added',
+  'Low Na': 'Low sodium',
+  Diab: 'Diabetic',
+  GF: 'Gluten-free',
+  Puree: 'Pureed',
+  'Nectar thick': 'Nectar-thick liquids',
 };
 
-export interface DietFilter {
-  query: string;
-  cat: TagCategory | 'all';
-  tag: string | null;
-  includeNone: boolean;
-  sort: { key: DietSortKey; dir: 1 | -1 };
-}
-
-export function filterDietRows(rows: DietRow[], f: DietFilter): DietRow[] {
-  const q = f.query.trim().toLowerCase();
-  return rows
-    .filter(
-      (x) =>
-        (f.includeNone || x.tags.length > 0) &&
-        (f.cat === 'all' || x.tags.some((t) => t.cat === f.cat)) &&
-        (!f.tag || x.tags.some((t) => tagKey(t) === f.tag)) &&
-        (!q || [x.r.name, x.r.apt, ...x.tags.map((t) => t.text), ...x.onFile].join(' ').toLowerCase().includes(q)),
-    )
-    .sort((a, b) => {
-      const A = sortValue[f.sort.key](a);
-      const B = sortValue[f.sort.key](b);
-      return (A < B ? -1 : A > B ? 1 : 0) * f.sort.dir || a.r.name.localeCompare(b.r.name);
-    });
-}
+export const tagLabel = (text: string): string => PLAIN[text] ?? text;

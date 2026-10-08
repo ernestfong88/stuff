@@ -1,5 +1,6 @@
 import type { MouseEvent } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, TriangleAlert } from 'lucide-react';
+import { avoidLabel } from '../../../../domain/allergens';
 import { residentPills } from '../../../../domain/residents';
 import type { Resident } from '../../../../domain/types';
 import { isOnHospice } from '../../../../domain/waivers';
@@ -10,6 +11,7 @@ import { useResidentRecords } from '../../kit/residentRecords';
 import { careLevel, planStatus } from '../../../server/features/residents/residentInfo';
 import type { BoMealPlan } from '../../seed/billing';
 import type { BoResident } from '../../seed/residents';
+import { unlistedAllergens } from './profileFilters';
 import { changePlanWithUndo, toggleHospiceWithUndo } from './residentActions';
 import s from './ResidentTable.module.css';
 
@@ -19,13 +21,30 @@ const SHOWN_PILLS = 3;
 /** Clicks on a row's controls change that control, not open the resident. */
 const keep = (e: MouseEvent) => e.stopPropagation();
 
-/** Allergies (red) then diets, the first few, with the rest as "+2" (all of them on hover). */
-export function DietChips({ resident }: { resident: Resident }) {
+/**
+ * Allergies (red) then diets, the first few, with the rest as "+2" (all of
+ * them on hover), and a red flag when the kitchen notes mention an allergen
+ * the lists leave out (the tablets' allergy warnings only use the lists).
+ */
+export function DietChips({ resident, kitchenNotes }: { resident: Resident; kitchenNotes?: string }) {
   const pills = residentPills(resident);
-  if (!pills.length) return <span className={s.none}>None</span>;
+  const unlisted = unlistedAllergens(resident, kitchenNotes);
+  const flag = unlisted.length > 0 && (
+    <Chip
+      size="xs"
+      tone="danger"
+      solid
+      icon={<TriangleAlert size={11} strokeWidth={2.6} />}
+      title={`The kitchen notes mention ${unlisted.map((k) => avoidLabel(k).toLowerCase()).join(', ')}, which the allergy list doesn't carry`}
+    >
+      Notes: {unlisted.map((k) => avoidLabel(k).toLowerCase()).join(', ')}
+    </Chip>
+  );
+  if (!pills.length) return flag ? <span className={s.chips}>{flag}</span> : <span className={s.none}>None</span>;
   const more = pills.slice(SHOWN_PILLS);
   return (
     <span className={s.chips}>
+      {flag}
       {pills.slice(0, SHOWN_PILLS).map((p) => (
         <Chip
           key={p.kind + p.text}
@@ -50,6 +69,8 @@ function Row({ r, rec, plans, onOpen }: { r: Resident; rec: BoResident | undefin
   const { plan, left } = planStatus(r);
   const unit = left === 1 ? (plan.unit ?? 'meals').replace(/s$/, '') : (plan.unit ?? 'meals');
   const hospice = isOnHospice(r.id, cfg);
+  // The care assessment's own wording, on hover.
+  const onFile = [...(r.allergies ?? []), ...(r.diet ?? []), ...(r.foodPrep ? [`Food prep: ${r.foodPrep}`] : [])];
   return (
     <li className={s.row} onClick={onOpen}>
       <button type="button" className={s.who} title={`Open ${r.name}'s profile`}>
@@ -96,8 +117,8 @@ function Row({ r, rec, plans, onOpen }: { r: Resident; rec: BoResident | undefin
           label={<span className="sr-only">Hospice, {r.name}</span>}
         />
       </span>
-      <span className={s.diets}>
-        <DietChips resident={r} />
+      <span className={s.diets} title={onFile.length ? `On file: ${onFile.join('; ')}` : undefined}>
+        <DietChips resident={r} kitchenNotes={rec?.kitchenNotes} />
       </span>
       <ChevronRight size={16} className={s.chev} aria-hidden />
     </li>
@@ -105,9 +126,9 @@ function Row({ r, rec, plans, onOpen }: { r: Resident; rec: BoResident | undefin
 }
 
 /**
- * The Residents list: each resident's meal plan (changed right here, logged
- * for billing), hospice switch, and allergies and diets. The rest of the
- * row opens the profile.
+ * The Resident Dining Profile list: each resident's meal plan (changed
+ * right here, logged for billing), hospice switch, and allergies and diets.
+ * The rest of the row opens the profile.
  */
 export function ResidentTable({ list, onOpen }: { list: Resident[]; onOpen: (id: string) => void }) {
   const records = useResidentRecords();
