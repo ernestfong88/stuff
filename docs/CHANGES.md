@@ -220,6 +220,11 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Faster first load
+- Kitchen, Expo, the specials TV, Prep, Bar and the associate phone no longer download the Back Office menu model when today's menu is already saved on the device, about 57 KB less each time they open. A new device, or a saved menu from another day, still loads it once to catch up.
+- The production plan, Back Office resident records and an unused bar menu no longer load with every screen, and recipe details are no longer downloaded twice: about 29 KB less on every screen.
+- React now ships in its own file, so it stays cached between releases. Nothing looks different.
+
 ### Faster tablets
 - Timers on table cards, kitchen tickets and the floor map update on their own instead of redrawing whole screens every second. Late colours still change within 15 seconds, and the header clock turns over with the minute.
 - Tapping a plate, a table or a button on a check redraws only that ticket or card, not every card on the screen. On an idle My Tables, Cook, Expo or floor map screen, redraws dropped by about 85 to 95 percent.

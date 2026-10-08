@@ -2,9 +2,13 @@ import { useEffect, type ReactNode } from 'react';
 import { useRoute } from '../shell/router';
 import { useSignedIn } from '../shell/session';
 import { registerDemoAction } from '../shell/demoTools';
+import type { ModeId } from '../shell/modes';
+import { isoDay } from '../domain/menuCycle';
 import { isoDate } from '../domain/pickup';
+import { now } from '../lib/clock';
 import { syncAssocItems, useAssocMenuSettings } from '../store/assocMenu';
 import { DiningProvider, useDiningActions } from '../store/dining';
+import { menuEditsStore } from '../store/menuEdits';
 import { setSessionMode, setSignedIn } from '../store/session';
 
 /** Tells the dining store which surface this tab is and who is signed in (for check timelines and takeovers). */
@@ -51,24 +55,67 @@ function AssocItems() {
 }
 
 /**
+ * Surfaces that order from a later day's menu (a pick up booked for
+ * tomorrow, the kiosk) or edit menus: they keep Back Office's menu model
+ * running. The others (kitchen, expo, specials TV, prep, bar, associate
+ * phone) only show today's menu, which the saved overlay already holds.
+ */
+const MENU_MODEL_SURFACES: ReadonlySet<ModeId> = new Set<ModeId>(['server', 'manager', 'host', 'pud', 'kiosk', 'backoffice']);
+
+const loadMenuModel = () => import('../surfaces/backoffice/menus/data');
+
+/**
+ * Today's menu without the menu model: the saved overlay is used as it is
+ * while it is today's. When it is from another day, or missing (a fresh
+ * device, a demo reset), the model loads once and works it out again; the
+ * same when the day rolls over. Returns a function that stops it.
+ */
+function keepTodaysMenu(): () => void {
+  let gone = false;
+  let loading = false;
+  const freshen = () => {
+    if (loading || menuEditsStore.get().live?.date === isoDay(new Date(now()))) return;
+    loading = true;
+    void loadMenuModel()
+      .then((m) => {
+        if (!gone) m.freshenLiveMenu();
+      })
+      .finally(() => {
+        loading = false;
+      });
+  };
+  freshen();
+  const off = menuEditsStore.subscribe(freshen);
+  const timer = setInterval(freshen, 30_000);
+  return () => {
+    gone = true;
+    off();
+    clearInterval(timer);
+  };
+}
+
+/**
  * Keeps the floor's menu on each venue's menu cycle with nobody editing in
  * Back Office: today's cycle day (and so the specials) follows each venue's
  * "Week 1 started" and changes when the day rolls over. The menu model loads
- * on its own, after the screen.
+ * on its own, after the screen, and only where it is needed.
  */
 function LiveMenu() {
+  const { mode } = useRoute();
+  const full = MENU_MODEL_SURFACES.has(mode);
   useEffect(() => {
     if (import.meta.env.MODE === 'test') return;
+    if (!full) return keepTodaysMenu();
     let stop: (() => void) | undefined;
     let gone = false;
-    void import('../surfaces/backoffice/menus/data').then((m) => {
+    void loadMenuModel().then((m) => {
       if (!gone) stop = m.keepLiveMenu();
     });
     return () => {
       gone = true;
       stop?.();
     };
-  }, []);
+  }, [full]);
   return null;
 }
 

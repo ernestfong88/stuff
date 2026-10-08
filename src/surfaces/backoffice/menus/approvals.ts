@@ -8,10 +8,10 @@ import { DAY, HOUR, now } from '../../../lib/clock';
 import { uid } from '../../../lib/id';
 import { useShared } from '../../../lib/sharedStore';
 import type { Recipe } from '../../../store/menuEdits';
+import { SHIPPED_RECIPES } from '../../../store/shippedRecipes';
 import { recipeApprovalsStore, type RecipeApprovalsState, type RecipeSnapshot, type RecipeSubmission } from '../../../store/recipeApprovals';
 import { BACK_OFFICE_USER, backOfficeUser } from '../seed/associates';
 import { decide, reopen, sendForApproval, snapshotOf, withdraw } from './model/recipeApproval';
-import recipesJson from './seed/recipes.json';
 import approvalsJson from './seed/approvals.json';
 
 /** The community whose Recipe Book this is: its recipes are sent under its name. */
@@ -28,7 +28,7 @@ interface SeedSubmission extends Omit<RecipeSubmission, 'sentAt' | 'decidedAt' |
 
 /** Seeded submissions, dated relative to today so the queue always looks current. */
 function seedSubmissions(at: number): RecipeSubmission[] {
-  const recipes = recipesJson as unknown as Recipe[];
+  const recipes = SHIPPED_RECIPES;
   return (approvalsJson as unknown as SeedSubmission[]).flatMap(({ fromSeedRecipe, sentDaysAgo, sentHoursAgo, decidedDaysAgo, recipe, ...s }) => {
     const r = fromSeedRecipe ? recipes.find((x) => x.id === s.recipeId) : recipe;
     if (!r) return [];

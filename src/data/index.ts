@@ -41,7 +41,6 @@ import modDefaultsJson from './seed/modDefaults.json';
 import pinSeqJson from './seed/pinSeq.json';
 import menuJson from './seed/menu.json';
 import gridSeedJson from './seed/menuGrid.json';
-import barMenuJson from './seed/barMenu.json';
 import venueFeesJson from './seed/venueFees.json';
 import deliveryFeesJson from './seed/deliveryFees.json';
 import payMethodsJson from './seed/payMethods.json';
@@ -52,7 +51,6 @@ import ordersJson from './seed/orders.json';
 import historyJson from './seed/history.json';
 import assocMealsJson from './seed/assocMeals.json';
 import broadcastsJson from './seed/broadcasts.json';
-import boResidentsJson from './seed/boResidents.json';
 import modifierRulesJson from './seed/modifierRules.json';
 import residentNotesJson from './seed/residentNotes.json';
 import pickupPromisesJson from './seed/pickupPromises.json';
@@ -69,8 +67,6 @@ export const associates = associatesJson as Associate[];
 export const staff = staffJson as StaffMember[];
 /** Fixed colour for each server's checks on floor plans. */
 export const serverColors = serverColorsJson as Record<string, string>;
-/** Back office resident records (billing, plan start, kitchen notes). */
-export const boResidents = boResidentsJson as Array<Record<string, unknown> & { id: string; name: string }>;
 
 const residentById = new Map(residents.map((r) => [r.id, r]));
 const associateById = new Map(associates.map((a) => [a.id, a]));
@@ -118,8 +114,6 @@ function turnSeedDays(m: Menu, shift: number): Menu {
 }
 /** The tablet menu as it ships, before Back Office edits (see applyMenuEdits). */
 export const baseMenu: Menu = structuredClone(shippedMenu);
-/** Bar and café menu by section (starters, mains, cocktails, bar, fees ...). */
-export const barMenu = barMenuJson as unknown as Record<string, MenuItem[]>;
 export const modGroups = modGroupsJson as ModGroup[];
 const baseModGroups: ModGroup[] = structuredClone(modGroups);
 /** Modifier prefixes offered on every item: Add, No, Sub, Xtra, Lite, Side. */

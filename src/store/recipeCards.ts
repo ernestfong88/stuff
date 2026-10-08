@@ -4,11 +4,11 @@
  * there are any (src/store/menuEdits), else the shipped book. Only the prep
  * screen imports this, so the full book stays out of the other screens.
  */
-import shippedJson from '../surfaces/backoffice/menus/seed/recipes.json';
 import { useShared } from '../lib/sharedStore';
 import { menuEditsStore, type MenuEditsState, type Recipe } from './menuEdits';
+import { SHIPPED_RECIPES } from './shippedRecipes';
 
-const shipped = shippedJson as unknown as Recipe[];
+const shipped = SHIPPED_RECIPES;
 const key = (name: string) => name.trim().toLowerCase();
 
 /** The Recipe Book recipe for a dish name, or undefined when the book has no such dish. */

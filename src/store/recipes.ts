@@ -19,7 +19,9 @@ export interface RecipeInfo {
   allergens?: string[];
 }
 
-const shipped = summaries as Record<string, Omit<RecipeInfo, 'id'>>;
+/** The shipped Recipe Book's summaries by id (src/store/shippedRecipes adds the rest of each recipe to them). */
+export const SHIPPED_SUMMARIES = summaries as Record<string, Omit<RecipeInfo, 'id'>>;
+const shipped = SHIPPED_SUMMARIES;
 
 function fromEdits(state: MenuEditsState, id: string): RecipeInfo | undefined {
   const r = state.recipes?.find((x) => x.id === id);

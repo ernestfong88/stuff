@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { boResidents, getItem, residents } from "../../data";
-import recipes from "../../surfaces/backoffice/menus/seed/recipes.json";
+import { getItem, residents } from "../../data";
+import { boResidents } from "../../surfaces/backoffice/seed/residents";
+import { SHIPPED_RECIPES as recipes } from "../../store/shippedRecipes";
 import {
   allergenKey,
   allergenKeysIn,

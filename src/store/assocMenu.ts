@@ -32,7 +32,7 @@ import {
 import { DEFAULT_ASSOC_VENUE } from '../domain/assocMeals/settings';
 import { useShared } from '../lib/sharedStore';
 import { menuEditsStore } from './menuEdits';
-import { cycleEntrees, cycleItems } from './production';
+import { cycleEntrees, cycleItems } from './productionVenues';
 import { recipeInfo, type RecipeInfo } from './recipes';
 import { getSetting, serviceConfig, setSetting } from './serviceConfig';
 import { venueSettingsStore } from './venueSettings';

@@ -7,6 +7,7 @@ import { useSyncExternalStore } from 'react';
 import { forgetMenusAhead, pinSeq, SEED_GRID, setMenuForDay, TURNED_MENUS } from '../../../data';
 import { revive } from '../../../data/revive';
 import { now } from '../../../lib/clock';
+import { SHIPPED_RECIPES } from '../../../store/shippedRecipes';
 import { venueSettingsStore, type VenueSettings } from '../../../store/venueSettings';
 import {
   menuEditsStore,
@@ -23,7 +24,6 @@ import { isoDay, parseIsoDay, quarterIndexOf, quarterLabel, quarterMenuName, see
 import { computeLive } from './model/liveOverlay';
 import { tabletIndex } from './model/tablet';
 import type { BoState } from './model/types';
-import recipesJson from './seed/recipes.json';
 import menusJson from './seed/menus.json';
 import modGroupsJson from './seed/modGroups.json';
 import ruleDefaultsJson from './seed/ruleDefaults.json';
@@ -72,7 +72,7 @@ function schedulesOf(vs: VenueSettings): VenueSchedule[] {
 
 function buildSeed(at: number): BoState {
   return {
-    recipes: recipesJson as unknown as Recipe[],
+    recipes: SHIPPED_RECIPES,
     grid: SEED_GRID,
     menus: seedMenus(at),
     venues: schedulesOf(venueSettingsStore.get()),

@@ -1,9 +1,14 @@
 /**
  * Back office resident records: the billing side of a resident (meal plan,
- * plan start day, kitchen notes). They come from `boResidents` in src/data.
+ * plan start day, kitchen notes). The seed records are in
+ * src/data/seed/boResidents.json; only the back office loads them.
  */
-import { boResidents, getResident, residents } from '../../../data';
+import { getResident, residents } from '../../../data';
+import boResidentsJson from '../../../data/seed/boResidents.json';
 import type { Resident } from '../../../domain/types';
+
+/** Back office resident records as they ship (billing, plan start, kitchen notes). */
+export const boResidents = boResidentsJson as Array<Record<string, unknown> & { id: string; name: string }>;
 
 export interface BoResident {
   id: string;

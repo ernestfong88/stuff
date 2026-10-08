@@ -65,7 +65,6 @@ import { now } from '../lib/clock';
 import { uid } from '../lib/id';
 import { resetPersistedStores, useShared } from '../lib/sharedStore';
 import { getConfig, updateConfig, useConfig } from './config';
-import { resetProduction } from './production';
 import { printChanges, printWarning, type KitchenPrint } from './kitchenPrint';
 import { claimPacingLeadership, createDiningEngine, releasePacingLeadership, type DiningEngine } from './diningEngine';
 import { residentPrefsStore, updateResidentPref, type ResidentPrefs } from './residentPrefs';
@@ -640,7 +639,8 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
         // Every persisted store across the surfaces (settings, notes, side work,
         // layouts ...), not just the dining ones; device settings stay.
         resetPersistedStores();
-        resetProduction();
+        // The production plan loads with Prep and Back Office only; open tabs of those still hear the reset.
+        void import('./production').then((m) => m.resetProduction());
         setRecentBumps([]);
         setModUsage({});
         setPendingTakeover(null);
