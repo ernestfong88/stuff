@@ -3,6 +3,7 @@
  * own folder; the shell (index.tsx) only imports from here.
  */
 export { MenuReferenceButton } from './menu/MenuReferenceButton';
+export { MenuReference } from './menu/MenuReference';
 export { ResidentsView } from './residents/ResidentsView';
 export { ResidentProfileSheet } from './residents/ResidentProfileSheet';
 export { ShiftReviewView } from './shift/ShiftReviewView';

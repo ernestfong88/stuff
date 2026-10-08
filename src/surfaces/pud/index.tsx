@@ -3,19 +3,17 @@
  * counter. Orders line up by the 15 minute range they were promised for,
  * each showing the one thing it needs next.
  */
-import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
-import { navigate } from '../../shell/router';
 import { TabletShell } from '../../shell/TabletShell';
 import { useVenue } from '../../shell/session';
 import { now } from '../../lib/clock';
 import { useDining } from '../../store/dining';
-import { setMineMode } from '../../store/serverMine';
-import { Button, toast } from '../../ui';
+import { toast } from '../../ui';
 import { OrderScreen } from '../server/order';
 import { PudBoard } from './PudBoard';
 import { isEmptyOrder } from './queue/queue';
 import { mealAt } from '../../domain/pickupService/meals';
+import { MyTablesButton } from './MyTablesButton';
 
 export default function PudSurface() {
   const { orders, openQueueOrder, closeOrder } = useDining();
@@ -35,19 +33,7 @@ export default function PudSurface() {
   if (openId) return <OrderScreen orderId={openId} onClose={close} />;
 
   return (
-    <TabletShell
-      nav={
-        <Button
-          icon={<ArrowLeft size={16} strokeWidth={2.25} />}
-          onClick={() => {
-            setMineMode('tables');
-            navigate('server', ['mine']);
-          }}
-        >
-          My tables
-        </Button>
-      }
-    >
+    <TabletShell nav={<MyTablesButton />}>
       <PudBoard onOpen={setOpenId} onNew={(type) => setOpenId(openQueueOrder(type, venue, mealAt(now())))} />
     </TabletShell>
   );

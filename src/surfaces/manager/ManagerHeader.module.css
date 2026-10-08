@@ -1,5 +1,7 @@
-.navBtn {
-  height: 40px;
+/* Header buttons at the tablet's 44px. */
+button.navBtn {
+  height: 44px;
+  min-width: 44px;
 }
 .count {
   margin-left: 2px;

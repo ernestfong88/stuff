@@ -68,6 +68,7 @@ export default function ServerSurface() {
 
   return (
     <TabletShell
+      fitKey={`${view}:${mode}`}
       nav={
         <ServerNavLeft
           view={view}

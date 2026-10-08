@@ -1,8 +1,10 @@
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  height: 40px;
+  height: 44px;
+  min-width: 44px;
   padding: 0 13px;
   border-radius: 11px;
   flex-shrink: 0;
@@ -69,12 +71,16 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  min-width: 0;
+  /* Room for a couple of names before the header folds; the rest scroll sideways. */
+  min-width: 108px;
   flex-shrink: 1;
   overflow-x: auto;
 }
+.servers:empty {
+  display: none;
+}
 .server {
-  height: 40px;
+  height: 44px;
   padding: 0 12px;
   border-radius: var(--r-pill);
   flex-shrink: 0;
@@ -96,8 +102,20 @@
   opacity: 0.7;
 }
 
-@media (max-width: 1100px) {
+/* The menu reference (a ui Button) at the header's 44px. */
+button.ref {
+  height: 44px;
+  min-width: 44px;
+}
+.more {
+  padding: 0;
+}
+
+@container tablet (max-width: 1100px) {
   .btn {
     padding: 0 11px;
+  }
+  .more {
+    padding: 0;
   }
 }

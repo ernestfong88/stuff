@@ -6,6 +6,8 @@
   flex-direction: column;
   background: var(--paper);
   padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  /* Lay out against the screen, not the window, so A−/A+ text sizes count too. */
+  container: tablet / size;
 }
 .body {
   flex: 1;
@@ -75,11 +77,39 @@
   font-size: 14px;
   color: var(--s400);
 }
-@media (max-width: 1100px) {
+@container tablet (max-width: 1100px) {
   .diners {
     padding: 12px 14px 16px;
   }
   .menuScroll {
     padding: 12px 14px 16px;
+  }
+}
+/*
+ * Upright on a smaller tablet: the diners sit above the menu, side by side,
+ * so the menu gets the full width for its tiles. The diners scroll in their
+ * own band; the menu (and the Modify screen over it) fills the rest.
+ */
+@container tablet (orientation: portrait) and (max-width: 940px) {
+  .body {
+    flex-direction: column;
+  }
+  .diners {
+    flex: 0 1 auto;
+    max-height: 44%;
+    min-width: 0;
+    max-width: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    /* Cards keep their own height; the band scrolls. */
+    grid-auto-rows: max-content;
+    align-content: start;
+    align-items: start;
+    column-gap: 12px;
+    border-right: none;
+    border-bottom: 1px solid var(--hair);
+  }
+  .menu {
+    flex: 1 1 0;
   }
 }

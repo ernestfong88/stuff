@@ -11,7 +11,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 38px;
+  min-height: 40px;
   padding: 0 14px;
   border-radius: var(--r-pill);
   font-size: 13.5px;
@@ -35,8 +35,15 @@
   font-weight: 900;
   letter-spacing: 0.05em;
 }
-@media (max-width: 1180px) {
+@container tablet (max-width: 1180px) {
   .meal {
     padding: 0 11px;
   }
+}
+/* A narrow header: the words stay, the icons go. */
+.compact .meal {
+  padding: 0 11px;
+}
+.compact .meal svg {
+  display: none;
 }

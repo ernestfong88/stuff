@@ -2,13 +2,12 @@ import { ClipboardList, Search, Users } from 'lucide-react';
 import { navigate } from '../../shell/router';
 import { useMe, useVenue } from '../../shell/session';
 import { useDining } from '../../store/dining';
-import { Button, useViewportWidth } from '../../ui';
+import { useHeaderFit } from '../../shell/headerFit';
+import { Button } from '../../ui';
 import { MenuReferenceButton, PointsChip } from '../server/features';
+import { HeaderMore } from '../server/HeaderMore';
 import { inPlan, useRoomPlan } from '../../store/floorLayout';
 import s from './ManagerHeader.module.css';
-
-/** Below this width the header buttons drop their words and keep their icons. */
-const NARROW = 1100;
 
 /** Left side of the manager header: the manager's own tables and points, as on the server tablet. */
 export function ManagerNav({ onPoints }: { onPoints: () => void }) {
@@ -16,7 +15,8 @@ export function ManagerNav({ onPoints }: { onPoints: () => void }) {
   const [venue] = useVenue();
   const plan = useRoomPlan(venue);
   const { orders } = useDining();
-  const narrow = useViewportWidth() < NARROW;
+  // The header folds to fit (see shell/headerFit): from level 1 the buttons keep their icons only.
+  const narrow = useHeaderFit() >= 1;
   const mine = orders.filter((o) => !o.queueType && o.server === me.initials && inPlan(o, plan)).length;
   return (
     <>
@@ -35,12 +35,23 @@ export function ManagerNav({ onPoints }: { onPoints: () => void }) {
   );
 }
 
-/** Right side of the manager header: menu reference, residents and the server's shift review. */
+/** Right side of the manager header: menu reference, residents and the server's shift review; a More menu when short of room. */
 export function ManagerActions({ view, onResidents, onReview }: { view: string; onResidents: () => void; onReview: () => void }) {
-  const narrow = useViewportWidth() < NARROW;
+  const fit = useHeaderFit();
+  const narrow = fit >= 1;
+  if (fit >= 3) {
+    return (
+      <HeaderMore
+        pages={[
+          { label: 'Residents', icon: <Users size={16} strokeWidth={2} />, active: view === 'residents', onClick: onResidents },
+          { label: 'Shift Review', icon: <Search size={16} strokeWidth={2} />, active: view === 'review', onClick: onReview },
+        ]}
+      />
+    );
+  }
   return (
     <>
-      <MenuReferenceButton short={narrow} />
+      <MenuReferenceButton short={narrow} className={s.navBtn} />
       <Button
         className={s.navBtn}
         icon={<Users size={16} strokeWidth={2} />}

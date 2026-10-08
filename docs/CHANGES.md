@@ -220,6 +220,25 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Server: special diets at a glance
+- **Every resident's allergies and diets show on their card** on the server's Residents page: allergies in red, diets and textures in grey, in the kitchen ticket's own tags with the shorthand spelled out (*GF* reads *Gluten-free*, *NAS* *No salt added*, *Diab* *Diabetic*, *Puree* *Pureed*, *Nectar thick* *Nectar-thick liquids*). Touching a spelled-out tag shows the ticket wording.
+- **A row of counts under the search doubles as the filter:** *Special diets 8* shows only residents with any allergy, diet or texture; *Any allergy 5* shows everyone with an allergy; then one chip per allergy, diet and texture with how many residents have it (allergies first, a hairline between the groups). Tap one or several to see only those residents; *Clear* shows everyone again and says how many are shown. It works together with the name search.
+- The chips are full 44px touch targets and wrap onto a second row when the tablet is upright.
+
+
+
+### Server, Manager and PU & Delivery: tuned for tablets
+- Checked on iPad 10th generation, iPad Pro 11" and 12.9", the classic iPad and a 10" Android tablet, each way round, at 100% and 130% text size. Before, the header pushed the avatar (and sometimes the mode switch) off the right edge on P/U & delivery, the table map and New check, and almost everywhere at 120–130% text. Now nothing runs off any screen in any view.
+- **The header fits itself:** it starts with every label and folds one step at a time until it fits on one row: chips go short, then the page buttons keep their icons, then the view buttons, then Menu, Residents and Shift Review fold into a **More (…)** menu (which stays highlighted while one of those pages is showing), then the text size control drops its %. The venue, the Server/Manager mode menu and the avatar always show. It works off the space really there, so the A−/A+ text sizes count too; at extreme sizes it wraps to two rows rather than cut anything off. The order screen's header does the same (meal icons, then *Back* keeps its arrow, then *Comp…*).
+- **Upright, the right-hand rail becomes a bar along the bottom** (Full screen, Notices, Voice, New check, each with its label beside the icon), so the board, the map and the lists get the full width and nothing sits over them. Turned sideways it is the column it was.
+- **Order screen upright** (iPad, iPad Pro 11", Android): the diners sit in a band across the top, two cards side by side, and the menu gets the full width below, with four tiles to a row instead of two. The Modify screen still opens over the menu. The 12.9" iPad keeps the side-by-side layout, which has the room.
+- **PU & Delivery upright:** each order wraps to two lines, who and what at full width, then where it stands, when it's due and the action button, so names and items aren't cut short and the button is always in reach. *New pick up* and *New delivery* share their own row.
+- **Manager tabs upright:** the six tabs share the row instead of scrolling *86 list* out of sight.
+- **Touch targets:** header buttons, chips, the mode menu, the avatar and A−/A+ are 44px (A−/A+ and the % are also bigger to read); a table card's open-the-check area, tabs, the meal switch, Triage's *Fine for now* and the order screen's text size and mode controls (26px before) are 44px too. A check's course badges, the ⋯ line menu and Hold/Remove are 40px, with Hold and Remove further apart; Close & charge and Send are further apart. *Mod* on menu tiles is a little bigger.
+- **Safe areas:** the shell, the send bar and the Close & charge footer keep clear of the home indicator. The layouts follow the screen they are in rather than the window, so they also respond to text size.
+
+
+
 ### Dashboard: lighter trend cards
 - **Resident meal sentiment** no longer has the liked / neutral / disliked count pills. The big % positive, the trend, most liked and most complaints stay.
 - **Steps of Service** no longer has "Met the goal on N of N days". The chart's dashed goal line already shows it.

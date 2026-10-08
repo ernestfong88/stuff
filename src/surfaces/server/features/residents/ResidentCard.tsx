@@ -3,18 +3,28 @@ import { ChevronRight } from 'lucide-react';
 import { residentPills } from '../../../../domain/residents';
 import type { Resident } from '../../../../domain/types';
 import { Avatar, Chip } from '../../../../ui';
+import { tagLabel } from '../../../backoffice/pages/residents/dietTags';
 import { planStatus } from './residentInfo';
 import s from './ResidentCard.module.css';
 
-/** Allergy and diet tags, allergies first, as the kitchen ticket shows them. */
-export function ResidentPills({ resident, size = 'xs' }: { resident: Resident; size?: 'xs' | 'sm' | 'md' }) {
+/**
+ * Allergy and diet tags, allergies first, as the kitchen ticket shows them.
+ * plain: allergies red, diets and textures neutral, the ticket's shorthand
+ * spelled out ("GF" is "Gluten-free"), as on the Residents list.
+ */
+export function ResidentPills({ resident, size = 'xs', plain }: { resident: Resident; size?: 'xs' | 'sm' | 'md'; plain?: boolean }) {
   const pills = residentPills(resident);
   if (!pills.length) return null;
   return (
     <span className={s.pills}>
       {pills.map((p) => (
-        <Chip key={p.kind + p.text} size={size} tone={p.kind === 'allergy' ? 'danger' : 'success'}>
-          {p.text}
+        <Chip
+          key={p.kind + p.text}
+          size={size}
+          tone={p.kind === 'allergy' ? 'danger' : plain ? 'neutral' : 'success'}
+          title={plain && tagLabel(p.text) !== p.text ? `On the ticket: ${p.text}` : undefined}
+        >
+          {plain ? tagLabel(p.text) : p.text}
         </Chip>
       ))}
     </span>
@@ -36,7 +46,7 @@ export function ResidentCard({ resident, onOpen, tag }: { resident: Resident; on
         <span className={s.meta}>
           Apt {resident.apt} · {resident.level} · {left != null ? `${left} ${unit} left` : 'à la carte'}
         </span>
-        <ResidentPills resident={resident} />
+        <ResidentPills resident={resident} size="md" plain />
       </span>
       <ChevronRight size={18} className={s.chev} aria-hidden />
     </button>

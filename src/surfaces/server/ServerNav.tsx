@@ -1,15 +1,14 @@
 import { ArrowLeft, Check, ChevronDown, ClipboardList, ListChecks, Map as MapIcon, ShoppingBag, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { Order } from '../../domain/types';
-import { cx, MenuItem, Popover, useViewportWidth } from '../../ui';
+import { useHeaderFit } from '../../shell/headerFit';
+import { cx, MenuItem, Popover } from '../../ui';
 import type { MineMode } from '../../store/serverMine';
 import { MenuReferenceButton, PointsChip, SideWorkChip } from './features';
+import { HeaderMore } from './HeaderMore';
 import s from './ServerNav.module.css';
 
 export type ServerView = 'mine' | 'new' | 'check' | 'residents' | 'shift';
-
-/** Header row narrows to icons below this width rather than wrapping. */
-const NARROW = 1100;
 
 const MINE_MODES: Array<{ id: MineMode; label: string; hint: string; icon: ReactNode }> = [
   { id: 'tables', label: 'My tables', hint: 'Your tables by what they need next', icon: <ClipboardList size={16} strokeWidth={2} /> },
@@ -46,19 +45,20 @@ export function ServerNavLeft({
   onViewServer: (server: string) => void;
   onShift: () => void;
 }) {
-  const width = useViewportWidth();
-  const narrow = width < NARROW;
+  // The header folds to fit (see shell/headerFit): 1 short chips, 2 icon-only views, 4 no side work chip.
+  const fit = useHeaderFit();
   const servers = [...new Set([me, ...live.map((o) => o.server)])].sort();
   const count = (id: string) => live.filter((o) => o.server === id).length;
   const onMineView = (view === 'mine' || view === 'new') && (viewServer === me || mode !== 'tables');
   const current = MINE_MODES.find((x) => x.id === mode) ?? MINE_MODES[0];
+  const backShows = onMineView && mode !== 'tables';
   return (
     <>
-      {onMineView && mode !== 'tables' && (
+      {backShows && (
         // Pick up & delivery and the table map are a tap away from My tables, and so is the way back.
         <button className={s.btn} onClick={() => onMine('tables')} title="Back to My tables">
           <ArrowLeft size={16} strokeWidth={2.25} />
-          {width >= 900 ? ' My tables' : <span className="sr-only">My tables</span>}
+          {fit < 2 ? ' My tables' : <span className="sr-only">My tables</span>}
           <span className={s.count}>{counts.tables}</span>
         </button>
       )}
@@ -75,7 +75,7 @@ export function ServerNavLeft({
             aria-expanded={open}
           >
             {current.icon}
-            {width >= 900 ? ` ${current.label}` : <span className="sr-only">{current.label}</span>}
+            {fit < 2 ? ` ${current.label}` : <span className="sr-only">{current.label}</span>}
             <span className={s.count}>{counts[mode]}</span>
             {onMineView && <ChevronDown size={14} strokeWidth={2.5} className={cx(s.chev, open && s.chevOpen)} aria-hidden />}
           </button>
@@ -100,8 +100,8 @@ export function ServerNavLeft({
         }
       </Popover>
       {/* The way back to My tables takes room, so the chips go short while it shows. */}
-      <PointsChip short={narrow || (onMineView && mode !== 'tables')} onOpen={onShift} />
-      {width >= 900 && <SideWorkChip short={width < 1200 || (onMineView && mode !== 'tables')} />}
+      <PointsChip short={fit >= 1 || backShows} onOpen={onShift} />
+      {fit < 4 && <SideWorkChip short={fit >= 1 || backShows} />}
       {view === 'mine' && mode === 'tables' && (
         <div className={cx(s.servers, 'scroll-hidden')} role="group" aria-label="Other servers' tables">
           {servers
@@ -123,12 +123,23 @@ export function ServerNavLeft({
   );
 }
 
-/** Right side of the header: the menu reference, Residents and Shift Review. */
+/** Right side of the header: the menu reference, Residents and Shift Review; a More menu when the header is short of room. */
 export function ServerNavRight({ view, onResidents, onShift }: { view: ServerView; onResidents: () => void; onShift: () => void }) {
-  const narrow = useViewportWidth() < NARROW;
+  const fit = useHeaderFit();
+  if (fit >= 3) {
+    return (
+      <HeaderMore
+        pages={[
+          { label: 'Residents', icon: <Users size={16} strokeWidth={2} />, active: view === 'residents', onClick: onResidents },
+          { label: 'Shift Review', icon: <ListChecks size={16} strokeWidth={2} />, active: view === 'shift', onClick: onShift },
+        ]}
+      />
+    );
+  }
+  const short = fit >= 1;
   return (
     <>
-      <MenuReferenceButton short={narrow} />
+      <MenuReferenceButton short={short} className={s.ref} />
       <button
         className={cx(s.btn, view === 'residents' && s.onResidents)}
         onClick={onResidents}
@@ -136,11 +147,11 @@ export function ServerNavRight({ view, onResidents, onShift }: { view: ServerVie
         aria-pressed={view === 'residents'}
       >
         <Users size={15} strokeWidth={2} aria-hidden />
-        {narrow ? <span className="sr-only">Residents</span> : ' Residents'}
+        {short ? <span className="sr-only">Residents</span> : ' Residents'}
       </button>
       <button className={cx(s.btn, view === 'shift' && s.onShift)} onClick={onShift} title="Shift Review" aria-pressed={view === 'shift'}>
         <ListChecks size={15} strokeWidth={2} aria-hidden />
-        {narrow ? <span className="sr-only">Shift Review</span> : ' Shift Review'}
+        {short ? <span className="sr-only">Shift Review</span> : ' Shift Review'}
       </button>
     </>
   );

@@ -12,17 +12,19 @@ import { signOut, useMe, useVenue, useVenueChoices, venueCode, venueColor } from
 import s from './controls.module.css';
 import { setZoom, useZoom } from './zoom';
 
-/** A− 100% A+ text size control. */
-export function TextZoom({ dark, tall }: { dark?: boolean; tall?: boolean }) {
+/** A− 100% A+ text size control. compact: just A− and A+, for a header short of room. */
+export function TextZoom({ dark, tall, compact }: { dark?: boolean; tall?: boolean; compact?: boolean }) {
   const z = useZoom();
   return (
     <span className={cx(s.zoom, dark && s.dark, tall && s.tall)} role="group" aria-label="Text size">
       <button onClick={() => setZoom(z - 0.05)} title="Smaller text" aria-label="Smaller text" className={s.zSmall}>
         A−
       </button>
-      <button onClick={() => setZoom(1)} title="Reset text size" className={s.zPct}>
-        {Math.round(z * 100)}%
-      </button>
+      {!compact && (
+        <button onClick={() => setZoom(1)} title="Reset text size" className={s.zPct}>
+          {Math.round(z * 100)}%
+        </button>
+      )}
       <button onClick={() => setZoom(z + 0.05)} title="Larger text" aria-label="Larger text" className={s.zBig}>
         A+
       </button>
@@ -123,11 +125,11 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
   );
 }
 
-/** Coloured venue code (SE, OB ...); tap to switch the dining room this device serves. */
-export function VenueChip() {
+/** Coloured venue code (SE, OB ...); tap to switch the dining room this device serves. short: keep the first word even on a wide screen. */
+export function VenueChip({ short }: { short?: boolean } = {}) {
   const [venue, setVenue] = useVenue();
   const choices = useVenueChoices();
-  const wide = useViewportWidth() >= 1440;
+  const wide = useViewportWidth() >= 1440 && !short;
   const name = rooms[venue]?.name ?? venueCode(venue);
   // The venue's name, not a two-letter code; narrow headers keep its first word ("Bistro" for "The Bistro").
   const label = wide ? name : name.replace(/^the\s+/i, '').split(/[\s/]/)[0];

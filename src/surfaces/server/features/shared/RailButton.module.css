@@ -17,7 +17,7 @@
   transform: scale(0.96);
 }
 .label {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 800;
 }
 .ocean {
@@ -84,13 +84,24 @@
     animation: none;
   }
 }
-@media (max-width: 760px) {
+@container tablet (max-width: 760px) {
   .btn {
     width: 56px;
     height: 56px;
     border-radius: 16px;
   }
+}
+/* Upright, the rail is a bar along the bottom: icon and label side by side. */
+@container tablet (orientation: portrait) {
+  .btn {
+    flex-direction: row;
+    gap: 8px;
+    width: auto;
+    height: 52px;
+    padding: 0 18px 0 14px;
+    border-radius: 16px;
+  }
   .label {
-    font-size: 10.5px;
+    font-size: 13px;
   }
 }

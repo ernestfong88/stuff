@@ -53,7 +53,8 @@
   gap: 8px;
   width: 100%;
   min-width: 0;
-  min-height: 32px;
+  /* The card's open-the-check target: a full 44px on a tablet. */
+  min-height: 44px;
   border-radius: var(--r-sm);
   text-align: left;
 }

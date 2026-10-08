@@ -151,12 +151,40 @@
   pointer-events: none;
 }
 
-@media (max-width: 1100px) {
+@container tablet (max-width: 1100px) {
   .stage {
     width: 176px;
   }
   .action,
   .actionBtn {
     min-width: 118px;
+  }
+}
+
+/*
+ * Upright (or with large text): who and what on the first line, at full
+ * width; where it stands, when it's due and the action button on the
+ * second, so nothing is cut short and the button is always in reach.
+ */
+@container tablet (max-width: 900px) {
+  .row {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    column-gap: 12px;
+  }
+  .row > .open + * {
+    flex: 1 1 100%;
+  }
+  .stage {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+  }
+  .due {
+    width: auto;
+  }
+  .action,
+  .actionBtn {
+    min-width: 132px;
   }
 }

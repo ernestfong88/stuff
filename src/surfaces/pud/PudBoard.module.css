@@ -11,3 +11,8 @@
   padding: 0 max(16px, (100% - 1480px) / 2) 28px;
   overscroll-behavior: contain;
 }
+/* Header button at the tablet's 44px. */
+button.navBtn {
+  height: 44px;
+  min-width: 44px;
+}

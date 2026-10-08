@@ -142,3 +142,10 @@
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
 }
+
+/* On the tablet surfaces (inside a TabletShell or the order screen) a tab is a full 44px target. */
+@container tablet (min-width: 0px) {
+  .md .tab {
+    height: 44px;
+  }
+}

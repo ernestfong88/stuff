@@ -168,8 +168,8 @@ export function CloseScreen({
           </div>
         </div>
         <span className={s.corner}>
-          <TextZoom />
-          <ModeChip />
+          <TextZoom tall />
+          <ModeChip tall />
         </span>
       </header>
 

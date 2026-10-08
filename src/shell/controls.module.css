@@ -32,12 +32,23 @@
   color: var(--s500) !important;
   font-variant-numeric: tabular-nums;
 }
+/* Tablet headers: 44px targets, and the size readable at arm's length. */
 .zoom.tall button {
-  height: 36px;
+  height: 40px;
 }
 .zoom.tall .zSmall,
 .zoom.tall .zBig {
-  width: 34px;
+  width: 40px;
+}
+.zoom.tall .zSmall {
+  font-size: 13px;
+}
+.zoom.tall .zBig {
+  font-size: 16px;
+}
+.zoom.tall .zPct {
+  min-width: 44px;
+  font-size: 12px;
 }
 .zoom.dark {
   background: rgba(255, 255, 255, 0.08);
@@ -66,7 +77,7 @@
   color: var(--ink);
 }
 .modeChip.tall {
-  height: 40px;
+  height: 44px;
   padding: 0 10px 0 13px;
   border-radius: 11px;
   font-size: 13px;
@@ -123,7 +134,7 @@
   gap: 5px;
   max-width: 210px;
   padding: 0 11px 0 13px;
-  height: 40px;
+  height: 44px;
   border-radius: 11px;
   color: #fff;
   font-size: 13px;

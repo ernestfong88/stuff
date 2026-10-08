@@ -11,10 +11,10 @@ const MEALS: Array<{ id: MealName; icon: typeof Sun }> = [
 ];
 
 /** Which meal's menu the check orders from; the one being served now is marked NOW. */
-export function MealSwitch({ meal, onChange }: { meal: MealName; onChange: (m: MealName) => void }) {
+export function MealSwitch({ meal, compact, onChange }: { meal: MealName; compact?: boolean; onChange: (m: MealName) => void }) {
   const now = currentMeal();
   return (
-    <span className={s.switch} role="radiogroup" aria-label="Meal">
+    <span className={cx(s.switch, compact && s.compact)} role="radiogroup" aria-label="Meal">
       {MEALS.map(({ id, icon: Icon }) => {
         const on = meal === id;
         return (

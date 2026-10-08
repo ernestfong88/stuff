@@ -9,12 +9,23 @@ import { MenuReference } from './MenuReference';
  * variant "pictures" is the "Menu pictures" pill used on the check, where a
  * server describing a dish wants the photo.
  */
-export function MenuReferenceButton({ short, meal, variant = 'header' }: { short?: boolean; meal?: MealName; variant?: 'header' | 'pictures' }) {
+export function MenuReferenceButton({
+  short,
+  meal,
+  variant = 'header',
+  className,
+}: {
+  short?: boolean;
+  meal?: MealName;
+  variant?: 'header' | 'pictures';
+  className?: string;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <>
       <Button
         variant={variant === 'pictures' ? 'soft' : 'secondary'}
+        className={className}
         icon={<BookOpen size={16} />}
         iconOnly={short && variant === 'header'}
         aria-label={short ? 'Menu' : undefined}

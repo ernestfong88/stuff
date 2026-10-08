@@ -37,6 +37,7 @@ export default function ManagerSurface() {
 
   return (
     <TabletShell
+      fitKey={view}
       nav={<ManagerNav onPoints={() => setView('review')} />}
       actions={<ManagerActions view={view} onResidents={() => setView('residents')} onReview={() => setView('review')} />}
       rail={<NoticesButton />}
