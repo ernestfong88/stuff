@@ -25,7 +25,7 @@ const TABS = ['courses', 'order', 'pickup'] as const;
 type FlowTab = (typeof TABS)[number];
 const TAB_LABELS: Record<FlowTab, string> = { courses: 'Courses and timing', order: 'Taking the order', pickup: 'Pick up and comps' };
 
-function FlowToggle({ k, label, hint, disabled }: { k: FlowFlag; label: string; hint?: string; disabled?: boolean }) {
+export function FlowToggle({ k, label, hint, disabled }: { k: FlowFlag; label: string; hint?: string; disabled?: boolean }) {
   const cfg = useConfig();
   return (
     <BoRow label={label} hint={hint}>

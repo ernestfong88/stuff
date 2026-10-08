@@ -21,6 +21,16 @@ export function cleanFee(v: number | null | undefined): number | null {
  * kiosk, Charge Approval and Order History use. Sick waivers below.
  */
 export default function DeliveryFeesTab(_props: Partial<BoPageProps>) {
+  return (
+    <BoPage title="Delivery fees">
+      <FeePerVenue />
+      <SickWaiverSettings />
+    </BoPage>
+  );
+}
+
+/** The fee per venue. `plain` drops the section title and note (the step-by-step setup has its own). */
+export function FeePerVenue({ plain }: { plain?: boolean }) {
   const cfg = useConfig();
   const set = (room: string, key: 'delivery' | 'pickup', v: number | null) => {
     const amt = cleanFee(v);
@@ -28,34 +38,35 @@ export default function DeliveryFeesTab(_props: Partial<BoPageProps>) {
     updateConfig((c) => ({ fees: { ...c.fees, [room]: { ...venueFee(room, c), [key]: amt } } }));
   };
   return (
-    <BoPage title="Delivery fees">
-      <BoSection
-        title="Fee per venue"
-        sub="Charged on seat 1 of every delivery or pick up check when it closes. Servers, the kiosk and Order History all use this fee. Hospice and sick waivers take it off."
-      >
-        {Object.entries(rooms).map(([key, room]) => {
-          const f = venueFee(key, cfg);
-          return (
-            <BoRow key={key} label={room.name} hint={`Delivery ${f.delivery > 0 ? `$${f.delivery.toFixed(2)}` : 'free'} · pick up ${f.pickup > 0 ? `$${f.pickup.toFixed(2)}` : 'free'}`}>
-              <span className={s.cork}>
-                <span className={s.unit}>Delivery $</span>
-                <NumberBox
-                  value={f.delivery}
-                  min={0}
-                  max={MAX_FEE}
-                  step={0.5}
-                  aria-label={`Delivery fee at ${room.name}`}
-                  onChange={(v) => set(key, 'delivery', v)}
-                />
-                <span className={s.unit}>Pick up $</span>
-                <NumberBox value={f.pickup} min={0} max={MAX_FEE} step={0.5} aria-label={`Pick up fee at ${room.name}`} onChange={(v) => set(key, 'pickup', v)} />
-              </span>
-            </BoRow>
-          );
-        })}
-      </BoSection>
-      <SickWaiverSettings />
-    </BoPage>
+    <BoSection
+      title={plain ? undefined : 'Fee per venue'}
+      sub={
+        plain
+          ? undefined
+          : 'Charged on seat 1 of every delivery or pick up check when it closes. Servers, the kiosk and Order History all use this fee. Hospice and sick waivers take it off.'
+      }
+    >
+      {Object.entries(rooms).map(([key, room]) => {
+        const f = venueFee(key, cfg);
+        return (
+          <BoRow key={key} label={room.name} hint={`Delivery ${f.delivery > 0 ? `$${f.delivery.toFixed(2)}` : 'free'} · pick up ${f.pickup > 0 ? `$${f.pickup.toFixed(2)}` : 'free'}`}>
+            <span className={s.cork}>
+              <span className={s.unit}>Delivery $</span>
+              <NumberBox
+                value={f.delivery}
+                min={0}
+                max={MAX_FEE}
+                step={0.5}
+                aria-label={`Delivery fee at ${room.name}`}
+                onChange={(v) => set(key, 'delivery', v)}
+              />
+              <span className={s.unit}>Pick up $</span>
+              <NumberBox value={f.pickup} min={0} max={MAX_FEE} step={0.5} aria-label={`Pick up fee at ${room.name}`} onChange={(v) => set(key, 'pickup', v)} />
+            </span>
+          </BoRow>
+        );
+      })}
+    </BoSection>
   );
 }
 

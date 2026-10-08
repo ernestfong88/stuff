@@ -73,6 +73,7 @@ export function BoTabbedPage({
   tabs,
   current,
   onTab,
+  actions,
 }: {
   page: string;
   title: ReactNode;
@@ -80,6 +81,8 @@ export function BoTabbedPage({
   tabs: BoTab[];
   current: string;
   onTab: (id: string) => void;
+  /** Buttons beside the title, for the whole page (each tab keeps its own). */
+  actions?: ReactNode;
 }) {
   const tab = tabs.find((t) => t.id === current) ?? tabs[0];
   return (
@@ -89,6 +92,7 @@ export function BoTabbedPage({
           <h1 className={s.pageTitle}>{title}</h1>
           {sub && <p className={s.pageSub}>{sub}</p>}
         </div>
+        {actions && <div className={s.pageActions}>{actions}</div>}
       </header>
       <Tabs variant="underline" aria-label={`${typeof title === 'string' ? title : page} sections`} value={tab.id} onChange={onTab} options={tabs.map((t) => ({ id: t.id, label: t.label, count: t.count }))} />
       <EmbeddedPage.Provider value={true}>{tab.render()}</EmbeddedPage.Provider>

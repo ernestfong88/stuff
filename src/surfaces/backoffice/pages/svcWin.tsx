@@ -12,7 +12,7 @@ import { now } from '../../../lib/clock';
 import { updateConfig, useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
 import { setSetting } from '../../../store/serviceConfig';
-import { Tabs, Toggle, cx, toast } from '../../../ui';
+import { Button, Tabs, Toggle, cx, toast } from '../../../ui';
 import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
 import {
   ASSOC_ROOM,
@@ -39,6 +39,8 @@ import type { BoPageProps } from '../nav';
 import { ConfirmReset } from './ConfirmReset';
 import { useHubTab, usePageTab } from './pageTab';
 import DeliveryFeesTab from './fees';
+import { spansText } from './svcWinSteps';
+import { SvcWinSetup, type SetupSections } from './SvcWinSetup';
 import s from './svcWin.module.css';
 
 const TABS = ['ranges', 'capacity', 'timing'] as const;
@@ -52,12 +54,12 @@ function VenueTabs({ venue, onChange }: { venue: string; onChange: (v: string) =
   return <Tabs aria-label="Venue" size="sm" variant="segmented" value={venue} onChange={onChange} options={venueOptions} />;
 }
 
-/** Which order types book a range at all. */
-function OrderTypes({ win }: { win: WindowSettings }) {
+/** Which order types book a range at all. `plain` (the step-by-step setup) drops the note. */
+function OrderTypes({ win, plain }: { win: WindowSettings; plain?: boolean }) {
   return (
     <BoSection
-      title="Order types"
-      sub="Turn ranges off and staff take the order as soon as it is ready instead. Associate meals always book a range."
+      title={plain ? 'Book a 15 minute range' : 'Order types'}
+      sub={plain ? undefined : 'Turn ranges off and staff take the order as soon as it is ready instead. Associate meals always book a range.'}
     >
       {WINDOW_TYPES.map((t) => (
         <BoRow key={t.id} label={t.label} hint={t.hint}>
@@ -97,29 +99,12 @@ function Cell({ on, label, start, noc, onClick }: { on: boolean; label: string; 
 /** Ranges the settings would offer with nothing changed, so a meal switched back on gets its usual hours. */
 const NO_CHANGES = {} as WindowSettings;
 
-/** 450, 465 … 555 → "7:30 – 9:30 AM"; gaps make more than one span. */
-function spansText(starts: number[]): string {
-  const spans: Array<[number, number]> = [];
-  for (const st of starts) {
-    const last = spans[spans.length - 1];
-    if (last && last[1] === st) last[1] = st + 15;
-    else spans.push([st, st + 15]);
-  }
-  return spans
-    .map(([a, b]) => {
-      const x = minuteLabel(a);
-      const y = minuteLabel(b);
-      return x.slice(-2) === y.slice(-2) ? `${x.slice(0, -3)} – ${y}` : `${x} – ${y}`;
-    })
-    .join(', ');
-}
-
 /**
  * The ranges each venue offers, one order type at a time. Each meal is one
  * line: on or off, from and until. Fine-tune opens that meal's quarter hours
  * for gaps.
  */
-function RangesOffered({ win, venue, setVenue }: { win: WindowSettings; venue: string; setVenue: (v: string) => void }) {
+function RangesOffered({ win, venue, setVenue, plain }: { win: WindowSettings; venue: string; setVenue: (v: string) => void; plain?: boolean }) {
   const [type, setType] = useState<WindowType>('pickup');
   const label = WINDOW_TYPES.find((t) => t.id === type)?.label ?? '';
   const starts = windowStarts(win, venue, type);
@@ -136,7 +121,7 @@ function RangesOffered({ win, venue, setVenue }: { win: WindowSettings; venue: s
   };
   const meals = Object.keys(MEAL_WINDOWS) as MealName[];
   return (
-    <BoSection title="Ranges offered" actions={<VenueTabs venue={venue} onChange={setVenue} />}>
+    <BoSection title={plain ? undefined : 'Ranges offered'} actions={<VenueTabs venue={venue} onChange={setVenue} />}>
       <div className={s.typeBar}>
         <Tabs
           aria-label="Order type"
@@ -158,7 +143,7 @@ function RangesOffered({ win, venue, setVenue }: { win: WindowSettings; venue: s
         </button>
       </div>
       {!windowTypeOn(win, type) && (
-        <p className={s.offNote}>{label} doesn't book ranges at the moment (Order types, above), so these only apply once it does.</p>
+        <p className={s.offNote}>{label} doesn't book ranges at the moment (see Order types), so these only apply once it does.</p>
       )}
       <div className={s.meals}>
         {meals.map((m) => (
@@ -311,7 +296,7 @@ function MealRanges({
 }
 
 /** How many orders one range can take at a venue, and what's booked today. */
-function Capacity({ win, venue, setVenue }: { win: WindowSettings; venue: string; setVenue: (v: string) => void }) {
+function Capacity({ win, venue, setVenue, plain }: { win: WindowSettings; venue: string; setVenue: (v: string) => void; plain?: boolean }) {
   const { orders, history, assocOrders } = useDining();
   const caps = windowCaps(win, venue);
   const set = (key: keyof WindowCaps, v: number | null) => setSetting(`win.cap.${venue}`, { ...caps, [key]: v && v > 0 ? Math.floor(v) : 0 });
@@ -330,8 +315,8 @@ function Capacity({ win, venue, setVenue }: { win: WindowSettings; venue: string
   );
   return (
     <BoSection
-      title="Capacity"
-      sub={`Limit how many orders can book the same 15 minute window at ${rooms[venue]?.name}. Leave a box blank for no limit.`}
+      title={plain ? undefined : 'Capacity'}
+      sub={plain ? undefined : `Limit how many orders can book the same 15 minute window at ${rooms[venue]?.name}. Leave a box blank for no limit.`}
       actions={<VenueTabs venue={venue} onChange={setVenue} />}
     >
       <BoRow
@@ -345,11 +330,13 @@ function Capacity({ win, venue, setVenue }: { win: WindowSettings; venue: string
           {box(t.id, `${t.label} per window`)}
         </BoRow>
       ))}
-      <p className={s.note}>
-        The total and the per type limits both apply: a window is full as soon as either one is reached. Booking screens show Full, or how many are
-        left when it is down to 2.
-        {venue !== ASSOC_ROOM && ' Associate meals are made in the main kitchen, so they count there.'}
-      </p>
+      {!plain && (
+        <p className={s.note}>
+          The total and the per type limits both apply: a window is full as soon as either one is reached. Booking screens show Full, or how many are
+          left when it is down to 2.
+          {venue !== ASSOC_ROOM && ' Associate meals are made in the main kitchen, so they count there.'}
+        </p>
+      )}
       <div className={s.booked}>
         <span className={s.bookedLabel}>Booked today</span>
         {!busy.length && <span className={s.muted}>Nothing booked in a window yet.</span>}
@@ -373,7 +360,7 @@ function Capacity({ win, venue, setVenue }: { win: WindowSettings; venue: string
 }
 
 /** When ordering closes, when NOC meals are made, packing time and the resulting fire lead. */
-function Timing({ win }: { win: WindowSettings }) {
+function Timing({ win, plain }: { win: WindowSettings; plain?: boolean }) {
   const cfg = useConfig();
   const { orders, history } = useDining();
   const cut = windowCutoff(win);
@@ -382,7 +369,7 @@ function Timing({ win }: { win: WindowSettings }) {
   const lead = pickupLeadMinutes(all, cfg);
   const nocOptions = Array.from({ length: 17 }, (_, i) => 1080 + i * 15);
   return (
-    <BoSection title="Timing">
+    <BoSection title={plain ? undefined : 'Timing'}>
       <BoRow label="Orders close before the range starts" hint="A range disappears from every booking screen this long before it starts. Up to 4 hours (240 min).">
         <NumberBox
           value={cut}
@@ -470,19 +457,36 @@ function PickUpTimes() {
 
 const HUB_TABS = ['times', 'fees'] as const;
 
+/** The page's own sections, without their titles, for the step-by-step setup. */
+const SETUP_SECTIONS: SetupSections = {
+  types: ({ win }) => <OrderTypes win={win} plain />,
+  ranges: (p) => <RangesOffered {...p} plain />,
+  capacity: (p) => <Capacity {...p} plain />,
+  timing: ({ win }) => <Timing win={win} plain />,
+};
+
 /** Pick Up & Delivery: when residents and associates can book, and what delivery costs. */
 export default function Page(_props: BoPageProps) {
   const [tab, go] = useHubTab('svcWin', HUB_TABS);
+  const [setup, setSetup] = useState(false);
   return (
-    <BoTabbedPage
-      page="svcWin"
-      title="Pick Up & Delivery"
-      current={tab}
-      onTab={go}
-      tabs={[
-        { id: 'times', label: 'Pick up times', render: () => <PickUpTimes /> },
-        { id: 'fees', label: 'Delivery fees & sick waivers', render: () => <DeliveryFeesTab /> },
-      ]}
-    />
+    <>
+      <BoTabbedPage
+        page="svcWin"
+        title="Pick Up & Delivery"
+        current={tab}
+        onTab={go}
+        actions={
+          <Button variant="primary" size="sm" onClick={() => setSetup(true)}>
+            Set up step by step
+          </Button>
+        }
+        tabs={[
+          { id: 'times', label: 'Pick up times', render: () => <PickUpTimes /> },
+          { id: 'fees', label: 'Delivery fees & sick waivers', render: () => <DeliveryFeesTab /> },
+        ]}
+      />
+      <SvcWinSetup open={setup} onClose={() => setSetup(false)} sections={SETUP_SECTIONS} />
+    </>
   );
 }

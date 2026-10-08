@@ -220,6 +220,17 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Pick Up & Delivery: step-by-step setup
+*Pick Up & Delivery* has a **Set up step by step** button at the top. It walks a new manager through the page one question at a time. The tabs stay as they were for quick edits.
+
+- Six steps: **Order types**, **Ranges offered**, **How many per range**, **Timing**, **Fees & waivers** and **Review**. The header shows where you are ("Step 3 of 6 · How many per range"), with Back, Next and Finish. Any step can be opened from the header.
+- Each step has a title, one short line saying what it is for, and the same controls as the page. Changes save as they are made, to the same settings, so Back, closing and Finish never lose anything. Reset to defaults is unchanged.
+- **Order types** adds which venues offer resident pick up, associate pick up and delivery. Turning one off at a venue removes its ranges there. Turning it back on brings back the usual meal hours, with Undo.
+- **Fees & waivers** has the fee per venue, sick fee waivers, and waiving hospice residents' delivery fees (the same switch as on *Pacing & Coursing*).
+- **Review** sums up each venue in plain words, for example "Resident pick up and delivery: lunch 11:00 AM – 1:30 PM, every 15 min", "4 per range", "Delivery $3.00, pick up free". There is also a card for what every venue shares (timing and waivers). Each line has Edit to go back to its step.
+- A step that looks unfinished gets a small amber dot in the header. Its problems are listed under the step line. For example: orders close sooner than the kitchen fires, a type books ranges but no venue offers one, a per-type limit above the total, or sick waivers on with a limit of 0.
+
+
 ### Associate Meals: no count stats
 The row of counts at the top of *Associate Meals* (planned this week, picked up, cancelled, days a special sold out) is gone. The page opens straight on the menu.
 

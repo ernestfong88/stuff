@@ -18,7 +18,7 @@ const when = (t: number) => {
  * fee waived with no manager PIN, up to a limit each meal plan period (the
  * calendar month for now). Past the limit a manager comps it with their PIN.
  */
-export function SickWaiverSettings() {
+export function SickWaiverSettings({ plain }: { plain?: boolean }) {
   const community = useCommunity();
   const cfg = useConfig();
   const { orders, history } = useDining();
@@ -36,8 +36,8 @@ export function SickWaiverSettings() {
 
   return (
     <BoSection
-      title="Sick delivery-fee waivers"
-      sub={`When a resident is sick, the server, the delivery desk or the resident at the kiosk can waive the delivery fee with no manager PIN, up to the limit. After that, each waiver needs a manager PIN, so the count is not abused. These settings are for ${community}.`}
+      title={plain ? 'Sick waivers' : 'Sick delivery-fee waivers'}
+      sub={plain ? undefined : `When a resident is sick, the server, the delivery desk or the resident at the kiosk can waive the delivery fee with no manager PIN, up to the limit. After that, each waiver needs a manager PIN, so the count is not abused. These settings are for ${community}.`}
     >
       <BoRow label="Sick fee waivers" hint={c.on ? 'On: “Sick, waive delivery fee” shows on resident deliveries.' : 'Off: the fee is charged. A manager can still comp it with their PIN.'}>
         <Toggle checked={c.on} onChange={(on) => set({ on })} label={<span className="sr-only">Sick fee waivers at {community}</span>} />
@@ -47,29 +47,31 @@ export function SickWaiverSettings() {
           <NumberBox value={c.allow} min={0} step={1} aria-label="Sick fee waivers per resident" onChange={(v) => v != null && v >= 0 && set({ allow: Math.floor(v) })} unit="waivers" />
         </BoRow>
       )}
-      <div className={s.block}>
-        <BoCaption>Used until {till}</BoCaption>
-        {rows.length ? (
-          <ul className={s.list}>
-            {rows.map((r) => {
-              const res = getResident(r.rid);
-              return (
-                <li key={r.rid} className={s.item}>
-                  <span className={s.who}>
-                    <span className={s.whoName}>{res?.name}</span>
-                    <span className={s.whoSub}>Apt {res?.apt}</span>
-                  </span>
-                  <span className={s.count}>{waiverUseText(r, c.allow)}</span>
-                  <Chip tone={r.allUsed ? 'warning' : 'success'}>{r.allUsed ? 'All used' : `${r.left} left`}</Chip>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className={s.empty}>No sick fee waivers yet this period.</p>
-        )}
-      </div>
-      {recent.length > 0 && (
+      {!plain && (
+        <div className={s.block}>
+          <BoCaption>Used until {till}</BoCaption>
+          {rows.length ? (
+            <ul className={s.list}>
+              {rows.map((r) => {
+                const res = getResident(r.rid);
+                return (
+                  <li key={r.rid} className={s.item}>
+                    <span className={s.who}>
+                      <span className={s.whoName}>{res?.name}</span>
+                      <span className={s.whoSub}>Apt {res?.apt}</span>
+                    </span>
+                    <span className={s.count}>{waiverUseText(r, c.allow)}</span>
+                    <Chip tone={r.allUsed ? 'warning' : 'success'}>{r.allUsed ? 'All used' : `${r.left} left`}</Chip>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className={s.empty}>No sick fee waivers yet this period.</p>
+          )}
+        </div>
+      )}
+      {!plain && recent.length > 0 && (
         <div className={s.block}>
           <BoCaption>Recent waivers</BoCaption>
           <ul className={s.list}>
@@ -94,7 +96,7 @@ export function SickWaiverSettings() {
           </ul>
         </div>
       )}
-      <p className={s.note}>Residents with no waivers this period are not listed. Each waiver shows on the resident's charges as “Delivery fee waived (sick)”.</p>
+      {!plain && <p className={s.note}>Residents with no waivers this period are not listed. Each waiver shows on the resident's charges as “Delivery fee waived (sick)”.</p>}
     </BoSection>
   );
 }
