@@ -73,8 +73,12 @@ describe('cleaning store', () => {
     const task = cleaningTasksFor(cleaningStore.get(), 'sequoia').find((t) => t.text === 'Break down and clean the slicer')!;
     expect(task.assignee).toBe('TR');
     const today = isoOf(new Date(now()));
+    const before = now();
     signCleaning('sequoia', task, today, 'GK', 'Grace Kim');
-    expect(cleaningSign(cleaningStore.get(), 'sequoia', task, today)).toEqual({ staffId: 'GK', by: 'G. Kim', at: now() });
+    const sign = cleaningSign(cleaningStore.get(), 'sequoia', task, today);
+    expect(sign).toMatchObject({ staffId: 'GK', by: 'G. Kim' });
+    expect(sign!.at).toBeGreaterThanOrEqual(before);
+    expect(sign!.at).toBeLessThanOrEqual(now());
     unsignCleaning('sequoia', task, today);
     expect(cleaningSign(cleaningStore.get(), 'sequoia', task, today)).toBeNull();
   });

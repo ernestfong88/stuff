@@ -2,6 +2,8 @@
 import { cleaningStatus, isoOf, shortName, sortForShift, type CleaningSignOff, type CleaningStatus, type CleaningTask } from '../../domain/cleaning';
 import { cleaningSign, cleaningTasksFor, type CleaningState } from '../../store/cleaning';
 import type { CheckHow, PrepMeal } from '../../store/production';
+import { TEMP_MEALS } from '../../domain/tempLog';
+import { mealLog, type TempLogState } from '../../store/tempLog';
 
 /** The meal being served at this hour: breakfast before 10, lunch until 3, then dinner. */
 export function mealAt(hour: number): PrepMeal {
@@ -73,4 +75,17 @@ export function cleaningToday(state: CleaningState, venueId: string, nowMs: numb
     return { task, sign, status: cleaningStatus(task, iso, sign, nowMs) };
   });
   return { iso, rows, done: rows.filter((r) => r.sign).length };
+}
+
+/** Temperature checks overdue at a kitchen today, across its meals. */
+export function tempOverdue(state: TempLogState, venueId: string, nowMs: number): number {
+  const iso = isoOf(new Date(nowMs));
+  return TEMP_MEALS.reduce(
+    (n, meal) =>
+      n +
+      mealLog(state, venueId, iso, meal, nowMs)
+        .dishes.flatMap((d) => d.cells)
+        .filter((c) => c.status === 'overdue').length,
+    0,
+  );
 }

@@ -1,6 +1,6 @@
 /**
- * Production Prep, on the kitchen tablet. Six meals, today's and tomorrow's
- * breakfast, lunch and dinner, opening on the meal being served. Specials
+ * Production Prep, on the kitchen tablet. Breakfast, lunch and dinner from
+ * today up to a week ahead, opening on today's meal being served. Specials
  * come first, each with the amount the director set to make; until one is
  * set the card shows a forecast from the venue's usual covers. Below them is
  * the venue's own checklist from Back Office (Prep Checklist), showing only
@@ -8,7 +8,8 @@
  * that venue, date and meal, so tomorrow starts fresh.
  *
  * The Cleaning log tab holds the kitchen's daily and weekly cleaning; each
- * task is signed off with the cook's PIN.
+ * task is signed off with the cook's PIN. The Temp log tab takes each
+ * dish's temperature at today's meals, signed the same way.
  */
 import { useState } from 'react';
 import { ModeChip, TextZoom } from '../../shell/controls';
@@ -28,12 +29,15 @@ import {
   type PrepSpecial,
 } from '../../store/production';
 import { useCleaning } from '../../store/cleaning';
+import { mealLog, useTempLog } from '../../store/tempLog';
+import { tempTotals, type TempMeal } from '../../domain/tempLog';
 import { Checklist } from './Checklist';
 import { CleaningLog } from './CleaningLog';
-import { cleaningToday, mealAt, signature } from './logic';
-import { MealPicker, type MealSelection } from './MealPicker';
+import { cleaningToday, mealAt, signature, tempOverdue } from './logic';
+import { MealPicker, prepDayName, type MealSelection } from './MealPicker';
 import { RecipeSheet } from './RecipeSheet';
 import { SpecialCard } from './SpecialCard';
+import { TempLog } from './TempLog';
 import { VenueTabs } from './VenueTabs';
 import { usePrepVenue } from './usePrepVenue';
 import s from './Prep.module.css';
@@ -41,7 +45,7 @@ import s from './Prep.module.css';
 /** The kitchen sign-in has no name behind it, so work here is signed as the prep cook unless someone signed in. */
 const PREP_COOK = 'L. Ortega';
 
-type View = 'prep' | 'cleaning';
+type View = 'prep' | 'cleaning' | 'temp';
 
 export default function ProductionPrep() {
   const state = useProduction();
@@ -54,10 +58,13 @@ export default function ProductionPrep() {
   const [openSlot, setOpenSlot] = useState<string | null>(null);
   const [view, setView] = useState<View>('prep');
   const cleaning = cleaningToday(useCleaning(), venueId, nowMs);
+  const temps = useTempLog();
+  const [tempMeal, setTempMeal] = useState<TempMeal>(() => mealAt(today().getHours()));
 
   const iso = isoDate(sel.offset);
   const meal = sel.meal;
-  const when = `${sel.offset ? "Tomorrow's" : "Today's"} ${meal.toLowerCase()}`;
+  const dayName = prepDayName(new Date(nowMs), sel.offset);
+  const when = `${dayName}'s ${meal.toLowerCase()}`;
 
   const specials = specialsFor(state, venueId, sel.offset, meal);
   const prepped = (sp: PrepSpecial) => preppedMark(state, venueId, iso, meal, sp.slot);
@@ -74,6 +81,9 @@ export default function ProductionPrep() {
   const allDone = done + preppedCount;
   const allTotal = total + specials.length;
   const cleaningLate = cleaning.rows.filter((r) => r.status === 'overdue').length;
+  const tempLate = tempOverdue(temps, venueId, nowMs);
+  const tempCells = view === 'temp' ? mealLog(temps, venueId, isoDate(0), tempMeal, nowMs).dishes.flatMap((d) => d.cells) : [];
+  const tempTaken = tempTotals(tempCells).taken;
 
   return (
     <div className={s.screen} data-prep={`${sel.offset}|${meal}`}>
@@ -90,6 +100,14 @@ export default function ProductionPrep() {
               >
                 {allDone} of {allTotal} <small>done</small>
               </span>
+            ) : view === 'temp' ? (
+              <span
+                className={tempTaken === tempCells.length && tempCells.length > 0 ? s.tallyDone : s.tally}
+                aria-label={`${tempTaken} of ${tempCells.length} temperature checks taken`}
+                title="Temperature checks taken for the meal on screen"
+              >
+                {tempTaken} of {tempCells.length} <small>temps taken</small>
+              </span>
             ) : (
               <span
                 className={cleaning.done === cleaning.rows.length && cleaning.rows.length > 0 ? s.tallyDone : s.tally}
@@ -103,7 +121,7 @@ export default function ProductionPrep() {
           </span>
         </div>
         <div className={s.subRow}>
-          <div className={s.views} role="tablist" aria-label="Prep or cleaning">
+          <div className={s.views} role="tablist" aria-label="Prep, cleaning or temperatures">
             <button role="tab" aria-selected={view === 'prep'} className={cx(s.view, view === 'prep' && s.viewOn)} onClick={() => setView('prep')}>
               Prep checklist
             </button>
@@ -120,6 +138,14 @@ export default function ProductionPrep() {
                 </span>
               )}
             </button>
+            <button role="tab" aria-selected={view === 'temp'} className={cx(s.view, view === 'temp' && s.viewOn)} onClick={() => setView('temp')}>
+              Temp log
+              {tempLate > 0 && (
+                <span className={s.viewLate} aria-label={`${tempLate} overdue`}>
+                  {tempLate}
+                </span>
+              )}
+            </button>
           </div>
           {view === 'prep' && <MealPicker value={sel} onChange={setSel} base={new Date(nowMs)} />}
         </div>
@@ -128,6 +154,10 @@ export default function ProductionPrep() {
       {view === 'cleaning' ? (
         <main className={s.body}>
           <CleaningLog venueId={venueId} nowMs={nowMs} />
+        </main>
+      ) : view === 'temp' ? (
+        <main className={s.body}>
+          <TempLog venueId={venueId} meal={tempMeal} onMeal={setTempMeal} nowMs={nowMs} />
         </main>
       ) : (
         <main className={s.body}>
@@ -158,7 +188,7 @@ export default function ProductionPrep() {
           ) : (
             <p className={s.empty}>
               {venue.menu === 'cycle'
-                ? `No ${meal.toLowerCase()} specials on the cycle for ${sel.offset ? 'tomorrow' : 'today'}.`
+                ? `No ${meal.toLowerCase()} specials on the cycle for ${sel.offset < 2 ? dayName.toLowerCase() : dayName}.`
                 : `${venue.fullName} serves the same menu every day, so there are no specials to prep.`}
             </p>
           )}

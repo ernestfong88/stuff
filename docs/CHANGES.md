@@ -220,6 +220,33 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Temperature Log
+Kitchens can now log food temperatures during meal service. Each reading is signed with the cook's PIN, and a reading out of range is kept with what was done about it.
+
+- **The rules**:
+  - Hot food must reach its cooking temperature when it goes on the line: 165°F for poultry, soups and anything reheated; 155°F for ground meat, ground fish and eggs held hot; 145°F for fish, seafood and whole cuts; 135°F for everything else. After that it must stay at 135°F or above.
+  - Cold food must stay at 41°F or below.
+  - Each meal has two checks: one when the food goes on the line, and one 2 hours into service. Service runs 7:00 to 10:00 AM for breakfast, 11:30 AM to 2:00 PM for lunch and 4:30 to 7:00 PM for dinner.
+- **Which dishes are logged**:
+  - The list for each meal comes from the same menu Production uses: the day's menu cycle items plus the venue's every-day dishes.
+  - Each dish is set as hot or cold from its name and category. Soups, entrées and hot sides are hot. Salads, deli items and desserts such as pudding and trifle are cold. Bread, rolls, cookies and cupcakes are not logged.
+- **Production Prep** has a third tab, **Temp log**, next to Prep checklist and Cleaning log.
+  - It shows today's meal (you can switch to another of today's meals), with Hot hold and Cold hold dishes listed separately. Each check shows its target, for example *≥ 165°F*.
+  - To log a reading, tap a check, enter the temperature on the number pad and sign with your PIN.
+  - A reading out of range turns red. Before you can sign, you pick what was done: *Reheat to 165°F*, *Chill / move to the walk-in*, *Discard* or *Rechecked*. You can also add a recheck temperature.
+  - *Add a dish* adds something that is not on the menu to that meal. You give it a name and choose hot or cold.
+  - The tab and the meal buttons show how many checks are overdue. The header shows how many temperatures have been taken for the meal on screen.
+- **Back Office → Productions and Checklists → Temperature Log** (Phase 3, right after Cleaning Log):
+  - **Log**: pick a kitchen and a day, from today back six days. Each meal is a table of dishes. Each check shows the temperature, who took it and when. Out-of-range readings are red, with the action taken and the recheck. Missed and overdue checks are flagged.
+  - The totals at the top show readings taken, out of range, missed or overdue, and (for today) due now. *Print this day* prints the sheet.
+  - **Targets**: every dish served in the week before and after today, with how it is held. You can change a dish to *Hot hold*, *Cold hold* or *Not logged*. Choosing the menu's own setting again removes the change.
+- The demo starts with a week of readings, all signed earlier than the current time:
+  - A hot dish dropped below 135°F at yesterday's dinner. It was reheated, and the recheck read 168°F.
+  - A cold dish read 45°F at lunch two days ago. It was moved to the walk-in, and the recheck read 38°F.
+  - A cold dish at today's lunch read 44°F and was thrown out.
+  - A few past checks were missed, and one dish at the current meal has not gone on the line yet.
+
+
 ### Production Prep: tighter cards, a week of prep days
 - **Prep days:** pick any day up to a week ahead (Today, Tomorrow, then Sat 10/10, Sun 10/11 and so on), then Breakfast, Lunch or Dinner. Before, only today and tomorrow could be picked.
 - **Special cards:** **✓ Complete** (was "Mark prepped") sits on one row with a small microphone button for a voice note and a pencil button to type one. The cards are shorter, so more fit on screen.

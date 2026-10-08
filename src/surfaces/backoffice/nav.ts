@@ -131,6 +131,14 @@ export const BO_SECTIONS: BoSectionDef[] = [
         component: lazy(() => import('./pages/cleaningLog')),
       },
       {
+        id: 'tempLog',
+        label: 'Temperature Log',
+        blurb: 'Food temperatures at every meal, signed off with a PIN',
+        keywords: 'temperature temp log food safety haccp hot hold cold hold probe thermometer reheat 165 135 41 corrective action health inspector',
+        phase: 3,
+        component: lazy(() => import('./pages/tempLog')),
+      },
+      {
         id: 'swLib',
         label: 'Side Work Tasks',
         blurb: "Each venue's side work library",
