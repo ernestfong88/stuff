@@ -64,7 +64,10 @@ export function RecipeFiltersBar({
                 size="sm"
                 value={f.group || 'Any'}
                 onChange={(g) => set({ group: g === 'Any' ? '' : g, sub: '' })}
-                options={['Any', ...groups.map(([g]) => g)].map((g) => ({ id: g, label: g === 'Any' ? 'Any' : g.charAt(0) + g.slice(1).toLowerCase() }))}
+                options={['Any', ...groups.map(([g]) => g)].map((g) => ({
+                  id: g,
+                  label: g === 'Any' ? 'Any' : g.charAt(0) + g.slice(1).toLowerCase(),
+                }))}
                 aria-label="Type"
               />
             </Field>
