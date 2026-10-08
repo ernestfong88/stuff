@@ -253,8 +253,7 @@ export function TableCard({ order: o, stage, since, covered, onOpen, plain }: Ta
             className={cx(s.when, when.kind === 'opened' && s.whenOpened)}
             title={when.kind === 'ordered' ? 'When the first items went to the kitchen' : 'Nothing sent yet: when the check was opened'}
           >
-            <span className={s.whenWord}>{when.kind === 'ordered' ? 'Ordered' : 'Opened'}</span>
-            <span className={s.whenAt}>{formatTime(when.at)}</span>
+            {formatTime(when.at)}
           </span>
         </span>
         {!plain && late && stage.key !== 'check' && <span className={s.lateTag}>LATE</span>}

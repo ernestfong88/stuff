@@ -214,28 +214,16 @@
   border-left: 4px solid var(--s200);
 }
 
-/* When the order went in, under the diner names. On a narrow card the word gives way; the time never does. */
+/* When the order went in, under the diner names: just the time. Grey until something is sent (the check's open time). */
 .when {
-  display: flex;
-  gap: 4px;
-  min-width: 0;
   white-space: nowrap;
   font-size: 13px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--s500);
-}
-.whenWord {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.whenAt {
-  flex-shrink: 0;
   font-weight: 800;
+  line-height: 1.2;
   color: var(--s700);
   font-variant-numeric: tabular-nums;
 }
-.whenOpened .whenAt {
+.whenOpened {
+  font-weight: 700;
   color: var(--s500);
 }

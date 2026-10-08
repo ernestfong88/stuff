@@ -228,8 +228,8 @@ The final order is:
 ### Server: a clock, and when each table ordered
 - The server tablet's top bar shows the time of day, such as *5:45 PM*, in the same format as the kitchen screens. It sits with the right-hand buttons, before the menu reference (or the More menu), in 16px bold figures, and follows a pinned demo clock (`?clock=17:45`).
 - The clock takes part in the header's folding. It stays on screen at every fold; once the side work chip and the text size % have stepped aside it drops the AM/PM (*5:45*). It never pushes the venue, the mode menu or the avatar off screen.
-- Each table on My tables shows when its order went in, under the diner names: *Ordered 5:32 PM* is the first time anything was sent to the kitchen (the same time as on the kitchen ticket). Before anything is sent it reads *Opened 5:30 PM*, in grey, the time the check was opened.
-- The time is 13px and fits inside the card's existing head, so cards are no taller. On a very narrow card the word gives way and the time stays.
+- Each table on My tables shows when its order went in, under the diner names, as just the time (*5:32 PM*): the first time anything was sent to the kitchen, the same time as on the kitchen ticket. Before anything is sent it shows, in grey, the time the check was opened. The words *Ordered* and *Opened* were dropped; the time is enough.
+- The time is 13px and fits inside the card's existing head, so cards are no taller.
 - Only the server's My tables cards show it; the manager's floor and tables views have their own cards and are unchanged.
 - Checked at 1180×820, 820×1180 and 1024×768 at 100% and 130% text with no sideways scrolling in the header or the board.
 
