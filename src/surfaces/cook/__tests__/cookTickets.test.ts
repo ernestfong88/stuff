@@ -3,7 +3,7 @@ import { DEFAULT_CONFIG } from '../../../domain/config';
 import { diner, line, order } from '../../../domain/__tests__/helpers';
 import { screensForItem, type KdsScreen } from '../../../domain/kdsScreens';
 import seed from '../../../data/seed/venueSettings.json';
-import { allDayCounts, averageTicketMinutes, buildCookTickets, bumpLineIds, plateDetails, ticketStatus } from '../cookTickets';
+import { allDayCounts, averageTicketMinutes, buildCookTickets, bumpLineIds, notFiredLines, plateDetails, ticketStatus } from '../cookTickets';
 
 const SEQUOIA = (seed as unknown as { kds: { sequoia: KdsScreen[] } }).kds.sequoia;
 const screensOf = (itemId: string, room: string) => screensForItem(itemId, room, room === 'sequoia' ? SEQUOIA : [], {});
@@ -68,8 +68,29 @@ describe('all day counts', () => {
     const b = order([diner([fired('d_peach', { kitchenState: 'ready' }), fired('d_shells', { cancelled: true }), fired('d_peach')])]);
     const tickets = buildCookTickets([a, b], opts('all'));
     expect(allDayCounts(tickets, 'all', (id) => id)).toEqual([
-      { name: 'd_peach', count: 3 },
-      { name: 'd_shells', count: 1 },
+      { name: 'd_peach', count: 3, waiting: 0 },
+      { name: 'd_shells', count: 1, waiting: 0 },
+    ]);
+  });
+
+  it('adds entrées sent but not fired yet, without their sides', () => {
+    const onLine = order([diner([fired('d_peach')])]);
+    const entree = line('d_peach', { sent: true, kitchenState: 'scheduled', course: 2 });
+    const later = order([
+      diner([
+        fired('d_cbsoup', { course: 1 }), // the server makes soup, so it never counts here
+        entree,
+        line('d_mashed', { sent: true, kitchenState: 'scheduled', course: 2, parentId: entree.id, autoSide: true }),
+        line('d_shells', { sent: true, kitchenState: 'scheduled', course: 2 }),
+        line('d_shells', { sent: false, course: 2 }), // not sent: the server still has it
+      ]),
+    ]);
+    const o = opts('all');
+    const waiting = notFiredLines([onLine, later], o);
+    expect(waiting.map((l) => l.itemId).sort()).toEqual(['d_peach', 'd_shells']);
+    expect(allDayCounts(buildCookTickets([onLine, later], o), 'all', (id) => id, waiting)).toEqual([
+      { name: 'd_peach', count: 1, waiting: 1 },
+      { name: 'd_shells', count: 0, waiting: 1 },
     ]);
   });
 

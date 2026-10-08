@@ -220,6 +220,11 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Cook: All day counts plates not fired yet
+- **The All day strip shows two numbers for each dish.** The solid white one is plates on the line now. The amber outlined one ("+1") is plates sent to the kitchen but not fired yet: a later course still waiting, or a pick up booked for later.
+- **What counts:** entrées and anything else the screen makes on its own, but not the sides that go with a plate. Only plates for this screen count, and only plates already sent, so nothing the server is still holding.
+- **The order:** dishes are sorted by the total, so the cook sees what is coming before it fires. A small key under *All day* explains the two colours.
+
 ### À la carte: the 20-item / 8-side counter on every list
 - The counter (**Menu items N / 20 · Sides N / 8**) now also shows on a cycle's **Every-day items**, which venues serve as their à la carte menu. Before, it only showed on standalone à la carte menus. It is a little larger.
 - **At** a limit it turns amber, and **over** it turns red. A red warning then says how much to cut, for example "Over the menu standard: reduce the menu by 42 menu items and 22 sides", with the counts it is based on. Changes still save: it is a guide, not a block.

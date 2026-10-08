@@ -9,6 +9,9 @@
 }
 .label {
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   padding-top: 7px;
   font-size: 12px;
   font-weight: 900;
@@ -58,4 +61,44 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--k-dim);
+}
+.waiting {
+  min-width: 30px;
+  padding: 1px 6px;
+  border-radius: 7px;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--k-amber);
+  box-shadow: inset 0 0 0 2px var(--k-amber);
+}
+.key {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.keyOn,
+.keyWait {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--k-dim);
+}
+.keyOn::before,
+.keyWait::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.keyOn::before {
+  background: var(--k-text);
+}
+.keyWait::before {
+  box-shadow: inset 0 0 0 2px var(--k-amber);
 }

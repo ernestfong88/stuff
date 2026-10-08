@@ -156,25 +156,53 @@ export function bumpLineIds(t: CookTicket, screen: string, screensOf: CookTicket
 
 export interface AllDayCount {
   name: string;
+  /** On the line now: fired and not up yet. */
   count: number;
+  /** Sent but not fired yet: a later course still held, or a pick up booked ahead. */
+  waiting: number;
 }
 
 /**
- * All day: how many of each plate this screen still has to make, across
- * every ticket on the line. Plates already up and cancelled ones don't
- * count. Most first, then by name.
+ * The plates this screen will make that are sent but not fired yet: a
+ * course waiting for the one before, or a pick up booked for later.
+ * Entrées and anything else the screen makes on its own; sides go with
+ * their plate.
  */
-export function allDayCounts(tickets: readonly CookTicket[], screen: string, name: (itemId: string) => string): AllDayCount[] {
-  const counts = new Map<string, number>();
+export function notFiredLines(orders: readonly Order[], opts: CookTicketOptions): OrderLine[] {
+  const out: OrderLine[] = [];
+  for (const o of orders) {
+    const room = o.room || DEFAULT_ROOM;
+    for (const d of o.diners)
+      for (const i of d.items) {
+        if (!i.sent || i.comped || i.cancelled || i.kitchenState !== 'scheduled' || isSide(i.itemId)) continue;
+        if (lineFoodRoute(i, d.items, o.room, opts.cfg) !== 'kds') continue;
+        const screens = opts.screensOf(i.itemId, room);
+        if (opts.screen === 'all' || screens.includes(opts.screen)) out.push(i);
+      }
+  }
+  return out;
+}
+
+/**
+ * All day: how many of each plate this screen has to make, across every
+ * ticket on the line, and how many more are sent but not fired yet. Plates
+ * already up and cancelled ones don't count. Most first, then by name.
+ */
+export function allDayCounts(
+  tickets: readonly CookTicket[],
+  screen: string,
+  name: (itemId: string) => string,
+  notFired: readonly OrderLine[] = [],
+): AllDayCount[] {
+  const counts = new Map<string, AllDayCount>();
+  const row = (n: string) => counts.get(n) ?? counts.set(n, { name: n, count: 0, waiting: 0 }).get(n)!;
   for (const t of tickets)
     for (const l of screenLines(t, screen)) {
       if (l.cancelled || l.kitchenState === 'ready') continue;
-      const n = name(l.itemId);
-      counts.set(n, (counts.get(n) ?? 0) + 1);
+      row(name(l.itemId)).count++;
     }
-  return [...counts]
-    .map(([n, count]) => ({ name: n, count }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  for (const l of notFired) row(name(l.itemId)).waiting++;
+  return [...counts.values()].sort((a, b) => b.count + b.waiting - (a.count + a.waiting) || b.count - a.count || a.name.localeCompare(b.name));
 }
 
 /** Average minutes from first fire to bump over bumps in the last hour, or null. */

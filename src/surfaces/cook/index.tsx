@@ -28,7 +28,7 @@ import { useBumpBar } from '../kitchen/useBumpBar';
 import { useThreshold } from '../kitchen/useThreshold';
 import { kitchenHasExpo, kitchenPrinters, kitchenScreens, screenOptions, useDeviceScreen, useVenueSettings } from '../../store/venueSettings';
 import { AllDayBar } from './AllDayBar';
-import { allDayCounts, averageTicketMinutes, bumpLineIds, buildCookTickets, screenLines, ticketStatus, type CookLine, type CookTicket } from './cookTickets';
+import { allDayCounts, averageTicketMinutes, bumpLineIds, buildCookTickets, notFiredLines, screenLines, ticketStatus, type CookLine, type CookTicket } from './cookTickets';
 import { CookTicketCard } from './CookTicketCard';
 import s from './Cook.module.css';
 import { ScreenPicker } from './ScreenPicker';
@@ -82,7 +82,8 @@ function CookLine() {
   const avg = averageTicketMinutes(bumped, now());
   // Only tickets that still have plates up can be pulled back; once expo runs them there is nothing to recall.
   const recallable = bumped.filter((b) => b.order.diners.some((d) => d.items.some((i) => i.kitchenState === 'ready')));
-  const counts = allDayCounts(tickets, screen.key, (id) => kitchenItemName(getItem(id)?.name ?? '', cfg));
+  const notFired = useMemo(() => notFiredLines(orders, { screen: screen.key, expoActive: expoAt, cfg, screensOf }), [orders, screen.key, expoAt, cfg, screensOf]);
+  const counts = allDayCounts(tickets, screen.key, (id) => kitchenItemName(getItem(id)?.name ?? '', cfg), notFired);
 
   const toggleAllDay = () => {
     safeStorage.set(ALL_DAY_KEY, allDay ? '0' : '1');
