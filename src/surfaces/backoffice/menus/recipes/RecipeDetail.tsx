@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Archive, ChevronLeft, RotateCcw } from 'lucide-react';
+import { Archive, ChevronLeft, RotateCcw, X } from 'lucide-react';
 import { useConfig } from '../../../../store/config';
 import type { Recipe } from '../../../../store/menuEdits';
 import { Button, cx, toast } from '../../../../ui';
@@ -34,8 +34,8 @@ export function useAutofill(apply: (patch: Partial<Recipe>) => void): [boolean, 
   ];
 }
 
-/** The full recipe page. It saves as you type. */
-export function RecipeDetail({ recipe, mine, onBack }: { recipe: Recipe; mine: boolean; onBack: () => void }) {
+/** The full recipe page, or (`pane`) the open recipe beside the list on a desktop screen. It saves as you type. */
+export function RecipeDetail({ recipe, mine, pane, onBack }: { recipe: Recipe; mine: boolean; pane?: boolean; onBack: () => void }) {
   const bo = useBo();
   const cfg = useConfig();
   const r = bo.recipes.find((x) => x.id === recipe.id) ?? recipe;
@@ -48,9 +48,15 @@ export function RecipeDetail({ recipe, mine, onBack }: { recipe: Recipe; mine: b
   return (
     <div className={s.page}>
       <div className={s.bar}>
-        <button className={s.back} onClick={onBack}>
-          <ChevronLeft size={16} aria-hidden /> Recipe Book
-        </button>
+        {pane ? (
+          <button className={s.back} onClick={onBack}>
+            <X size={16} aria-hidden /> Close
+          </button>
+        ) : (
+          <button className={s.back} onClick={onBack}>
+            <ChevronLeft size={16} aria-hidden /> Recipe Book
+          </button>
+        )}
         <span className={s.barEnd}>
           {mine && !readOnly && !r.placeholder && (
             <Button

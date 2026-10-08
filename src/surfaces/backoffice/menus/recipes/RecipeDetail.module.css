@@ -3,6 +3,14 @@
   flex-direction: column;
   gap: 12px;
   max-width: 1120px;
+  /* The recipe form lays its sections out by the room it has (RecipeForm.module.css). */
+  container: recipe / inline-size;
+}
+/* A desktop screen: the recipe uses the page's width, in two columns where they help. */
+@media (min-width: 1500px) {
+  .page {
+    max-width: none;
+  }
 }
 .bar {
   display: flex;

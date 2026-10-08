@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Plus } from 'lucide-react';
 import { uid } from '../../../../lib/id';
 import { navigate, useRoute } from '../../../../shell/router';
 import { useConfig } from '../../../../store/config';
 import type { Recipe } from '../../../../store/menuEdits';
-import { Button, Tabs, cx, toast } from '../../../../ui';
+import { Button, Tabs, cx, toast, useViewportWidth } from '../../../../ui';
 import { BoPage } from '../../kit';
 import { updateBo, useBo } from '../data';
 import { useRecipeScores } from '../feedback';
@@ -14,8 +14,11 @@ import { recipeShort } from '../model/shortNames';
 import { AddRecipeDialog } from './AddRecipeDialog';
 import { RecipeDetail } from './RecipeDetail';
 import { RecipeFiltersBar } from './RecipeFiltersBar';
-import { RecipeList } from './RecipeList';
+import { RecipeList, type RecipeListProps } from './RecipeList';
 import s from './RecipesPage.module.css';
+
+/** From this window width the list view keeps the list beside the open recipe (as the Back Office `columns` pages). */
+const SPLIT_FROM = 1500;
 
 /** Recipe Book: the community's recipe master and the Home Office Global Library. */
 export function RecipesPage() {
@@ -29,6 +32,10 @@ export function RecipesPage() {
   const [showAll, setShowAll] = useState(false);
   const [adding, setAdding] = useState(false);
   const scoreOf = useRecipeScores(bo.recipes);
+  // A desktop screen in list view: the list on the left, the open recipe beside it.
+  const split = useViewportWidth() >= SPLIT_FROM && view === 'list';
+  const pane = useRef<HTMLDivElement>(null);
+  const master = useRef<HTMLDivElement>(null);
   const onMenu = useMemo(() => new Set(bo.grid.map((g) => g.recipeId)), [bo.grid]);
   const pins = useMemo(() => {
     const m = new Map<string, number>();
@@ -38,7 +45,7 @@ export function RecipesPage() {
   const set = (patch: Partial<RecipeFilters>) => setF((x) => ({ ...x, ...patch }));
   const n = filterCount(f);
   const global = scope === 'global';
-  const live = global || showAll || n > 0;
+  const live = global || showAll || n > 0 || (split && !!openId);
   const list = useMemo(() => {
     if (global) return GLOBAL_LIBRARY.filter((r) => (!f.cat || r.cat === f.cat) && matchesText(r, f.q, (x) => x.name));
     return live ? filterRecipes(bo.recipes, f, { scoreOf, onMenu, favorites: bo.favorites, shortOf: (r) => recipeShort(r, cfg) }) : [];
@@ -55,11 +62,52 @@ export function RecipesPage() {
     return id;
   };
 
-  if (openId) {
-    const r = bo.recipes.find((x) => x.id === openId) ?? GLOBAL_LIBRARY.find((x) => x.id === openId);
-    if (r) return <RecipeDetail recipe={r} mine={bo.recipes.some((x) => x.id === openId)} onBack={() => navigate('backoffice', ['recipes'])} />;
-  }
+  const openRecipe = openId ? (bo.recipes.find((x) => x.id === openId) ?? GLOBAL_LIBRARY.find((x) => x.id === openId)) : undefined;
+  const detail = openRecipe && (
+    <RecipeDetail recipe={openRecipe} mine={bo.recipes.some((x) => x.id === openId)} pane={split} onBack={() => navigate('backoffice', ['recipes'])} />
+  );
 
+  // Beside the list, the picked recipe's row stays in view in the list and the recipe starts at its top
+  // (below the 56px top bar), even when the page was scrolled down the last one.
+  useEffect(() => {
+    const el = pane.current;
+    const frame = master.current?.firstElementChild;
+    const row = openId ? frame?.querySelector(`[data-recipe-id="${CSS.escape(openId)}"]`) : null;
+    if (frame && row) {
+      const f = frame.getBoundingClientRect();
+      const r = row.getBoundingClientRect();
+      if (r.top < f.top + 40 || r.bottom > Math.min(f.bottom, window.innerHeight)) frame.scrollTop += r.top - f.top - 120;
+      // Opened from the full list, which is gone now: keep the focus on the list so Up and Down carry on.
+      if (document.activeElement === document.body) row.querySelector<HTMLElement>('button[aria-current]')?.focus({ preventScroll: true });
+    }
+    if (el && el.getBoundingClientRect().top < 56) el.scrollIntoView({ block: 'start' });
+  }, [openId, split]);
+
+  if (detail && !split) return detail;
+
+  // Up and Down move through the list while it has focus.
+  const onListKey = (e: KeyboardEvent) => {
+    if ((e.key !== 'ArrowDown' && e.key !== 'ArrowUp') || global || !list.length || (e.target as HTMLElement).closest('input, textarea, select')) return;
+    e.preventDefault();
+    const i = list.findIndex((x) => x.id === openId);
+    const next = list[i < 0 ? 0 : Math.min(list.length - 1, Math.max(0, i + (e.key === 'ArrowDown' ? 1 : -1)))];
+    navigate('backoffice', ['recipes', next.id], { replace: !!openId });
+    const box = e.currentTarget;
+    requestAnimationFrame(() => box.querySelector<HTMLElement>(`[data-recipe-id="${CSS.escape(next.id)}"] button[aria-current]`)?.focus({ preventScroll: true }));
+  };
+
+  const listProps: RecipeListProps = {
+    list,
+    view,
+    global,
+    scoreOf,
+    onMenu,
+    pinCount: (id) => pins.get(id) ?? 0,
+    onOpen: open,
+    onAddLinked: (r) => addCopy(r, true),
+    onCopy: (r) => addCopy(r, false),
+    ownedFrom,
+  };
   const active = bo.recipes.filter((r) => !r.retired);
   const cnt = (c: string) => active.filter((r) => r.cat === c).length;
   const favCount = bo.recipes.filter((r) => bo.favorites[r.id]).length;
@@ -127,19 +175,17 @@ export function RecipesPage() {
           your own version.
         </p>
       )}
-      {live ? (
-        <RecipeList
-          list={list}
-          view={view}
-          global={global}
-          scoreOf={scoreOf}
-          onMenu={onMenu}
-          pinCount={(id) => pins.get(id) ?? 0}
-          onOpen={open}
-          onAddLinked={(r) => addCopy(r, true)}
-          onCopy={(r) => addCopy(r, false)}
-          ownedFrom={ownedFrom}
-        />
+      {detail ? (
+        <div className={s.split}>
+          <div ref={master} className={s.master} onKeyDown={onListKey}>
+            <RecipeList {...listProps} compact selectedId={openId} />
+          </div>
+          <div ref={pane} className={s.detail}>
+            {detail}
+          </div>
+        </div>
+      ) : live ? (
+        <RecipeList {...listProps} />
       ) : (
         <section className={s.find}>
           <div>

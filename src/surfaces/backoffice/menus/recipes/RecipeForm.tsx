@@ -90,11 +90,17 @@ export function RecipeForm(p: RecipeFormProps) {
         <IngredientsSection {...p} scale={scale} setScale={setScale} />
         <MethodSection {...p} />
       </div>
-      <PlatingSection {...p} />
-      <NutritionSection {...p} />
-      <SettingsSection {...p} />
-      <NotesSection {...p} />
-      <SharingSection {...p} />
+      <div className={s.pair}>
+        <PlatingSection {...p} />
+        <NutritionSection {...p} />
+      </div>
+      <div className={s.pair}>
+        <SettingsSection {...p} />
+        <div className={s.stack}>
+          <NotesSection {...p} />
+          <SharingSection {...p} />
+        </div>
+      </div>
     </div>
   );
 }

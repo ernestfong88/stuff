@@ -226,3 +226,19 @@
     flex-wrap: wrap;
   }
 }
+/* Beside the list on a desktop screen the recipe is narrower: the buttons go in a row under the name, and the numbers stay on one line. */
+@media (min-width: 1500px) {
+  @container recipe (max-width: 1000px) {
+    .side {
+      flex: 1 1 100%;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .stats {
+      grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+      gap: 12px;
+    }
+  }
+}

@@ -53,3 +53,29 @@
 .anchor {
   scroll-margin-top: 60px;
 }
+
+/*
+ * Plating beside Nutrition, and the KDS settings beside the notes, once the
+ * recipe page has the room on a desktop screen. Otherwise these wrappers are
+ * not boxes at all and the sections stack as before (the dialog always).
+ */
+.pair,
+.stack {
+  display: contents;
+}
+@media (min-width: 1500px) {
+  @container recipe (min-width: 760px) {
+    .pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-items: start;
+    }
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+  }
+}

@@ -84,3 +84,24 @@
   font-size: 13px;
   color: var(--s500);
 }
+
+/*
+ * A desktop screen in list view (1500px and up): the list on the left stays
+ * in view while the open recipe beside it scrolls with the page, so a chef
+ * can click down the list without leaving it.
+ */
+.split {
+  display: grid;
+  grid-template-columns: minmax(460px, 36%) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.master {
+  position: sticky;
+  top: 72px;
+  min-width: 0;
+}
+.detail {
+  min-width: 0;
+  scroll-margin-top: 72px;
+}

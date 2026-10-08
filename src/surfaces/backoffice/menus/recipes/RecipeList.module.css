@@ -127,3 +127,39 @@ button.name:hover {
   align-items: center;
   gap: 10px;
 }
+
+/*
+ * The compact list beside an open recipe (a desktop screen): name and
+ * status, category, score and sales. The photo, diets and the open arrow
+ * are on the recipe itself.
+ */
+.compact .rowPic,
+.compact th:nth-child(3),
+.compact td:nth-child(3),
+.compact th:nth-child(6),
+.compact td:nth-child(6) {
+  display: none;
+}
+.compact .nameCell {
+  min-width: 0;
+}
+.compact td {
+  padding-block: 8px;
+}
+.compact td:first-child {
+  padding-right: 4px;
+}
+.compact th:nth-child(n + 4),
+.compact td:nth-child(n + 4) {
+  padding-inline: 8px;
+}
+.selected td,
+.row.selected:hover td {
+  background: color-mix(in srgb, var(--ocean) 8%, var(--surface));
+}
+.selected td:first-child {
+  box-shadow: inset 3px 0 0 var(--ocean);
+}
+.compact .soldUnit {
+  display: none;
+}

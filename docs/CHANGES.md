@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Recipe Book on a desktop screen
+- Nothing changes below 1500px wide: the list opens a recipe on its own page, as before.
+- **List and recipe side by side from 1500px:** in List view, opening a recipe keeps the list on the left and shows the recipe beside it, so a chef can click down the list without leaving the page. The list is compact (star, name and its approval and status chips, category, score, sold) and stays in view while the recipe scrolls; the open recipe is highlighted. *Close* puts the full list back.
+- The address still names the open recipe, so links work and Back goes to the recipe before, then to the list.
+- **Up and Down** move through the list while it has focus, and the recipe beside it follows.
+- **Filters take less room:** search, category and the finer filters share one row while they fit (one row at 1920px, where it was two).
+- **The recipe uses the width:** on a desktop screen the recipe page is no longer held to 1120px. Plating sits beside Nutrition and diet, and the KDS & Recipe Book settings beside the chef's notes, as Ingredients already sat beside Method. Beside the list, the recipe's buttons go in a row under its name and the numbers (yield, portion, prep, cook, total, calories) stay on one line. Editing works as before; the recipe dialog is unchanged.
+- Cards view is unchanged: the cards stay about 240px wide at every width (6 across on a 1920px or 2560px screen), and opening a card still opens the full recipe page.
+
+
 ### Back Office: a colour for each section
 - **Each side menu section has its own colour**, so you can tell at a glance where you are. The section's icon is in its colour, and the page you are on is highlighted in a light tint of it.
   - Today: ocean blue

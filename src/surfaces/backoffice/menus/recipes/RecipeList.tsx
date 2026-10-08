@@ -23,6 +23,10 @@ export interface RecipeListProps {
   onCopy: (r: Recipe) => void;
   /** Your recipe made from this Global Library recipe, if you already added it. */
   ownedFrom?: (r: Recipe) => Recipe | undefined;
+  /** The narrow list beside an open recipe: name, category, score and sales only. */
+  compact?: boolean;
+  /** The recipe open beside the list. */
+  selectedId?: string | null;
 }
 
 function Sold({ sc }: { sc: RecipeScore | null }) {
@@ -91,7 +95,7 @@ function GlobalActions({
 }
 
 /** Recipes as a table or as photo cards. */
-export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOpen, onAddLinked, onCopy, ownedFrom }: RecipeListProps) {
+export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOpen, onAddLinked, onCopy, ownedFrom, compact, selectedId }: RecipeListProps) {
   const subs = useSubmissions();
   const approvalOf = (r: Recipe) => (global || !canSubmit(r) ? null : approvalStatus(subs, RECIPE_BOOK_COMMUNITY, r));
   if (!list.length) return <div className={s.none}>No recipes match these filters.</div>;
@@ -138,7 +142,7 @@ export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOp
   }
 
   return (
-    <TableFrame>
+    <TableFrame className={compact ? s.compact : undefined} maxHeight={compact ? 'calc(100vh - 88px)' : undefined}>
       <table className={tableClass}>
         <thead>
           <tr>
@@ -146,24 +150,30 @@ export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOp
             <th>Category</th>
             <th>Diet</th>
             <th title="Recipe score out of 5, from sales and resident feedback">Score</th>
-            <th>Sold, last 4 weeks</th>
+            <th title={compact ? 'Sold, last 4 weeks' : undefined}>{compact ? 'Sold' : 'Sold, last 4 weeks'}</th>
             <th aria-label={global ? 'Actions' : 'Open'} />
           </tr>
         </thead>
         <tbody>
           {list.map((r) => {
             const sc = scoreOf(r);
+            const on = r.id === selectedId;
             return (
-              <tr key={r.id} className={cx(!global && s.row, r.retired && s.retired)} onClick={global ? undefined : () => onOpen(r)}>
+              <tr
+                key={r.id}
+                data-recipe-id={r.id}
+                className={cx(!global && s.row, r.retired && s.retired, on && s.selected)}
+                onClick={global ? undefined : () => onOpen(r)}
+              >
                 <td>
                   <div className={s.nameCell}>
                     {!global && <FavStar r={r} />}
-                    <DishPic name={r.name} drink={r.cat === 'Drinks'} size={40} />
+                    <DishPic name={r.name} drink={r.cat === 'Drinks'} size={40} className={s.rowPic} />
                     <div className={s.nameCol}>
                       {global ? (
                         <span className={s.name}>{dishLong(r.name)}</span>
                       ) : (
-                        <button className={s.name} onClick={() => onOpen(r)}>
+                        <button className={s.name} aria-current={on || undefined} onClick={() => onOpen(r)}>
                           {dishLong(r.name)}
                         </button>
                       )}
