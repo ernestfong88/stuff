@@ -1,4 +1,4 @@
-import { Check, ChefHat, CircleCheck, GlassWater, Pause, Send } from 'lucide-react';
+import { Check, CircleCheck, Flame, GlassWater, Pause, Send } from 'lucide-react';
 import type { KitchenState, OrderLine } from '../../../../domain/types';
 import { printerMode } from '../../../../domain/config';
 import { useConfig } from '../../../../store/config';
@@ -103,7 +103,7 @@ export function DrinkChip({ line, onDelivered }: { line: OrderLine; onDelivered:
 }
 
 const STATE_ICONS: Partial<Record<NonNullable<KitchenState>, { label: string; cls: string; icon: typeof Send }>> = {
-  cooking: { label: 'Cooking', cls: 'cooking', icon: ChefHat },
+  cooking: { label: 'Cooking', cls: 'cooking', icon: Flame },
   ready: { label: 'Ready at the pass', cls: 'ready', icon: CircleCheck },
   cleared: { label: 'Served', cls: 'served', icon: Check },
 };
