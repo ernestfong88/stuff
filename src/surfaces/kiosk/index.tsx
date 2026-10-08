@@ -92,8 +92,15 @@ export default function ResidentKiosk() {
   const at = useNow(1000);
 
   // A new function when Back Office changes the menu, so a special taken off leaves the kiosk at once.
+  // Tomorrow's order offers tomorrow's menu, and today's 86 list doesn't apply to it.
   const menuVersion = useMenuVersion();
-  const menuFor = useCallback((meal: MealName) => kioskMenu(meal, (id) => is86(marks, id)), [marks, menuVersion]);
+  const menuFor = useCallback(
+    (meal: MealName, date: string | null) => {
+      const ahead = date && date > isoDate(0) ? date : null;
+      return kioskMenu(meal, ahead ? () => false : (id) => is86(marks, id), ahead);
+    },
+    [marks, menuVersion],
+  );
   const flow = useKioskFlow(menuFor);
   const { s: st, menu } = flow;
 

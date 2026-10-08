@@ -1,7 +1,7 @@
 import { CircleCheck, DollarSign, Send } from 'lucide-react';
 import { closeIsNext } from '../../../domain/courses';
 import { hasUnsent, heldCount } from '../../../domain/orders';
-import { clockLabel, pickupFireAt, pickupLeadMinutes } from '../../../domain/pickup';
+import { clockLabel, dayBefore, pickupDue, pickupFireAt, pickupLeadMinutes } from '../../../domain/pickup';
 import type { Order } from '../../../domain/types';
 import { now } from '../../../lib/clock';
 import { useConfig } from '../../../store/config';
@@ -47,7 +47,8 @@ export function SendBar({
   const label = (() => {
     if (!unsent) return held ? `${held} held. Release to send` : 'Nothing new to send';
     const fireAt = pickupFireAt(o, pickupLeadMinutes([...orders, ...history], cfg));
-    if (fireAt && fireAt > now()) return `Schedule for ${rangeLabel(o.readyAt)} · kitchen fires at ${clockLabel(fireAt)}`;
+    if (fireAt && fireAt > now())
+      return `Schedule for ${dayBefore(pickupDue(o))}${rangeLabel(o.readyAt)} · kitchen fires ${dayBefore(fireAt)}at ${clockLabel(fireAt)}`;
     if (o.queueType) return 'Send to kitchen · ASAP, whole order fires now';
     return sendLabel(o, sendableLines(o), held, cfg);
   })();

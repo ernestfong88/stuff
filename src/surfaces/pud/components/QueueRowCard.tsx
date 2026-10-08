@@ -1,5 +1,5 @@
 import { Check, Pencil, Truck, type LucideIcon } from 'lucide-react';
-import { pickupWho } from '../../../domain/pickup';
+import { dayOffset, pickupWho } from '../../../domain/pickup';
 import { cx } from '../../../ui';
 import { dueText, isLate, nextAction, stageView, textedTitle, type QueueAction, type QueueActionKind, type QueueRow } from '../queue/queue';
 import { queueTextKey, textMessage, type TextContext } from '../../../domain/pickupService/texts';
@@ -51,7 +51,7 @@ export function QueueRowCard({ row, at, ctx, leadMinutes, tracksPickups, onOpen,
         <span className={s.dot} aria-hidden />
         {stage.label}
       </div>
-      <div className={cx(s.due, s[`due_${due.tone}`])}>
+      <div className={cx(s.due, s[`due_${due.tone}`], dayOffset(o) > 0 && s.dueAhead)}>
         {late ? <span className={s.lateTag}>Late · {due.text.replace(/ late$/, '')}</span> : due.text}
       </div>
       <div className={s.action}>

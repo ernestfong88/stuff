@@ -19,6 +19,7 @@
  * Everything here is pure; pass the `win` section of the service settings.
  */
 import type { AssocMeal, MealName, Order } from '../types';
+import { mealSpans } from '../mealPeriods';
 
 export type WindowType = 'pickup' | 'assoc' | 'delivery';
 
@@ -35,12 +36,8 @@ export const WINDOW_TYPES: ReadonlyArray<{ id: WindowType; label: string; hint: 
 /** Ranges can be offered from 6:00 AM to 10:00 PM. */
 export const WINDOW_DAY: readonly [number, number] = [360, 1320];
 
-/** The part of the day each meal's ranges fall in. */
-export const MEAL_WINDOWS: Record<MealName, readonly [number, number]> = {
-  Breakfast: [360, 660],
-  Lunch: [660, 960],
-  Dinner: [960, 1320],
-};
+/** The part of the day each meal's ranges fall in: the meal served at the range's start (see domain/mealPeriods). */
+export const MEAL_WINDOWS: Record<MealName, readonly [number, number]> = mealSpans(WINDOW_DAY[0], WINDOW_DAY[1]);
 
 /** Offered ranges until Back Office changes them: [from, to) per type. */
 const DEFAULT_SPANS: Record<WindowType, Array<[number, number]>> = {

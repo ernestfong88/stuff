@@ -23,7 +23,7 @@ import type {
 } from '../domain/types';
 import { useSyncExternalStore } from 'react';
 import { today } from '../lib/clock';
-import { SEED_TODAY, seedShift, shiftDay } from '../domain/menuCycle';
+import { SEED_TODAY, isoDay, seedShift, shiftDay } from '../domain/menuCycle';
 import { liveOverlay, menuEditsStore, type GridEntry, type LiveMenuOverlay } from '../store/menuEdits';
 import { revive } from './revive';
 
@@ -301,28 +301,50 @@ const flatten = (m: Menu): CatalogItem[] =>
     Object.entries(cats).flatMap(([category, items]) => items.map((it) => ({ ...it, meal, category }))),
   );
 
-function applyMenuEdits(o: LiveMenuOverlay) {
+interface RoomMenus {
+  /** Every day's items, those taken off at day -1. */
+  full: Menu;
+  /** The cycle day the overlay is for; 0 without a cycle. */
+  day: number;
+  /** The items served that day, with empty sections left out. */
+  served: Menu;
+}
+
+/** Each room's menu as an overlay has it: the whole menu, and what is served on the overlay's cycle day. */
+function roomMenus(o: LiveMenuOverlay): Record<string, RoomMenus> {
   const removed = new Set(o.removed);
+  const out: Record<string, RoomMenus> = {};
   for (const room of Object.keys(roomsJson)) {
     const own = room === DINING_ROOM ? undefined : o.rooms?.[room];
     const full = buildMenu(own?.items ?? o.items, own?.added ?? o.added, removed);
     const day = (own ? own.day : o.day) ?? SEED_MENU_DAY;
-    roomFull[room] = full;
-    roomDay[room] = day;
-    const today = {} as Menu;
+    const served = {} as Menu;
     for (const [meal, cats] of Object.entries(full) as Array<[MealName, Record<string, MenuItem[]>]>) {
-      // A section with nothing on it today is left out, so no empty tab shows.
-      today[meal] = Object.fromEntries(
+      // A section with nothing on it that day is left out, so no empty tab shows.
+      served[meal] = Object.fromEntries(
         Object.entries(cats)
           .map(([c, list]) => [c, list.filter((it) => servedOn(it, day))] as const)
           .filter(([, list]) => list.length > 0),
       );
     }
-    if (room === DINING_ROOM) for (const meal of Object.keys(today) as MealName[]) replaceContents((menu[meal] ??= {}), today[meal]);
-    else roomToday[room] = today;
-    const byId = new Map<string, CatalogItem>();
-    for (const it of flatten(full)) if (!byId.has(it.id)) byId.set(it.id, it);
-    roomItems[room] = byId;
+    out[room] = { full, day, served };
+  }
+  return out;
+}
+
+const itemsById = (m: Menu): Map<string, CatalogItem> => {
+  const byId = new Map<string, CatalogItem>();
+  for (const it of flatten(m)) if (!byId.has(it.id)) byId.set(it.id, it);
+  return byId;
+};
+
+function applyMenuEdits(o: LiveMenuOverlay) {
+  for (const [room, { full, day, served }] of Object.entries(roomMenus(o))) {
+    roomFull[room] = full;
+    roomDay[room] = day;
+    if (room === DINING_ROOM) for (const meal of Object.keys(served) as MealName[]) replaceContents((menu[meal] ??= {}), served[meal]);
+    else roomToday[room] = served;
+    roomItems[room] = itemsById(full);
   }
   catalog.length = 0;
   catalog.push(...flatten(roomFull[DINING_ROOM]));
@@ -344,20 +366,29 @@ function applyMenuEdits(o: LiveMenuOverlay) {
   replaceContents(modifierRules.items, rules.items);
 }
 
-/** Today's menu in a room (kitchen): what its tablets order from. The dining room's when the room is unknown. */
-export function menuFor(room?: string | null): Menu {
+/**
+ * Today's menu in a room (kitchen): what its tablets order from. The dining
+ * room's when the room is unknown. With a later `date` ("YYYY-MM-DD", a pick
+ * up or delivery booked ahead), that day's menu: its cycle day's specials and
+ * the venue's à la carte choice then (see menusOn).
+ */
+export function menuFor(room?: string | null, date?: string | null): Menu {
+  const ahead = date ? menusOn(date) : null;
+  if (ahead) return (room && ahead[room]?.served) || ahead[DINING_ROOM].served;
   return (room && roomToday[room]) || menu;
 }
 
-/** Today's cycle day in a room; 0 when its venue serves no menu cycle. */
-export function menuDayOf(room?: string | null): number {
+/** Today's cycle day in a room (or a later date's); 0 when its venue serves no menu cycle. */
+export function menuDayOf(room?: string | null, date?: string | null): number {
+  const ahead = date ? menusOn(date) : null;
+  if (ahead) return (ahead[room ?? DINING_ROOM] ?? ahead[DINING_ROOM]).day;
   return roomDay[room ?? DINING_ROOM] ?? roomDay[DINING_ROOM] ?? SEED_MENU_DAY;
 }
 
 /** An item as a room's menu has it (that venue's prices), else as getItem has it. */
 export function itemIn(id: string | null | undefined, room?: string | null): CatalogItem | undefined {
   if (!id) return undefined;
-  return (room ? roomItems[room]?.get(id) : undefined) ?? getItem(id);
+  return (room ? (roomItems[room]?.get(id) ?? aheadItems[room]?.get(id)) : undefined) ?? getItem(id);
 }
 
 /** The item behind a check line, as the menu it was ordered from prices it (see OrderLine.room). */
@@ -371,18 +402,70 @@ export function priceRoom(o: { tableId?: string; room?: string }): string {
 }
 
 const todayCache = new Map<string, CatalogItem[]>();
-/** Today's items in a room, flattened with their meal and category (an item on several meals is listed on each). */
-export function todayCatalog(room?: string | null): CatalogItem[] {
-  const key = room && roomToday[room] ? room : DINING_ROOM;
-  let list = todayCache.get(key);
-  if (!list) todayCache.set(key, (list = flatten(menuFor(key))));
+/**
+ * Today's items in a room, flattened with their meal and category (an item on
+ * several meals is listed on each). With a later `date`, that day's.
+ */
+export function todayCatalog(room?: string | null, date?: string | null): CatalogItem[] {
+  const ahead = date ? menusOn(date) : null;
+  const key = room && (ahead ? ahead[room] : roomToday[room]) ? room : DINING_ROOM;
+  const cacheKey = ahead ? `${date} ${key}` : key;
+  let list = todayCache.get(cacheKey);
+  if (!list) todayCache.set(cacheKey, (list = flatten(menuFor(key, ahead ? date : null))));
   return list;
+}
+
+// ─── A later day's menu ──────────────────────────────────────────────────
+
+/*
+ * A pick up or delivery can be booked for a later day, and orders from that
+ * day's menu: the venue's cycle day then (its specials) and the à la carte
+ * choice it serves then. Back Office's menu model works out the overlay for
+ * a day (the same computeLive as today's, for that date); it loads after the
+ * screen and hands its function over with setMenuForDay. Until it has, or for
+ * today, the menus above are used, so today's path is unchanged.
+ */
+export type OverlayForDay = (date: string) => LiveMenuOverlay;
+let overlayForDay: OverlayForDay | null = null;
+const aheadMenus = new Map<string, Record<string, RoomMenus>>();
+/** Items only a later day's menu has (a dish Back Office put on next week), by room, so lines on them price and name. */
+const aheadItems: Record<string, Map<string, CatalogItem>> = {};
+
+/** Every room's menu on a later day, or null for today (or before the menu model has loaded). */
+function menusOn(date: string): Record<string, RoomMenus> | null {
+  if (!overlayForDay || date <= isoDay(today())) return null;
+  let rooms = aheadMenus.get(date);
+  if (!rooms) {
+    rooms = roomMenus(overlayForDay(date));
+    aheadMenus.set(date, rooms);
+    for (const [room, r] of Object.entries(rooms)) {
+      const known = (aheadItems[room] ??= new Map());
+      for (const [id, it] of itemsById(r.full)) if (!roomItems[room]?.has(id)) known.set(id, it);
+      ensureItems([...known.values()]);
+    }
+  }
+  return rooms;
+}
+
+/** Back Office's menu model hands over how to work out a later day's overlay (null stops it). */
+export function setMenuForDay(fn: OverlayForDay | null): void {
+  overlayForDay = fn;
+  forgetMenusAhead();
+}
+
+/** A change that could move a later day's menu (a venue's schedule): work it out again when next asked. */
+export function forgetMenusAhead(): void {
+  aheadMenus.clear();
+  todayCache.clear();
+  menuVersionNo++;
+  menuListeners.forEach((l) => l());
 }
 
 function syncMenuEdits() {
   const o = liveOverlay(menuEditsStore.get());
   if (o === appliedOverlay) return;
   appliedOverlay = o;
+  aheadMenus.clear();
   applyMenuEdits(o);
   menuVersionNo++;
   menuListeners.forEach((l) => l());

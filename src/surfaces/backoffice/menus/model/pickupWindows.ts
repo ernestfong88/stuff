@@ -4,8 +4,10 @@
  * ranges each venue offers (Pick Up Windows), stored in the service config
  * as minutes after midnight.
  */
+import { MEAL_WINDOWS } from '../../../../domain/pickupService/windows';
+import type { MealName } from '../../../../domain/types';
+
 const DAY: [number, number] = [360, 1320];
-const MEAL_SPAN: Record<string, [number, number]> = { Breakfast: [360, 660], Lunch: [660, 960], Dinner: [960, 1320] };
 const DEFAULT_SPANS: Array<[number, number]> = [
   [450, 570],
   [660, 810],
@@ -29,7 +31,7 @@ export function minutesLabel(v: number): string {
 
 /** Start minutes of the pick up ranges a venue offers at a meal. */
 export function pickupSlots(grid: unknown, room: string, meal: string): number[] {
-  const span = MEAL_SPAN[meal];
+  const span = MEAL_WINDOWS[meal as MealName];
   if (!span) return [];
   const own = (grid as Record<string, Record<string, unknown>> | undefined)?.[room]?.pickup;
   const slots = Array.isArray(own)

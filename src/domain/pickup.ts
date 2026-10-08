@@ -59,6 +59,31 @@ export function dayOffset(o: Pick<Order, 'forDate'> | null | undefined): number 
   return d > 0 ? d : 0;
 }
 
+/**
+ * A later day as staff say it: "Tomorrow", or "Fri 10/10" further out; ""
+ * for today (or a day gone by). Pick up and delivery orders booked ahead
+ * show it on the order, the PU & Delivery list and the kitchen screens.
+ */
+export function aheadDayLabel(date: string | null | undefined): string {
+  if (!date) return '';
+  const ahead = dayOffset({ forDate: date });
+  if (ahead <= 0) return '';
+  if (ahead === 1) return 'Tomorrow';
+  const d = new Date(date + 'T12:00:00');
+  return `${d.toLocaleDateString('en-US', { weekday: 'short' })} ${d.getMonth() + 1}/${d.getDate()}`;
+}
+
+/** The day an order is booked for, as aheadDayLabel says it ("" for today). */
+export const orderAheadLabel = (o: Pick<Order, 'forDate'> | null | undefined): string => aheadDayLabel(o?.forDate);
+
+/** "tomorrow " / "Fri 10/10 " before a clock time on a later day, or "" for today. */
+export function dayBefore(ts: number): string {
+  const d = new Date(ts);
+  const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const label = aheadDayLabel(iso);
+  return label ? (label === 'Tomorrow' ? 'tomorrow ' : label + ' ') : '';
+}
+
 /** Ticket times (minutes from fire to up at the pass) over the last seven dinners. */
 export const WEEK_TICKET_MINUTES = [12.4, 13.6, 11.8, 12.9, 14.2, 12.1, 12.8];
 

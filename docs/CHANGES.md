@@ -220,6 +220,15 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Pick up & delivery orders follow the menu cycle and à la carte
+- A pick up or delivery started on the server tablet (New check → *Not at a table?*, or the server's PU board) or on the PU & Delivery tablet orders from the menu for its venue, its day and its meal: that day's cycle specials and that meal's à la carte items, at the venue's prices. Back Office changes show at once, also on an order already open.
+- **Pick up day and time** on the order: *Today* or *Tomorrow*, then the times for the order's meal. The other meals that day are one tap away (*Dinner times*). A time in another meal moves the order to that meal and its menu; so does the meal switch at the top, which also moves the time to that meal's first open range.
+- Moving the order to another day or meal checks what is already on it. Items the new menu doesn't have are listed, with *Keep them* or *Remove them* (their sides go with them). Nothing is dropped without asking.
+- An order for tomorrow is booked for tomorrow: the kitchen fires it tomorrow, and today's 86 list and portion counts don't apply to it or count it. It shows the day on the order (*Tomorrow · Sequoia / Evergreen*), on the send button, on the PU & Delivery list (*Tomorrow, Lunch 12:15–12:30 PM*), and on Expo's not-fired tickets (*fires tomorrow 11:45 AM*). Cook's All day counts leave it out.
+- A resident's tomorrow order at the lobby kiosk now offers tomorrow's specials too.
+- Breakfast, lunch and dinner start at the same times everywhere: lunch at 10:30 AM, dinner at 3:00 PM. The meal a new order opens on, the meal a pick up time belongs to and the menu reference all agree. Before, pick up times counted 10:30 to 11:00 as breakfast and 3:00 to 4:00 as lunch, and the menu reference switched to lunch at 10:00. Back Office → Pick Up & Delivery offers each meal's ranges within the same hours.
+- A new pick up opened after its meal's last time (lunch at 2 PM) starts on the next meal with a time open.
+
 ### Menus: no dietitian approval; VT Fall 2026 unlocked
 - This app has no dietitian sign-off for menus yet, so it is gone from Back Office: the *Dietitian approval* column and *Send for approval* on Menu Cycle & À la Carte, the approval status in the menu cycle and à la carte builders, and the warnings in Venue Settings about serving a menu the dietitian hasn't approved. Unlocking a menu no longer mentions the dietitian.
 - Lock and Unlock work as before. Venue Settings still asks before serving a menu meant for another quarter, and still offers Undo.

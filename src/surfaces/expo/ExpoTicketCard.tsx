@@ -7,7 +7,7 @@ import { dinerName, dinerPerson } from '../../domain/orders';
 import { serverName } from '../../domain/servers';
 import { formatElapsed, formatTime } from '../../lib/format';
 import { firstSend } from '../../domain/courses';
-import { pickupDue } from '../../domain/pickup';
+import { dayBefore, orderAheadLabel, pickupDue } from '../../domain/pickup';
 import { itemReminders } from '../../store/menuEdits';
 import { Popover, cx, toast } from '../../ui';
 import { DinerPills } from '../kitchen/DinerPills';
@@ -71,9 +71,9 @@ export function expoLabel(t: ExpoTicket): string {
  */
 export function ticketClock(t: ExpoTicket, now: number): string {
   const unfired = t.lines.every((l) => l.kitchenState === 'scheduled');
-  if (unfired && t.order.fireAtTs && t.order.fireAtTs > now) return 'fires ' + formatTime(t.order.fireAtTs);
+  if (unfired && t.order.fireAtTs && t.order.fireAtTs > now) return 'fires ' + dayBefore(t.order.fireAtTs) + formatTime(t.order.fireAtTs);
   const due = t.order.queueType ? pickupDue(t.order) : 0;
-  if (unfired && due > now) return 'due ' + formatTime(due);
+  if (unfired && due > now) return 'due ' + dayBefore(due) + formatTime(due);
   return formatElapsed(now - t.firedAt);
 }
 
@@ -142,7 +142,11 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
               {formatTime(firstSend(o) ?? t.firedAt)}
             </span>
           )}
-          {o.readyAt && <span className={s.window}>{o.readyAt === 'ASAP' ? 'ASAP' : pickupWindow(o.readyAt)}</span>}
+          {o.readyAt && (
+            <span className={s.window}>
+              {(orderAheadLabel(o) ? orderAheadLabel(o) + ' ' : '') + (o.readyAt === 'ASAP' ? 'ASAP' : pickupWindow(o.readyAt))}
+            </span>
+          )}
           {who && queue && <span className={s.who}>{who}</span>}
           {o.source === 'kiosk' && <span className={s.serverPill}>{o.utensils ? 'Utensils' : 'No utensils'}</span>}
           <span className={cx(s.state, s[`state_${state}`], changed && s.statePop)}>{TICKET_STATE_LABEL[state]}</span>

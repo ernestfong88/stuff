@@ -1,6 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { Star } from 'lucide-react';
-import { getItem } from '../../../../data';
+import { getItem, useMenuVersion } from '../../../../data';
 import { flag } from '../../../../domain/config';
 import { hasFoodConflict } from '../../../../domain/allergens';
 import { availableCount, findLine } from '../../../../domain/orders';
@@ -21,6 +21,7 @@ import {
   effectiveDrinkGroup,
   menuSections,
   menuTabs,
+  orderMenuDate,
   orderMenuRoom,
   type DrinkGroup,
   type MenuSection,
@@ -73,23 +74,27 @@ export function MenuPanel({
   const tabsRef = useRef<HTMLDivElement>(null);
   // A guest's diner points at the host, whose allergies are not the guest's.
   const person = allergyPerson(diner);
+  // Re-render when Back Office changes the menu, so an open order shows the change at once.
+  useMenuVersion();
   const room = orderMenuRoom(o);
-  const tabs = menuTabs(o.meal, room);
-  const sections = menuSections(o.meal, tab, { drinkGroup, room, search, cfg });
+  // A pick up or delivery booked for a later day orders from that day's menu.
+  const date = orderMenuDate(o);
+  const tabs = menuTabs(o.meal, room, date);
+  const sections = menuSections(o.meal, tab, { drinkGroup, room, search, cfg, date });
   const isResident = diner.kind === 'resident' && !diner.isGuest;
   // An associate's meal is locked to the associate menu: the chef's special, the special of the week and the standing choices.
   const assocOnly = !!o.assoc || diner.kind === 'associate';
   useAssocMenuSettings();
-  const assoc = assocOnly ? assocSections(todaysAssocMenu(o.meal, isoDate(0)), o.meal) : [];
+  const assoc = assocOnly ? assocSections(todaysAssocMenu(o.meal, date ?? isoDate(0)), o.meal) : [];
   // The special's daily limit counts App meals and meals rung in here; one this diner already has stays theirs.
   const assocLeft = (sec: AssocSection) => {
     if (diner.items.some((l) => !l.cancelled && sec.items.some((i) => i.id === l.itemId))) return null;
-    return assocSectionLeft(sec, dining.assocOrders, [...dining.orders, ...dining.history], isoDate(0));
+    return assocSectionLeft(sec, dining.assocOrders, [...dining.orders, ...dining.history], date ?? isoDate(0));
   };
-  // A count the manager set on the 86 list caps the menu's own limit.
+  // A count the manager set on the 86 list caps the menu's own limit. Both are today's: a later day's order ignores them.
   const marks = use86();
   const todays = ordersToday(dining.orders, dining.history);
-  const left = (id: string) => fewerLeft(availableCount(id, dining.orders), limitLeft(marks, id, todays));
+  const left = (id: string) => (date ? null : fewerLeft(availableCount(id, dining.orders), limitLeft(marks, id, todays)));
 
   const add = (item: MenuItem, mods: ModSelection, note: string) => {
     dining.addItem(o.id, diner.id, item.id, mods, note, sideParentFor(item.id, diner));
@@ -126,8 +131,8 @@ export function MenuPanel({
       )}
       {!assocOnly && !search && tab === 'Drinks' && (
         <div className={s.pills} role="group" aria-label="Drinks">
-          {drinkGroups(o.meal, o.room).map(([g]) => {
-            const on = effectiveDrinkGroup(o.meal, o.room, drinkGroup) === g;
+          {drinkGroups(o.meal, o.room, date).map(([g]) => {
+            const on = effectiveDrinkGroup(o.meal, o.room, drinkGroup, date) === g;
             return (
               <button key={g} aria-pressed={on} className={cx(s.pill, on && s.pillOn)} onClick={() => setDrinkGroup(g)}>
                 {g}
@@ -148,6 +153,7 @@ export function MenuPanel({
                   special={sec.special}
                   allergic={hasFoodConflict(it, person)}
                   left={assocLeft(sec) ?? left(it.id)}
+                  ahead={!!date}
                   onAdd={() => tap(it)}
                   onModify={() => setModItem(it)}
                 />
@@ -173,6 +179,7 @@ export function MenuPanel({
                   special={it.day > 0 || !!it.special}
                   allergic={hasFoodConflict(it, person)}
                   left={left(it.id)}
+                  ahead={!!date}
                   tint={sec.tint}
                   onAdd={() => tap(it)}
                   onModify={() => setModItem(it)}
@@ -182,7 +189,9 @@ export function MenuPanel({
           ))}
           {sections.length === 0 && (
             <div className={s.empty}>
-              {search ? `No ${o.meal.toLowerCase()} items match “${search}”.` : "Nothing on today's menu in this category."}
+              {search
+                ? `No ${o.meal.toLowerCase()} items match “${search}”.`
+                : `Nothing on ${date ? 'that day’s' : "today's"} menu in this category.`}
             </div>
           )}
         </div>

@@ -3,11 +3,13 @@ import { Trash2, UserPlus } from 'lucide-react';
 import { getItem, getTable } from '../../../data';
 import { dinerName, findLine, tableName } from '../../../domain/orders';
 import { isEmptyCheck } from '../../../domain/seating';
-import type { Diner, Order, QueueType, Resident } from '../../../domain/types';
+import type { Diner, MealName, Order, QueueType, Resident } from '../../../domain/types';
 import { now } from '../../../lib/clock';
 import { printerMode } from '../../../domain/config';
 import { useConfig } from '../../../store/config';
 import { printWarning } from '../../../store/kitchenPrint';
+import { liveOverlay } from '../../../store/menuEdits';
+import { isoDate } from '../../../domain/pickup';
 import { useDining } from '../../../store/dining';
 import { useSession } from '../../../store/session';
 import { useMe } from '../../../shell/session';
@@ -20,13 +22,16 @@ import { allergyPerson } from './diners/allergyPerson';
 import { DinerCard } from './diners/DinerCard';
 import { SpouseSuggest, spouseToAdd } from './diners/SpouseSuggest';
 import { afterPick } from './menu/afterPick';
-import { menuTabs, orderMenuRoom, type MenuTab } from './menu/menuCatalog';
+import { menuTabs, orderMenuDate, orderMenuRoom, type MenuTab } from './menu/menuCatalog';
 import { MenuPanel } from './menu/MenuPanel';
 import { ModifierEditor } from './menu/ModifierEditor';
 import { OrderHeader } from './OrderHeader';
 import s from './OrderScreen.module.css';
 import { HospiceWaiver, SickWaiver } from './queue/FeeWaivers';
+import { dayTimes, landing, timeContext } from './queue/orderWhen';
 import { PickupTime } from './queue/PickupTime';
+import { orderDate, rangesOn } from './queue/pickupWindows';
+import { useOrderWhen } from './queue/useOrderWhen';
 import { SendBar } from './SendBar';
 import { closeCheck, type CloseCheck } from './checkLines';
 import { UnsentCloseDialog, type UnsentChoice } from './UnsentCloseDialog';
@@ -63,6 +68,12 @@ export function OrderScreen({ orderId, onClose, initialCategory }: OrderScreenPr
     if (!o) closeRef.current();
   }, [o]);
 
+  // The floor's menu is worked out for a day; one saved on another day (nothing noticed the day turn yet) is worked out again.
+  useEffect(() => {
+    if (import.meta.env.MODE === 'test' || liveOverlay().date === isoDate(0)) return;
+    void import('../../backoffice/menus/data').then((m) => m.freshenLiveMenu());
+  }, []);
+
   // A host seated the table: the first time the server opens it counts as the greeting.
   const greeted = useRef(false);
   useEffect(() => {
@@ -79,7 +90,8 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
   const dining = useDining();
   const cfg = useConfig();
   const menuRoom = orderMenuRoom(o);
-  const tabs = menuTabs(o.meal, menuRoom);
+  const menuDate = orderMenuDate(o);
+  const tabs = menuTabs(o.meal, menuRoom, menuDate);
   const startTab = (): MenuTab =>
     initialCategory && tabs.includes(initialCategory as MenuTab) ? (initialCategory as MenuTab) : (tabs[0] ?? 'Entrees');
   const [selected, setSelected] = useState<string | null>(o.diners[0]?.id ?? null);
@@ -97,14 +109,25 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
   // Close & charge with work still out asks first (items never sent, plates still cooking).
   const [closeAsk, setCloseAsk] = useState<CloseCheck | null>(null);
   const me = useMe().initials;
+  // A pick up or delivery's day, meal and time move together, and ask about lines the new menu doesn't have.
+  const when = useOrderWhen(o);
+  const switchMeal = (meal: MealName) => {
+    if (!o.queueType) return dining.setOrderMeal(o.id, meal);
+    const date = orderDate(o);
+    const q = o as Order & { queueType: QueueType };
+    const l = rangesOn(o.queueType)
+      ? landing(o, dayTimes(q, date, timeContext(o, { orders: dining.orders, history: dining.history, assoc: dining.assocOrders })), { meal })
+      : { meal, readyAt: o.readyAt ?? null };
+    when.change({ date, ...l });
+  };
 
-  // Switching the check's meal starts its menu on the first tab.
-  const meal = useRef(o.meal);
+  // Switching the check's meal (or a pick up's day) starts its menu on the first tab.
+  const meal = useRef(o.meal + ' ' + menuDate);
   useEffect(() => {
-    if (meal.current === o.meal) return;
-    meal.current = o.meal;
-    setTab(menuTabs(o.meal, menuRoom)[0] ?? 'Entrees');
-  }, [o.meal, menuRoom]);
+    if (meal.current === o.meal + ' ' + menuDate) return;
+    meal.current = o.meal + ' ' + menuDate;
+    setTab(menuTabs(o.meal, menuRoom, menuDate)[0] ?? 'Entrees');
+  }, [o.meal, menuRoom, menuDate]);
 
   // Keep a diner selected when the selected one leaves.
   useEffect(() => {
@@ -214,7 +237,7 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
 
   return (
     <div className={s.screen}>
-      <OrderHeader order={o} onBack={leave} />
+      <OrderHeader order={o} onBack={leave} onMeal={switchMeal} />
       <div className={s.body}>
         <section className={cx(s.diners, 'scroll')} aria-label="Diners">
           {o.diners.map((d) => (
@@ -275,7 +298,7 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
               <Trash2 size={15} aria-hidden /> Void empty check
             </button>
           )}
-          {o.queueType && <PickupTime order={o as Order & { queueType: QueueType }} />}
+          {o.queueType && <PickupTime order={o as Order & { queueType: QueueType }} onWhen={when.change} />}
           {o.queueType === 'delivery' && <HospiceWaiver order={o} />}
           {o.queueType === 'delivery' && <SickWaiver order={o} />}
         </section>
@@ -319,6 +342,7 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
       {closeAsk && <UnsentCloseDialog check={closeAsk} onChoose={chooseClose} onCancel={() => setCloseAsk(null)} />}
       <ResidentProfileSheet residentId={profile} onClose={() => setProfile(null)} />
       {confirmDialog}
+      {when.dialog}
       <TakeoverDialog />
     </div>
   );

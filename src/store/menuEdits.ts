@@ -244,6 +244,8 @@ export interface LiveMenuOverlay {
    * overlay saved before the floor followed the venue's cycle.
    */
   day?: number;
+  /** The day ("YYYY-MM-DD") it was worked out for; missing in an overlay saved before it was kept. */
+  date?: string;
   /**
    * The other rooms (kitchens): each orders from its own venue's menu at its
    * own prices. A room not listed uses the dining room's menu.

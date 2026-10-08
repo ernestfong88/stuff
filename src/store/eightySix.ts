@@ -6,6 +6,7 @@
  * because each mark only counts for the day it was made (marks are stored
  * with the demo-clock date they were made on).
  */
+import { dayOffset } from '../domain/pickup';
 import type { Order } from '../domain/types';
 import { startOfToday, today } from '../lib/clock';
 import { createSharedStore, useShared } from '../lib/sharedStore';
@@ -54,10 +55,10 @@ export function limitOf(marks: EightySixMarks, itemId: string): EightySixLimit |
   return typeof m === 'object' && m.day === day() ? m : null;
 }
 
-/** Orders that count toward today's portions: open checks and checks closed today. */
+/** Orders that count toward today's portions: open checks and checks closed today (not a pick up booked for a later day). */
 export function ordersToday(orders: Order[], history: Order[]): Order[] {
   const start = startOfToday();
-  return [...orders, ...history.filter((o) => o.openedAt >= start)];
+  return [...orders.filter((o) => dayOffset(o) === 0), ...history.filter((o) => o.openedAt >= start)];
 }
 
 /** How many of the item are on these orders. */

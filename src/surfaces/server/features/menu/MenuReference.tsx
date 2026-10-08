@@ -25,7 +25,7 @@ function OutBadge() {
  */
 export function MenuReference({ meal: initialMeal, onClose }: { meal?: MealName; onClose: () => void }) {
   const marks = use86();
-  const [meal, setMeal] = useState<MealName>(initialMeal ?? mealAt(today().getHours()));
+  const [meal, setMeal] = useState<MealName>(initialMeal ?? mealAt(today().getHours() + today().getMinutes() / 60));
   const [photos, setPhotos] = useState(false);
   const [view, setView] = useState<MenuItem | null>(null);
   const { specials, categories, all } = menuSections(meal);

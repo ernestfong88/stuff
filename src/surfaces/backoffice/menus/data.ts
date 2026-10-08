@@ -4,7 +4,7 @@
  * recomputes what the floor sees.
  */
 import { useSyncExternalStore } from 'react';
-import { pinSeq, SEED_GRID, TURNED_MENUS } from '../../../data';
+import { forgetMenusAhead, pinSeq, SEED_GRID, setMenuForDay, TURNED_MENUS } from '../../../data';
 import { revive } from '../../../data/revive';
 import { now } from '../../../lib/clock';
 import { venueSettingsStore, type VenueSettings } from '../../../store/venueSettings';
@@ -19,7 +19,7 @@ import {
   type SideOverrides,
   type VenueSchedule,
 } from '../../../store/menuEdits';
-import { isoDay, quarterIndexOf, quarterLabel, quarterMenuName, seedShift, shiftDay } from '../../../domain/menuCycle';
+import { isoDay, parseIsoDay, quarterIndexOf, quarterLabel, quarterMenuName, seedShift, shiftDay } from '../../../domain/menuCycle';
 import { computeLive } from './model/liveOverlay';
 import { tabletIndex } from './model/tablet';
 import type { BoState } from './model/types';
@@ -141,11 +141,35 @@ export function liveNow(edits: MenuEditsState = menuEditsStore.get()): LiveMenuO
 }
 
 /**
+ * What the floor would see on a later day ("YYYY-MM-DD"): the same overlay
+ * as today's, worked out at noon that day, so a pick up or delivery booked
+ * ahead orders from that day's cycle specials and à la carte choice.
+ */
+export function liveOn(date: string, edits: MenuEditsState = menuEditsStore.get()): LiveMenuOverlay {
+  const day = parseIsoDay(date);
+  const at = day ? day.getTime() + 12 * 3_600_000 : now();
+  return computeLive({ state: boStateOf(edits), seed: SEED, idx: tabletIndex(), ruleDefaults: RULE_DEFAULTS, pinSeq, at });
+}
+
+/**
+ * Work out what the floor sees again when the saved copy is from another day
+ * (a tab left open overnight before it noticed, or a copy saved before the
+ * overlay kept its day). An order screen calls it when it opens.
+ */
+export function freshenLiveMenu(): void {
+  const edits = menuEditsStore.get();
+  if (edits.live?.date === isoDay(new Date(now()))) return;
+  const live = liveNow(edits);
+  if (JSON.stringify(live) !== JSON.stringify(edits.live)) menuEditsStore.set((p) => ({ ...p, live }));
+}
+
+/**
  * Keep what the floor sees up to date in this tab, with nobody editing in
  * Back Office: when a venue's menu or "Week 1 started" changes, after a demo
  * reset, and when the day rolls over (a new cycle day, so new specials, and
  * a scheduled menu that starts today). Writes only when the result differs,
- * so every open tab can run it. Returns a function that stops it.
+ * so every open tab can run it. Also hands the floor the way to work out a
+ * later day's menu (see liveOn). Returns a function that stops it.
  */
 export function keepLiveMenu(): () => void {
   let busy = false;
@@ -161,8 +185,13 @@ export function keepLiveMenu(): () => void {
       busy = false;
     }
   };
+  setMenuForDay((date) => liveOn(date));
   check();
-  const offVenues = venueSettingsStore.subscribe(check);
+  // A venue's schedule can change a later day's menu without changing today's.
+  const offVenues = venueSettingsStore.subscribe(() => {
+    check();
+    forgetMenusAhead();
+  });
   // A reset (or a copy saved before the floor followed each venue) has no rooms yet.
   const offEdits = menuEditsStore.subscribe(() => {
     if (!menuEditsStore.get().live?.rooms) check();
@@ -177,6 +206,7 @@ export function keepLiveMenu(): () => void {
     offVenues();
     offEdits();
     clearInterval(timer);
+    setMenuForDay(null);
   };
 }
 

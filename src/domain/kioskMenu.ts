@@ -182,11 +182,13 @@ const isBottle = (it: CatalogItem) => /^BTL\s*-/i.test(it.name);
 
 /**
  * What the kiosk offers for a meal; `isOut` hides what the kitchen 86'd.
- * Only today's menu: the dining room's every-day items and today's specials
- * (a special taken off in Menu Cycle, or another day's, is not offered).
+ * Only that day's menu: the dining room's every-day items and the day's
+ * specials (a special taken off in Menu Cycle, or another day's, is not
+ * offered). Today's unless `date` ("YYYY-MM-DD") is a later day, for an
+ * order booked for tomorrow.
  */
-export function kioskMenu(meal: MealName, isOut: (id: string) => boolean): KioskMenu {
-  const items = todayCatalog().filter((it) => it.meal === meal && !isOut(it.id) && it.category !== 'Snacks');
+export function kioskMenu(meal: MealName, isOut: (id: string) => boolean, date?: string | null): KioskMenu {
+  const items = todayCatalog(null, date).filter((it) => it.meal === meal && !isOut(it.id) && it.category !== 'Snacks');
   const inCat = (...cats: string[]) => items.filter((it) => cats.includes(it.category));
   const mains = inCat('Specials', 'Entrées');
   const regular = mains.filter((it) => !it.special);

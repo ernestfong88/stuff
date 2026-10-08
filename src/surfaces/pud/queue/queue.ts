@@ -7,7 +7,9 @@ import { MINUTE } from '../../../lib/clock';
 import {
   clockLabel,
   clockMinutes,
+  dayBefore,
   dayOffset,
+  orderAheadLabel,
   parseClockTime,
   pickupDue,
   pickupLateMinutes,
@@ -75,12 +77,19 @@ export function groupSlots(rows: QueueRow[]): QueueSlot[] {
   return slots;
 }
 
-/** "5:00 to 5:15 PM", with "Tomorrow" for an order booked ahead. */
+/** "5:00 to 5:15 PM", with "Tomorrow" (or "Fri 10/10") for an order booked ahead. */
 export function slotHeading(slot: QueueSlot): string {
   const o = slot.rows[0].order;
   const label = parseClockTime(o.readyAt) ? rangeOf(o.readyAt) : clockLabel(slot.due);
-  const ahead = dayOffset(o);
-  return ahead === 1 ? `Tomorrow · ${label}` : ahead > 1 ? `In ${ahead} days · ${label}` : label;
+  const ahead = orderAheadLabel(o);
+  return ahead ? `${ahead} · ${label}` : label;
+}
+
+/** An order booked for a later day, as its card says when: "Tomorrow, Lunch 12:15–12:30 PM"; "" for today. */
+export function aheadWhen(o: Order): string {
+  const ahead = orderAheadLabel(o);
+  if (!ahead) return '';
+  return `${ahead}, ${o.meal}${parseClockTime(o.readyAt) ? ' ' + rangeOf(o.readyAt).replace(' to ', '–') : ''}`;
 }
 
 /** "1 pick up · 2 deliveries" */
@@ -152,6 +161,8 @@ export type DueTone = 'late' | 'past' | 'soon' | 'later';
 
 /** "6m late", "2m past", "due now", "in 24m". */
 export function dueText(r: QueueRow, at: number): { text: string; tone: DueTone } {
+  // Booked for a later day: say the day, not "in 23h".
+  if (dayOffset(r.order) > 0) return { text: aheadWhen(r.order), tone: 'later' };
   const d = r.due - at;
   if (isLate(r, at)) return { text: `${spanLabel(d)} late`, tone: 'late' };
   if (d < -MINUTE) return { text: `${spanLabel(d)} past`, tone: 'past' };
@@ -182,8 +193,10 @@ export function stageView(r: QueueRow, at: number, ctx: TextContext, leadMinutes
   switch (r.stage) {
     case 'draft':
       return { label: 'Not sent yet', tone: 'muted', detail: 'Finish the order to send it' };
-    case 'scheduled':
-      return { label: 'Scheduled', tone: 'coast', detail: `Kitchen fires at ${clockLabel(o.fireAtTs || r.due - leadMinutes * MINUTE)}` };
+    case 'scheduled': {
+      const fires = o.fireAtTs || r.due - leadMinutes * MINUTE;
+      return { label: 'Scheduled', tone: 'coast', detail: `Kitchen fires ${dayBefore(fires)}at ${clockLabel(fires)}` };
+    }
     case 'cooking':
       return { label: 'In the kitchen', tone: 'clay', detail: `Cooking ${spanLabel(at - cookingSince(o))}` };
     case 'ready':

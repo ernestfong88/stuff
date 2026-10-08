@@ -17,6 +17,7 @@
 import type { MealName, MenuItem, ModGroup } from '../../../../domain/types';
 import type { GridEntry, LiveItemPatch, LiveMenuOverlay, LiveRoomMenu, LiveRuledGroup, ModRuleEdit, Recipe, VenueSchedule } from '../../../../store/menuEdits';
 import { DINING_ROOM, roomVenue, venueServing, type VenueServing } from '../../../../store/venueMenu';
+import { isoDay } from '../../../../domain/menuCycle';
 import { rooms } from '../../../../data';
 import { normCategory, subOf, subToEntreeType } from './categories';
 import { resolveRule, ruleIsSet } from './modRules';
@@ -199,7 +200,15 @@ export function computeLive({ state, seed, idx, ruleDefaults, pinSeq, at }: Live
     for (const id of idx.idsOf.get(r.id) ?? [r.id]) reminders[id] = r.reminders;
   }
 
-  const out: LiveMenuOverlay = { items: dining.items, added: dining.added, removed, reminders, day: dining.day, rooms: others };
+  const out: LiveMenuOverlay = {
+    items: dining.items,
+    added: dining.added,
+    removed,
+    reminders,
+    day: dining.day,
+    date: isoDay(new Date(at)),
+    rooms: others,
+  };
   if (state.modGroups !== seed.modGroups || Object.keys(state.modRules).length) {
     const allAdded = [...dining.added, ...Object.values(others).flatMap((r) => r.added)];
     Object.assign(out, liveModifiers(state, idx, ruleDefaults, pinSeq, allAdded));

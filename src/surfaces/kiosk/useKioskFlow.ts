@@ -19,10 +19,10 @@ export interface KioskFlow {
 }
 
 /** The kiosk's answers and the screen history behind Back. */
-export function useKioskFlow(menuFor: (meal: MealName) => KioskMenu): KioskFlow {
+export function useKioskFlow(menuFor: (meal: MealName, date: string | null) => KioskMenu): KioskFlow {
   const [s, setS] = useState<KioskState>(INITIAL_STATE);
   const [history, setHistory] = useState<Screen[]>([]);
-  const menu = useMemo(() => (s.meal ? menuFor(s.meal) : null), [s.meal, menuFor]);
+  const menu = useMemo(() => (s.meal ? menuFor(s.meal, s.date) : null), [s.meal, s.date, menuFor]);
 
   const reset = useCallback(() => {
     setS(INITIAL_STATE);
@@ -42,7 +42,7 @@ export function useKioskFlow(menuFor: (meal: MealName) => KioskMenu): KioskFlow 
   const advance = useCallback(
     (patch: Partial<KioskState> = {}) => {
       const q = { ...s, ...patch };
-      const next = nextStep(q, q.meal ? menuFor(q.meal) : null);
+      const next = nextStep(q, q.meal ? menuFor(q.meal, q.date) : null);
       go(next, next === 'review' ? { ...patch, edit: false } : patch);
     },
     [s, menuFor, go],

@@ -16,6 +16,7 @@ export function MenuTile({
   special,
   allergic,
   left,
+  ahead,
   tint,
   onAdd,
   onModify,
@@ -26,13 +27,15 @@ export function MenuTile({
   allergic: boolean;
   /** Portions left of a limited item, null when unlimited. */
   left: number | null;
+  /** The order is for a later day: today's 86 list doesn't apply. */
+  ahead?: boolean;
   /** Tile [background, ink] from its group. */
   tint?: [string, string];
   onAdd: () => void;
   onModify: () => void;
 }) {
   const cfg = useConfig();
-  const out = useIs86(item.id);
+  const out = useIs86(item.id) && !ahead;
   const soldOut = left === 0 || out;
   return (
     <div className={cx(s.tile, special && s.special, soldOut && s.soldOut)} style={!soldOut && tint ? { background: tint[0] } : undefined}>

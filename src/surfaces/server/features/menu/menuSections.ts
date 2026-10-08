@@ -1,13 +1,12 @@
 import { menu } from '../../../../data';
 import { isDrink } from '../../../../domain/menu';
+import { mealAtHour } from '../../../../domain/mealPeriods';
 import type { MealName, MenuItem } from '../../../../domain/types';
 
 export const MEALS: MealName[] = ['Breakfast', 'Lunch', 'Dinner'];
 
-/** The meal being served at an hour of the day: breakfast until 10, lunch until 3, then dinner. */
-export function mealAt(hour: number): MealName {
-  return hour < 10 ? 'Breakfast' : hour < 15 ? 'Lunch' : 'Dinner';
-}
+/** The meal being served at an hour of the day (see domain/mealPeriods: breakfast until 10:30, lunch until 3, then dinner). */
+export const mealAt = (hour: number): MealName => mealAtHour(hour);
 
 export interface MenuSections {
   /** Today's specials, entrées first, then starters, sides, desserts. */

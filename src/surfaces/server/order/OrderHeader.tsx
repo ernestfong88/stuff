@@ -2,7 +2,8 @@ import { useRef, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { rooms } from '../../../data';
 import { tableName } from '../../../domain/orders';
-import type { Order } from '../../../domain/types';
+import { orderAheadLabel } from '../../../domain/pickup';
+import type { MealName, Order } from '../../../domain/types';
 import { minutesSince, now } from '../../../lib/clock';
 import { ModeChip, TextZoom } from '../../../shell/controls';
 import { useFitLevel } from '../../../shell/headerFit';
@@ -12,9 +13,10 @@ import { CompDialog } from '../shared/ManagerPin';
 import { MealSwitch } from './MealSwitch';
 import s from './OrderHeader.module.css';
 
-/** Back, which check this is, its meal, the menu reference and (pick up / delivery) a manager comp. */
-export function OrderHeader({ order: o, onBack }: { order: Order; onBack: () => void }) {
-  const { setOrderMeal, setOrderComp } = useDining();
+/** Back, which check this is (a pick up booked ahead: its day), its meal, the menu reference and (pick up / delivery) a manager comp. */
+export function OrderHeader({ order: o, onBack, onMeal }: { order: Order; onBack: () => void; onMeal: (meal: MealName) => void }) {
+  const { setOrderComp } = useDining();
+  const ahead = o.queueType ? orderAheadLabel(o) : '';
   const [askComp, setAskComp] = useState(false);
   const title = o.queueType ? tableName(o) : `Table ${tableName(o)}`;
   // Folds to fit one row (see shell/headerFit): 1 the meals drop their icons, 2 Back keeps its arrow, 3 "Comp…", 4 no text size %; past that it wraps.
@@ -28,9 +30,12 @@ export function OrderHeader({ order: o, onBack }: { order: Order; onBack: () => 
       </button>
       <div className={s.titles}>
         <h1 className={s.title}>{title}</h1>
-        <div className={s.sub}>{(rooms[o.room]?.name ?? o.room) + ' · ' + minutesSince(o.openedAt) + 'm · ' + o.server}</div>
+        <div className={s.sub}>
+          {ahead && <b className={s.ahead}>{ahead + ' · '}</b>}
+          {(rooms[o.room]?.name ?? o.room) + ' · ' + minutesSince(o.openedAt) + 'm · ' + o.server}
+        </div>
       </div>
-      <MealSwitch meal={o.meal} compact={fit >= 1} onChange={(m) => setOrderMeal(o.id, m)} />
+      <MealSwitch meal={o.meal} compact={fit >= 1} onChange={onMeal} />
       <MenuReferenceButton short />
       {o.queueType &&
         (o.comp ? (

@@ -10,12 +10,12 @@
  */
 import type { AssocMeal, MealName, Order, QueueType } from '../../../../domain/types';
 import { isoDate } from '../../../../domain/pickup';
+import { MEAL_WINDOWS } from '../../../../domain/pickupService/windows';
 import { getSetting } from '../../../../store/serviceConfig';
 
 type WindowType = QueueType | 'assoc';
 
 const DAY_SPAN: [number, number] = [360, 1320];
-const MEAL_SPAN: Record<MealName, [number, number]> = { Breakfast: [360, 660], Lunch: [660, 960], Dinner: [960, 1320] };
 const DEFAULT_RANGES: Record<WindowType, Array<[number, number]>> = {
   pickup: [
     [450, 570],
@@ -91,7 +91,7 @@ export interface PickupWindow {
 
 /** __kWindows: the ranges a venue offers for a type during a meal. */
 export function windowsFor(type: WindowType, room: string, meal: MealName): PickupWindow[] {
-  const span = MEAL_SPAN[meal];
+  const span = MEAL_WINDOWS[meal];
   if (!span) return [];
   return rangeStarts(room, type)
     .filter((s) => s >= span[0] && s < span[1])

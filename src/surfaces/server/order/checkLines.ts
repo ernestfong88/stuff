@@ -12,7 +12,7 @@ import { drinkRoute } from '../../../domain/routing';
 import type { Diner, Order, OrderLine } from '../../../domain/types';
 import { ordinal } from '../../../lib/format';
 import { now } from '../../../lib/clock';
-import { clockLabel } from '../../../domain/pickup';
+import { clockLabel, dayBefore } from '../../../domain/pickup';
 import { getConfig } from '../../../store/config';
 
 /**
@@ -130,7 +130,7 @@ export function sendLabel(o: Order, lines: OrderLine[], held: number, cfg: Dinin
 export function sentMessage(o: Order, at: number = now(), cfg: DiningConfig = DEFAULT_CONFIG): string {
   // A pick up or delivery booked ahead waits for its fire time.
   if (o.queueType && o.fireAtTs && o.fireAtTs > at)
-    return `Scheduled · the kitchen ${printerMode(cfg) ? 'gets the ticket' : 'fires it'} at ${clockLabel(o.fireAtTs)}`;
+    return `Scheduled · the kitchen ${printerMode(cfg) ? 'gets the ticket' : 'fires it'} ${dayBefore(o.fireAtTs)}at ${clockLabel(o.fireAtTs)}`;
   const lines = o.diners.flatMap((d) => d.items.filter((i) => i.sent && !i.cancelled));
   const latest = Math.max(0, ...lines.map((i) => i.firedAt || 0));
   const last = lines.filter((i) => (i.firedAt || 0) >= latest - 3000);

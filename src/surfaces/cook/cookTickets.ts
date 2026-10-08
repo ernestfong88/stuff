@@ -14,6 +14,7 @@
 import { getItem } from '../../data';
 import type { DiningConfig } from '../../domain/config';
 import { defaultSides, isSide } from '../../domain/menu';
+import { dayOffset } from '../../domain/pickup';
 import { lineFoodRoute } from '../../domain/routing';
 import type { Diner, Order, OrderLine } from '../../domain/types';
 
@@ -171,6 +172,8 @@ export interface AllDayCount {
 export function notFiredLines(orders: readonly Order[], opts: CookTicketOptions): OrderLine[] {
   const out: OrderLine[] = [];
   for (const o of orders) {
+    // A pick up or delivery booked for a later day is that day's work, not today's.
+    if (dayOffset(o) > 0) continue;
     const room = o.room || DEFAULT_ROOM;
     for (const d of o.diners)
       for (const i of d.items) {

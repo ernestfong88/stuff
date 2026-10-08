@@ -78,6 +78,9 @@ describe('the open list', () => {
   it('labels a range booked for tomorrow', () => {
     const slots = groupSlots(openRows([order('t', { forDate: '2026-10-08' })]));
     expect(slotHeading(slots[0])).toBe('Tomorrow · 6:15 to 6:30 PM');
+    // Its card says the day and meal, not "in 24h".
+    expect(dueText(slots[0].rows[0], T0)).toEqual({ text: 'Tomorrow, Dinner 6:15–6:30 PM', tone: 'later' });
+    expect(slotHeading(groupSlots(openRows([order('f', { forDate: '2026-10-09' })]))[0])).toBe('Fri 10/9 · 6:15 to 6:30 PM');
   });
 
   it('is late a full minute past the promise, but never while waiting at the counter', () => {

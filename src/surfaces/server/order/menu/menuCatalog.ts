@@ -9,6 +9,7 @@ import { COCKTAIL_ROOMS } from '../../../../domain/routing';
 import type { MealName, MenuItem } from '../../../../domain/types';
 import { DEFAULT_CONFIG, type DiningConfig } from '../../../../domain/config';
 import { tableRoom } from '../../../../domain/venue';
+import { aheadDayLabel, isoDate } from '../../../../domain/pickup';
 import type { Order } from '../../../../domain/types';
 
 /**
@@ -22,24 +23,30 @@ export const todayMenuDay = (room?: string | null): number => menuDayOf(room);
 /** The room whose menu a check orders from: where its table is (a pick up or delivery: its venue). */
 export const orderMenuRoom = (o: Pick<Order, 'tableId' | 'room'>): string => tableRoom(o);
 
+/**
+ * The later day a pick up or delivery is booked for, whose menu it orders
+ * from; null for today (and for a dine-in check), which orders from today's.
+ */
+export const orderMenuDate = (o: Pick<Order, 'forDate'>): string | null => (o.forDate && o.forDate > isoDate(0) ? o.forDate : null);
+
 export type MenuTab = 'Drinks' | 'Specials' | 'Starters' | 'Entrees' | 'Sides' | 'Desserts';
 
 /** Entrées and the day's specials both count as mains. */
 const MAINS = ['Specials', 'Entrées'];
 
 type MealMenu = Record<string, MenuItem[]>;
-/** A meal's menu in a room today (the dining room's when no room is given). */
-const mealMenu = (meal: MealName, room?: string | null): MealMenu => menuFor(room)[meal] ?? {};
+/** A meal's menu in a room today, or on a later `date` (the dining room's when no room is given). */
+const mealMenu = (meal: MealName, room?: string | null, date?: string | null): MealMenu => menuFor(room, date)[meal] ?? {};
 
-/** Served today in the room: an every-day item, or one on today's cycle day. */
-export const isToday = (it: Pick<MenuItem, 'day'>, room?: string | null) => {
-  const day = menuDayOf(room);
+/** Served today in the room (or on a later `date`): an every-day item, or one on that day's cycle day. */
+export const isToday = (it: Pick<MenuItem, 'day'>, room?: string | null, date?: string | null) => {
+  const day = menuDayOf(room, date);
   return it.day == null || it.day === 0 || (day > 0 && it.day === day);
 };
 
-/** __kCats: the tabs this meal's menu has in a room, in service order. */
-export function menuTabs(meal: MealName, room?: string | null): MenuTab[] {
-  const g = mealMenu(meal, room);
+/** __kCats: the tabs this meal's menu has in a room (on a later `date`: that day's), in service order. */
+export function menuTabs(meal: MealName, room?: string | null, date?: string | null): MenuTab[] {
+  const g = mealMenu(meal, room, date);
   const mains = MAINS.filter((k) => g[k]);
   const out: MenuTab[] = [];
   if (g.Drinks || g.Beverages || g.Alcohol || g.Cocktails) out.push('Drinks');
@@ -52,14 +59,19 @@ export function menuTabs(meal: MealName, room?: string | null): MenuTab[] {
 }
 
 /** __kInMains: the item is an entrée (or special) on this meal's menu. */
-export function isMain(meal: MealName, itemId: string, room?: string | null): boolean {
-  const g = mealMenu(meal, room);
+export function isMain(meal: MealName, itemId: string, room?: string | null, date?: string | null): boolean {
+  const g = mealMenu(meal, room, date);
   return MAINS.some((k) => (g[k] ?? []).some((q) => q.id === itemId));
 }
 
 /** __kIsDessert */
-export function isDessert(meal: MealName, itemId: string, room?: string | null): boolean {
-  return (mealMenu(meal, room).Desserts ?? []).some((q) => q.id === itemId);
+export function isDessert(meal: MealName, itemId: string, room?: string | null, date?: string | null): boolean {
+  return (mealMenu(meal, room, date).Desserts ?? []).some((q) => q.id === itemId);
+}
+
+/** Whether a meal's menu in a room (on a later `date`: that day's) has the item, in any section. */
+export function onMealMenu(meal: MealName, itemId: string, room?: string | null, date?: string | null): boolean {
+  return Object.values(mealMenu(meal, room, date)).some((list) => list.some((q) => q.id === itemId && isToday(q, room, date)));
 }
 
 // ─── Drinks ──────────────────────────────────────────────────────────────
@@ -118,8 +130,8 @@ export function drinkSubcategory(it: MenuItem): string {
 }
 
 /** __kDrinkAll: soft drinks first, then the bar (cocktails only where the venue pours them), each name once. */
-function allDrinks(meal: MealName, room: string): MenuItem[] {
-  const g = mealMenu(meal, room);
+function allDrinks(meal: MealName, room: string, date?: string | null): MenuItem[] {
+  const g = mealMenu(meal, room, date);
   const seen = new Set<string>();
   const once = (i: MenuItem) => {
     const k = i.name.toLowerCase();
@@ -135,14 +147,14 @@ function allDrinks(meal: MealName, room: string): MenuItem[] {
 }
 
 /** __kDrinkRows: the drink groups with something on this meal's menu, each with its subcategories. */
-export function drinkGroups(meal: MealName, room: string): Array<[DrinkGroup, string[]]> {
-  const have = new Set(allDrinks(meal, room).map(drinkSubcategory));
+export function drinkGroups(meal: MealName, room: string, date?: string | null): Array<[DrinkGroup, string[]]> {
+  const have = new Set(allDrinks(meal, room, date).map(drinkSubcategory));
   return DRINK_GROUPS.map(([g, subs]) => [g, subs.filter((x) => have.has(x))] as [DrinkGroup, string[]]).filter((x) => x[1].length);
 }
 
 /** __kDsGrp: the chosen group, or the first one that exists. */
-export function effectiveDrinkGroup(meal: MealName, room: string, chosen: DrinkGroup): DrinkGroup {
-  const rows = drinkGroups(meal, room);
+export function effectiveDrinkGroup(meal: MealName, room: string, chosen: DrinkGroup, date?: string | null): DrinkGroup {
+  const rows = drinkGroups(meal, room, date);
   return rows.some((r) => r[0] === chosen) ? chosen : (rows[0]?.[0] ?? chosen);
 }
 
@@ -237,25 +249,28 @@ function groupBy(items: MenuItem[], keyOf: (it: MenuItem) => string, make: (key:
 export function menuSections(
   meal: MealName,
   tab: MenuTab,
-  opts: { drinkGroup: DrinkGroup; room: string; search?: string; cfg?: DiningConfig },
+  opts: { drinkGroup: DrinkGroup; room: string; search?: string; cfg?: DiningConfig; date?: string | null },
 ): MenuSection[] {
-  const g = mealMenu(meal, opts.room);
+  const g = mealMenu(meal, opts.room, opts.date);
+  const served = (i: MenuItem) => isToday(i, opts.room, opts.date);
+  const ahead = aheadDayLabel(opts.date);
+  const dayWord = ahead === 'Tomorrow' ? "Tomorrow's" : ahead ? `${ahead}` : "Today's";
   const cfg = opts.cfg ?? DEFAULT_CONFIG;
   const q = opts.search?.trim().toLowerCase();
   if (q) {
     const hits = Object.values(g)
       .flat()
-      .filter((i) => isToday(i, opts.room) && i.name.toLowerCase().includes(q));
+      .filter((i) => served(i) && i.name.toLowerCase().includes(q));
     return hits.length ? [{ key: 'search', kind: 'everyday', items: hits }] : [];
   }
   const byName = (a: MenuItem, b: MenuItem) => a.name.localeCompare(b.name);
 
   if (tab === 'Drinks') {
-    const grp = effectiveDrinkGroup(meal, opts.room, opts.drinkGroup);
-    const subs = drinkGroups(meal, opts.room).find((r) => r[0] === grp)?.[1] ?? [];
+    const grp = effectiveDrinkGroup(meal, opts.room, opts.drinkGroup, opts.date);
+    const subs = drinkGroups(meal, opts.room, opts.date).find((r) => r[0] === grp)?.[1] ?? [];
     const rank = (i: MenuItem) => subs.indexOf(drinkSubcategory(i));
-    const list = allDrinks(meal, opts.room)
-      .filter((i) => isToday(i, opts.room) && rank(i) >= 0)
+    const list = allDrinks(meal, opts.room, opts.date)
+      .filter((i) => served(i) && rank(i) >= 0)
       .map((i, k) => [i, k] as const)
       .sort((a, b) => rank(a[0]) - rank(b[0]) || (grp === 'Alcoholic' ? compareBooze(a[0], b[0], cfg) : 0) || a[1] - b[1])
       .map((x) => x[0]);
@@ -271,7 +286,7 @@ export function menuSections(
   if (tab === 'Specials') {
     const list = ['Starters', ...MAINS, 'Sides', 'Desserts']
       .flatMap((k) => g[k] ?? [])
-      .filter((i) => i.special && isToday(i, opts.room))
+      .filter((i) => i.special && served(i))
       .sort((a, b) => SPECIAL_GROUPS.indexOf(specialGroupOf(a)) - SPECIAL_GROUPS.indexOf(specialGroupOf(b)));
     return groupBy(
       list,
@@ -281,20 +296,19 @@ export function menuSections(
   }
 
   if (tab === 'Sides') {
-    const today = (i: MenuItem) => isToday(i, opts.room);
-    const sides = (g.Sides ?? []).filter(today);
-    const addons = (g['Add-Ons'] ?? []).filter(today);
+    const sides = (g.Sides ?? []).filter(served);
+    const addons = (g['Add-Ons'] ?? []).filter(served);
     return [
-      { key: 'special', kind: 'sideSpecial' as const, label: "Today's special side", items: sides.filter((i) => i.special) },
+      { key: 'special', kind: 'sideSpecial' as const, label: `${dayWord} special side`, items: sides.filter((i) => i.special) },
       { key: 'side', kind: 'side' as const, label: 'Sides', items: sides.filter((i) => !i.special) },
       { key: 'addon', kind: 'addon' as const, label: 'Add-ons', items: addons },
     ].filter((x) => x.items.length);
   }
 
-  const list = (tab === 'Entrees' ? MAINS.flatMap((k) => g[k] ?? []) : (g[tab] ?? [])).filter((i) => isToday(i, opts.room));
+  const list = (tab === 'Entrees' ? MAINS.flatMap((k) => g[k] ?? []) : (g[tab] ?? [])).filter(served);
   const specials = list.filter((i) => i.special);
   const everyday = list.filter((i) => !i.special);
-  const head: MenuSection[] = specials.length ? [{ key: 'specials', kind: 'specials', label: "Today's specials", items: specials }] : [];
+  const head: MenuSection[] = specials.length ? [{ key: 'specials', kind: 'specials', label: `${dayWord} specials`, items: specials }] : [];
   if (tab === 'Entrees') {
     const rank = (i: MenuItem) => ENTREE_TYPES.findIndex((t) => t.key === entreeType(i));
     const sorted = everyday.slice().sort((a, b) => rank(a) - rank(b) || byName(a, b));

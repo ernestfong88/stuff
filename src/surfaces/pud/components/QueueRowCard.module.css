@@ -80,6 +80,10 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
+/* Booked for a later day: "Tomorrow, Lunch 12:15–12:30 PM" on two lines. */
+.dueAhead {
+  width: 156px;
+}
 .due_late {
   color: var(--danger);
 }
@@ -180,7 +184,8 @@
     width: auto;
     min-width: 0;
   }
-  .due {
+  .due,
+  .dueAhead {
     width: auto;
   }
   .action,
