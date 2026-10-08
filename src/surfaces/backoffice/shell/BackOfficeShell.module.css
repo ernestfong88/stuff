@@ -34,9 +34,10 @@
   margin: 0 auto;
   padding: 24px 32px 56px;
 }
-/* Pages that are a work surface (BoPage wide, e.g. the menu builder) use the whole window. */
+/* Pages that are a work surface (BoPage wide, e.g. the menu builder) get more room, with a margin either side. */
 .content:has([data-bo-wide]) {
-  max-width: none;
+  max-width: 1520px;
+  padding-inline: 48px;
 }
 
 .scrim {
@@ -71,7 +72,8 @@
     background: rgba(15, 23, 42, 0.32);
     animation: k-fade-in var(--fast) var(--ease);
   }
-  .content {
+  .content,
+  .content:has([data-bo-wide]) {
     padding: 20px 24px 48px;
   }
 }

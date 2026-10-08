@@ -279,6 +279,7 @@ With **Drinks** picked, the filters add a **Type** choice: Any · Non-alcoholic 
 - The cycle builder and the à la carte builder now fill the whole window instead of stopping at the Back Office's 1280px reading width (other pages are unchanged). The seven day columns grow with the screen, and above 1700px the cards, row labels and dates get a little more room and a slightly larger font. Narrow windows still scroll sideways as before.
 - **À la carte:** the sections sit side by side in as many 420px columns as fit, two at a laptop width and up to five on a 2560px screen. A long section carries on at the top of the next column, so every column fills evenly. The Breakfast, Lunch and Dinner labels on a locked menu are now centred in their pills.
 
+- **Margins:** on very wide screens the builder stops at about 1520px and is centered, with a wider margin either side, so it uses more of the screen without running edge to edge.
 
 ### Menu Export: fits the page
 - Every printout now sizes itself to its page, for every paper, template and option. Nothing runs onto an extra page, and a short menu doesn't leave a big empty space at the bottom. The fixed zoom for each paper size is gone.
