@@ -125,8 +125,9 @@
   background: var(--paper);
   color: var(--ink);
 }
+/* Each section's icon in its accent colour (data-bo-section, tokens.css) */
 .sectionIcon {
-  color: var(--s400);
+  color: var(--bo-accent);
   flex-shrink: 0;
 }
 .sectionLabel {
@@ -137,12 +138,10 @@
   font-weight: 600;
   color: var(--ink);
 }
-.sectionCurrent .sectionIcon {
-  color: var(--ocean);
-}
 .sectionOn,
 .sectionOn:hover {
-  background: var(--ocean-100);
+  background: var(--bo-accent-soft);
+  color: var(--bo-accent-ink);
 }
 .chev {
   color: var(--s400);
@@ -156,7 +155,7 @@
 .pages {
   margin: 2px 0 8px 18px;
   padding-left: 10px;
-  border-left: 1px solid var(--hair-2);
+  border-left: 1px solid color-mix(in srgb, var(--bo-accent) 30%, transparent);
 }
 .pageLink {
   display: flex;
@@ -180,8 +179,8 @@
 }
 .pageOn,
 .pageOn:hover {
-  background: var(--ocean-100);
-  color: var(--ocean-700);
+  background: var(--bo-accent-soft);
+  color: var(--bo-accent-ink);
   font-weight: 600;
 }
 

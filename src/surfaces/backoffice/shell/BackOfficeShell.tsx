@@ -61,8 +61,9 @@ export function BackOfficeShell() {
     return () => window.removeEventListener('keydown', onKey);
   }, [drawerOpen]);
 
+  // data-bo-section gives the page its section's accent colour (tokens.css).
   return (
-    <div className={s.shell}>
+    <div className={s.shell} data-bo-section={section.id}>
       <aside
         id="bo-side-nav"
         className={cx(s.nav, drawerOpen && s.navOpen)}

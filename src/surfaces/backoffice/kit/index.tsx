@@ -136,10 +136,36 @@ export function BoTabbedPage({
   );
 }
 
-/** A card of settings. `span` keeps it full width on a `columns` page (a wide table). */
-export function BoSection({ id, title, sub, actions, children, flush, span, className }: { id?: string; title?: ReactNode; sub?: ReactNode; actions?: ReactNode; children?: ReactNode; flush?: boolean; span?: boolean; className?: string }) {
+/** A BoSection's colour: the page's section accent (default), plain grey, or a named one. */
+export type BoSectionTone = 'accent' | 'neutral' | 'ocean' | 'amber' | 'flora' | 'coast' | 'rose' | 'gold' | 'teal' | 'plum' | 'clay';
+
+/**
+ * A card of settings. `span` keeps it full width on a `columns` page (a wide table).
+ * Its title sits on a light band of the page's accent colour, with a marker at the edge; `tone` picks another colour.
+ */
+export function BoSection({
+  id,
+  title,
+  sub,
+  actions,
+  children,
+  flush,
+  span,
+  tone = 'accent',
+  className,
+}: {
+  id?: string;
+  title?: ReactNode;
+  sub?: ReactNode;
+  actions?: ReactNode;
+  children?: ReactNode;
+  flush?: boolean;
+  span?: boolean;
+  tone?: BoSectionTone;
+  className?: string;
+}) {
   return (
-    <section id={id} className={cx(s.section, flush && s.flush, span && s.span, className)}>
+    <section id={id} className={cx(s.section, flush && s.flush, span && s.span, tone !== 'accent' && s[`secTone_${tone}`], className)}>
       {(title || actions) && (
         <header className={s.sectionHead}>
           <div className={s.sectionTitles}>

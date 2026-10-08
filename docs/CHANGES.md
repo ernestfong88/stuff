@@ -220,6 +220,25 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Back Office: a colour for each section
+- **Each side menu section has its own colour**, so you can tell at a glance where you are. The section's icon is in its colour, and the page you are on is highlighted in a light tint of it.
+  - Today: ocean blue
+  - Menus & Recipes: amber
+  - Venues: flora green
+  - POS Settings: coast blue
+  - Resident Dining Profile: rose
+  - Billing: gold
+  - Associates & PINs: teal
+  - HO Settings: slate grey
+  - KDS (Phase 2): plum, the Phase 2 colour
+  - Productions and Checklists and Kiosk (Phase 3): clay, the Phase 3 colour
+- **Breadcrumb:** the section's icon sits on a small tile of its colour, and the section name is in it.
+- **Page title:** a short line of the section's colour above it.
+- **Settings cards:** each card's title sits on a light band of the section's colour, with a small marker at the card's left edge, so the groups of settings read as separate blocks. The cards themselves stay white.
+- **Tabs:** the line under the chosen tab is in the section's colour.
+- Text on the tints keeps AA contrast. Layouts, wording and the Dashboard charts are unchanged.
+
+
 ### Back Office uses the width on desktop
 - Nothing changes at 1280px wide and below.
 - **Wider page from 1600px:** every Back Office page is up to 1600px wide (was 1280px, or 1520px for the menu builder), with 48px either side.

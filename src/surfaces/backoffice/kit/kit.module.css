@@ -11,8 +11,20 @@
   flex-wrap: wrap;
 }
 .pageTitles {
+  position: relative;
   flex: 1;
   min-width: 260px;
+}
+/* A short line in the section's accent colour above the title (in the page's top margin, so nothing moves). */
+.pageTitles::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 0;
+  width: 32px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--bo-accent);
 }
 .pageTitle {
   font-size: 26px;
@@ -46,12 +58,59 @@
   font-size: 13.5px;
   color: var(--s500);
 }
+/*
+ * A section card stays white; its title sits on a light band of the
+ * section colour (--sec-*: the page's accent, or BoSection tone), with a
+ * marker at the card's edge, so a page of settings reads as distinct blocks.
+ */
 .section {
+  --sec-accent: var(--bo-accent);
+  --sec-soft: var(--bo-accent-soft);
   background: var(--surface);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-1);
   padding: 18px 18px 6px;
   min-width: 0;
+}
+.secTone_neutral {
+  --sec-accent: var(--s400);
+  --sec-soft: var(--limestone);
+}
+.secTone_ocean {
+  --sec-accent: var(--ocean);
+  --sec-soft: var(--ocean-100);
+}
+.secTone_amber {
+  --sec-accent: var(--amber-600);
+  --sec-soft: var(--amber-100);
+}
+.secTone_flora {
+  --sec-accent: var(--flora);
+  --sec-soft: var(--flora-100);
+}
+.secTone_coast {
+  --sec-accent: var(--coast);
+  --sec-soft: var(--coast-100);
+}
+.secTone_rose {
+  --sec-accent: var(--rose);
+  --sec-soft: var(--rose-100);
+}
+.secTone_gold {
+  --sec-accent: var(--gold-600);
+  --sec-soft: var(--gold-100);
+}
+.secTone_teal {
+  --sec-accent: var(--teal);
+  --sec-soft: var(--teal-100);
+}
+.secTone_plum {
+  --sec-accent: var(--plum);
+  --sec-soft: var(--plum-100);
+}
+.secTone_clay {
+  --sec-accent: var(--clay-600);
+  --sec-soft: var(--clay-100);
 }
 .flush {
   padding: 0;
@@ -89,13 +148,35 @@
   }
 }
 .sectionHead {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 8px;
+  /* 1px inside the card, so the card's edge still shows round the band */
+  margin: -17px -17px 8px;
+  padding: 15px 17px 12px;
+  border-radius: calc(var(--r-xl) - 1px) calc(var(--r-xl) - 1px) 0 0;
+  background: color-mix(in srgb, var(--sec-soft) 75%, var(--surface));
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--sec-accent) 16%, transparent);
+}
+/* The marker: a short bar at the card's left edge, beside the title */
+.sectionHead::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 16px;
+  width: 4px;
+  height: 18px;
+  border-radius: 0 4px 4px 0;
+  background: var(--sec-accent);
+}
+/* The band already rules off the first setting */
+.sectionHead + .row {
+  border-top: none;
 }
 .flush .sectionHead {
-  padding: 16px 18px 0;
+  margin: 1px 1px 0;
 }
 .sectionTitles {
   flex: 1;

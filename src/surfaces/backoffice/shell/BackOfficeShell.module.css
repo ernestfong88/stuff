@@ -48,6 +48,15 @@
   }
 }
 
+/*
+ * Tabs on a page: the active tab's underline in the section's accent. The
+ * underline tabs draw it in var(--ocean), so the selected tab borrows the
+ * accent under that name (pills and segmented tabs do not use it).
+ */
+.content [role="tab"][aria-selected="true"] {
+  --ocean: var(--bo-accent);
+}
+
 .scrim {
   display: none;
 }

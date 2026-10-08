@@ -23,7 +23,9 @@ export function TopBar({ section, page, goto, onOpenNav, navOpen }: Props) {
         <Menu size={20} />
       </button>
       <nav className={s.crumbs} aria-label="Breadcrumb">
-        <Icon size={15} className={s.sectionIcon} aria-hidden />
+        <span className={s.sectionChip} aria-hidden>
+          <Icon size={14} />
+        </span>
         <span className={s.section}>{section.label}</span>
         {parent && (
           <>

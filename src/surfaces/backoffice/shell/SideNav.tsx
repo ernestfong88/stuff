@@ -77,7 +77,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
             const isOpen = !single && open === sec.id;
             const listId = `bo-sec-${sec.id}`;
             return (
-              <li key={sec.id} className={cx(firstLaterSection && s.laterStart)}>
+              <li key={sec.id} className={cx(firstLaterSection && s.laterStart)} data-bo-section={sec.id}>
                 {firstLaterSection && <div className={cx(s.laterHead, secPhase === 3 && s.later3)}>Phase {secPhase}</div>}
                 <button
                   className={cx(s.sectionBtn, phaseClass(secPhase), isCurrent && s.sectionCurrent, single && isCurrent && s.sectionOn)}

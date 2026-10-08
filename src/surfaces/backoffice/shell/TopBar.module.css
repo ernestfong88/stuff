@@ -34,13 +34,20 @@
   gap: 8px;
   font-size: 13px;
 }
-.sectionIcon {
-  color: var(--s400);
+/* The section's icon on its accent colour (data-bo-section on the shell, tokens.css) */
+.sectionChip {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-xs);
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+  background: var(--bo-accent-soft);
+  color: var(--bo-accent);
 }
 .section {
-  color: var(--s500);
-  font-weight: 500;
+  color: var(--bo-accent-ink);
+  font-weight: 600;
   white-space: nowrap;
 }
 .sep {
