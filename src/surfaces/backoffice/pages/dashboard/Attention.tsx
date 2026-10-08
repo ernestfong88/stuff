@@ -9,6 +9,8 @@ import { itemsOut, use86 } from '../../../../store/eightySix';
 import { threshold, useSetting } from '../../../../store/serviceConfig';
 import { useDining } from '../../../../store/dining';
 import { navigate } from '../../../../shell/router';
+import { isHomeOffice, useBoRole } from '../../../../store/boRole';
+import { canSee } from '../../nav';
 import { cx } from '../../../../ui';
 import { BoCaption, amountToReview, chargesToReview, useBilling, useCommunity } from '../../kit';
 import { useVenueSettings } from '../../../../store/venueSettings';
@@ -39,6 +41,7 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
   const venueSettings = useVenueSettings();
   const bo = useBo();
   const recipesWaiting = queueCounts(useSubmissions()).waiting;
+  const role = useBoRole();
   const [open, setOpen] = useRemembered('attention', true);
   // Re-read when the late threshold changes in Alerts & Timing.
   useSetting('t.floorCook');
@@ -68,11 +71,12 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
       chargesToReview: chargesToReview(charges).length,
       amountToReview: amountToReview(charges),
       recipesWaiting,
+      homeOffice: isHomeOffice(role),
       venues: venueSettings.venues,
       menus: bo.menus,
       at: now(),
     });
-  }, [marks, cfg, community, orders, history, charges, recipesWaiting, venueSettings, bo]);
+  }, [marks, cfg, community, orders, history, charges, recipesWaiting, role, venueSettings, bo]);
 
   if (!items.length) return null;
   return (
@@ -85,7 +89,8 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
         <ul id="dash-attention" className={s.attList}>
           {items.map((it) => {
             const Icon = ICONS[it.kind];
-            const go = it.goto;
+            // Never a link into a page this user can't open (HO Settings for a community user).
+            const go = it.goto && canSee(it.goto.page, role) ? it.goto : undefined;
             return (
               <li key={it.kind} className={s.attRow}>
                 <span className={cx(s.attIcon, s[`att_${it.tone}`])}>

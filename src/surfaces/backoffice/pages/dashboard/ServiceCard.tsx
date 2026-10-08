@@ -208,8 +208,8 @@ function slowStep(D: TimedTable[]) {
     : { name: 'order → appetizer', v: aa, goal: GOALS.app };
 }
 
-const PAGE_LABEL: Record<ServicePage, string> = { svcFlow: 'Pacing & Coursing', svcAlerts: 'Alerts & Timing' };
-const PAGE_WHY: Record<ServicePage, string> = { svcFlow: 'when each course fires', svcAlerts: 'flag slow plates sooner' };
+const PAGE_LABEL: Record<ServicePage, string> = { svcFlow: 'Pacing & Coursing' };
+const PAGE_WHY: Record<ServicePage, string> = { svcFlow: 'when each course fires' };
 
 /** "Do this next": the action, why, who after that, and the settings page that helps. */
 function NextStep({
@@ -275,18 +275,6 @@ function ServiceRangeModal({ data, goto, onClose }: { data: DashboardData; goto:
         label="Average table time"
         note={`Bars show average table time, order to entrée. Dashed line is the ${TABLE_TIME_GOAL} min goal.`}
       />
-      <div>
-        <Button
-          size="sm"
-          iconRight={<ChevronRight size={14} />}
-          onClick={() => {
-            onClose();
-            goto('svcMetrics');
-          }}
-        >
-          Shift metrics
-        </Button>
-      </div>
     </RangeModal>
   );
 }

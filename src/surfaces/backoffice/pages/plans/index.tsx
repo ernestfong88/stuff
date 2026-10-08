@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react';
 import { residents } from '../../../../data';
 import { uid } from '../../../../lib/id';
-import { Button, toast } from '../../../../ui';
+import { Button, Chip, toast } from '../../../../ui';
 import { BoCallout, BoPage, BoRow, BoSection, BoSelect, BoTabbedPage, CrudTable, setBillingList, useBilling, useCrudEditing, type CrudColumn } from '../../kit';
 import { setDefaultPlan } from '../../kit/billingStore';
 import { CARE_LEVEL_NAMES, careLevelsOf, defaultPlanFor } from '../../kit/planDefaults';
@@ -31,7 +31,7 @@ const COLUMNS: Array<CrudColumn<BoMealPlan>> = [
 ];
 
 /** Meal Plans: the plan types the charge engine uses, and guest meal credits. */
-function MealPlansTab({ goto }: BoPageProps) {
+function MealPlansTab() {
   const { plans } = useBilling();
   const editing = useCrudEditing<BoMealPlan>();
   return (
@@ -50,11 +50,9 @@ function MealPlansTab({ goto }: BoPageProps) {
       <CrudTable noun="plan" rows={plans} setRows={(fn) => setBillingList('plans', fn)} columns={COLUMNS} editing={editing} showDefault={false} />
       <RetiredList noun="plan" rows={plans} setRows={(fn) => setBillingList('plans', fn)} detail={(p) => `${planAmount(p)}, ${p.type}`} />
       <LevelDefaults />
-      <BoSection title="Guest meals and what a credit covers" sub="Whether residents can use their meal credits for guests, and what one credit covers, are set in HO Settings.">
+      <BoSection title="Guest meals and what a credit covers" sub="Whether residents can use their meal credits for guests, and what one credit covers, are set by Home Office.">
         <BoRow label="Meal credit rules">
-          <Button size="sm" onClick={() => goto('credits')}>
-            Open Meal Credits
-          </Button>
+          <Chip>Set by Home Office</Chip>
         </BoRow>
       </BoSection>
     </BoPage>
@@ -121,7 +119,7 @@ export default function BillingSetupPage(props: BoPageProps) {
       current={tab}
       onTab={go}
       tabs={[
-        { id: 'plans', label: 'Plan types', render: () => <MealPlansTab {...props} /> },
+        { id: 'plans', label: 'Plan types', render: () => <MealPlansTab /> },
         { id: 'counts', label: 'Meal counts', render: () => <MealCountsPage {...props} /> },
         { id: 'corkage', label: 'Corkage', render: () => <CorkageTab /> },
       ]}

@@ -145,8 +145,8 @@ describe('recipe approval', () => {
     expect(SEED_SUBMISSIONS.some((x) => x.community === VT && x.status === 'waiting')).toBe(true);
   });
 
-  it('asks the dashboard to review waiting recipes', () => {
-    const base = { out: [], lateTickets: 0, lateMinutes: 15, waiversUsedUp: [], chargesToReview: 0, amountToReview: 0, venues: [], menus: [], at: 0 };
+  it('asks the dashboard to review waiting recipes, for Home Office', () => {
+    const base = { out: [], lateTickets: 0, lateMinutes: 15, waiversUsedUp: [], chargesToReview: 0, amountToReview: 0, venues: [], menus: [], at: 0, homeOffice: true };
     expect(attentionItems(base)).toEqual([]);
     const [it] = attentionItems({ ...base, recipesWaiting: 3 });
     expect(it).toMatchObject({ kind: 'recipes', action: 'Review 3 recipes waiting for approval', goto: { page: 'recipeApproval' } });

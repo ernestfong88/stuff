@@ -220,6 +220,19 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### HO Settings: Home Office only
+- HO Settings is for Home Office. Alerts & Timing, Shift Metrics, Meal Credits, Recipe Approval and Release Phases show only to someone signed in to Back Office as Home Office. For a community user (the Culinary Director, as before) the section is gone from the side menu, from page search and from the breadcrumb bar, and opening one of its addresses shows a plain "This page is for Home Office" note, with no settings and no way in.
+- View as: Community · Home Office, a demo switch in the screen menu's Demo box and in the Back Office account card at the bottom of the side menu. It is a setting of the device, so *Reset demo data* keeps it, and it starts on Community. As Home Office the account card reads Home Office, Culinary Services, and Recipe Approval decisions are recorded as Home Office.
+- No shortcuts into HO Settings from other screens, for anyone:
+  - Meal Plans: *Open Meal Credits* is now the words *Set by Home Office*.
+  - Dashboard, Needs your attention: *Look into late tickets* no longer links to Shift Metrics; it says *Late after N min, set by Home Office*. *Review N recipes waiting for approval* shows only to Home Office.
+  - Dashboard, Steps of Service detail: the *Shift metrics* button is gone, and *Do this next* links to Pacing & Coursing for a slow entrée and to nothing for a slow appetizer (it used to link to Alerts & Timing).
+  - Phase 2 and Phase 3 pages: the banner no longer links to Release Phases. A page whose phase is off says *Not available yet*, part of Phase N, without the *Switch Phase N on* and *Release Phases* buttons; a screen whose phase is off no longer has *Open Release Phases*. KDS Settings' locked choice says *Not available yet* instead of pointing to Release Phases.
+  - The Phase 2 and Phase 3 switches under the side menu, and in the screen menu's Demo box, show only when viewing as Home Office.
+- The Recipe Book's *Send to Home Office for approval* stays, as before; its status notes never linked to the approval queue.
+
+
+
 ### Server: special diets at a glance
 - **Every resident's allergies and diets show on their card** on the server's Residents page: allergies in red, diets and textures in grey, in the kitchen ticket's own tags with the shorthand spelled out (*GF* reads *Gluten-free*, *NAS* *No salt added*, *Diab* *Diabetic*, *Puree* *Pureed*, *Nectar thick* *Nectar-thick liquids*). Touching a spelled-out tag shows the ticket wording.
 - **A row of counts under the search doubles as the filter:** *Special diets 8* shows only residents with any allergy, diet or texture; *Any allergy 5* shows everyone with an allergy; then one chip per allergy, diet and texture with how many residents have it (allergies first, a hairline between the groups). Tap one or several to see only those residents; *Clear* shows everyone again and says how many are shown. It works together with the name search.

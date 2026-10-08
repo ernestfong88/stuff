@@ -54,6 +54,8 @@ export interface AttentionInput {
   amountToReview: number;
   /** Recipes the communities sent that wait for Home Office's approval. */
   recipesWaiting?: number;
+  /** Signed in as Home Office: only they see (and open) the recipes waiting for approval. */
+  homeOffice?: boolean;
   venues: VenueMenus[];
   menus: MenuName[];
   at: number;
@@ -81,7 +83,8 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
       n: x.lateTickets,
       title: x.lateTickets === 1 ? 'late ticket today' : 'late tickets today',
       detail: `Fired to up at the pass took longer than ${x.lateMinutes} minutes.`,
-      goto: { page: 'svcMetrics', label: 'Shift metrics' },
+      // The late mark is a Home Office setting (Alerts & Timing); no shortcut into it.
+      note: `Late after ${x.lateMinutes} min, set by Home Office`,
     });
   if (x.waiversUsedUp.length)
     items.push({
@@ -103,7 +106,8 @@ export function attentionItems(x: AttentionInput): AttentionItem[] {
       detail: `$${x.amountToReview.toFixed(2)} waiting for approval before billing.`,
       goto: { page: 'chargeReview', label: 'Review charges' },
     });
-  if (x.recipesWaiting)
+  // Home Office's queue, so only Home Office sees it (and its link into HO Settings).
+  if (x.homeOffice && x.recipesWaiting)
     items.push({
       kind: 'recipes',
       action: `Review ${x.recipesWaiting} ${x.recipesWaiting === 1 ? 'recipe' : 'recipes'} waiting for approval`,

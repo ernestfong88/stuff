@@ -5,6 +5,9 @@
 import type { ComponentType, LazyExoticComponent } from 'react';
 import { lazy } from 'react';
 import { LayoutGrid, MonitorPlay, BookOpen, ClipboardList, Store, Timer, Users, CreditCard, ShieldCheck, Building2, TabletSmartphone, type LucideIcon } from 'lucide-react';
+import type { BoRole } from '../../store/boRole';
+
+export type { BoRole } from '../../store/boRole';
 
 export interface BoPageDef {
   id: string;
@@ -28,6 +31,8 @@ export interface BoSectionDef {
   label: string;
   icon: LucideIcon;
   pages: BoPageDef[];
+  /** Only Home Office sees this section: not in the side nav, search or breadcrumbs, and its pages show "for Home Office" to anyone else. */
+  homeOffice?: boolean;
 }
 
 /** Props every back office page receives. */
@@ -298,6 +303,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
     id: 'ho',
     label: 'HO Settings',
     icon: Building2,
+    homeOffice: true,
     pages: [
       {
         id: 'svcAlerts',
@@ -398,6 +404,20 @@ export function findPage(id: string | undefined): { section: BoSectionDef; page:
   const home = more?.parent ? findPage(more.parent) : null;
   return more && home ? { section: home.section, page: more } : null;
 }
+
+/**
+ * Can this back office user open the page? HO Settings is for Home Office
+ * only; everything else is for everyone. Old addresses (BO_ALIASES) follow
+ * the page they open. The one place the rule lives.
+ */
+export function canSee(pageId: string, role: BoRole): boolean {
+  if (role === 'homeOffice') return true;
+  const id = BO_ALIASES.find((a) => a.id === pageId)?.to[0] ?? pageId;
+  return !findPage(id)?.section.homeOffice;
+}
+
+/** Page ids only Home Office can open. */
+export const HO_PAGE_IDS: string[] = BO_SECTIONS.filter((s) => s.homeOffice).flatMap((s) => s.pages.map((p) => p.id));
 
 /** The side nav page to highlight for a page: itself, or the page it was opened from. */
 export function navPageId(id: string): string {

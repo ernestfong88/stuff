@@ -38,11 +38,13 @@ const demoStores = new Set<SharedStore<unknown>>();
  * size, which kitchen screen or venue it shows, bump bar keys, the demo
  * clock, the pacing leader lease, the paper Menu Export prints on and
  * how it prints prices and diets. The back office's release phase plan is
- * a planning decision rather than demo data, so it stays too.
+ * a planning decision rather than demo data, so it stays too, and so does
+ * who the back office is viewed as (community or Home Office).
  */
 const DEVICE_KEYS = new Set([
   'kisco_session',
   'kisco_backoffice_community',
+  'kisco_backoffice_role',
   'kisco_backoffice_phases',
   'kisco_backoffice_phase_view',
   'kisco_phases_on',

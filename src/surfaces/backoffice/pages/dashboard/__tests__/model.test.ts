@@ -62,7 +62,8 @@ describe('steps of service', () => {
     const a = serviceDayAction(day);
     expect(a.act).toContain(`Talk to ${g.server.split(' ')[0]} about ${g.meal.toLowerCase()}`);
     expect(a.why).toMatch(new RegExp(`^${g.late.length} of `));
-    expect(a.page).toBe(g.cause === 'entrée' ? 'svcFlow' : 'svcAlerts');
+    // Alerts & Timing is Home Office's, so a slow appetizer links nowhere.
+    expect(a.page).toBe(g.cause === 'entrée' ? 'svcFlow' : null);
   });
   it('says there is nothing to fix on a day with every table under the goal', () => {
     const fast = timedTables(TODAY, HISTORY_SERVERS).map((t) => ({ ...t, app: 5, ent: 12 }));
@@ -74,7 +75,7 @@ describe('steps of service', () => {
     const w = serviceWeek(T, 21, [20, 21, 22, 23, 21, 20, 22], 7);
     expect(w.insight.head).toMatch(/^Review /);
     expect(w.insight.body).toMatch(/average table time/);
-    expect(['svcFlow', 'svcAlerts']).toContain(w.page);
+    expect(['svcFlow', null]).toContain(w.page);
   });
 });
 

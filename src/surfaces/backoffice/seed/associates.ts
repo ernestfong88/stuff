@@ -5,6 +5,7 @@
  * in to the Culinary App with a PIN.
  */
 import { COMMUNITY_NAME } from '../../../data';
+import { boRoleStore, type BoRole } from '../../../store/boRole';
 import associatesJson from './associates.json';
 
 export interface AdpAssociate {
@@ -35,5 +36,22 @@ export const BACK_OFFICE_USER = {
   short: 'E. Fong',
   role: 'Culinary Director · Author',
   home: COMMUNITY_NAME,
+  homeLabel: 'Main community',
   departments: ['Culinary'],
 } as const;
+
+/** Signed in as Home Office (the demo's "View as: Home Office"): sees HO Settings and decides on recipes. */
+export const HOME_OFFICE_USER = {
+  initials: 'HO',
+  name: 'Home Office',
+  short: 'Home Office',
+  role: 'Culinary Services',
+  home: 'Home Office',
+  homeLabel: 'Works at',
+  departments: ['Culinary Services'],
+} as const;
+
+export type BackOfficeUser = typeof BACK_OFFICE_USER | typeof HOME_OFFICE_USER;
+
+/** The back office user for who it is viewed as. */
+export const backOfficeUser = (role: BoRole = boRoleStore.get()): BackOfficeUser => (role === 'homeOffice' ? HOME_OFFICE_USER : BACK_OFFICE_USER);

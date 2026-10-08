@@ -282,3 +282,9 @@
   border-radius: var(--r-pill);
   padding: 3px 10px;
 }
+.meDemo {
+  margin: 0 10px 10px;
+  padding: 8px 8px 2px;
+  border-radius: var(--r-md);
+  background: var(--clay-100);
+}

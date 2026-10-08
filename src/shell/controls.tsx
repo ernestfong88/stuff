@@ -5,10 +5,12 @@ import { Avatar, MenuDivider, MenuItem, Popover, toast, Toggle, useConfirm, useV
 import { cx } from '../ui/cx';
 import { useDemoActions } from './demoTools';
 import { enterFullscreen, exitFullscreen, useFullscreen } from './fullscreen';
+import { isHomeOffice, useBoRole } from '../store/boRole';
 import { phaseIsOn, setPhaseOn, usePhaseOn, usePhasePlan, type Phase } from '../store/phases';
 import { getMode, modeOn, modePhase, orderedModes } from './modes';
 import { navigate, useRoute } from './router';
 import { signOut, useMe, useVenue, useVenueChoices, venueCode, venueColor } from './session';
+import { ViewAsSwitch } from './ViewAsSwitch';
 import s from './controls.module.css';
 import { setZoom, useZoom } from './zoom';
 
@@ -44,6 +46,8 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
   const startsPhase = (i: number) => i > 0 && modePhase(modes[i].id, plan) !== modePhase(modes[i - 1].id, plan);
   const demo = useDemoActions();
   const [ask, dialog] = useConfirm();
+  // Release phases are a Home Office setting: their switches show only when viewing as Home Office.
+  const ho = isHomeOffice(useBoRole());
   return (
     <>
       <Popover
@@ -65,22 +69,25 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
           <>
             <div className={s.demo}>
               <div className={s.demoHead}>Demo</div>
-              {/* Release phases, for the whole system: the same switches as in Back Office. */}
-              <div className={s.phaseRow} role="group" aria-label="Release phases switched on">
-                {([2, 3] as Phase[]).map((ph) => (
-                  <span key={ph} className={cx(s.phaseSwitch, ph === 3 && s.phase3)}>
-                    <span className={cx(s.phaseLabel, ph === 2 ? s.phase2 : s.phase3)}>Phase {ph}</span>
-                    <Toggle
-                      checked={phaseIsOn(ph, on)}
-                      onChange={(v) => {
-                        setPhaseOn(ph, v);
-                        toast(v ? `Phase ${ph} is on everywhere` : `Phase ${ph} is off everywhere`, { tone: 'success' });
-                      }}
-                      label={<span className="sr-only">Phase {ph}</span>}
-                    />
-                  </span>
-                ))}
-              </div>
+              <ViewAsSwitch />
+              {/* Release phases, for the whole system: the same switches as in Back Office, for Home Office only. */}
+              {ho && (
+                <div className={s.phaseRow} role="group" aria-label="Release phases switched on">
+                  {([2, 3] as Phase[]).map((ph) => (
+                    <span key={ph} className={cx(s.phaseSwitch, ph === 3 && s.phase3)}>
+                      <span className={cx(s.phaseLabel, ph === 2 ? s.phase2 : s.phase3)}>Phase {ph}</span>
+                      <Toggle
+                        checked={phaseIsOn(ph, on)}
+                        onChange={(v) => {
+                          setPhaseOn(ph, v);
+                          toast(v ? `Phase ${ph} is on everywhere` : `Phase ${ph} is off everywhere`, { tone: 'success' });
+                        }}
+                        label={<span className="sr-only">Phase {ph}</span>}
+                      />
+                    </span>
+                  ))}
+                </div>
+              )}
               {demo.map((a) => (
                 <button
                   key={a.id}

@@ -33,11 +33,3 @@
   line-height: 1.55;
   color: var(--s700);
 }
-.btn {
-  min-height: 44px;
-  padding: 0 18px;
-  border-radius: 12px;
-  background: var(--ink);
-  color: #fff;
-  font-weight: 700;
-}

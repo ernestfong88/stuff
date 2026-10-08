@@ -111,9 +111,13 @@ export interface ServiceWeek {
   page: ServicePage | null;
 }
 
-/** Back Office pages a manager can act on: when courses fire, and when slow plates are flagged. */
-export type ServicePage = 'svcFlow' | 'svcAlerts';
-const pageFor = (cause: StepCause): ServicePage => (cause === 'entrée' ? 'svcFlow' : 'svcAlerts');
+/**
+ * The Back Office page a community can act on: when courses fire (Pacing &
+ * Coursing) for a slow entrée. A slow appetizer has none: when slow plates are
+ * flagged is Alerts & Timing, a Home Office setting, so no shortcut into it.
+ */
+export type ServicePage = 'svcFlow';
+const pageFor = (cause: StepCause): ServicePage | null => (cause === 'entrée' ? 'svcFlow' : null);
 
 /** The range against the one before: headline, slowest meal, step and server. */
 export function serviceWeek(cur: TimedTable[], prevAvg: number | null, dayAverages: Array<number | null>, n: number): ServiceWeek {

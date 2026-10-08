@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ChevronDown, Search, X } from 'lucide-react';
 import { Toggle, cx, toast } from '../../../ui';
-import { navPageId, type BoSectionDef } from '../nav';
+import { canSee, navPageId, type BoSectionDef } from '../nav';
+import { isHomeOffice, useBoRole } from '../../../store/boRole';
 import { orderedSections, phaseIsOn, phaseOf, sectionPhase, setPhaseOn, usePhaseOn, usePhasePlan, visiblePages, type Phase } from '../phases';
 import { AccountCard } from './AccountCard';
 import { CommunitySwitcher } from './CommunitySwitcher';
@@ -36,6 +37,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
   const current = navPageId(pageId);
   const plan = usePhasePlan();
   const on = usePhaseOn();
+  const role = useBoRole();
 
   return (
     <div className={s.side}>
@@ -65,7 +67,8 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
       <nav className={s.nav} aria-label="Back office pages">
         <ul className={s.sections}>
           {orderedSections(plan).map((sec, si, all) => {
-            const pages = visiblePages(sec, on, plan, current);
+            // HO Settings only for Home Office, even while one of its pages is open.
+            const pages = visiblePages(sec, on, plan, current).filter((p) => canSee(p.id, role));
             if (!pages.length) return null;
             const secPhase = sectionPhase(sec, plan);
             const laterSection = secPhase > 1;
@@ -128,7 +131,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
       </nav>
 
       <div className={s.footer}>
-        <PhaseSwitches />
+        {isHomeOffice(role) && <PhaseSwitches />}
         <CommunitySwitcher />
         <AccountCard />
       </div>
@@ -136,7 +139,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
   );
 }
 
-/** Phase 2 and Phase 3 on or off, for every screen and page. Release Phases (HO Settings) has the same switches. */
+/** Phase 2 and Phase 3 on or off, for every screen and page; Home Office only. Release Phases (HO Settings) has the same switches. */
 export function PhaseSwitches() {
   const on = usePhaseOn();
   return (

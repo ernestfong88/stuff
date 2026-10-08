@@ -68,9 +68,7 @@ export function KitchenModeSetting() {
                   {c.title}
                   {on && <span className={s.tag}>On</span>}
                 </span>
-                {locked && (
-                  <span className={s.lockNote}>Phase {kdsPhase(plan)} is switched off. Switch it on in Release Phases to use kitchen screens.</span>
-                )}
+                {locked && <span className={s.lockNote}>Not available yet. Kitchen screens are part of Phase {kdsPhase(plan)}.</span>}
                 {c.lines.map((l) => (
                   <span key={l} className={s.line}>
                     {l}

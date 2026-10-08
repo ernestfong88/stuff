@@ -9,7 +9,7 @@ import { uid } from '../../../lib/id';
 import { useShared } from '../../../lib/sharedStore';
 import type { Recipe } from '../../../store/menuEdits';
 import { recipeApprovalsStore, type RecipeApprovalsState, type RecipeSnapshot, type RecipeSubmission } from '../../../store/recipeApprovals';
-import { BACK_OFFICE_USER } from '../seed/associates';
+import { BACK_OFFICE_USER, backOfficeUser } from '../seed/associates';
 import { decide, reopen, sendForApproval, snapshotOf, withdraw } from './model/recipeApproval';
 import recipesJson from './seed/recipes.json';
 import approvalsJson from './seed/approvals.json';
@@ -79,11 +79,11 @@ export function restoreSubmission(sub: RecipeSubmission): void {
 }
 
 export function approveSubmission(id: string, comment: string): void {
-  change((subs) => decide(subs, id, { status: 'approved', by: BACK_OFFICE_USER.name, at: now(), comment }));
+  change((subs) => decide(subs, id, { status: 'approved', by: backOfficeUser().name, at: now(), comment }));
 }
 
 export function denySubmission(id: string, reason: string): void {
-  change((subs) => decide(subs, id, { status: 'denied', by: BACK_OFFICE_USER.name, at: now(), comment: reason }));
+  change((subs) => decide(subs, id, { status: 'denied', by: backOfficeUser().name, at: now(), comment: reason }));
 }
 
 /** Undo an approval or a denial. */

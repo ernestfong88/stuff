@@ -1,21 +1,23 @@
 import { useCallback, useRef, useState } from 'react';
 import { Building2, ChevronUp } from 'lucide-react';
 import { cx } from '../../../ui';
-import { BACK_OFFICE_USER } from '../seed/associates';
+import { ViewAsSwitch } from '../../../shell/ViewAsSwitch';
+import { useBoRole } from '../../../store/boRole';
+import { backOfficeUser, type BackOfficeUser } from '../seed/associates';
 import { useDismiss } from './useDismiss';
 import s from './SideFooter.module.css';
 
-function Initials({ size }: { size: 32 | 40 }) {
+function Initials({ me, size }: { me: BackOfficeUser; size: 32 | 40 }) {
   return (
     <span className={cx(s.avatar, size === 40 && s.avatarLg)} aria-hidden>
-      {BACK_OFFICE_USER.initials}
+      {me.initials}
     </span>
   );
 }
 
-/** The signed-in back office user, with their home community and department. */
+/** The signed-in back office user (a community user, or Home Office in the demo), with their home community and department. */
 export function AccountCard() {
-  const me = BACK_OFFICE_USER;
+  const me = backOfficeUser(useBoRole());
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -24,7 +26,7 @@ export function AccountCard() {
   return (
     <div className={s.anchor} ref={root}>
       <button ref={trigger} className={cx(s.me, open && s.pressed)} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-        <Initials size={32} />
+        <Initials me={me} size={32} />
         <span className={s.meText}>
           <span className={s.meName}>{me.name}</span>
           <span className={s.meRole}>{me.role}</span>
@@ -34,7 +36,7 @@ export function AccountCard() {
       {open && (
         <div className={cx(s.panel, s.mePanel)} role="dialog" aria-label="My account">
           <div className={s.meHead}>
-            <Initials size={40} />
+            <Initials me={me} size={40} />
             <div>
               <div className={s.meHeadName}>{me.name}</div>
               <div className={s.meHeadRole}>{me.role}</div>
@@ -42,7 +44,7 @@ export function AccountCard() {
           </div>
           <div className={s.meFacts}>
             <div>
-              <div className={s.eyebrow}>Main community</div>
+              <div className={s.eyebrow}>{me.homeLabel}</div>
               <div className={s.home}>
                 <Building2 size={14} aria-hidden />
                 {me.home}
@@ -58,6 +60,9 @@ export function AccountCard() {
                 ))}
               </div>
             </div>
+          </div>
+          <div className={s.meDemo}>
+            <ViewAsSwitch />
           </div>
         </div>
       )}

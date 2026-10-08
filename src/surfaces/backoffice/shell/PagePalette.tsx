@@ -1,7 +1,8 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Search } from 'lucide-react';
 import { cx } from '../../../ui';
-import { BO_ALIASES, BO_MORE_PAGES, BO_SECTIONS, findPage, type BoSectionDef } from '../nav';
+import { BO_ALIASES, BO_MORE_PAGES, BO_SECTIONS, canSee, findPage, type BoRole, type BoSectionDef } from '../nav';
+import { useBoRole } from '../../../store/boRole';
 import { pageOn, phaseOf, usePhaseOn, usePhasePlan } from '../phases';
 import { searchPages, type SearchablePage } from './search';
 import s from './PagePalette.module.css';
@@ -10,7 +11,7 @@ interface Entry extends SearchablePage {
   sectionDef: BoSectionDef;
 }
 
-const ENTRIES: Entry[] = [
+const ALL_ENTRIES: Entry[] = [
   ...BO_SECTIONS.flatMap((sec) => sec.pages.map((p) => ({ ...p, section: sec.label, sectionDef: sec }))),
   ...BO_MORE_PAGES.flatMap((p) => {
     const home = findPage(p.id);
@@ -22,6 +23,9 @@ const ENTRIES: Entry[] = [
   }),
 ];
 
+/** What search can find for this user: HO Settings pages only for Home Office. */
+export const paletteEntries = (role: BoRole): Entry[] => ALL_ENTRIES.filter((e) => canSee(e.id, role));
+
 /** Ctrl K: type where you want to go. Arrow keys move, Enter opens, Escape closes. */
 export function PagePalette({ onClose, goto }: { onClose: () => void; goto: (pageId: string) => void }) {
   const [query, setQuery] = useState('');
@@ -31,8 +35,9 @@ export function PagePalette({ onClose, goto }: { onClose: () => void; goto: (pag
   const listId = useId();
   const on = usePhaseOn();
   const phasePlan = usePhasePlan();
+  const role = useBoRole();
   // Pages in a phase that is switched off don't come up.
-  const results = useMemo(() => searchPages(ENTRIES, query).filter((r) => pageOn(r.id, phasePlan, on)), [query, phasePlan, on]);
+  const results = useMemo(() => searchPages(paletteEntries(role), query).filter((r) => pageOn(r.id, phasePlan, on)), [query, phasePlan, on, role]);
   const plan = usePhasePlan();
 
   useEffect(() => {
