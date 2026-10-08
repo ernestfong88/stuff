@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Manager Triage: one list of what to do next
+- *Triage* on the manager tablet is one list, most urgent first, instead of a grid of cards. Each row says what to do with the table in it ("Run starters to EG 7", "Check in with SQ 5", "Close the check at SQ 8"), whose table it is and how many minutes it has waited.
+- Rows past the Alerts & Timing mark are under **Now** with a red edge; rows worth a look are under **Soon** with an amber edge. The thresholds are the same as before.
+- Where My Tables offers a one-tap fix, it is on the row: **Mark served**, **Checked in**, **Drinks out**, **Fire dessert** and **Quick close**. A toast confirms it, with Undo for Mark served and Quick close. Anything that needs the check (taking an order, payment) is done by tapping the row, which opens the check as before. Changing another server's check asks to take it over first, as it does everywhere else.
+- A **Kitchen** group lists tables fired longer ago than the floor mark, and pick ups, deliveries and associate meals that are due and not ready (amber in their booked range, red once it has passed).
+- Tables with nothing to do fold into one **Fine for now (5)** line that opens to show them.
+- **By associate** is one line per server: how many of their tables need help, their worst one with its minutes, the others as red or amber table chips, and their tables and covers.
+- The stage chips, the "Help" boxes, the repeated reason lines and the summary line at the top are gone.
+
+
 ### Manager › Associates: easier to read
 - **Lunch / Dinner / Overnight** tabs at the top. The tab for the meal under way opens first.
 - Orders still to hand over are listed by pick up time, for example "7:00 PM · 1 order", with when changes close. Each row shows the associate, what they ordered, a status (Planned, In kitchen, Ready, Picked up) and one button. The button is **Change**, or **Mark picked up** once the meal is ready.

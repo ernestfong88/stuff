@@ -15,7 +15,13 @@ import { greetConfig, greetInfo, type GreetConfig } from '../../../domain/greet'
 import type { ThresholdFn } from './floorState';
 import { courseWord, tableStage, type TableStage } from './stage';
 
+/** What kind of help a reason asks for: picks the row's verb and its one-tap action. */
+export type TriageKind = 'run' | 'drinks' | 'greet' | 'greetDrinks' | 'checkIn' | 'eat' | 'cook' | 'order' | 'close';
+
 export interface TriageReason {
+  kind: TriageKind;
+  /** The course a run or check-in is about. */
+  course?: number;
   /** Past the Back Office mark: shown in red. */
   late: boolean;
   mins: number;
@@ -42,36 +48,34 @@ export function triageReasons(o: Order, opts: TriageOptions = {}): TriageReason[
   const st = tableStage(o, cfg);
   const m = minutesSince(st.since || o.openedAt);
   const out: TriageReason[] = [];
-  const add = (late: boolean, mins: number, text: string, act: string) =>
-    out.push({ late, mins, text, act, score: (late ? 1000 : 0) + mins });
+  const add = (kind: TriageKind, late: boolean, mins: number, text: string, act: string, course?: number) =>
+    out.push({ kind, course, late, mins, text, act, score: (late ? 1000 : 0) + mins });
 
   const waiting = drinksWaiting(drinkQueue(o));
   const gc = opts.greet ?? greetConfig(o.room);
   const greet = greetInfo(o, gc);
 
   if (st.key === 'run') {
-    const ready = o.diners.flatMap((d) =>
-      d.items.filter((l) => l.sent && !l.cancelled && !isDrinkLine(l, o) && l.kitchenState === 'ready'),
-    );
+    const ready = o.diners.flatMap((d) => d.items.filter((l) => l.sent && !l.cancelled && !isDrinkLine(l, o) && l.kitchenState === 'ready'));
     const c = ready.length ? Math.min(...ready.map(courseNumber)) : 2;
     const times = ready
       .filter((l) => courseNumber(l) === c)
       .map((l) => lineReadyAt(o, l, cfg))
       .filter((x): x is number => !!x);
     const up = times.length ? minutesSince(Math.max(...times)) : m;
-    add(up >= t('passLate'), up, `${courseWord(c)} up ${up} min, not run`, `Run the ${courseWord(c).toLowerCase()}`);
+    add('run', up >= t('passLate'), up, `${courseWord(c)} up ${up} min, not run`, `Run the ${courseWord(c).toLowerCase()}`, c);
   }
   // Drinks waits follow Time to greet: only for the meals the venue times (greet is null otherwise).
   if (waiting.length && greet) {
     const dm = minutesSince(Math.min(...waiting.map((l) => l.upAt || l.firedAt || o.openedAt)));
-    if (dm >= 2) add(dm >= gc.over, dm, `Waiting ${dm} min for drinks`, 'Get the drinks out');
+    if (dm >= 2) add('drinks', dm >= gc.over, dm, `Waiting ${dm} min for drinks`, 'Get the drinks out');
   }
   if (greet?.unGreeted != null && greet.unGreeted >= 2) {
     const um = Math.floor(greet.unGreeted);
-    add(um >= gc.over, um, `Seated ${um} min, no server yet`, 'Greet the table');
+    add('greet', um >= gc.over, um, `Seated ${um} min, no server yet`, 'Greet the table');
   } else if (greet?.live != null && !waiting.length && greet.live >= gc.over) {
     const lm = Math.floor(greet.live);
-    add(true, lm, `${lm} min and no drinks yet`, 'Greet the table and take drinks');
+    add('greetDrinks', true, lm, `${lm} min and no drinks yet`, 'Greet the table and take drinks');
   }
   if (st.key === 'eat' && flag(cfg, 'checkIn')) {
     const run = lastRun(o);
@@ -79,17 +83,24 @@ export function triageReasons(o: Order, opts: TriageOptions = {}): TriageReason[
       const cm = minutesSince(run.at);
       const after = opts.checkInAfter ?? checkInWakeMinutes(o.room);
       // A wake-up of 0 means the button is lit straight away, not that triage nags.
-      if (cm >= (after || Infinity)) add(true, cm, `No check-in after course ${run.c} · ${cm} min`, 'Check in with the table');
+      if (cm >= (after || Infinity)) add('checkIn', true, cm, `No check-in after course ${run.c} · ${cm} min`, 'Check in with the table', run.c);
     }
   }
   // Eating past the Alerts & Timing mark, when no check-in reason already covers it.
-  if (st.key === 'eat' && m >= t('eatLate') && !out.some((r) => r.text.startsWith('No check-in'))) add(true, m, `Eating ${m} min`, 'Check on the table');
-  if (st.key === 'cook' && m >= t('floorCook')) add(true, m, `Fired ${m} min ago`, 'Check with the kitchen');
+  if (st.key === 'eat' && m >= t('eatLate') && !out.some((r) => r.kind === 'checkIn')) add('eat', true, m, `Eating ${m} min`, 'Check on the table');
+  if (st.key === 'cook' && m >= t('floorCook')) add('cook', true, m, `Fired ${m} min ago`, 'Check with the kitchen');
   // Waiting to order: red at the Alerts & Timing mark (12 min while it is blank), worth a look from two thirds of it.
   const seatRed = Number.isFinite(t('seatLate')) ? t('seatLate') : 12;
-  if (st.key === 'seat' && m >= Math.max(1, Math.round((seatRed * 2) / 3))) add(m >= seatRed, m, `Seated ${m} min, nothing ordered`, 'Help take the order');
+  if (st.key === 'seat' && m >= Math.max(1, Math.round((seatRed * 2) / 3)))
+    add('order', m >= seatRed, m, `Seated ${m} min, nothing ordered`, 'Help take the order');
   if (st.key === 'check' && m >= Math.min(10, t('closeLate')))
-    add(m >= t('closeLate'), m, printerMode(cfg) ? `Sent ${m} min ago, check still open` : `Served ${m} min ago, check still open`, 'Help close the check');
+    add(
+      'close',
+      m >= t('closeLate'),
+      m,
+      printerMode(cfg) ? `Sent ${m} min ago, check still open` : `Served ${m} min ago, check still open`,
+      'Help close the check',
+    );
   return out.sort((a, b) => b.score - a.score);
 }
 
