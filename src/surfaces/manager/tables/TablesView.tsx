@@ -12,7 +12,7 @@ import { cx, useConfirm, useNow } from '../../../ui';
 import { heldConfirm, heldWord, useHeldFor } from '../../server/newcheck/heldTable';
 import type { Reservation } from '../../host/reservations/model';
 import { FloorPlan } from '../floor/FloorPlan';
-import { FLOOR_KEYS, floorState } from '../floor/floorState';
+import { floorState } from '../floor/floorState';
 import { checksAt, inPlan, useRoomPlan, useTableName, type PlanItem } from '../../../store/floorLayout';
 import { ServerLegend } from '../floor/ServerLegend';
 import s from './TablesView.module.css';
@@ -46,14 +46,6 @@ export function TablesView({
   return (
     <div className={s.wrap}>
       <div className={s.legends}>
-        <ul className={s.stateLegend} aria-label="Colours">
-          {FLOOR_KEYS.map((k) => (
-            <li key={k.key}>
-              <span className={cx(s.swatch, s[k.key])} />
-              {k.label}
-            </li>
-          ))}
-        </ul>
         <ServerLegend servers={serversOnFloor(live).filter((x) => x.open > 0)} />
       </div>
       <div className={s.planScroll}>

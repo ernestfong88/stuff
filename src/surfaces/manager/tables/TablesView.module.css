@@ -13,36 +13,6 @@
   flex-wrap: wrap;
   justify-content: space-between;
 }
-.stateLegend {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.stateLegend li {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--s700);
-}
-.swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
-}
-.planScroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Tiles */
 .tile {
   display: flex;
   flex-direction: column;
@@ -156,13 +126,6 @@
 }
 .idle {
   background: var(--s400);
-}
-.swatch.run,
-.swatch.cook,
-.swatch.late,
-.swatch.check,
-.swatch.eat {
-  box-shadow: none;
 }
 
 /* Several checks on one table */

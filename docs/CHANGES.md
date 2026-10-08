@@ -220,6 +220,9 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Table map: no colour key
+The row of status colours (Ready to run, Cooking, Late…) above the table map is gone. Each table still says its status in words, and the server chips stay.
+
 ### P-Mix colours match the dashboard
 - The *P-Mix* page now colours by course, the same as the dashboard's P-Mix wheel: starters orange, entrées blue, desserts green, anything else grey. A category's dishes on the ring take its shades, darkest for the best seller, with "Everything else" in light grey.
 - Specials and à la carte are told apart without a colour of their own: specials are the full colour and à la carte the paler shade of the same course, and the two lists are headed with a filled and an outlined dot. The *Special entrées* ring names the top four, like the dashboard.
