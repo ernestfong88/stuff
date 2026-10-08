@@ -26,14 +26,20 @@ export interface BoResident {
 /** The billing plan for a resident the back office has no record of yet, from the tablets' plan. */
 const PLAN_FOR: Record<string, string> = { monthly30: 'pl1', daily2: 'pl8', alacarte: 'pl4' };
 
-/** A back office record for a resident who only has a dining record so far. */
-function fromDining(d: Resident): BoResident {
+/** The plan id a care level starts on (Meal Plans › Default plan by care level), when one is set. */
+export type LevelDefault = (level: string) => string | undefined;
+
+/**
+ * A back office record for a resident who only has a dining record so far:
+ * the plan matching the tablets' one, else their care level's default.
+ */
+export function fromDining(d: Resident, levelDefault?: LevelDefault): BoResident {
   return {
     id: d.id,
     name: d.name,
     apt: d.apt,
     level: d.level,
-    planId: PLAN_FOR[d.plan] ?? 'pl1',
+    planId: PLAN_FOR[d.plan] ?? levelDefault?.(d.level) ?? 'pl1',
     startDay: 1,
     coupleStartDay: d.spouse ? 1 : null,
     spouseId: d.spouse ?? null,
@@ -51,20 +57,24 @@ function fromDining(d: Resident): BoResident {
  * Records the dining app doesn't know (or that carry someone else's id) are
  * kept as they are.
  */
-export function withAllResidents(list: BoResident[]): BoResident[] {
+export function withAllResidents(list: BoResident[], levelDefault?: LevelDefault): BoResident[] {
   const out: BoResident[] = [];
   const used = new Set<string>();
   for (const d of residents) {
     const bo = list.find((r) => r.id === d.id && r.name === d.name);
     if (bo) used.add(bo.id);
-    out.push(bo ? { ...bo, level: d.level, diet: [...d.diet], allergies: [...d.allergies] } : fromDining(d));
+    out.push(bo ? { ...bo, level: d.level, diet: [...d.diet], allergies: [...d.allergies] } : fromDining(d, levelDefault));
   }
   for (const r of list) if (!used.has(r.id) && !out.some((x) => x.id === r.id)) out.push(r);
   const same = out.length === list.length && out.every((r, i) => r === list[i] || JSON.stringify(r) === JSON.stringify(list[i]));
   return same ? list : out;
 }
 
-export const seedBoResidents = (): BoResident[] => withAllResidents(boResidents.map((r) => ({ ...(r as unknown as BoResident) })));
+export const seedBoResidents = (levelDefault?: LevelDefault): BoResident[] =>
+  withAllResidents(
+    boResidents.map((r) => ({ ...(r as unknown as BoResident) })),
+    levelDefault,
+  );
 
 /** A resident's care level (IL or AL), from the dining record: the one source every page reads. */
 export function careLevel(id: string): string | undefined {

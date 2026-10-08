@@ -3,12 +3,12 @@ import { BadgeCheck, Ban, Check, MoreVertical, Pencil, Plus, RotateCcw, Send, Un
 import { getResident } from '../../../../data';
 import { now } from '../../../../lib/clock';
 import { Button, MenuItem, Popover, Tabs, cx, toast, useConfirm } from '../../../../ui';
-import { BoPage, BoTable, setBillingList, useBilling, useResidentRecords, type BoColumn } from '../../kit';
+import { ANY_DATE, BoFilterChip, BoPage, BoTable, DateRangeFilter, isRangeSet, setBillingList, useBilling, useResidentRecords, type BoColumn, type DateRange } from '../../kit';
 import type { BoPageProps } from '../../nav';
 import { BACK_OFFICE_USER } from '../../seed/associates';
 import type { Charge } from '../../seed/billing';
 import { careLevel } from '../../seed/residents';
-import { approveAll, chargeStep, chargesFor, itemLabel, sendToBilling, toggleApproval, type ChargeTab } from './charges';
+import { approveAll, chargeCategories, chargeStep, chargeTotal, chargesFor, filterCharges, itemLabel, sendToBilling, toggleApproval, type ChargeTab } from './charges';
 import { EditAmountModal } from './EditAmountModal';
 import { ManualChargeModal } from './ManualChargeModal';
 import s from './chargeReview.module.css';
@@ -30,10 +30,27 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
   const [tab, setTab] = useState<ChargeTab>('review');
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<Charge | null>(null);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [range, setRange] = useState<DateRange>(ANY_DATE);
   const nameOf = (rid: string) => residents.find((r) => r.id === rid)?.name ?? getResident(rid)?.name ?? 'Unknown resident';
-  const rows = chargesFor(tab, charges, now());
-  const waiting = chargesFor('review', charges, now()).filter((c) => c.active);
-  const ready = chargesFor('final', charges, now());
+  const at = now();
+  const tabRows = chargesFor(tab, charges, at);
+  // Category counts follow the tab and the dates, so each chip says how many it would show.
+  const cats = chargeCategories(filterCharges(tabRows, { categories: [], range }, at));
+  const shownCats = categories.filter((id) => cats.some((c) => c.id === id));
+  const filtered = shownCats.length > 0 || isRangeSet(range);
+  const rows = filterCharges(tabRows, { categories: shownCats, range }, at);
+  const allWaiting = chargesFor('review', charges, at).filter((c) => c.active);
+  const allReady = chargesFor('final', charges, at);
+  // Approve all and Send act on what is shown.
+  const waiting = tab === 'review' ? rows.filter((c) => c.active) : allWaiting;
+  const ready = tab === 'final' ? rows : allReady;
+  const total = chargeTotal(rows);
+  const clearFilters = () => {
+    setCategories([]);
+    setRange(ANY_DATE);
+  };
+  const toggleCategory = (id: string) => setCategories((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
   const setCharges = (fn: (list: Charge[]) => Charge[]) => setBillingList('charges', fn);
   const patch = (id: string, fn: (c: Charge) => Charge) => setCharges((list) => list.map((x) => (x.id === id ? fn(x) : x)));
   const what = (c: Charge) => `${nameOf(c.residentId)}'s ${itemLabel(c.item).toLowerCase()} charge`;
@@ -53,21 +70,22 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
   };
   const approveEverything = () => {
     const ids = new Set(waiting.map((c) => c.id));
-    setCharges((list) => approveAll(list, BACK_OFFICE_USER.short, now()));
+    setCharges((list) => approveAll(list, BACK_OFFICE_USER.short, now(), ids));
     toast(`Approved ${ids.size} ${ids.size === 1 ? 'charge' : 'charges'}`, {
       tone: 'success',
       action: { label: 'Undo', onClick: () => setCharges((list) => list.map((x) => (ids.has(x.id) ? { ...x, approvedAt: null, approvedBy: null } : x))) },
     });
   };
   const send = async () => {
-    const total = ready.reduce((sum, c) => sum + c.amount, 0);
+    const ids = new Set(ready.map((c) => c.id));
+    const total = chargeTotal(ready);
     const ok = await ask({
       title: `Send ${ready.length} ${ready.length === 1 ? 'charge' : 'charges'} to billing?`,
       message: `$${total.toFixed(2)} goes on residents' accounts. Once sent, a charge can no longer be changed or voided here.`,
       confirmLabel: 'Send to billing',
     });
     if (!ok) return;
-    setCharges((list) => sendToBilling(list, now()));
+    setCharges((list) => sendToBilling(list, now(), ids));
     toast(`${ready.length} ${ready.length === 1 ? 'charge' : 'charges'} sent to billing`, { tone: 'success' });
   };
 
@@ -163,12 +181,12 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
           </Button>
           {tab === 'review' && (
             <Button variant="primary" icon={<BadgeCheck size={15} />} disabled={!waiting.length} onClick={approveEverything}>
-              {waiting.length ? `Approve all ${waiting.length}` : 'Approve all'}
+              {!waiting.length ? 'Approve all' : filtered ? `Approve ${waiting.length} shown` : `Approve all ${waiting.length}`}
             </Button>
           )}
           {tab === 'final' && (
             <Button variant="primary" icon={<Send size={15} />} disabled={!ready.length} onClick={() => void send()}>
-              {ready.length ? `Send ${ready.length} to billing` : 'Send to billing'}
+              {!ready.length ? 'Send to billing' : filtered ? `Send ${ready.length} shown to billing` : `Send ${ready.length} to billing`}
             </Button>
           )}
         </>
@@ -179,19 +197,52 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
         value={tab}
         onChange={setTab}
         options={[
-          { id: 'review', label: 'To review', count: waiting.length, countTone: waiting.length ? 'info' : 'neutral' },
-          { id: 'final', label: 'Ready for billing', count: ready.length },
+          { id: 'review', label: 'To review', count: allWaiting.length, countTone: allWaiting.length ? 'info' : 'neutral' },
+          { id: 'final', label: 'Ready for billing', count: allReady.length },
           { id: 'recent', label: 'Last 60 days' },
         ]}
       />
       <p className={s.how}>{HOW[tab]}</p>
+      <div className={s.filters}>
+        <span className={s.cats} role="group" aria-label="Category">
+          <BoFilterChip active={!shownCats.length} onClick={() => setCategories([])} {...chipLook(!shownCats.length)}>
+            All
+          </BoFilterChip>
+          {cats.map((c) => {
+            const on = shownCats.includes(c.id);
+            return (
+              <BoFilterChip key={c.id} active={on} onClick={() => toggleCategory(c.id)} {...chipLook(on)}>
+                {c.label} <span className={s.count}>{c.count}</span>
+              </BoFilterChip>
+            );
+          })}
+        </span>
+        <DateRangeFilter value={range} onChange={setRange} />
+        <span className={s.summary}>
+          {filtered ? `${rows.length} of ${tabRows.length} shown` : `${rows.length} ${rows.length === 1 ? 'charge' : 'charges'}`} ·{' '}
+          <strong>${total.toFixed(2)}</strong>
+          {filtered && (
+            <Button size="sm" variant="ghost" onClick={clearFilters}>
+              Clear filters
+            </Button>
+          )}
+        </span>
+      </div>
       <BoTable
         caption="Charges"
         columns={columns}
         rows={rows}
         rowKey={(c) => c.id}
         rowTone={(c) => (c.active ? undefined : 'muted')}
-        empty={tab === 'review' ? 'Nothing waiting. All caught up.' : tab === 'final' ? 'Nothing approved is waiting to go to billing.' : 'No charges in the last 60 days.'}
+        empty={
+          filtered && tabRows.length
+            ? 'No charges match these filters.'
+            : tab === 'review'
+              ? 'Nothing waiting. All caught up.'
+              : tab === 'final'
+                ? 'Nothing approved is waiting to go to billing.'
+                : 'No charges in the last 60 days.'
+        }
       />
       {adding && <ManualChargeModal onClose={() => setAdding(false)} />}
       {editing && <EditAmountModal charge={editing} residentName={nameOf(editing.residentId)} onClose={() => setEditing(null)} />}
@@ -199,6 +250,9 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
     </BoPage>
   );
 }
+
+/** Category chips: quiet when off, ocean when picked. */
+const chipLook = (on: boolean) => (on ? { color: 'var(--ocean-700)', bg: 'var(--ocean-100)' } : { color: 'var(--s700)', bg: 'var(--sunken)' });
 
 /** Where a charge is, in words. */
 function Status({ c }: { c: Charge }) {

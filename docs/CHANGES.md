@@ -220,6 +220,21 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Charge Approval and Order History: filters
+- **Charge Approval has a filter bar** under the tabs. **Category** chips (All · Meal · Guest meal · Delivery · Alcohol · Added by hand, plus any other item code on file) each show how many charges they hold in the current tab and dates; pick one or several. **Date range** offers Any date, Today, Yesterday, Last 7 days, This month and Custom, which shows From and To days.
+- The filters work with every tab (To review, Ready for billing, Last 60 days). The bar shows *5 of 10 shown · $14.00* with **Clear filters**; the total leaves out voided charges. The tab counts still show the whole queue.
+- **Approve all and Send to billing act only on what is shown.** When a filter is on, the buttons say so: *Approve 5 shown*, *Send 2 shown to billing*. With no filter they read as before (*Approve all 9*).
+- **Order History has the same Date range** next to its associate and charge type filters. A check is dated by when it closed, or when it opened if still open. *Clear filters* resets the dates too.
+- One shared control and helper (`DateRangeFilter`, `kit/dateRange.ts`) so both pages read days the same way, in local time.
+
+
+### Meal Plans: a default for each care level
+- The single *Default* tick on the plan list is replaced by a **Default plan by care level** section: one dropdown per care level on file (IL and AL today; Memory Care or Skilled Nursing appear when residents have them), each with how many residents are at that level. Pick a plan or *No default*; a toast confirms with **Undo**.
+- **It takes effect:** a resident the Back Office has no plan for, whose tablet plan doesn't match a Back Office plan (a new resident), starts on their care level's default. Close & charge, the server and the kiosk also fall back to it for a resident with no plan anywhere. No one already on a plan is moved.
+- Ships with **IL → IL Resident Meal Plan** and **AL → AL 2x Meals a Day** (it matches the tablets' 2 meals a day plan). Every seed resident keeps the plan they had.
+- **Saved copies carry over:** a list saved with the old tick (sometimes on two plans, such as IL Resident Meal Plan and IL Spenddown) takes the ticked plan named for each level, else the shipped default. If a default plan is retired, its level shows *No default* with a note to pick another.
+
+
 ### Venue Settings: an overview first
 - **Venue Settings opens on one card per venue** instead of a list on the left and a pile of "needs attention" lines on top. Each card says the venue's name, what kind of place it is (Dining room, Bistro or Catering) and that it is Open.
 - **Serving now** on each card, in plain words, for example *Cycle: VT Fall 2026 · week 3 of 5* and *À la carte: VT Fall 2026 · Every-day items*, or *No menu yet* in red.

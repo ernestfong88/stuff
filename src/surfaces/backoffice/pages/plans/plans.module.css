@@ -2,14 +2,9 @@
   font-weight: 650;
   color: var(--ink);
 }
-.warn {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-.warn svg {
-  flex-shrink: 0;
-  margin-top: 1px;
+.levelName {
+  font-weight: 500;
+  color: var(--s500);
 }
 .foot {
   padding: 4px 0 14px;

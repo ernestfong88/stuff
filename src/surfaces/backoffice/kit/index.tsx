@@ -286,3 +286,5 @@ export { useCommunity, setCommunity } from './community';
 export { CrudTable, useCrudEditing, type CrudRow, type CrudColumn, type CrudEditing } from './CrudTable';
 export { useBilling, setBillingList, billingStore, chargesToReview, amountToReview, type BillingState } from './billing';
 export { useResidentRecords, updateResidentRecord, residentRecordsStore } from './residentRecords';
+export { DateRangeFilter } from './DateRangeFilter';
+export { ANY_DATE, inRange, isRangeSet, rangeBounds, type DatePreset, type DateRange } from './dateRange';

@@ -7,7 +7,9 @@ import { dinerBilling } from '../../../../domain/billing';
 import type { DiningConfig } from '../../../../domain/config';
 import { dinerName } from '../../../../domain/orders';
 import type { Diner, Order } from '../../../../domain/types';
+import { now } from '../../../../lib/clock';
 import { apartmentAmount, dropKind } from '../../kit/billing';
+import { inRange, type DateRange } from '../../kit/dateRange';
 
 /** How a diner's meal was settled at close. */
 export const PAYMENT_LABELS: Record<string, string> = {
@@ -82,12 +84,19 @@ export function buildRows(open: Order[], closed: Order[], cfg: DiningConfig): Or
   return [...closed.map((o) => row(o, false)), ...open.filter((o) => o.diners.length > 0).map((o) => row(o, true))].sort((a, b) => recent(b.order) - recent(a.order));
 }
 
-export function filterRows(rows: OrderRow[], f: { query: string; server: string; charge: ChargeFilter; status?: StatusFilter }): OrderRow[] {
+/** When a check counts for the date filter: when it closed, or opened if still open. */
+export const rowTime = (r: OrderRow): number => r.order.closedAt ?? r.order.openedAt;
+
+export function filterRows(
+  rows: OrderRow[],
+  f: { query: string; server: string; charge: ChargeFilter; status?: StatusFilter; range?: DateRange; at?: number },
+): OrderRow[] {
   const q = f.query.trim().toLowerCase();
   const status = f.status ?? 'all';
   return rows.filter(
     (r) =>
       (status === 'all' || r.open === (status === 'open')) &&
+      (!f.range || inRange(rowTime(r), f.range, f.at ?? now())) &&
       (f.server === 'All' || r.order.server === f.server) &&
       (f.charge === 'All' || (f.charge === 'apt' ? r.apartment : r.charged > 0 && !r.apartment)) &&
       (!q || r.names.toLowerCase().includes(q)),

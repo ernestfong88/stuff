@@ -7,8 +7,8 @@ import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
 import { Avatar, Button, Chip, EmptyState, SearchField, Tabs, cx } from '../../../../ui';
 import { formatDayShort, formatTime } from '../../../../lib/format';
-import { startOfToday } from '../../../../lib/clock';
-import { BoPage, BoSelect } from '../../kit';
+import { now, startOfToday } from '../../../../lib/clock';
+import { ANY_DATE, BoPage, BoSelect, DateRangeFilter, isRangeSet, type DateRange } from '../../kit';
 import type { BoPageProps } from '../../nav';
 import { OrderDetail } from './OrderDetail';
 import { buildRows, filterRows, type ChargeFilter, type OrderRow, type StatusFilter } from './orderRows';
@@ -22,11 +22,12 @@ export default function OrderHistoryPage(_props: BoPageProps) {
   const [server, setServer] = useState('All');
   const [charge, setCharge] = useState<ChargeFilter>('All');
   const [status, setStatus] = useState<StatusFilter>('all');
+  const [range, setRange] = useState<DateRange>(ANY_DATE);
   const [openId, setOpenId] = useState<string | null>(null);
   const all = useMemo(() => buildRows(orders, history, cfg), [orders, history, cfg]);
-  const rows = filterRows(all, { query, server, charge, status });
+  const rows = filterRows(all, { query, server, charge, status, range, at: now() });
   const openCount = all.filter((r) => r.open).length;
-  const filtered = query !== '' || server !== 'All' || charge !== 'All' || status !== 'all';
+  const filtered = query !== '' || server !== 'All' || charge !== 'All' || status !== 'all' || isRangeSet(range);
   const total = rows.reduce((sum, r) => sum + r.charged, 0);
   const servers = [...new Set([...staff.map((x) => x.id), ...all.map((r) => r.order.server)])].filter(Boolean);
 
@@ -59,13 +60,14 @@ export default function OrderHistoryPage(_props: BoPageProps) {
           <option value="apt">Apartment charge</option>
           <option value="other">Other charge</option>
         </BoSelect>
+        <DateRangeFilter value={range} onChange={setRange} />
         <span className={s.summary}>
           {rows.length} {rows.length === 1 ? 'order' : 'orders'} · <strong>${total.toFixed(2).replace(/\.00$/, '')}</strong> charged
         </span>
       </div>
       {rows.length === 0 ? (
         <EmptyState title="No orders match">
-          Try another name, associate or charge type.
+          Try another name, associate, charge type or dates.
           {filtered && (
             <div className={s.clear}>
               <Button
@@ -75,6 +77,7 @@ export default function OrderHistoryPage(_props: BoPageProps) {
                   setServer('All');
                   setCharge('All');
                   setStatus('all');
+                  setRange(ANY_DATE);
                 }}
               >
                 Clear filters

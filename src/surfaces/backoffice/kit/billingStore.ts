@@ -6,6 +6,7 @@
 import { createSharedStore } from '../../../lib/sharedStore';
 import {
   seedCharges,
+  seedDefaultPlans,
   seedDeliveryOptions,
   seedMealCounts,
   seedPlans,
@@ -14,9 +15,12 @@ import {
   type DeliveryOption,
   type MealCountOption,
 } from '../seed/billing';
+import { migrateDefaultPlans, type DefaultPlans } from './planDefaults';
 
 export interface BillingState {
   plans: BoMealPlan[];
+  /** The plan each care level starts on (care level → plan id). */
+  defaultPlans: DefaultPlans;
   mealCounts: MealCountOption[];
   /** Retired: the old delivery option list. The fee now lives per venue in the dining config (`venueFee`). Kept so saved copies load. */
   deliveryOptions: DeliveryOption[];
@@ -24,7 +28,13 @@ export interface BillingState {
 }
 
 export const billingStore = createSharedStore<BillingState>(
-  () => ({ plans: seedPlans(), mealCounts: seedMealCounts(), deliveryOptions: seedDeliveryOptions(), charges: seedCharges() }),
+  () => ({
+    plans: seedPlans(),
+    defaultPlans: seedDefaultPlans(),
+    mealCounts: seedMealCounts(),
+    deliveryOptions: seedDeliveryOptions(),
+    charges: seedCharges(),
+  }),
   { persistKey: 'kisco_backoffice_billing_v1', channel: 'kisco-backoffice-billing' },
 );
 
@@ -33,4 +43,15 @@ export const billingStore = createSharedStore<BillingState>(
   const saved = billingStore.get();
   const missing = seedPlans().filter((p) => !saved.plans.some((x) => x.id === p.id));
   if (missing.length) billingStore.set({ ...saved, plans: [...saved.plans, ...missing] });
+}
+// A copy saved with the single default tick gets a default for each care level.
+{
+  const saved = billingStore.get();
+  const defaultPlans = migrateDefaultPlans(saved.defaultPlans as DefaultPlans | undefined, saved.plans, seedDefaultPlans());
+  if (JSON.stringify(defaultPlans) !== JSON.stringify(saved.defaultPlans)) billingStore.set({ ...saved, defaultPlans });
+}
+
+/** Set (or, with a blank id, clear) the plan a care level starts on. */
+export function setDefaultPlan(level: string, planId: string): void {
+  billingStore.set((s) => ({ ...s, defaultPlans: { ...s.defaultPlans, [level]: planId } }));
 }

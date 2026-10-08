@@ -56,6 +56,8 @@ interface Props<T extends CrudRow> {
   setRows: (update: (rows: T[]) => T[]) => void;
   columns: Array<CrudColumn<T>>;
   editing: CrudEditing<T>;
+  /** Show the single-default radio column (Meal Plans sets its defaults per care level instead). */
+  showDefault?: boolean;
 }
 
 /**
@@ -63,7 +65,7 @@ interface Props<T extends CrudRow> {
  * the radio, retire with undo. Shared by Meal Plans, Meal Counts and
  * Delivery Options.
  */
-export function CrudTable<T extends CrudRow>({ noun, rows, setRows, columns, editing }: Props<T>) {
+export function CrudTable<T extends CrudRow>({ noun, rows, setRows, columns, editing, showDefault = true }: Props<T>) {
   const { draft, setDraft, isNew, setIsNew } = editing;
   const editId = draft?.id ?? null;
   const shown = [...(isNew && draft ? [draft] : []), ...rows.filter((r) => r.active)];
@@ -139,6 +141,15 @@ export function CrudTable<T extends CrudRow>({ noun, rows, setRows, columns, edi
     );
   };
 
+  // No shared radio `name`: old data can hold two defaults, and a named group would hide one of them.
+  const defaultColumn: BoColumn<T> = {
+    key: 'default',
+    header: 'Default',
+    width: 90,
+    render: (r: T) => (
+      <input type="radio" className={s.radio} checked={r.isDefault} disabled={r.id === editId} aria-label={`Make ${r.text} the default`} onChange={() => makeDefault(r.id)} />
+    ),
+  };
   const cols: Array<BoColumn<T>> = [
     ...columns.map((c) => ({
       key: c.key,
@@ -146,15 +157,7 @@ export function CrudTable<T extends CrudRow>({ noun, rows, setRows, columns, edi
       width: c.width,
       render: (r: T) => (r.id === editId ? editorFor(c) : c.render(r)),
     })),
-    // No shared radio `name`: old data can hold two defaults, and a named group would hide one of them.
-    {
-      key: 'default',
-      header: 'Default',
-      width: 90,
-      render: (r: T) => (
-        <input type="radio" className={s.radio} checked={r.isDefault} disabled={r.id === editId} aria-label={`Make ${r.text} the default`} onChange={() => makeDefault(r.id)} />
-      ),
-    },
+    ...(showDefault ? [defaultColumn] : []),
     {
       key: 'actions',
       header: '',

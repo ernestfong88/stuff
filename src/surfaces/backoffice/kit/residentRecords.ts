@@ -9,8 +9,15 @@ import { createSharedStore, useShared } from '../../../lib/sharedStore';
 import type { BoMealPlan } from '../seed/billing';
 import { seedBoResidents, withAllResidents, type BoResident } from '../seed/residents';
 import { billingStore } from './billingStore';
+import { defaultPlanFor, type DefaultPlans } from './planDefaults';
 
-export const residentRecordsStore = createSharedStore<BoResident[]>(seedBoResidents, {
+/** The plan id a care level starts on, from Meal Plans (Default plan by care level). */
+export function levelDefaultPlan(level: string): string | undefined {
+  const { defaultPlans, plans } = billingStore.get();
+  return defaultPlanFor(level, defaultPlans, plans)?.id;
+}
+
+export const residentRecordsStore = createSharedStore<BoResident[]>(() => seedBoResidents(levelDefaultPlan), {
   persistKey: 'kisco_backoffice_residents_v1',
   channel: 'kisco-backoffice-residents',
 });
@@ -18,8 +25,8 @@ export const residentRecordsStore = createSharedStore<BoResident[]>(seedBoReside
 // and a plan nobody has changed here follows the shipped one.
 {
   const saved = residentRecordsStore.get();
-  const seed = seedBoResidents();
-  const full = withAllResidents(saved).map((r) => {
+  const seed = seedBoResidents(levelDefaultPlan);
+  const full = withAllResidents(saved, levelDefaultPlan).map((r) => {
     const planId = !r.planLog?.length && seed.find((x) => x.id === r.id && x.name === r.name)?.planId;
     return planId && planId !== r.planId ? { ...r, planId } : r;
   });
@@ -94,15 +101,21 @@ export function tabletPlan(bo: Pick<BoMealPlan, 'id' | 'text' | 'amt' | 'type'>)
  * A resident's meal plan as close & charge, the server and the kiosk count
  * it: the Back Office plan (Dining Plans & Notes) with its amounts from Meal
  * Plans. The dining record's plan is only a fallback, for a resident with no
- * Back Office record or a plan that no longer exists.
+ * Back Office record or a plan that no longer exists; then their care
+ * level's default plan; then à la carte.
  */
 export function residentPlan(
   residentId: string | null | undefined,
   records: readonly BoResident[] = residentRecordsStore.get(),
   plans: readonly BoMealPlan[] = billingStore.get().plans,
+  defaultPlans: DefaultPlans | undefined = billingStore.get().defaultPlans,
 ): MealPlan {
-  const seed = mealPlans[getResident(residentId ?? '')?.plan ?? ''] ?? mealPlans.alacarte;
+  const dining = getResident(residentId ?? '');
   const rec = residentId ? records.find((r) => r.id === residentId) : undefined;
   const bo = rec ? plans.find((p) => p.id === rec.planId) : undefined;
-  return bo ? tabletPlan(bo) : seed;
+  if (bo) return tabletPlan(bo);
+  const seed = mealPlans[dining?.plan ?? ''];
+  if (seed) return seed;
+  const byLevel = defaultPlanFor(rec?.level ?? dining?.level, defaultPlans, plans);
+  return byLevel ? tabletPlan(byLevel) : mealPlans.alacarte;
 }

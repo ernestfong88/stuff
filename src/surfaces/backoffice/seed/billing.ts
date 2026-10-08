@@ -14,6 +14,7 @@ export interface BoMealPlan {
   text: string;
   amt: number;
   type: PlanType;
+  /** The old single "default" tick. Care-level defaults (`defaultPlans` in the billing store) replace it; still read to carry saved copies over. */
   isDefault: boolean;
   /** Retired plans stay for old records but are hidden. */
   active: boolean;
@@ -83,6 +84,8 @@ const seed = billingJson as unknown as {
 const onDay = (day: number | null) => (day == null ? null : startOfToday() + day * DAY + 10 * HOUR);
 
 export const seedPlans = (): BoMealPlan[] => seed.plans.map((p) => ({ ...p }));
+/** The plan each care level starts on: IL on the 30 meal plan, AL on 2 meals a day (the tablets' daily2). */
+export const seedDefaultPlans = (): Record<string, string> => ({ IL: 'pl1', AL: 'pl8' });
 export const seedMealCounts = (): MealCountOption[] => seed.mealCounts.map((m) => ({ ...m }));
 export const seedDeliveryOptions = (): DeliveryOption[] => seed.deliveryOptions.map((d) => ({ ...d }));
 export const seedCharges = (): Charge[] =>
