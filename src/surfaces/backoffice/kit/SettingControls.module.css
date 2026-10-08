@@ -71,3 +71,38 @@
   font-size: 13px;
   font-weight: 600;
 }
+.checkCols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 12px 20px;
+}
+.checkCol {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+.checkTitle {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  font-size: 13px;
+  color: var(--s700);
+  cursor: pointer;
+}
+.check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--ocean);
+}

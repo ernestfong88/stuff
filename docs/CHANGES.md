@@ -220,6 +220,14 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### KDS Settings: dropdowns and checkboxes
+*KDS Settings* is calmer to read. The settings and what they do are unchanged.
+
+- **Screens in this kitchen** and **Expo screen** are dropdowns instead of rows of buttons.
+- Screens are edited one at a time: pick the screen from a dropdown, then rename it and tick what it shows. Before, every screen's full list was shown side by side.
+- What a screen shows is a checkbox list in four columns (Starters, Entrées, Sides, Desserts) instead of rows of pill buttons.
+- The hint lines next to each setting and the paragraph at the bottom are gone. The note listing anything not ticked on any screen stays.
+
 ### Coursing options in plain POS wording
 The coursing choices on *Pacing & Coursing* are renamed. They work the same as before.
 

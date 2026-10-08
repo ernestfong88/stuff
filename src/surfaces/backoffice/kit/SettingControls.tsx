@@ -170,3 +170,35 @@ export function InlineField({ label, children }: { label: string; children: Reac
     </label>
   );
 }
+
+/** Checkboxes to pick several, in titled columns ("Starters: ☐ Soup ☐ Salad"). */
+export function CheckList<T extends string>({
+  groups,
+  value,
+  onChange,
+  label,
+}: {
+  groups: ReadonlyArray<{ title: string; options: ReadonlyArray<{ id: T; label: string }> }>;
+  value: readonly T[];
+  onChange: (v: T[]) => void;
+  label: string;
+}) {
+  return (
+    <div className={s.checkCols} role="group" aria-label={label}>
+      {groups.map((g) => (
+        <fieldset key={g.title} className={s.checkCol}>
+          <legend className={s.checkTitle}>{g.title}</legend>
+          {g.options.map((o) => {
+            const on = value.includes(o.id);
+            return (
+              <label key={o.id} className={s.check}>
+                <input type="checkbox" checked={on} onChange={() => onChange(on ? value.filter((x) => x !== o.id) : [...value, o.id])} />
+                {o.label}
+              </label>
+            );
+          })}
+        </fieldset>
+      ))}
+    </div>
+  );
+}
