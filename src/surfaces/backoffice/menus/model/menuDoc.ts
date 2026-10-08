@@ -10,6 +10,8 @@ import { dishLong } from './categories';
 import { pickupSpan } from './pickupWindows';
 import { tabletItem } from './tablet';
 import { splitAt } from './printFit';
+import { dietOrder } from './dietIcons';
+import type { PriceField } from './pricing';
 import type { PrintContext, PrintKind, PrintLine } from './menuPrint';
 
 export const PRINT_MEALS = ['Breakfast', 'Lunch', 'Dinner'] as const;
@@ -29,6 +31,8 @@ export interface DocItem {
   diets: string[];
   /** Small italic notes after the name: "+$4", "lunch only". */
   tags: string[];
+  /** Its price at the venue when the menu prints prices: "$12.50", "+$2.00" for an add-on. */
+  price?: string;
 }
 
 export interface DocCat {
@@ -47,7 +51,7 @@ export type DocBlock =
   /** A meal and its courses (daily), or one course of an à la carte section (`sec`). */
   | { t: 'meal'; title: string; cats: DocCat[]; cycle?: boolean; sec?: string; first?: boolean }
   /** A meal with no specials: the everyday entrées on a line. */
-  | { t: 'list'; title: string; names: string[]; note: string }
+  | { t: 'list'; title: string; names: string[]; note: string; prices?: Array<string | undefined> }
   | { t: 'note'; text: string; glue?: boolean }
   | { t: 'snacks'; names: string[] }
   | {
@@ -57,7 +61,7 @@ export type DocBlock =
       note: string;
     }
   | { t: 'orderTop'; how: string }
-  | { t: 'orderDay'; date: string; meals: Array<{ meal: string; items: Array<{ name: string; diets: string[] }> }> };
+  | { t: 'orderDay'; date: string; meals: Array<{ meal: string; items: Array<{ name: string; diets: string[]; price?: string }> }> };
 
 export interface DocSheet {
   kicker: string;
@@ -75,6 +79,10 @@ export interface MenuDoc {
   /** Daily and à la carte menus are centred, the week and the order form are not. */
   centered: boolean;
   sheets: DocSheet[];
+  /** Diets print as icons, with a legend of the ones on each page (else as words). */
+  icons?: boolean;
+  /** Which prices the menu prints ("Guest prices"), when it prints them. */
+  priceNote?: string;
 }
 
 export const RAW_FOOD_NOTICE =
@@ -134,15 +142,40 @@ export function pickedMeals(picked: readonly string[] | undefined, allowed: read
   return allowed.filter((m) => picked?.includes(m));
 }
 
+const diets = (x: PrintLine, C: PrintContext) => (C.options.diet ? (x.r.dietFlags ?? []) : []);
+
 function item(x: PrintLine, C: PrintContext, sides: string[] = [], tags: string[] = []): DocItem {
   const desc = x.r.menuDescriptor || x.r.desc;
+  const price = C.price(x.r);
   return {
     name: dishLong(x.r.name),
     desc: desc || undefined,
     sides: sides.length ? sides : undefined,
-    diets: C.options.diet ? (x.r.dietFlags ?? []) : [],
+    diets: diets(x, C),
     tags,
+    ...(price ? { price } : {}),
   };
+}
+
+/** What each printout says about its prices, by the price it prints. */
+export const PRICE_NOTES: Record<PriceField, string> = { guest: 'Guest prices', ala: 'À la carte prices', res: 'Resident prices' };
+
+/** The doc-wide print choices: diet icons, and which prices print (the week at a glance has no room for prices). */
+function looks(C: PrintContext, kind: PrintKind): Pick<MenuDoc, 'icons' | 'priceNote'> {
+  return {
+    ...(C.options.diet && C.options.dietIcons ? { icons: true } : {}),
+    ...(C.options.prices && kind !== 'week' ? { priceNote: PRICE_NOTES[C.options.prices] } : {}),
+  };
+}
+
+/** The diets a page's dishes carry, each once, in Recipe Book order: what its legend lists. */
+export function sheetDiets(s: DocSheet): string[] {
+  const out: string[] = [];
+  for (const b of s.blocks) {
+    if (b.t === 'meal') for (const c of b.cats) for (const x of c.items) out.push(...x.diets);
+    else if (b.t === 'orderDay') for (const m of b.meals) for (const x of m.items) out.push(...x.diets);
+  }
+  return dietOrder(out);
 }
 
 /** The printout's choices, beyond the print options. */
@@ -172,9 +205,15 @@ export function dailyDoc(C: PrintContext, day: number, meals: string[] = []): Me
     const L = lines(m);
     if (!L.length) {
       const A = everydayEntrees(C, m);
-      return A.length && !noCycle
-        ? { t: 'list', title: m, names: A.map((x) => dishLong(x.r.name)), note: 'Served from the à la carte menu every day.' }
-        : null;
+      if (!A.length || noCycle) return null;
+      const prices = A.map((x) => C.price(x.r));
+      return {
+        t: 'list',
+        title: m,
+        names: A.map((x) => dishLong(x.r.name)),
+        note: 'Served from the à la carte menu every day.',
+        ...(prices.some(Boolean) ? { prices } : {}),
+      };
     }
     return {
       t: 'meal',
@@ -200,6 +239,7 @@ export function dailyDoc(C: PrintContext, day: number, meals: string[] = []): Me
       title: picked.join(', ') + ' menu ' + monthDay(d),
       landscape: false,
       centered: true,
+      ...looks(C, 'daily'),
       sheets: picked.map((m) => {
         const inner = present(
           m === 'Snacks'
@@ -223,6 +263,7 @@ export function dailyDoc(C: PrintContext, day: number, meals: string[] = []): Me
     title: 'Daily menu ' + monthDay(d),
     landscape: false,
     centered: true,
+    ...looks(C, 'daily'),
     sheets: [
       {
         kicker: C.venueName,
@@ -310,7 +351,8 @@ export function alaCarteDoc(C: PrintContext, opts: MenuPick = {}): MenuDoc {
             line: g.c === 'Sides',
             cont: g.cont,
             items: g.I.map((e) => {
-              const res = tabletItem(e.x.r.id)?.residentPrice ?? 0;
+              // The resident's upcharge, unless the menu prints its prices.
+              const res = C.options.prices ? 0 : (tabletItem(e.x.r.id)?.residentPrice ?? 0);
               const t = tag?.(e);
               return item(e.x, C, [], [...(res > 0 ? ['+$' + res] : []), ...(t ? [t] : [])]);
             }),
@@ -343,6 +385,7 @@ export function alaCarteDoc(C: PrintContext, opts: MenuPick = {}): MenuDoc {
     title: (picked.length ? picked.join(', ') + ' ' : '') + 'A la carte menu',
     landscape: false,
     centered: true,
+    ...looks(C, 'alacarte'),
     sheets: [
       {
         kicker: C.venueName,
@@ -378,7 +421,10 @@ export function orderDoc(C: PrintContext, w: number): MenuDoc {
         meal: m,
         items: C.at(d, m)
           .filter((x) => x.c !== 'Sides')
-          .map((x) => ({ name: dishLong(x.r.name), diets: C.options.diet ? (x.r.dietFlags ?? []) : [] })),
+          .map((x) => {
+            const price = C.price(x.r);
+            return { name: dishLong(x.r.name), diets: diets(x, C), ...(price ? { price } : {}) };
+          }),
       })),
     }));
   return {
@@ -386,6 +432,7 @@ export function orderDoc(C: PrintContext, w: number): MenuDoc {
     title: 'Weekly order form',
     landscape: false,
     centered: false,
+    ...looks(C, 'order'),
     sheets: [
       {
         kicker: C.venueName + ' · Pick up order form',

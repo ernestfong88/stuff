@@ -220,6 +220,14 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Menu Export: prices and diet icons
+- **Prices:** a new *Prices* option (Off · Guest · À la carte · Resident) prints each dish's price at the chosen venue, using the venue's own price where Pricing sets one. An add-on sold on top of a dish prints as *+$4.00*; a dish with no price (included in the meal plan, or never priced) prints nothing, never *$0.00*. A note over the footer says which prices are shown.
+- Prices print on the daily menu (after each dish's name, and with the everyday dishes), the à la carte menu on one or two pages (dishes and the sides line), and the order form (at the right of each column with a dotted leader). The week at a glance has no room for them and says so when they are on.
+- **Diet indicators** are now **Off · Words · Icons**. *Words* prints the chips as before. *Icons* prints a small line drawing after each dish: a leaf for Vegetarian, wheat struck through for Gluten-Friendly, a heart for Heart-Healthy, a milk drop struck through for Lactose Intolerant, a salt shaker struck through for No Salt Added, a knife and chopped pieces for Mechanical Altered, a cup for Nectar, a bowl and spoon for Pureed (any other diet gets a ring with its letters). They are inline SVG in the text colour, so they print crisp in black and grey. Each page carries a legend over its footer listing only the icons on that page.
+- Both are included when the page is fitted, so preview and print stay the same. With the default options page counts are unchanged; the 1-page daily menu on Letter stays on 1 page with prices and icons on. The 65-dish à la carte menu needs smaller type on one page with prices, so it shows the existing *2 pages reads better* notice.
+- **Export to Word** carries both: prices after the name (on a right tab with a dotted leader on the order form), and the same icons as images in the file (SVG, with a PNG for Word versions without SVG) with the legend. The Paper, Pages, Prices and Diet indicators choices are remembered on this device.
+
+
 ### All printer settings on Printers
 - **Venues › Printers is the one place for printers and card terminals.** The *Printers & terminals* tab is gone from each venue in Venue Settings; its tabs are now Menus & details, Prices, Floor plan and Kitchen routing (cook screens, unchanged).
 - **A venue picker** at the top of Printers: *All venues* or one venue. Picking a venue narrows every tab to it: its printers, what they print, its kitchen's menu items, and its card terminals.

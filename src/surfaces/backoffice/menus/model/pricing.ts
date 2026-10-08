@@ -44,3 +44,26 @@ export function orphanPrices(prices: PriceRow[], venueId: string, onMenu: string
   const ids = new Set(onMenu);
   return prices.filter((p) => p.venueId === venueId && !ids.has(p.recipeId));
 }
+
+/** A recipe's prices at a venue: the menu's, with the venue's own where it set one. */
+export function venuePrices(prices: PriceRow[], venueId: string | null | undefined, r: Recipe): Prices {
+  const base = menuPrices(r);
+  const row = venueId ? priceRow(prices, venueId, r.id) : undefined;
+  return { res: row?.res ?? base.res, guest: row?.guest ?? base.guest, ala: row?.ala ?? base.ala };
+}
+
+/** "$12.50" */
+export function money(n: number): string {
+  return '$' + n.toFixed(2);
+}
+
+/**
+ * The price a printed menu shows for a dish: "$12.50", or "+$2.00" for an
+ * add-on sold on top of a dish. Nothing for a dish with no price (included
+ * in the meal plan, or never priced), never "$0.00".
+ */
+export function printedPrice(p: Prices, field: PriceField, upcharge = false): string | undefined {
+  const v = p[field];
+  if (v == null || !(v > 0)) return undefined;
+  return (upcharge ? '+' : '') + money(v);
+}

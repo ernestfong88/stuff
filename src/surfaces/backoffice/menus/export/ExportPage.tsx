@@ -26,7 +26,18 @@ import { PagePreview } from '../ui/PagePreview';
 import { printHtml } from '../ui/printFrame';
 import { downloadWord } from '../ui/wordExport';
 import { exportWeeks, weekLabel } from './exportDays';
-import { setAlaCartePages, setPaper, useAlaCartePages, usePaper } from './paperStore';
+import {
+  setAlaCartePages,
+  setDietStyle,
+  setPaper,
+  setPrintPrices,
+  useAlaCartePages,
+  useDietStyle,
+  usePaper,
+  usePrintPrices,
+  type DietStyle,
+} from './paperStore';
+import type { PriceField } from '../model/pricing';
 import s from './ExportPage.module.css';
 
 const KINDS: Array<{ id: PrintKind; label: string; name: string }> = [
@@ -42,6 +53,20 @@ const FILE_WHAT: Record<PrintKind, string> = { daily: 'daily menu', week: 'week 
 /** À la carte menus fit one page up to this many dishes. */
 const ALA_CARTE_LIMIT = 20;
 
+const DIET_STYLES: Array<{ id: DietStyle; label: string }> = [
+  { id: 'off', label: 'Off' },
+  { id: 'words', label: 'Words' },
+  { id: 'icons', label: 'Icons' },
+];
+
+/** Which price prints with each dish. */
+const PRICE_OPTIONS: Array<{ value: PriceField | 'off'; label: string }> = [
+  { value: 'off', label: 'Off' },
+  { value: 'guest', label: 'Guest' },
+  { value: 'ala', label: 'À la carte' },
+  { value: 'res', label: 'Resident' },
+];
+
 /** Preview width per inch of paper, so a half sheet previews smaller than a tabloid. */
 const PREVIEW_PX_PER_IN = 84;
 
@@ -54,7 +79,10 @@ export function ExportPage() {
   const [venueId, setVenueId] = useState(venues[0]?.id ?? '');
   const [kind, setKind] = useState<PrintKind>('daily');
   const [template, setTemplate] = useState<TemplateId>('classic');
-  const [diet, setDiet] = useState(true);
+  const dietStyle = useDietStyle();
+  const prices = usePrintPrices();
+  const diet = dietStyle !== 'off';
+  const dietIcons = dietStyle === 'icons';
   const [snacks, setSnacks] = useState(false);
   // The date the daily menu prints, and the Sunday of the week the others print.
   const [date, setDate] = useState(() => isoDay(dayStart(at)));
@@ -74,10 +102,10 @@ export function ExportPage() {
     () =>
       printContext(
         bo,
-        { venueId: venue?.id, template, diet, snacks, winGrid, paper: paperId, at: printAt },
+        { venueId: venue?.id, template, diet, dietIcons, prices, snacks, winGrid, paper: paperId, at: printAt },
         (m, d, r) => placementSides(bo, m, d, r).sides,
       ),
-    [bo, venue, template, diet, snacks, winGrid, paperId, printAt],
+    [bo, venue, template, diet, dietIcons, prices, snacks, winGrid, paperId, printAt],
   );
   const mealOptions = useMemo(() => (daily ? printMeals(ctx) : alc ? alaCarteMeals(ctx) : []), [ctx, daily, alc]);
   const picked = useMemo(() => meals.filter((m) => mealOptions.includes(m)), [meals, mealOptions]);
@@ -213,16 +241,29 @@ export function ExportPage() {
             options={TEMPLATES.map((t) => ({ value: t.id, label: t.name }))}
           />
         </Field>
+        <Field label="Diet indicators">
+          <Tabs variant="segmented" size="sm" value={dietStyle} onChange={setDietStyle} options={DIET_STYLES} aria-label="Diet indicators" />
+        </Field>
+        <Field label="Prices">
+          <Select
+            size="sm"
+            aria-label="Prices"
+            value={prices ?? 'off'}
+            onChange={(v) => setPrintPrices(v === 'off' ? null : (v as PriceField))}
+            options={PRICE_OPTIONS}
+          />
+        </Field>
         <div className={s.checks}>
-          <label className={s.check}>
-            <input type="checkbox" checked={diet} onChange={(e) => setDiet(e.target.checked)} />
-            Diet indicators
-          </label>
           <label className={s.check}>
             <input type="checkbox" checked={snacks} onChange={(e) => setSnacks(e.target.checked)} />
             Snacks (dietitian copy)
           </label>
         </div>
+        {prices && kind === 'week' && (
+          <p className={s.notice} role="status">
+            The week at a glance has no room for prices. They print on the daily menu, à la carte menu and order form.
+          </p>
+        )}
         {fitted?.overflowed && current && (
           <p className={s.notice} role="status">
             Doesn't fit on one page at a readable size — printing on 2 pages

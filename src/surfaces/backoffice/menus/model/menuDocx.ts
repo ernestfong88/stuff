@@ -4,12 +4,15 @@
  * same pages, headings, dishes, descriptions and diet indicators, on the
  * same paper. Word does not fit pages the way the browser does, so each
  * page's fit (its zoom and spacing) is applied to the point sizes and the
- * space between paragraphs. This is the plain description of the file;
- * ui/wordExport turns it into a .docx.
+ * space between paragraphs. Diet icons are the printout's drawings
+ * (images in the file, letters where there are none), and the order
+ * form's prices sit on a right tab with a dotted leader. This is the plain
+ * description of the file; ui/wordExport turns it into a .docx.
  */
 import { COMMUNITY_NAME } from '../../../../data';
 import type { DocBlock, DocItem, DocSheet, MenuDoc } from './menuDoc';
-import { FOOT_LINES } from './menuDoc';
+import { FOOT_LINES, sheetDiets } from './menuDoc';
+import { dietIcon } from './dietIcons';
 import { andList, pageSize, type Paper, type TemplateId } from './menuPrint';
 import type { Fit } from './printFit';
 
@@ -23,6 +26,10 @@ export interface WRun {
   caps?: boolean;
   /** A line break before this run. */
   br?: boolean;
+  /** A tab before this run (to the paragraph's right tab, see WPara.tabRight). */
+  tab?: boolean;
+  /** A diet icon (the diet's name) in place of the text; the text is its letters, for where no image can go. */
+  icon?: string;
 }
 
 export interface WPara {
@@ -43,6 +50,8 @@ export interface WPara {
   ruleColor?: string;
   keepNext?: boolean;
   pageBreak?: boolean;
+  /** A right tab with a dotted leader at the right edge of the paragraph's column (a price). */
+  tabRight?: boolean;
 }
 
 export interface WCell {
@@ -92,6 +101,7 @@ export const PT = {
   foot: 7.9,
   diet: 7.1,
   cell: 9.75,
+  legend: 7.9,
 };
 
 /**
@@ -133,12 +143,20 @@ function sheetWord(s: DocSheet, doc: MenuDoc, fit: Fit, accent: string): Array<W
     para([{ text: COMMUNITY_NAME }], PT.brand, { align: 'center', color: accent }),
     para([{ text: s.title }], PT.title, { align: 'center', after: gap(14), rule: 'below', ruleColor: accent }),
   ];
+  // Diets as icons (the size of the text they follow), else as words.
+  const iconRun = (d: string, size: number): WRun => ({ text: dietIcon(d).short, icon: d, size: pt(size), color: INK, bold: true });
+  const dietRuns = (ds: string[], size: number): WRun[] =>
+    doc.icons
+      ? ds.flatMap((d, k) => [{ text: k ? ' ' : '  ', size: pt(size) }, iconRun(d, size)])
+      : ds.map((d) => ({ text: '  ' + d, size: pt(PT.diet), color: '4F6A38' }));
+  const priceRun = (p: string | undefined): WRun[] => (p ? [{ text: '   ' + p, bold: false }] : []);
   const dishParas = (x: DocItem): WPara[] => [
     para(
       [
         { text: x.name, bold: true },
         ...x.tags.map((t) => ({ text: '  ' + t, italic: true, size: pt(PT.note), color: '5E6B74' })),
-        ...x.diets.map((d) => ({ text: '  ' + d, size: pt(PT.diet), color: '4F6A38' })),
+        ...dietRuns(x.diets, PT.name),
+        ...priceRun(x.price),
       ],
       PT.name,
       { keepNext: !!(x.desc || x.sides), after: x.desc || x.sides ? 0 : gap(7) },
@@ -155,7 +173,11 @@ function sheetWord(s: DocSheet, doc: MenuDoc, fit: Fit, accent: string): Array<W
       case 'list':
         return [
           h2(b.title),
-          para([{ text: b.names.join(' · ') }], PT.any, { before: gap(4), after: gap(4) }),
+          para(
+            b.names.map((n, k) => ({ text: (k ? ' · ' : '') + n + (b.prices?.[k] ? '  ' + b.prices[k] : '') })),
+            PT.any,
+            { before: gap(4), after: gap(4) },
+          ),
           para([{ text: b.note }], PT.note, { color: GREY, after: gap(16) }),
         ];
       case 'note':
@@ -251,9 +273,10 @@ function sheetWord(s: DocSheet, doc: MenuDoc, fit: Fit, accent: string): Array<W
                 paras: [
                   para([{ text: m.meal }], PT.cat, { align: 'left', bold: true, caps: true, color: GREY }),
                   ...m.items.map((x) =>
-                    para([{ text: '☐ ___  ' + x.name }, ...x.diets.map((d) => ({ text: '  ' + d, size: pt(PT.diet), color: '4F6A38' }))], 9, {
+                    para([{ text: '☐ ___  ' + x.name }, ...dietRuns(x.diets, 9), ...(x.price ? [{ text: x.price, tab: true }] : [])], 9, {
                       align: 'left',
                       after: gap(3),
+                      tabRight: !!x.price,
                     }),
                   ),
                 ],
@@ -292,7 +315,15 @@ function sheetWord(s: DocSheet, doc: MenuDoc, fit: Fit, accent: string): Array<W
         group.push(
           c.cats.flatMap((k) => [
             ...(k.cont && !head ? [] : [cat(k.label + (k.cont ? ', continued' : ''))]),
-            ...(k.line ? [para([{ text: k.items.map((x) => x.name).join(' · ') }], PT.desc, { after: gap(6) })] : k.items.flatMap(dishParas)),
+            ...(k.line
+              ? [
+                  para(
+                    k.items.map((x, j) => ({ text: (j ? ' · ' : '') + x.name + (x.price ? '  ' + x.price : '') })),
+                    PT.desc,
+                    { after: gap(6) },
+                  ),
+                ]
+              : k.items.flatMap(dishParas)),
           ]),
         );
       }
@@ -311,11 +342,17 @@ function sheetWord(s: DocSheet, doc: MenuDoc, fit: Fit, accent: string): Array<W
     out.push(...blockParas(b));
     i++;
   }
+  // The legend over the footer: the diet icons on this page and which prices it shows.
+  const legend: WRun[] = [
+    ...(doc.icons ? sheetDiets(s).flatMap((d, k) => [...(k ? [{ text: '      ' }] : []), iconRun(d, PT.legend), { text: ' ' + d }]) : []),
+    ...(doc.priceNote ? [{ text: (doc.icons && sheetDiets(s).length ? '      ' : '') + doc.priceNote }] : []),
+  ];
+  if (legend.length) out.push(para(legend, PT.legend, { align: 'center', color: INK, before: gap(14), keepNext: true }));
   out.push(
     para(
       FOOT_LINES.map((t, j) => ({ text: t, br: j > 0 })),
       PT.foot,
-      { align: 'center', color: '5E6B74', before: gap(14), rule: 'above' },
+      { align: 'center', color: '5E6B74', before: legend.length ? gap(5) : gap(14), rule: 'above' },
     ),
   );
   return out;

@@ -36,9 +36,9 @@ const demoStores = new Set<SharedStore<unknown>>();
 /**
  * Keys that describe this device, not demo data: who is signed in, text
  * size, which kitchen screen or venue it shows, bump bar keys, the demo
- * clock, the pacing leader lease, the paper Menu Export prints on. The back
- * office's release phase plan is a planning decision rather than demo data,
- * so it stays too.
+ * clock, the pacing leader lease, the paper Menu Export prints on and
+ * how it prints prices and diets. The back office's release phase plan is
+ * a planning decision rather than demo data, so it stays too.
  */
 const DEVICE_KEYS = new Set([
   'kisco_session',
@@ -55,6 +55,7 @@ const DEVICE_KEYS = new Set([
   'kisco_server_mine_mode',
   'kisco_menu_paper',
   'kisco_menu_pages',
+  'kisco_menu_looks',
   'kisco-dining-leader',
 ]);
 

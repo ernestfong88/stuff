@@ -12,7 +12,9 @@ import type { BoState } from './types';
 import { normCategory } from './categories';
 import { addDays, cycleDayOn, dayStart, menuAnchor, venuesAt, type CycleAnchor } from '../../../../domain/menuCycle';
 import { venueServing } from '../../../../store/venueMenu';
-import { tabletItem } from './tablet';
+import { isUpchargeRecipe, tabletItem } from './tablet';
+import { printedPrice, venuePrices, type PriceField } from './pricing';
+import { dietSvg } from './dietIcons';
 import {
   alaCarteDoc,
   alaCarteItems,
@@ -28,6 +30,7 @@ import {
   weekDays,
   weekDoc,
   pickedMeals,
+  sheetDiets,
   type DocBlock,
   type DocItem,
   type DocSheet,
@@ -120,6 +123,10 @@ export interface PrintOptions {
   template?: TemplateId;
   /** Show diet indicators (Gluten-Friendly ...) after each dish. */
   diet?: boolean;
+  /** Diet indicators as small icons with a legend on each page, rather than words. */
+  dietIcons?: boolean;
+  /** Print each dish's price at the venue: its guest, à la carte or resident price. Not on the week at a glance. */
+  prices?: PriceField | null;
   /** Add the Snacks section (dietitian copy). */
   snacks?: boolean;
   /** Service config pick up grid (win.grid), for the order form. */
@@ -142,6 +149,8 @@ export interface PrintContext {
   at(day: number, meal?: string): PrintLine[];
   sides(day: number, recipeId: string): string[];
   dateOf(day: number): Date;
+  /** A dish's price as printed ("$12.50", "+$2.00"), when the menu prints prices and the dish has one. */
+  price(r: Recipe): string | undefined;
 }
 
 /** The dining room the venue's tablets belong to (for pick up ranges): its kitchen in Venue Settings. */
@@ -203,6 +212,7 @@ export function printContext(bo: BoState, o: PrintOptions, sidesOf: (menuId: str
         : [];
     },
     dateOf: (day) => addDays(start, day - 1),
+    price: (r) => (o.prices ? printedPrice(venuePrices(bo.prices, v?.id, r), o.prices, isUpchargeRecipe(r.id)) : undefined),
   };
 }
 
@@ -241,7 +251,12 @@ const BASE_CSS =
   `.meal{margin-bottom:${sp(16)};break-inside:avoid}.any{font-size:13px;line-height:calc(1.2 + .15*var(--sp));margin:${sp(4)} 0}.note{font:11.5px ${SANS};color:#6B7780;margin:${sp(3)} 0}` +
   `.diet-only{border:1px dashed #A8703B;border-radius:6px;padding:${sp(6)} 10px;margin-top:${sp(10)}}` +
   '.ctr .meal,.ctr h2,.ctr .note{text-align:center}.pair{display:flex;gap:30px}.pair>div{flex:1}' +
-  `.cols{column-count:2;column-gap:28px}.sl{font-size:12.5px;line-height:1.5;margin:0 0 ${sp(6)}}.only{font-weight:normal;font-style:italic;font-size:11.5px;color:#5E6B74}`;
+  `.cols{column-count:2;column-gap:28px}.sl{font-size:12.5px;line-height:1.5;margin:0 0 ${sp(6)}}.only{font-weight:normal;font-style:italic;font-size:11.5px;color:#5E6B74}` +
+  // Prices and diet icons: black and grey only, so they print the same on any printer.
+  '.pr{font-weight:normal;font-size:.92em;color:#1B2630;margin-left:7px;white-space:nowrap;font-variant-numeric:tabular-nums}' +
+  '.di{width:1.05em;height:1.05em;vertical-align:-.18em;margin-left:4px;color:#3A4751}.dis,.np{white-space:nowrap}' +
+  `.lg{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 14px;font:10.5px/1.45 ${SANS};color:#3A4751;padding-bottom:${sp(5)}}` +
+  '.lg .di{margin:0 4px 0 0;font-size:12px}.lg>span{white-space:nowrap}';
 
 const WEEK_CSS =
   `table{width:100%;border-collapse:collapse;table-layout:fixed;flex:1 0 auto}th{font:700 10.5px/1.3 ${SANS};letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--accent);padding:6px 4px}th span{display:block;font-weight:500;letter-spacing:0;text-transform:none;opacity:.85}` +
@@ -252,9 +267,25 @@ const ORDER_CSS =
   `.f{display:flex;gap:18px;margin:0 0 ${sp(10)};font:13px ${SANS}}.f div{flex:1;border-bottom:1px solid #1B2630;padding:14px 0 2px}.f div.w2{flex:2}.how{font:12px/1.45 ${SANS};color:#3A4751;margin:0 0 ${sp(10)}}` +
   `.day{border:1px solid #C9D2DA;border-radius:6px;padding:${sp(6)} 9px;margin-bottom:${sp(7)};break-inside:avoid}.dh{display:flex;justify-content:space-between;font-weight:bold;font-size:13.5px;color:var(--accent);margin-bottom:${sp(3)}}.dh span{font:11.5px ${SANS};color:#3A4751;font-weight:normal}` +
   `.two{display:flex;gap:16px}.two>div{flex:1}.ml{font:700 9.5px ${SANS};letter-spacing:.12em;text-transform:uppercase;color:#6B7780;margin:2px 0}.o{font-size:12px;line-height:calc(1.35 + .2*var(--sp))}` +
-  '.bx{display:inline-block;width:11px;height:11px;border:1.3px solid #1B2630;border-radius:2px;margin-right:5px;vertical-align:-1px}.q{display:inline-block;width:22px;border-bottom:1px solid #6B7780;margin-right:5px}';
+  '.bx{display:inline-block;width:11px;height:11px;border:1.3px solid #1B2630;border-radius:2px;margin-right:5px;vertical-align:-1px}.q{display:inline-block;width:22px;border-bottom:1px solid #6B7780;margin-right:5px}' +
+  // A price at the right of its column, a dotted leader running to it.
+  '.lp{display:flex;align-items:baseline}.lp>.on{min-width:0}.ld{flex:1 1 12px;min-width:12px;border-bottom:1px dotted #8A96A0;margin:0 4px;align-self:flex-end;transform:translateY(-4px)}.lp .pr{margin-left:0}';
 
-const FOOT = '<div class="push"></div><div class="ft">' + FOOT_LINES.map(esc).join('<br>') + '</div>';
+const FOOT = '<div class="ft">' + FOOT_LINES.map(esc).join('<br>') + '</div>';
+
+/** How the blocks draw: diets as icons or as words. */
+interface Look {
+  icons: boolean;
+}
+
+/** The legend over a page's footer: the diet icons on that page, and which prices it shows. */
+function legend(s: DocSheet, d: MenuDoc): string {
+  const items = [
+    ...(d.icons ? sheetDiets(s).map((f) => '<span>' + dietSvg(f, { cls: 'di' }) + esc(f) + '</span>') : []),
+    ...(d.priceNote ? ['<span>' + esc(d.priceNote) + '</span>'] : []),
+  ];
+  return items.length ? '<div class="lg">' + items.join('') + '</div>' : '';
+}
 
 function head(kicker: string, title: string): string {
   return (
@@ -268,14 +299,25 @@ function head(kicker: string, title: string): string {
   );
 }
 
-const dietTags = (ds: string[]) => ds.map((d) => '<span class="dt">' + esc(d) + '</span>').join('');
+const dietTags = (ds: string[], L: Look) =>
+  !ds.length
+    ? ''
+    : L.icons
+      ? '<span class="dis">' + ds.map((d) => dietSvg(d, { cls: 'di' })).join('') + '</span>'
+      : ds.map((d) => '<span class="dt">' + esc(d) + '</span>').join('');
 
-function dish(x: DocItem): string {
+const priceTag = (p: string | undefined) => (p ? '<span class="pr">' + esc(p) + '</span>' : '');
+
+/** A dish in a run of them ("a · b · c"), its price kept on its line. */
+const named = (name: string, p: string | undefined) => (p ? '<span class="np">' + esc(name) + priceTag(p) + '</span>' : esc(name));
+
+function dish(x: DocItem, L: Look): string {
   return (
     '<div class="it"><div class="nm">' +
     esc(x.name) +
     x.tags.map((t) => ' <span class="only">' + esc(t) + '</span>').join('') +
-    dietTags(x.diets) +
+    dietTags(x.diets, L) +
+    priceTag(x.price) +
     '</div>' +
     (x.desc ? '<div class="ds">' + esc(x.desc) + '</div>' : '') +
     (x.sides ? '<div class="sd">Served with ' + esc(andList(x.sides)) + '</div>' : '') +
@@ -285,7 +327,7 @@ function dish(x: DocItem): string {
 
 const blk = (i: number) => ' data-blk="' + i + '"';
 
-function block(b: DocBlock, i: number): string {
+function block(b: DocBlock, i: number, L: Look): string {
   switch (b.t) {
     case 'meal':
       return (
@@ -294,7 +336,7 @@ function block(b: DocBlock, i: number): string {
         '><h2>' +
         esc(b.title) +
         '</h2>' +
-        b.cats.map((c) => '<div class="cat">' + esc(c.label) + '</div>' + c.items.map(dish).join('')).join('') +
+        b.cats.map((c) => '<div class="cat">' + esc(c.label) + '</div>' + c.items.map((x) => dish(x, L)).join('')).join('') +
         '</div>'
       );
     case 'list':
@@ -304,7 +346,7 @@ function block(b: DocBlock, i: number): string {
         '><h2>' +
         esc(b.title) +
         '</h2><p class="any">' +
-        esc(b.names.join(' · ')) +
+        b.names.map((n, k) => named(n, b.prices?.[k])).join(' · ') +
         '</p><p class="note">' +
         esc(b.note) +
         '</p></div>'
@@ -360,7 +402,12 @@ function block(b: DocBlock, i: number): string {
               esc(m.meal) +
               '</div>' +
               m.items
-                .map((x) => '<div class="o"><span class="bx"></span><span class="q"></span>' + esc(x.name) + dietTags(x.diets) + '</div>')
+                .map((x) => {
+                  const line = '<span class="bx"></span><span class="q"></span>' + esc(x.name) + dietTags(x.diets, L);
+                  return x.price
+                    ? '<div class="o lp"><span class="on">' + line + '</span><span class="ld"></span>' + priceTag(x.price) + '</div>'
+                    : '<div class="o">' + line + '</div>';
+                })
                 .join('') +
               '</div>',
           )
@@ -371,13 +418,13 @@ function block(b: DocBlock, i: number): string {
 }
 
 /** À la carte: consecutive courses of a section share its heading and two columns. */
-function sections(blocks: DocBlock[]): string {
+function sections(blocks: DocBlock[], L: Look): string {
   let out = '';
   let i = 0;
   while (i < blocks.length) {
     const b = blocks[i];
     if (b.t !== 'meal' || !b.sec) {
-      out += block(b, i++);
+      out += block(b, i++, L);
       continue;
     }
     let inner = '';
@@ -394,7 +441,7 @@ function sections(blocks: DocBlock[]): string {
             (k) =>
               // A course carried on from the page before is named again.
               (k.cont && c !== start ? '' : '<div class="cat">' + esc(k.label + (k.cont ? ', continued' : '')) + '</div>') +
-              (k.line ? '<p class="sl">' + esc(k.items.map((x) => x.name).join(' · ')) + '</p>' : k.items.map(dish).join('')),
+              (k.line ? '<p class="sl">' + k.items.map((x) => named(x.name, x.price)).join(' · ') + '</p>' : k.items.map((x) => dish(x, L)).join('')),
           )
           .join('') +
         '</div>';
@@ -410,18 +457,18 @@ function sections(blocks: DocBlock[]): string {
   return out;
 }
 
-function sheetBody(s: DocSheet): string {
-  if (!s.pair) return sections(s.blocks);
+function sheetBody(s: DocSheet, L: Look): string {
+  if (!s.pair) return sections(s.blocks, L);
   // Two cycle meals side by side, where the first of them would be.
   const idx = s.blocks.flatMap((b, i) => (b.t === 'meal' && b.cycle ? [i] : []));
-  if (idx.length !== 2) return sections(s.blocks);
+  if (idx.length !== 2) return sections(s.blocks, L);
   return s.blocks
     .map((b, i) =>
       i === idx[0]
-        ? '<div class="pair"><div>' + block(b, i) + '</div><div>' + block(s.blocks[idx[1]], idx[1]) + '</div></div>'
+        ? '<div class="pair"><div>' + block(b, i, L) + '</div><div>' + block(s.blocks[idx[1]], idx[1], L) + '</div></div>'
         : i === idx[1]
           ? ''
-          : block(b, i),
+          : block(b, i, L),
     )
     .join('');
 }
@@ -429,6 +476,7 @@ function sheetBody(s: DocSheet): string {
 /** A menu document as a printable page: one `.sheet` per printed page. */
 export function docHtml(d: MenuDoc, o: PrintOptions): string {
   const extra = d.kind === 'week' ? WEEK_CSS : d.kind === 'order' ? ORDER_CSS : '';
+  const L: Look = { icons: !!d.icons };
   return (
     '<!doctype html><html><head><meta charset="utf-8"><title>' +
     esc(d.title) +
@@ -441,7 +489,18 @@ export function docHtml(d: MenuDoc, o: PrintOptions): string {
     (d.centered ? ' class="ctr"' : '') +
     '>' +
     d.sheets
-      .map((s, i) => '<div class="sheet" data-i="' + i + '"><div class="fit">' + head(s.kicker, s.title) + sheetBody(s) + FOOT + '</div></div>')
+      .map(
+        (s, i) =>
+          '<div class="sheet" data-i="' +
+          i +
+          '"><div class="fit">' +
+          head(s.kicker, s.title) +
+          sheetBody(s, L) +
+          '<div class="push"></div>' +
+          legend(s, d) +
+          FOOT +
+          '</div></div>',
+      )
       .join('') +
     '</body></html>'
   );
