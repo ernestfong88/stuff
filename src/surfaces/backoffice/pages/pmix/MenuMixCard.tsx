@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cx } from '../../../../ui';
-import { CHART, DonutChart, type DonutSlice } from '../../kit';
+import { DonutChart, type DonutSlice } from '../../kit';
+import { CATEGORY_OTHER, categoryHue } from '../../kit/charts/palette';
 import { categoryName, orderedCategories, pct, type MixItem } from './mix';
 import s from './pmix.module.css';
 
 type Group = 'sp' | 'al';
 const GROUP_NAME: Record<Group, string> = { sp: 'Specials', al: 'À la carte' };
-/** Category shades: darkest for entrées, lighter for the rest. */
-const CAT_SHADES: Record<Group, string[]> = {
-  sp: [CHART.specials[1], CHART.specials[3], CHART.specials[5], CHART.specials[6]],
-  al: [CHART.alaCarte[1], CHART.alaCarte[3], CHART.alaCarte[5], CHART.alaCarte[6]],
-};
+/** Dishes named on the ring when a category is open, one per ramp step, as on the dashboard wheel. */
+const RING_DISHES = 4;
+/** Colour is the course category, as on the dashboard wheel: specials in its full hue, à la carte in the same hue softened. */
+const shade = (g: Group, cat: string) => (g === 'sp' ? categoryHue(categoryName(cat)).base : categoryHue(categoryName(cat)).soft);
 
 interface CatTotal {
   cat: string;
@@ -28,13 +28,13 @@ export function MenuMixCard({ items, what, range }: { items: MixItem[]; what: st
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [showAll, setShowAll] = useState<Record<string, boolean>>({});
   const cats = orderedCategories(items);
-  const totals = (g: Group): CatTotal[] => cats.map((cat) => ({ cat, n: items.filter((x) => x.r.cat === cat).reduce((q, x) => q + x[g], 0) })).filter((c) => c.n > 0);
+  const totals = (g: Group): CatTotal[] =>
+    cats.map((cat) => ({ cat, n: items.filter((x) => x.r.cat === cat).reduce((q, x) => q + x[g], 0) })).filter((c) => c.n > 0);
   const SP = totals('sp');
   const AL = totals('al');
   const tS = SP.reduce((q, c) => q + c.n, 0);
   const tA = AL.reduce((q, c) => q + c.n, 0);
   const T = tS + tA;
-  const shade = (g: Group, cat: string) => CAT_SHADES[g][Math.max(0, cats.indexOf(cat)) % 4];
   const dishesOf = (g: Group, cat: string) =>
     items
       .filter((x) => x.r.cat === cat && x[g] > 0)
@@ -47,9 +47,18 @@ export function MenuMixCard({ items, what, range }: { items: MixItem[]; what: st
 
   const slices: DonutSlice[] = openGroup
     ? [
-        ...openDishes.slice(0, 6).map((x, i) => ({ key: `i${i}`, name: x.r.name, value: x.n, color: (openGroup === 'sp' ? CHART.specials : CHART.alaCarte)[i] })),
-        ...(openDishes.length > 6
-          ? [{ key: 'io', name: `Other (${openDishes.length - 6})`, value: openDishes.slice(6).reduce((q, x) => q + x.n, 0), color: openGroup === 'sp' ? CHART.specialsOther : CHART.alaCarteOther }]
+        ...openDishes
+          .slice(0, RING_DISHES)
+          .map((x, i) => ({ key: `i${i}`, name: x.r.name, value: x.n, color: categoryHue(categoryName(openCat ?? '')).ramp[i] })),
+        ...(openDishes.length > RING_DISHES
+          ? [
+              {
+                key: 'io',
+                name: `Everything else (${openDishes.length - RING_DISHES})`,
+                value: openDishes.slice(RING_DISHES).reduce((q, x) => q + x.n, 0),
+                color: CATEGORY_OTHER,
+              },
+            ]
           : []),
       ]
     : [
@@ -62,7 +71,11 @@ export function MenuMixCard({ items, what, range }: { items: MixItem[]; what: st
   const center: [string, string, string] = hovered
     ? [clip(hovered.name, 24), `${pct(hovered.value, ringTotal)}%`, `${hovered.value} sold`]
     : openGroup && openCat
-      ? [`${GROUP_NAME[openGroup]} · ${categoryName(openCat).split(' ')[0]}`, String(openTotal), `${openDishes.length} ${openDishes.length === 1 ? 'dish' : 'dishes'} · ${pct(openTotal, T)}% of all`]
+      ? [
+          `${GROUP_NAME[openGroup]} · ${categoryName(openCat).split(' ')[0]}`,
+          String(openTotal),
+          `${openDishes.length} ${openDishes.length === 1 ? 'dish' : 'dishes'} · ${pct(openTotal, T)}% of all`,
+        ]
       : ['Specials', `${pct(tS, T)}%`, `à la carte ${pct(tA, T)}%`];
 
   const toggleOpen = (key: string) => {
@@ -93,7 +106,8 @@ export function MenuMixCard({ items, what, range }: { items: MixItem[]; what: st
           Specials were {pct(tS, T)}% of {what.toLowerCase()} sold
         </b>
         , à la carte {pct(tA, T)}%.
-        {parts.length > 1 && ` Within each category, specials took ${parts.slice(0, -1).join(', ')}${parts.length > 2 ? ',' : ''} and ${parts[parts.length - 1]}.`}
+        {parts.length > 1 &&
+          ` Within each category, specials took ${parts.slice(0, -1).join(', ')}${parts.length > 2 ? ',' : ''} and ${parts[parts.length - 1]}.`}
       </>
     );
   })();
@@ -101,10 +115,10 @@ export function MenuMixCard({ items, what, range }: { items: MixItem[]; what: st
   const list = (g: Group, rows: CatTotal[], total: number) => (
     <div className={s.mixCol}>
       <div className={s.mixHead}>
-        <span className={s.swatch} style={{ background: g === 'sp' ? CHART.specials[1] : CHART.alaCarte[1] }} aria-hidden />
+        <span className={cx(s.mark, g === 'al' && s.markOpen)} aria-hidden />
         <span className={s.mixTitle}>{GROUP_NAME[g]}</span>
         <span className={s.num}>{total}</span>
-        <span className={cx(s.pctStrong, g === 'sp' ? s.green : s.blue)}>{pct(total, T)}%</span>
+        <span className={s.pctStrong}>{pct(total, T)}%</span>
       </div>
       {rows.length === 0 && <div className={s.none}>None sold</div>}
       {rows.map((c) => {
@@ -123,7 +137,11 @@ export function MenuMixCard({ items, what, range }: { items: MixItem[]; what: st
               onMouseLeave={() => !openKey && setHover(null)}
             >
               <ChevronRight size={13} className={cx(s.caret, open && s.caretOpen)} aria-hidden />
-              <span className={s.swatch} style={{ background: shade(g, c.cat) }} aria-hidden />
+              <span
+                className={cx(s.swatch, g === 'al' && s.swatchSoft)}
+                style={{ background: shade(g, c.cat), color: categoryHue(categoryName(c.cat)).base }}
+                aria-hidden
+              />
               <span className={s.catName}>{categoryName(c.cat)}</span>
               <span className={s.num}>{c.n}</span>
               <span className={s.pctSmall}>{pct(c.n, T)}%</span>
@@ -131,10 +149,16 @@ export function MenuMixCard({ items, what, range }: { items: MixItem[]; what: st
             {open && (
               <ul className={s.dishes}>
                 {show.map((d, i) => {
-                  const hk = ringed ? (i < 6 ? `i${i}` : 'io') : null;
+                  const hk = ringed ? (i < RING_DISHES ? `i${i}` : 'io') : null;
+                  const color = hk ? slices.find((x) => x.key === hk)?.color : undefined;
                   return (
-                    <li key={d.r.id} className={cx(s.dish, hk && hover === hk && s.dishHover)} onMouseEnter={() => hk && setHover(hk)} onMouseLeave={() => hk && setHover(null)}>
-                      <span className={s.dot} aria-hidden />
+                    <li
+                      key={d.r.id}
+                      className={cx(s.dish, hk && hover === hk && s.dishHover)}
+                      onMouseEnter={() => hk && setHover(hk)}
+                      onMouseLeave={() => hk && setHover(null)}
+                    >
+                      <span className={cx(s.dot, color && s.dotRinged)} style={color ? { background: color } : undefined} aria-hidden />
                       <span className={s.dishName}>{d.r.name}</span>
                       <span className={s.num}>{d.n}</span>
                       <span className={s.pctSmall} title="Share of this category">
@@ -176,7 +200,6 @@ export function MenuMixCard({ items, what, range }: { items: MixItem[]; what: st
               slices={slices}
               label={openGroup ? `${GROUP_NAME[openGroup]} ${categoryName(openCat ?? '')} by dish` : 'Specials and à la carte by category'}
               center={center}
-              centerColor={!hovered && !openGroup ? CHART.specials[1] : undefined}
               hovered={hover}
               onHover={setHover}
               onSelect={openGroup ? undefined : toggleOpen}
@@ -197,7 +220,7 @@ export function MenuMixCard({ items, what, range }: { items: MixItem[]; what: st
             <p className={s.foot}>
               {openKey
                 ? 'The ring shows the dishes in the outlined category. Dish percents are shares of their category.'
-                : 'Tap a slice to see its dishes on the ring. Category percents are of everything sold; dish percents are of their category.'}
+                : 'Colour is the course, as on the dashboard: specials in the full colour, à la carte in the paler shade. Tap a slice to see its dishes on the ring. Category percents are of everything sold; dish percents are of their category.'}
             </p>
           </div>
         </div>

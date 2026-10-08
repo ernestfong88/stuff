@@ -1,4 +1,5 @@
-import { BoStatRow, BoStatTile, BoTable, MeterBar, CHART, type BoColumn } from '../../kit';
+import { BoStatRow, BoStatTile, BoTable, MeterBar, type BoColumn } from '../../kit';
+import { categoryHue } from '../../kit/charts/palette';
 import { MEAL_NAMES, categoryName, pct, type Mix, type MixItem, type ShowFilter } from './mix';
 import s from './pmix.module.css';
 
@@ -22,7 +23,12 @@ export function FullDetail({ mix, items, show }: { mix: Mix; items: MixItem[]; s
     },
     { key: 'type', header: 'Type', render: (x) => (x.sp > 0 && x.al > 0 ? 'Both' : x.sp > 0 ? 'Special' : 'À la carte') },
     { key: 'meal', header: 'Meal', render: (x) => x.meals.map((m) => MEAL_NAMES[m]).join(', ') },
-    { key: 'share', header: 'Share', width: 140, render: (x) => <MeterBar value={value(x)} max={max} color={x.sp > x.al ? CHART.specials[2] : CHART.alaCarte[2]} /> },
+    {
+      key: 'share',
+      header: 'Share',
+      width: 140,
+      render: (x) => <MeterBar value={value(x)} max={max} color={categoryHue(categoryName(x.r.cat)).base} />,
+    },
     { key: 'sold', header: 'Sold', align: 'right', render: (x) => <span className={s.num}>{value(x)}</span> },
     { key: 'of', header: '% of mix', align: 'right', render: (x) => `${(mix.tot ? (value(x) / mix.tot) * 100 : 0).toFixed(1)}%` },
   ];

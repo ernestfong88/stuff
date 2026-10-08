@@ -7,24 +7,11 @@ import type { MealName } from '../../../../domain/types';
 import { startOfToday } from '../../../../lib/clock';
 import { useDining } from '../../../../store/dining';
 import { Button, Tabs, cx } from '../../../../ui';
+import { CATEGORY_OTHER, categoryHue } from '../../kit/charts/palette';
 import { ringSlicePath, sliceAngles } from '../../kit/charts/scale';
 import { SPECIALS_SOLD_EARLIER } from '../../seed/dashboard';
 import { categoryDishes, categoryTotals, todayMix } from './model/todayMix';
 import s from './dashboard.module.css';
-
-/**
- * Categorical hues for the course categories (validated all-pairs for colour
- * blindness), each with a one-hue ramp, darkest first, for its dishes when
- * drilled in. Any other category is grey.
- */
-const HUES: Record<string, { base: string; ramp: string[] }> = {
-  Starters: { base: '#eb6834', ramp: ['#8f3810', '#c94f1e', '#eb6834', '#f0956a'] },
-  Entrées: { base: '#2a78d6', ramp: ['#184f95', '#2a78d6', '#5598e7', '#86b6ef'] },
-  Desserts: { base: '#1baf7a', ramp: ['#085c3d', '#0e7f56', '#1baf7a', '#50c497'] },
-};
-const GREY = { base: '#8a949b', ramp: ['#3a4751', '#5e6b74', '#8a949b', '#aeb6bc'] };
-const OTHER = '#c9cfd3';
-const hue = (cat: string) => HUES[cat] ?? GREY;
 
 const plates = (n: number) => `${n} ${n === 1 ? 'plate' : 'plates'}`;
 
@@ -68,14 +55,23 @@ export function PmixTodayCard({ goto }: { goto: (pageId: string) => void }) {
             name: d.name,
             n: d.n,
             pct: d.pct,
-            color: hue(cat.category).ramp[Math.min(i, 3)],
+            color: categoryHue(cat.category).ramp[Math.min(i, 3)],
             note: d.special ? 'Special' : undefined,
           })),
           ...(drill.rest
-            ? [{ key: 'rest', name: 'Everything else', n: drill.rest.n, pct: drill.rest.pct, color: OTHER, note: `${drill.rest.dishes} dishes` }]
+            ? [
+                {
+                  key: 'rest',
+                  name: 'Everything else',
+                  n: drill.rest.n,
+                  pct: drill.rest.pct,
+                  color: CATEGORY_OTHER,
+                  note: `${drill.rest.dishes} dishes`,
+                },
+              ]
             : []),
         ]
-      : cats.map((c) => ({ key: c.category, name: c.category, n: c.n, pct: c.pct, color: hue(c.category).base }));
+      : cats.map((c) => ({ key: c.category, name: c.category, n: c.n, pct: c.pct, color: categoryHue(c.category).base }));
 
   // Keep keyboard focus on the wheel as it changes: the back control after drilling in, the category's row after coming back.
   const backRef = useRef<HTMLButtonElement>(null);
