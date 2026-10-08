@@ -16,34 +16,6 @@
   font-size: 13.5px;
   font-weight: 700;
 }
-.fileRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.file {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 12px;
-  border-radius: var(--r-md);
-  background: var(--paper);
-  font-size: 12.5px;
-  font-weight: 650;
-  cursor: pointer;
-  box-shadow: inset 0 0 0 1px var(--hair);
-}
-.file:focus-within {
-  box-shadow: var(--focus);
-}
-.fileInput {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
 .actions {
   display: flex;
   gap: 8px;
@@ -93,6 +65,15 @@
   padding: 10px 12px;
   border-radius: var(--r-md);
   background: var(--skies-100);
+}
+.importRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--paper);
 }
 .noneIcon {
   color: var(--ocean);

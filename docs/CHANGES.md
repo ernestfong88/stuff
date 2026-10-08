@@ -220,6 +220,18 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Recipe Book: import a recipe from a file
+- **Add recipe has two ways in: Type it in · Import a file.** The first screen of *Add a recipe* also offers **Import a file** ("Have it in a Word document, PDF or photo?").
+- **Drop a file or choose one:** Word (.docx), text (.txt, .md), RTF, PDF, or a photo (.jpg, .png, .heic). Files are read in the browser; nothing is uploaded. Older .doc files get a note to save them as .docx.
+- **Word, text, Markdown and RTF are read for real.** The reader finds the title (first line or heading), *Serves / Yield / Makes*, prep and cook times ("Prep 20 min", "Cook: 1 hr 10 min"), and the sections by their headings: Ingredients, Method (Directions, Instructions, Steps), Plating, Garnish, Equipment, Notes. Without headings it goes by how the lines look: amounts are ingredients, numbered lines and sentences are steps.
+- **Ingredient lines are split into amount, unit and name:** 1½, 1 1/2, 0.5 and ranges (2-3 takes 2); tsp, tbsp, cup, oz, fl oz, lb, g, kg, ml, l, qt, pt, each, cloves, pinch and more; "1 (14 oz) can tomatoes" keeps the can size. Lines with no amount ("Salt and pepper, to taste") are kept with no amount.
+- **The category and subcategory are guessed from the name**, and allergens are suggested from the name, description and ingredients, marked *(suggested)* as elsewhere until confirmed.
+- **Check before saving:** the recipe opens in the normal recipe form, filled in, with *Imported from <file> — check before saving*. Lines the reader couldn't place are listed under **Didn't recognise** so nothing is lost; any left there at Save go into Chef's notes. The recipe remembers the file it came from (shown under Sharing).
+- **Photos and PDFs need the AI service.** The demo shows the photo and says so ("Reading photos needs the AI service; this demo fills a sample you can edit"), then fills a sample from the stand-in AI, marked AI drafted for review. It doesn't pretend to read the photo.
+- *Type it in* keeps pasting text for AI to draft, and *Start blank*. The photo/PDF upload moved to *Import a file*.
+- Amounts are kept as written for the recipe's yield (for example 6 servings); prep sheets scale from that.
+
+
 ### Menu Export: prices and diet icons
 - **Prices:** a new *Prices* option (Off · Guest · À la carte · Resident) prints each dish's price at the chosen venue, using the venue's own price where Pricing sets one. An add-on sold on top of a dish prints as *+$4.00*; a dish with no price (included in the meal plan, or never priced) prints nothing, never *$0.00*. A note over the footer says which prices are shown.
 - Prices print on the daily menu (after each dish's name, and with the everyday dishes), the à la carte menu on one or two pages (dishes and the sides line), and the order form (at the right of each column with a dotted leader). The week at a glance has no room for them and says so when they are on.

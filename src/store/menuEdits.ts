@@ -101,6 +101,8 @@ export interface Recipe {
   /** Parts of the recipe AI drafted and a chef has not reviewed yet. */
   aiDrafted?: string[];
   importedFrom?: 'photo' | 'text';
+  /** The file a recipe was imported from ("Shepherd's Pie.docx"). */
+  sourceFile?: string;
   photo?: string;
 }
 

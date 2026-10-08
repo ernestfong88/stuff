@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Copy, Paperclip, Plus, Sparkles } from 'lucide-react';
+import { Copy, FileUp, Keyboard, Plus, Sparkles } from 'lucide-react';
 import type { Recipe } from '../../../../store/menuEdits';
-import { Button, Chip, Modal, SearchField, TextArea, toast } from '../../../../ui';
+import { Button, Chip, Modal, SearchField, Tabs, TextArea, toast } from '../../../../ui';
 import { useBo } from '../data';
 import { GLOBAL_LIBRARY, OTHER_COMMUNITIES } from '../library';
 import { categoryLabel, dishLong } from '../model/categories';
-import { parseRecipeText, photoDraft } from '../model/recipeDraft';
+import { parseRecipeText } from '../model/recipeDraft';
 import { createRecipe } from '../recipeActions';
+import { ImportPicker, ImportReview, type ImportResult } from './ImportRecipe';
 import s from './AddRecipeDialog.module.css';
 
 /** How long the stand-in AI takes to "read" a recipe. */
@@ -15,8 +16,8 @@ const READ_MS = 1200;
 /**
  * Add a recipe. Search checks your recipes first, then the Global Library,
  * then other communities, so nobody builds the fourth copy of meatloaf by
- * accident. A new one can start blank or be drafted from pasted text or a
- * photo of the recipe card.
+ * accident. A new one is typed in (blank, or drafted from pasted text) or
+ * imported from a file: a Word document, text, PDF or a photo of the card.
  */
 export function AddRecipeDialog({
   onClose,
@@ -33,10 +34,13 @@ export function AddRecipeDialog({
   const [q, setQ] = useState('');
   const [isNew, setIsNew] = useState(false);
   const [text, setText] = useState('');
-  const [file, setFile] = useState('');
+  const [mode, setMode] = useState<'type' | 'file'>('type');
+  const [imported, setImported] = useState<ImportResult | null>(null);
   const [busy, setBusy] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
+  const preview = imported?.preview;
+  useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
   const k = q.trim().toLowerCase();
   const mine = k ? bo.recipes.filter((r) => r.name.toLowerCase().includes(k)).slice(0, 4) : [];
   const glob = k ? GLOBAL_LIBRARY.filter((r) => r.name.toLowerCase().includes(k) || r.desc.toLowerCase().includes(k)).slice(0, 4) : [];
@@ -46,59 +50,80 @@ export function AddRecipeDialog({
 
   const draft = () => {
     setBusy(true);
-    const from = text.trim() ? 'text' : 'photo';
-    const parsed = text.trim() ? parseRecipeText(text) : photoDraft();
     timer.current = window.setTimeout(() => {
-      const id = createRecipe(name, { ...parsed, importedFrom: from });
-      toast(`Drafted from ${from === 'photo' ? 'your photo' : 'your text'}. Review every line before publishing.`, { tone: 'success' });
+      const id = createRecipe(name, { ...parseRecipeText(text), importedFrom: 'text' });
+      toast('Drafted from your text. Review every line before publishing.', { tone: 'success' });
       onCreated(id);
     }, READ_MS);
   };
+  const startNew = (m: 'type' | 'file') => {
+    setMode(m);
+    setIsNew(true);
+  };
+
+  if (imported) return <ImportReview result={imported} onBack={() => setImported(null)} onClose={onClose} onCreated={onCreated} />;
 
   return (
     <Modal open onClose={onClose} title="Add a recipe" width={560}>
       <SearchField value={q} onChange={setQ} placeholder="Start typing, e.g. meatloaf" autoFocus className={s.search} />
       {isNew ? (
         <div className={s.newBox}>
-          <div className={s.newTitle}>Add “{name}” as a new recipe</div>
-          <p className={s.muted}>
-            Paste the recipe as text, or upload a photo or PDF. AI drafts the recipe from it for you to review and edit. Or start blank.
-          </p>
-          <TextArea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            rows={6}
-            aria-label="Recipe text"
-            placeholder={
-              'Paste anything: an email, a recipe card, notes…\n\n2 lb ground beef\n1 cup breadcrumbs\n2 eggs\nMix, form a loaf, bake at 350 for 45 minutes.'
-            }
+          <div className={s.newTitle}>{name ? <>Add “{name}” as a new recipe</> : 'Add a new recipe'}</div>
+          <Tabs
+            variant="segmented"
+            size="sm"
+            value={mode}
+            onChange={setMode}
+            aria-label="How to add it"
+            options={[
+              { id: 'type', label: 'Type it in', icon: <Keyboard size={14} aria-hidden /> },
+              { id: 'file', label: 'Import a file', icon: <FileUp size={14} aria-hidden /> },
+            ]}
           />
-          <div className={s.fileRow}>
-            <label className={s.file}>
-              <input type="file" accept="image/*,.pdf" className={s.fileInput} onChange={(e) => setFile(e.target.files?.[0]?.name ?? '')} />
-              <Paperclip size={14} aria-hidden />
-              {file || 'Upload a photo or PDF'}
-            </label>
-            <span className={s.muted}>{file ? 'AI will read what it can from the file.' : 'Handwritten cards work too.'}</span>
-          </div>
-          <div className={s.actions}>
-            <Button variant="primary" icon={<Sparkles size={14} />} disabled={busy || (!text.trim() && !file)} onClick={draft}>
-              {busy ? 'Reading…' : 'Draft it with AI'}
-            </Button>
-            <Button
-              disabled={busy}
-              onClick={() => {
-                const id = createRecipe(name);
-                toast('Created. Fill it in, or use AI Autofill.', { tone: 'success' });
-                onCreated(id);
-              }}
-            >
-              Start blank
-            </Button>
-            <Button variant="ghost" disabled={busy} onClick={() => setIsNew(false)}>
-              Back
-            </Button>
-          </div>
+          {mode === 'file' ? (
+            <>
+              <p className={s.muted}>
+                Import a recipe you already have. It opens in the recipe form, filled in from the file, for you to check before saving.
+              </p>
+              <ImportPicker name={name} onRead={setImported} />
+              <div className={s.actions}>
+                <Button variant="ghost" onClick={() => setIsNew(false)}>
+                  Back
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className={s.muted}>Paste the recipe as text and AI drafts it for you to review and edit. Or start blank.</p>
+              <TextArea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                rows={6}
+                aria-label="Recipe text"
+                placeholder={
+                  'Paste anything: an email, a recipe card, notes…\n\n2 lb ground beef\n1 cup breadcrumbs\n2 eggs\nMix, form a loaf, bake at 350 for 45 minutes.'
+                }
+              />
+              <div className={s.actions}>
+                <Button variant="primary" icon={<Sparkles size={14} />} disabled={busy || !name || !text.trim()} onClick={draft}>
+                  {busy ? 'Reading…' : 'Draft it with AI'}
+                </Button>
+                <Button
+                  disabled={busy || !name}
+                  onClick={() => {
+                    const id = createRecipe(name);
+                    toast('Created. Fill it in, or use AI Autofill.', { tone: 'success' });
+                    onCreated(id);
+                  }}
+                >
+                  Start blank
+                </Button>
+                <Button variant="ghost" disabled={busy} onClick={() => setIsNew(false)}>
+                  Back
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       ) : k.length > 1 ? (
         <>
@@ -170,15 +195,25 @@ export function AddRecipeDialog({
           <div className={s.none}>
             <Sparkles size={15} aria-hidden className={s.noneIcon} />
             <span className={s.noneText}>None of these?</span>
-            <Button size="sm" variant="primary" icon={<Plus size={13} />} onClick={() => setIsNew(true)}>
+            <Button size="sm" variant="primary" icon={<Plus size={13} />} onClick={() => startNew('type')}>
               Add “{name.slice(0, 22)}” as new
             </Button>
           </div>
         </>
       ) : (
-        <p className={s.muted}>
-          Search checks your recipes first, then the Global Library, then other communities, so nobody builds the fourth copy of meatloaf by accident.
-        </p>
+        <>
+          <p className={s.muted}>
+            Search checks your recipes first, then the Global Library, then other communities, so nobody builds the fourth copy of meatloaf by
+            accident.
+          </p>
+          <div className={s.importRow}>
+            <FileUp size={15} aria-hidden className={s.noneIcon} />
+            <span className={s.noneText}>Have it in a Word document, PDF or photo?</span>
+            <Button size="sm" onClick={() => startNew('file')}>
+              Import a file
+            </Button>
+          </div>
+        </>
       )}
     </Modal>
   );

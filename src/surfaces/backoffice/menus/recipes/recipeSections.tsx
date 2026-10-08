@@ -147,7 +147,7 @@ export function IngredientsSection({ r, update, readOnly, scale, setScale }: P &
       <div className={s.ingredients}>
         {list.map((h, i) => (
           <div key={i} className={s.ing}>
-            <span className={s.qty}>{qtyUnit(h.qty * mul, h.unit, mul !== 1)}</span>
+            <span className={s.qty}>{h.qty ? qtyUnit(h.qty * mul, h.unit, mul !== 1) : h.unit}</span>
             <span className={s.ingName}>{h.name}</span>
             {!readOnly && (
               <button className={s.x} aria-label={`Remove ${h.name}`} onClick={() => update({ ingredients: list.filter((_, j) => j !== i) })}>
@@ -518,13 +518,17 @@ export function NotesSection({ r, update, readOnly }: P) {
 export function SharingSection({ r, readOnly, global }: P) {
   const [sug, setSug] = useState('');
   const linked = r.scope === 'linked';
-  if (!(global || linked || r.importedFrom)) return null;
+  if (!(global || linked || r.importedFrom || r.sourceFile)) return null;
   return (
     <RecipeSection title="Sharing" hint="Where this recipe comes from and who else uses it.">
       <div className={s.sharing}>
         {global && <span>This is a Kisco recipe. Home Office manages it, and their updates reach every community that uses it.</span>}
         {linked && <span>Linked to a Kisco recipe. When Home Office updates it, the change shows here too.</span>}
-        {r.importedFrom && <span>Drafted from {r.importedFrom === 'photo' ? 'your photo' : 'your text'}. Review every line before publishing.</span>}
+        {r.sourceFile ? (
+          <span>Imported from {r.sourceFile}. Review every line before publishing.</span>
+        ) : (
+          r.importedFrom && <span>Drafted from {r.importedFrom === 'photo' ? 'your photo' : 'your text'}. Review every line before publishing.</span>
+        )}
       </div>
       {readOnly && (
         <Field label="Suggest a change to Home Office" hint="The recipe owner sees it on the recipe.">
