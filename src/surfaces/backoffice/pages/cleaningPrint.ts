@@ -6,7 +6,7 @@
 import { WEEKDAYS, dateOf, whenLabel, type LogCell, type WeekLogRow } from '../../../domain/cleaning';
 import { formatTime } from '../../../lib/format';
 import { crewMember } from '../../../store/cleaning';
-import { esc, printHtml } from './productionPrint';
+import { escapeHtml as esc, printHtml } from '../../../lib/print';
 
 const CSS = `*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1b2630;margin:24px}
 h1{font-size:20px;margin:0 0 4px}.sub{color:#5e6b74;font-size:12px;margin-bottom:12px}table{width:100%;border-collapse:collapse;font-size:11.5px}

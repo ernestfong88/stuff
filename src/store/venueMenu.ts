@@ -110,14 +110,6 @@ export function activeRooms(roomIds: string[], venues: VenueLike[]): string[] {
   return on.length ? on : roomIds.slice(0, 1);
 }
 
-/** What a Venue Settings venue serves at a time, from the live stores. */
-export function servingNow(venueId: string, at: number): VenueServing | null {
-  const v = venueSettingsStore.get().venues.find((x) => x.id === venueId);
-  if (!v) return null;
-  const edits = menuEditsStore.get();
-  return venueServing(v, at, menusNow(edits), gridNow(edits));
-}
-
 /** A Venue Settings venue by id. */
 export function settingsVenue(venueId: string): Venue | undefined {
   return venueSettingsStore.get().venues.find((x) => x.id === venueId);

@@ -2,7 +2,7 @@ import { COMMUNITY_NAME } from '../../../../data';
 import type { ResidentNote } from '../../../../domain/types';
 import { formatDayLong, formatMoneyShort, formatTime } from '../../../../lib/format';
 import { NOTE_KINDS } from '../shared/noteKinds';
-import { escapeHtml, printableDocument } from '../shared/print';
+import { escapeHtml, printableDocument } from '../../../../lib/print';
 import { tablePeople } from '../shared/tablePeople';
 import type { ClosedCheckRow, ShiftTotals } from './closedChecks';
 

@@ -139,6 +139,20 @@ export function availableCount(itemId: string, orders: Order[]): number | null {
   return Math.max(0, it.avail - used);
 }
 
+/** How many lines of each item are on these orders, in one pass (for counting many items at once). */
+export function lineCounts(orders: readonly Order[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const o of orders) for (const d of o.diners) for (const i of d.items) counts.set(i.itemId, (counts.get(i.itemId) ?? 0) + 1);
+  return counts;
+}
+
+/** availableCount, from lineCounts of the open checks. */
+export function availableCountIn(itemId: string, counts: ReadonlyMap<string, number>): number | null {
+  const it = getItem(itemId);
+  if (!it || it.avail == null) return null;
+  return Math.max(0, it.avail - (counts.get(itemId) ?? 0));
+}
+
 // ─── Checks sharing a table ──────────────────────────────────────────────
 
 /**
@@ -215,11 +229,24 @@ export interface LearnedFavorite {
   lastAt: number;
 }
 
+/** learnedFavorites per history array (it is replaced, never changed), then per resident and meal. */
+const favoritesCache = new WeakMap<readonly Order[], Map<string, LearnedFavorite[]>>();
+
 /**
  * de / learnedFavorites: a resident's four most ordered item + modifier
- * combinations from closed checks, optionally for one meal only.
+ * combinations from closed checks, optionally for one meal only. Worked out
+ * once per history, resident and meal.
  */
 export function learnedFavorites(history: Order[], residentId: string, meal?: MealName): LearnedFavorite[] {
+  let byResident = favoritesCache.get(history);
+  if (!byResident) favoritesCache.set(history, (byResident = new Map()));
+  const key = residentId + '|' + (meal ?? '');
+  let found = byResident.get(key);
+  if (!found) byResident.set(key, (found = countFavorites(history, residentId, meal)));
+  return found;
+}
+
+function countFavorites(history: Order[], residentId: string, meal?: MealName): LearnedFavorite[] {
   const byKey: Record<string, LearnedFavorite> = {};
   for (const o of history) {
     const at = o.closedAt || o.openedAt;

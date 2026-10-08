@@ -1,6 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { ModeChip, TextZoom } from '../../shell/controls';
-import { cx } from '../../ui';
+import { formatTime } from '../../lib/format';
+import { cx, useTick } from '../../ui';
 import s from './KitchenShell.module.css';
 
 /** The dark full-screen frame of a kitchen display. */
@@ -44,6 +45,16 @@ export function KitchenHeader({
         <ModeChip dark tall />
       </div>
     </header>
+  );
+}
+
+/** The time of day in a kitchen header ("5:45 PM"), redrawn as the minute turns over. */
+export function KitchenClock({ className }: { className?: string }) {
+  const t = useTick(60_000);
+  return (
+    <span className={className} aria-label="Time">
+      {formatTime(t)}
+    </span>
   );
 }
 

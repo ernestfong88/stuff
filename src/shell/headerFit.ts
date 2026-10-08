@@ -33,16 +33,19 @@ const overflows = (el: HTMLElement | null) => !!el && el.scrollWidth > el.client
 export function useFitLevel(parts: ReadonlyArray<RefObject<HTMLElement | null>>, resetKey?: string): number {
   const [level, setLevel] = useState(0);
   const [key, setKey] = useState(resetKey);
-  const [, recheck] = useState(0);
+  const [checks, recheck] = useState(0);
   if (key !== resetKey) {
     setKey(resetKey);
     setLevel(0);
   }
 
-  // After every render, before paint: still too wide, so fold one more step.
+  // Before paint, on mount, after each fold and whenever the observers below ask:
+  // still too wide, so fold one more step. (Not after every render: that forced a
+  // layout read each time anything in the header changed.)
   useLayoutEffect(() => {
     if (level < MAX_HEADER_FIT && parts.some((r) => overflows(r.current))) setLevel(level + 1);
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the refs are stable; checks and resetKey are the triggers
+  }, [level, checks, resetKey]);
 
   useEffect(() => {
     const row = parts[0]?.current;
@@ -56,9 +59,9 @@ export function useFitLevel(parts: ReadonlyArray<RefObject<HTMLElement | null>>,
       width = w;
     });
     ro.observe(row);
-    // A count or a name changed length: check again.
+    // A count or a name changed length, or a chip changed look: check again.
     const mo = new MutationObserver(() => recheck((n) => n + 1));
-    mo.observe(row, { subtree: true, childList: true, characterData: true });
+    mo.observe(row, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });
     return () => {
       ro.disconnect();
       mo.disconnect();

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Plus } from 'lucide-react';
 import { uid } from '../../../../lib/id';
 import { navigate, useRoute } from '../../../../shell/router';
@@ -19,6 +19,19 @@ import s from './RecipesPage.module.css';
 
 /** From this window width the list view keeps the list beside the open recipe (as the Back Office `columns` pages). */
 const SPLIT_FROM = 1500;
+
+const open = (r: Recipe) => navigate('backoffice', ['recipes', r.id]);
+
+/** Add a Global Library recipe: linked (Home Office keeps it up to date) or as your own copy. Returns the new id. */
+function addCopy(src: Recipe, linked: boolean): string {
+  const id = uid('rc');
+  const copy: Recipe = { ...src, id, scope: linked ? 'linked' : 'mine', globalId: linked ? src.id : undefined };
+  updateBo((st) => ({ recipes: [copy, ...st.recipes] }));
+  toast(linked ? `${src.name} added. Home Office keeps it up to date.` : `${src.name} copied. It's yours to change.`, { tone: 'success' });
+  return id;
+}
+const addLinked = (r: Recipe) => void addCopy(r, true);
+const addOwnCopy = (r: Recipe) => void addCopy(r, false);
 
 /** Recipe Book: the community's recipe master and the Home Office Global Library. */
 export function RecipesPage() {
@@ -43,24 +56,33 @@ export function RecipesPage() {
     return m;
   }, [bo.modGroups]);
   const set = (patch: Partial<RecipeFilters>) => setF((x) => ({ ...x, ...patch }));
+  // Typing stays quick: the list catches up with the search a moment later.
+  const q = useDeferredValue(f.q);
+  // Each recipe's short name, worked out once per recipe and config.
+  const shortOf = useMemo(() => {
+    const known = new WeakMap<Recipe, string>();
+    return (r: Recipe) => {
+      let v = known.get(r);
+      if (v == null) known.set(r, (v = recipeShort(r, cfg)));
+      return v;
+    };
+  }, [cfg]);
   const n = filterCount(f);
   const global = scope === 'global';
   const live = global || showAll || n > 0 || (split && !!openId);
   const list = useMemo(() => {
-    if (global) return GLOBAL_LIBRARY.filter((r) => (!f.cat || r.cat === f.cat) && matchesText(r, f.q, (x) => x.name));
-    return live ? filterRecipes(bo.recipes, f, { scoreOf, onMenu, favorites: bo.favorites, shortOf: (r) => recipeShort(r, cfg) }) : [];
-  }, [global, live, bo.recipes, bo.favorites, f, scoreOf, onMenu, cfg]);
+    if (global) return GLOBAL_LIBRARY.filter((r) => (!f.cat || r.cat === f.cat) && matchesText(r, q, (x) => x.name));
+    return live ? filterRecipes(bo.recipes, { ...f, q }, { scoreOf, onMenu, favorites: bo.favorites, shortOf }) : [];
+    // f.q is read through q, the deferred copy
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [global, live, bo.recipes, bo.favorites, f.cat, f.group, f.sub, f.protein, f.diet, f.score, f.onMenu, f.status, f.favorites, f.sort, q, scoreOf, onMenu, shortOf]);
 
-  const open = (r: Recipe) => navigate('backoffice', ['recipes', r.id]);
   // A Global Library recipe you already added, linked or as a copy, so it isn't added twice.
-  const ownedFrom = (g: Recipe) => bo.recipes.find((x) => x.globalId === g.id || x.name.toLowerCase() === g.name.toLowerCase());
-  const addCopy = (src: Recipe, linked: boolean) => {
-    const id = uid('rc');
-    const copy: Recipe = { ...src, id, scope: linked ? 'linked' : 'mine', globalId: linked ? src.id : undefined };
-    updateBo((st) => ({ recipes: [copy, ...st.recipes] }));
-    toast(linked ? `${src.name} added. Home Office keeps it up to date.` : `${src.name} copied. It's yours to change.`, { tone: 'success' });
-    return id;
-  };
+  const ownedFrom = useCallback(
+    (g: Recipe) => bo.recipes.find((x) => x.globalId === g.id || x.name.toLowerCase() === g.name.toLowerCase()),
+    [bo.recipes],
+  );
+  const pinCount = useCallback((id: string) => pins.get(id) ?? 0, [pins]);
 
   const openRecipe = openId ? (bo.recipes.find((x) => x.id === openId) ?? GLOBAL_LIBRARY.find((x) => x.id === openId)) : undefined;
   const detail = openRecipe && (
@@ -102,10 +124,10 @@ export function RecipesPage() {
     global,
     scoreOf,
     onMenu,
-    pinCount: (id) => pins.get(id) ?? 0,
+    pinCount,
     onOpen: open,
-    onAddLinked: (r) => addCopy(r, true),
-    onCopy: (r) => addCopy(r, false),
+    onAddLinked: addLinked,
+    onCopy: addOwnCopy,
     ownedFrom,
   };
   const active = bo.recipes.filter((r) => !r.retired);

@@ -39,8 +39,3 @@ export function dishPhoto(name: string | null | undefined, wide = false): string
   const slug = dishSlug(name);
   return (wide && dishPhotos.get(slug + '-wide')) || dishPhotos.get(slug) || null;
 }
-
-/** Resident ids that have a bundled photo (the residents game needs faces). */
-export function residentsWithPhotos(): string[] {
-  return [...residentPhotos.keys()];
-}

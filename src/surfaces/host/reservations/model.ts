@@ -7,11 +7,14 @@
  * is kept as the seated time.
  */
 import { getResident, getTable } from '../../../data';
+import { MEALS, mealAtMinute } from '../../../domain/mealPeriods';
 import type { MealName } from '../../../domain/types';
 import { DAY, MINUTE, startOfToday, today } from '../../../lib/clock';
+import { isoOf } from '../../../lib/dates';
+import { formatMinuteOfDay } from '../../../lib/format';
 import { guestOnFile } from './contacts';
 
-export const RESV_MEALS: MealName[] = ['Breakfast', 'Lunch', 'Dinner'];
+export const RESV_MEALS = MEALS;
 
 /**
  * The dining room hours the order screen shows: 7–9 AM, 11:30–1:30 and
@@ -89,9 +92,7 @@ export const RESV_STATUS_LABEL: Record<ResvStatus, string> = {
 
 // ─── Days and times ──────────────────────────────────────────────────────
 
-export function dayKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
+export const dayKey: (d: Date) => string = isoOf;
 
 /** Today plus k days, on the demo clock. */
 export function dayFromToday(k: number): string {
@@ -118,9 +119,7 @@ export function hm(t: number): string {
 }
 
 /** 1020 → "5:00 PM" */
-export function hmAmPm(t: number): string {
-  return `${hm(t)} ${Math.floor(t / 60) % 24 < 12 ? 'AM' : 'PM'}`;
-}
+export const hmAmPm = formatMinuteOfDay;
 
 /** A timestamp's clock time, "5:04". */
 export function clockOf(ms: number): string {
@@ -134,9 +133,8 @@ export function nowMinutes(): number {
   return d.getHours() * 60 + d.getMinutes();
 }
 
-export function mealAtMinutes(t: number): MealName {
-  return t < 630 ? 'Breakfast' : t < 900 ? 'Lunch' : 'Dinner';
-}
+/** The meal served at a minute of the day (domain/mealPeriods). */
+export const mealAtMinutes = mealAtMinute;
 
 /** Every bookable 15 minute slot of a meal. */
 export function mealSlots(meal: MealName): number[] {

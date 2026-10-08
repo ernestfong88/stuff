@@ -187,18 +187,6 @@ export function blankMenu(quarter: string, kind: MenuKind): string {
   return id;
 }
 
-/** Recipe ids on a menu's Any Day list, with the meals each is served at. */
-export function anyDayMeals(menuId: string): Map<string, Set<BuilderMeal>> {
-  const out = new Map<string, Set<BuilderMeal>>();
-  for (const g of getBo().grid) {
-    if (g.menuId !== menuId || g.day !== 0) continue;
-    const set = out.get(g.recipeId) ?? new Set<BuilderMeal>();
-    set.add(g.meal);
-    out.set(g.recipeId, set);
-  }
-  return out;
-}
-
 /** Serve an Any Day recipe at exactly these meals (none takes it off). */
 export function setAnyDayMeals(menuId: string, recipeId: string, meals: BuilderMeal[]): void {
   updateBo((s) => {

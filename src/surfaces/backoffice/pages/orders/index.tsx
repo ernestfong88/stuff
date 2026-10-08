@@ -4,7 +4,7 @@ import { rooms, staff } from '../../../../data';
 import { dinerPerson, tableName } from '../../../../domain/orders';
 import { serverName } from '../../../../domain/servers';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { Avatar, Button, Chip, EmptyState, SearchField, Tabs, cx } from '../../../../ui';
 import { formatDayShort, formatTime } from '../../../../lib/format';
 import { now, startOfToday } from '../../../../lib/clock';
@@ -16,7 +16,8 @@ import s from './orders.module.css';
 
 /** Order History: every check, filtered and drilled into, with corrections to closed ones. */
 export default function OrderHistoryPage(_props: BoPageProps) {
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const cfg = useConfig();
   const [query, setQuery] = useState('');
   const [server, setServer] = useState('All');

@@ -1,7 +1,7 @@
 import { ClipboardList, Search, Users } from 'lucide-react';
 import { navigate } from '../../shell/router';
 import { useMe, useVenue } from '../../shell/session';
-import { useDining } from '../../store/dining';
+import { useDiningOrders } from '../../store/dining';
 import { useHeaderFit } from '../../shell/headerFit';
 import { Button } from '../../ui';
 import { MenuReferenceButton, PointsChip } from '../server/features';
@@ -14,7 +14,7 @@ export function ManagerNav({ onPoints }: { onPoints: () => void }) {
   const me = useMe();
   const [venue] = useVenue();
   const plan = useRoomPlan(venue);
-  const { orders } = useDining();
+  const orders = useDiningOrders();
   // The header folds to fit (see shell/headerFit): from level 1 the buttons keep their icons only.
   const narrow = useHeaderFit() >= 1;
   const mine = orders.filter((o) => !o.queueType && o.server === me.initials && inPlan(o, plan)).length;

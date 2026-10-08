@@ -1,8 +1,9 @@
 /**
  * The dining state container behind DiningProvider, without React.
  *
- * - Every local change is saved to localStorage (versioned key, one demo
- *   day at a time) and posted to the other tabs over BroadcastChannel.
+ * - Every local change is posted to the other tabs over BroadcastChannel at
+ *   once, and saved to localStorage (versioned key, one demo day at a time)
+ *   a moment later, the latest of a run of changes only (writeBehind.ts).
  * - Messages carry the sender's tab id and a per-tab sequence number: a tab
  *   ignores its own echo and anything older than what it already applied
  *   from that sender. Applying a remote state never re-broadcasts it.
@@ -12,6 +13,7 @@
 import { seedDiningState, type DiningState } from '../domain/diningState';
 import { now, today } from '../lib/clock';
 import { safeStorage } from '../lib/storage';
+import { flushWrites, writeBehind } from '../lib/writeBehind';
 
 export const DINING_STORAGE_KEY = 'kisco.dining.v1';
 export const DINING_CHANNEL = 'kisco-dining-orders';
@@ -74,10 +76,13 @@ export function createDiningEngine(opts: DiningEngineOptions = {}): DiningEngine
 
   const emit = () => listeners.forEach((l) => l());
 
-  const persist = () => {
+  const save = () => {
     if (!persistKey) return;
     const saved: SavedDining = { v: 1, day: today().toDateString(), ...state };
     safeStorage.setJSON(persistKey, saved);
+  };
+  const persist = () => {
+    if (persistKey) writeBehind(persistKey, save);
   };
 
   const broadcast = () => {
@@ -135,6 +140,7 @@ export function createDiningEngine(opts: DiningEngineOptions = {}): DiningEngine
     reset() {
       if (persistKey) safeStorage.remove(persistKey);
       commit(seed());
+      if (persistKey) flushWrites(persistKey);
     },
   };
 }

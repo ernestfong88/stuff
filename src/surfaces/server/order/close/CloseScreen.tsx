@@ -8,7 +8,7 @@ import { queueFee } from '../../../../domain/billing';
 import type { Order, Resident } from '../../../../domain/types';
 import { ModeChip, TextZoom } from '../../../../shell/controls';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions } from '../../../../store/dining';
 import { cx } from '../../../../ui';
 import { CompDialog } from '../../shared/ManagerPin';
 import { CloseDinerCard } from './CloseDinerCard';
@@ -54,7 +54,7 @@ export function CloseScreen({
   onDone: () => void;
 }) {
   const cfg = useConfig();
-  const { closeOrder, closeDiner } = useDining();
+  const { closeOrder, closeDiner } = useDiningActions();
   const guestCreditOn = guestCreditAllowed(cfg, COMMUNITY_NAME);
   const [closing, setClosing] = useState<string[]>(() => dinerIds ?? o.diners.map((d) => d.id));
   const [printed, setPrinted] = useState<Record<string, boolean>>({});

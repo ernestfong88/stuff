@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { navigate, useRoute, useView } from '../../shell/router';
 import { useMe, useVenue } from '../../shell/session';
 import { TabletShell } from '../../shell/TabletShell';
-import { useDining } from '../../store/dining';
+import { useDiningActions, useDiningDevice, useDiningOrders } from '../../store/dining';
 import { toast } from '../../ui';
 import { MyTablesBoard } from './board/MyTablesBoard';
 import type { OpenCheckOptions } from './board/TableCard';
@@ -23,6 +23,10 @@ import { TakeoverDialog } from './takeover/TakeoverDialog';
 
 const VIEWS: readonly ServerView[] = ['mine', 'new', 'check', 'residents', 'shift'];
 
+/** Open a check (one function for good, so My Tables' cards don't redraw for a new one). */
+const openCheck = (orderId: string, opts?: OpenCheckOptions) =>
+  navigate('server', ['check', orderId], { query: opts?.category ? { cat: opts.category } : undefined });
+
 /**
  * Server tablet: My Tables, starting and taking checks, residents and the
  * shift review. Routes: #/server/mine, #/server/new, #/server/check/<id>,
@@ -34,18 +38,18 @@ export default function ServerSurface() {
   const view: ServerView = VIEWS.includes(rawView) ? rawView : 'mine';
   const me = useMe().initials;
   const [venue] = useVenue();
-  const { orders, closeOrder, openQueueOrder, openOrder, patchOrder, kitchenMode } = useDining();
+  const { closeOrder, openQueueOrder, openOrder, patchOrder } = useDiningActions();
+  const orders = useDiningOrders();
+  const { kitchenMode } = useDiningDevice();
   const mode = useMineMode();
   const [viewServer, setViewServer] = useState(me);
-  const live = orders.filter((o) => !o.queueType && inVenue(o, venue));
+  const live = useMemo(() => orders.filter((o) => !o.queueType && inVenue(o, venue)), [orders, venue]);
+  const pudCount = useMemo(() => openRows(orders, kitchenMode).length, [orders, kitchenMode]);
   const counts: Record<MineMode, number> = {
     tables: live.filter((o) => o.server === me).length,
-    pud: openRows(orders, kitchenMode).length,
+    pud: pudCount,
     map: live.length,
   };
-
-  const openCheck = (orderId: string, opts?: OpenCheckOptions) =>
-    navigate('server', ['check', orderId], { query: opts?.category ? { cat: opts.category } : undefined });
   const goMine = (to?: MineMode) => {
     if (to) setMineMode(to);
     setViewServer(me);

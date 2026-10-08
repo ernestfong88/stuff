@@ -1,13 +1,13 @@
 import { Check, ShoppingBag, Truck } from 'lucide-react';
-import type { MouseEvent } from 'react';
+import { memo, type MouseEvent } from 'react';
 import { getItem } from '../../data';
 import type { DiningConfig } from '../../domain/config';
 import { kitchenItemName } from '../../domain/menu';
 import { dinerName, tableName } from '../../domain/orders';
 import { serverName } from '../../domain/servers';
-import { formatElapsed, formatTime } from '../../lib/format';
+import { formatTime } from '../../lib/format';
 import { firstSend } from '../../domain/courses';
-import { cx } from '../../ui';
+import { cx, Elapsed } from '../../ui';
 import { DinerPills } from '../kitchen/DinerPills';
 import { linesByDiner, plateDetails, ticketStatus, type CookLine, type CookTicket } from './cookTickets';
 import s from './CookTicketCard.module.css';
@@ -20,19 +20,22 @@ export interface CookTicketCardProps {
   expoActive: boolean;
   /** Minutes on the fire before the ticket turns red. */
   lateAfter: number;
+  /** Current time, for the late colour (a coarse tick is enough). */
   now: number;
   cfg: DiningConfig;
   selected: boolean;
   /** Highlighted line (position among this screen's plates), or -1. */
   selectedLine: number;
-  onSelect: (line: number) => void;
-  onTapLine: (line: CookLine) => void;
-  onBump: () => void;
-  onClear: () => void;
-  onClearCancelled: () => void;
+  /** These handlers take the ticket (or its index), so the board hands every card the same functions. */
+  onSelect: (index: number, line: number) => void;
+  onTapLine: (ticket: CookTicket, line: CookLine) => void;
+  onBump: (ticket: CookTicket) => void;
+  onClear: (ticket: CookTicket) => void;
+  onClearCancelled: (ticket: CookTicket) => void;
 }
 
-export function CookTicketCard(p: CookTicketCardProps) {
+/** One ticket on the cook line. Memoised: it redraws when its check, selection or late state changes; its timer ticks on its own. */
+export const CookTicketCard = memo(function CookTicketCard(p: CookTicketCardProps) {
   const { ticket: t, screen, cfg } = p;
   const o = t.order;
   const status = ticketStatus(t, screen);
@@ -47,7 +50,7 @@ export function CookTicketCard(p: CookTicketCardProps) {
   return (
     <article
       className={cx(s.ticket, late && s.late, status.allReady && s.ready, p.selected && s.selected)}
-      onClick={() => p.onSelect(0)}
+      onClick={() => p.onSelect(p.index, 0)}
       aria-label={`${where}, ${o.queueType ? 'all together' : 'course ' + t.course}${late ? ', late' : ''}`}
     >
       <header className={s.head}>
@@ -70,7 +73,9 @@ export function CookTicketCard(p: CookTicketCardProps) {
         </span>
         {toGo && <span className={s.togo}>TO GO</span>}
         <span className={s.course}>{o.queueType ? 'ALL' : 'C' + t.course}</span>
-        <span className={s.timer}>{formatElapsed(p.now - t.firedAt)}</span>
+        <span className={s.timer}>
+          <Elapsed since={t.firedAt} />
+        </span>
       </header>
 
       <div className={s.body}>
@@ -96,8 +101,8 @@ export function CookTicketCard(p: CookTicketCardProps) {
                     defaultSidesOnLine={cfg.defaultSidesOnLine}
                     highlighted={p.selected && p.selectedLine === at}
                     onTap={() => {
-                      p.onSelect(at);
-                      p.onTapLine(line);
+                      p.onSelect(p.index, at);
+                      p.onTapLine(t, line);
                     }}
                   />
                 );
@@ -109,24 +114,24 @@ export function CookTicketCard(p: CookTicketCardProps) {
 
       <footer className={s.foot}>
         {status.onlyCancelled ? (
-          <button className={cx(s.footBtn, s.footCancel)} onClick={stop(p.onClearCancelled)}>
+          <button className={cx(s.footBtn, s.footCancel)} onClick={stop(() => p.onClearCancelled(t))}>
             Seen · clear cancelled
           </button>
         ) : status.allReady && !p.expoActive ? (
-          <button className={cx(s.footBtn, s.footClear)} onClick={stop(p.onClear)}>
+          <button className={cx(s.footBtn, s.footClear)} onClick={stop(() => p.onClear(t))}>
             Picked up · clear
           </button>
         ) : status.allReady ? (
           <div className={cx(s.footBtn, s.footWait)}>Ready at Expo</div>
         ) : (
-          <button className={cx(s.footBtn, s.footBump)} onClick={stop(p.onBump)}>
+          <button className={cx(s.footBtn, s.footBump)} onClick={stop(() => p.onBump(t))}>
             Bump ticket
           </button>
         )}
       </footer>
     </article>
   );
-}
+});
 
 const stop = (fn: () => void) => (e: MouseEvent) => {
   e.stopPropagation();

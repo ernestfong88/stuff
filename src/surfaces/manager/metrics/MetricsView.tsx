@@ -4,7 +4,7 @@ import { serverName } from '../../../domain/servers';
 import type { MealName, Order } from '../../../domain/types';
 import { startOfToday } from '../../../lib/clock';
 import { useConfig } from '../../../store/config';
-import { useDining } from '../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../store/dining';
 import { useTableName } from '../../../store/floorLayout';
 import { Tabs, cx, useNow } from '../../../ui';
 import { MEALS, SOS_GOALS, atRisk, demoSosTables, lastWeek, mealOf, minSec, offGoal, shiftMeal, summarize } from '../../../domain/metrics/stepsOfService';
@@ -23,7 +23,8 @@ const LIVE_MIN = 3;
  * to do next, then by server and, folded away, every timed table.
  */
 export function MetricsView({ onOpen }: { onOpen: (o: Order) => void }) {
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const cfg = useConfig();
   useNow(15_000);
   const name = useTableName();

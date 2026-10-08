@@ -6,6 +6,7 @@ import { BarChart, BoCaption, CHART } from '../../kit';
 import type { Insight, Tone } from './model/insight';
 import { periodLabel, type RangeDays } from './model/periods';
 import type { Driver } from './model/sentiment';
+import { safeStorage } from '../../../../lib/storage';
 import s from './dashboard.module.css';
 
 /** "Resident meal sentiment" over the card with its Detail link. */
@@ -25,20 +26,12 @@ const OPEN_KEY = 'kisco_backoffice_dash_open_';
 /** Open or closed, remembered per box on this device (storage can be blocked, so it falls back to `initial`). */
 export function useRemembered(key: string, initial: boolean): [boolean, (v: boolean) => void] {
   const [v, setV] = useState(() => {
-    try {
-      const x = localStorage.getItem(OPEN_KEY + key);
-      return x == null ? initial : x === '1';
-    } catch {
-      return initial;
-    }
+    const x = safeStorage.get(OPEN_KEY + key);
+    return x == null ? initial : x === '1';
   });
   const set = (next: boolean) => {
     setV(next);
-    try {
-      localStorage.setItem(OPEN_KEY + key, next ? '1' : '0');
-    } catch {
-      /* not remembered */
-    }
+    safeStorage.set(OPEN_KEY + key, next ? '1' : '0');
   };
   return [v, set];
 }
@@ -50,31 +43,6 @@ export function DetailsToggle({ open, onToggle, controls }: { open: boolean; onT
       {open ? 'Hide details' : 'Show details'}
       <ChevronDown size={14} aria-hidden className={cx(s.chev, open && s.chevOpen)} />
     </button>
-  );
-}
-
-export type Direction = 'up' | 'down' | 'flat' | 'none';
-
-const DIRECTION: Record<Direction, { glyph: string; label: string; tone: string }> = {
-  up: { glyph: '▲', label: 'Improving', tone: s.dirGood },
-  down: { glyph: '▼', label: 'Getting worse', tone: s.dirBad },
-  flat: { glyph: '▶', label: 'Holding steady', tone: s.dirFlat },
-  none: { glyph: '–', label: '', tone: s.dirFlat },
-};
-
-/** Big "Getting worse" with an arrow, and what it compares against. */
-export function DirectionHead({ dir, noneLabel, sub }: { dir: Direction; noneLabel: string; sub: string }) {
-  const d = DIRECTION[dir];
-  return (
-    <div className={cx(s.dir, d.tone)}>
-      <span className={s.dirGlyph} aria-hidden>
-        {d.glyph}
-      </span>
-      <div>
-        <div className={s.dirLabel}>{dir === 'none' ? noneLabel : d.label}</div>
-        <div className={s.dirSub}>{sub}</div>
-      </div>
-    </div>
   );
 }
 

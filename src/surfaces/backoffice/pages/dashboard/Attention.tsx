@@ -7,7 +7,7 @@ import { MINUTE, now, startOfToday } from '../../../../lib/clock';
 import { useConfig } from '../../../../store/config';
 import { itemsOut, use86 } from '../../../../store/eightySix';
 import { threshold, useSetting } from '../../../../store/serviceConfig';
-import { useDining } from '../../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { navigate } from '../../../../shell/router';
 import { isHomeOffice, useBoRole } from '../../../../store/boRole';
 import { canSee } from '../../nav';
@@ -36,7 +36,8 @@ export function Attention({ goto }: { goto: (pageId: string) => void }) {
   const marks = use86();
   const cfg = useConfig();
   const community = useCommunity();
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const { charges } = useBilling();
   const venueSettings = useVenueSettings();
   const bo = useBo();

@@ -5,6 +5,7 @@
  * (a daily menu too long for one page, or à la carte on two pages) moves
  * whole blocks, so a meal or a category never breaks across pages.
  */
+import { MEALS } from '../../../../domain/mealPeriods';
 import { addDays, monthDay } from '../../../../domain/menuCycle';
 import { dishLong } from './categories';
 import { pickupSpan } from './pickupWindows';
@@ -14,7 +15,7 @@ import { dietOrder } from './dietIcons';
 import type { PriceField } from './pricing';
 import type { PrintContext, PrintKind, PrintLine } from './menuPrint';
 
-export const PRINT_MEALS = ['Breakfast', 'Lunch', 'Dinner'] as const;
+export const PRINT_MEALS = MEALS;
 
 export const SECTIONS: Array<[PrintLine['c'], string]> = [
   ['Starters', 'To Start'],

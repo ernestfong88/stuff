@@ -6,7 +6,7 @@ import { hospiceWaivesFee, sickConfig, sickPeriodEnd, sickWaiversUsed } from '..
 import type { QueueType } from '../../../domain/types';
 import { formatMoney } from '../../../lib/format';
 import { useConfig } from '../../../store/config';
-import { useDining } from '../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../store/dining';
 import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
 import { kioskVenue } from '../model/order';
 import { KIOSK_ROOM, kioskTypes } from '../model/times';
@@ -19,7 +19,8 @@ import s from './TypeStep.module.css';
 export function TypeStep({ flow }: { flow: KioskFlow }) {
   const cfg = useConfig();
   const svc = useServiceSettings();
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const r = flow.s.resident;
   const hospice = !!r && hospiceWaivesFee(r.id, cfg);
   const fee = hospice ? 0 : venueFee(KIOSK_ROOM, cfg).delivery;

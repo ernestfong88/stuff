@@ -39,11 +39,6 @@ export function getSetting<T = unknown>(path: string): T {
   return (v === undefined ? readPath(DEFAULT_CONFIG, path) : v) as T;
 }
 
-/** Default value at a path (for "Reset to defaults" and placeholders). */
-export function getSettingDefault<T = unknown>(path: string): T {
-  return readPath(DEFAULT_CONFIG, path) as T;
-}
-
 /** Set (or with undefined, remove) the value at a path. */
 export function setSetting(path: string, value: unknown): void {
   serviceConfig.set((cfg) => {

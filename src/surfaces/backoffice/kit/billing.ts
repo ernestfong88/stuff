@@ -11,15 +11,16 @@ import { dinerName } from '../../../domain/orders';
 import type { Diner, Order } from '../../../domain/types';
 import { useShared } from '../../../lib/sharedStore';
 import { useConfig } from '../../../store/config';
-import { useDining } from '../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../store/dining';
 import type { Charge } from '../seed/billing';
-import { billingStore, type BillingState } from './billingStore';
+import { billingStore, type BillingState } from '../../../store/billingStore';
 
-export { billingStore, type BillingState } from './billingStore';
+export { billingStore, type BillingState } from '../../../store/billingStore';
 
 /** Charges and settings; apartment charges closed on the floor are pulled in for approval and kept in step with corrections. */
 export function useBilling(): BillingState {
-  const { history, orders } = useDining();
+  const history = useDiningHistory();
+  const orders = useDiningOrders();
   const cfg = useConfig();
   useEffect(() => syncFloorCharges(history, orders, cfg), [history, orders, cfg]);
   return useShared(billingStore);

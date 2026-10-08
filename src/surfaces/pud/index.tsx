@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { TabletShell } from '../../shell/TabletShell';
 import { useVenue } from '../../shell/session';
 import { now } from '../../lib/clock';
-import { useDining } from '../../store/dining';
+import { useDiningActions, useDiningOrders } from '../../store/dining';
 import { toast } from '../../ui';
 import { OrderScreen } from '../server/order';
 import { PudBoard } from './PudBoard';
@@ -16,7 +16,8 @@ import { mealAt } from '../../domain/pickupService/meals';
 import { MyTablesButton } from './MyTablesButton';
 
 export default function PudSurface() {
-  const { orders, openQueueOrder, closeOrder } = useDining();
+  const { openQueueOrder, closeOrder } = useDiningActions();
+  const orders = useDiningOrders();
   const [venue] = useVenue();
   const [openId, setOpenId] = useState<string | null>(null);
 

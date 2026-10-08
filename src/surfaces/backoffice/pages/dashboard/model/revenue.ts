@@ -5,7 +5,7 @@
  */
 import { mixHash, strHash, unit } from './hash';
 import { GOALS, money0, type Insight, type Tone } from './insight';
-import type { MealName } from './service';
+import { MEALS, type MealName } from './service';
 import type { Driver } from './sentiment';
 
 export const COMP_REASONS = ['Wrong temperature', 'Long wait', 'Kitchen error', 'Did not like it', 'Hospice'] as const;
@@ -107,7 +107,7 @@ export function compsFor(d: RevenueDay, servers: Array<{ id: string; name: strin
       resident: residents[strHash('cw' + ds + j) % Math.max(1, residents.length)] ?? 'Resident',
       server: sv.name,
       approvedBy: reason === 'Hospice' ? 'Automatic' : APPROVERS[h % APPROVERS.length],
-      meal: (['Breakfast', 'Lunch', 'Dinner'] as MealName[])[strHash('cm' + ds + j) % 3],
+      meal: MEALS[strHash('cm' + ds + j) % 3],
     };
   });
 }
@@ -117,7 +117,7 @@ export function madeByMeal(d: RevenueDay): string {
   const ds = new Date(d.a).toDateString();
   const parts = [0.22, 0.33, 0.45].map((q, j) => Math.round(d.made * q * (0.9 + (strHash('mm' + ds + j) % 20) / 100)));
   parts[2] = d.made - parts[0] - parts[1];
-  return ['Breakfast', 'Lunch', 'Dinner'].map((m, j) => `${m} ${money0(parts[j])}`).join(' · ');
+  return MEALS.map((m, j) => `${m} ${money0(parts[j])}`).join(' · ');
 }
 
 export interface RevenuePeriod {

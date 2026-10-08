@@ -3,6 +3,7 @@
  * a preset (Today, Last 7 days ...) or a custom from/to, worked out in the
  * community's local days. Pure, so the pages and tests share it.
  */
+import { dayStart, isoOf } from '../../../lib/dates';
 
 export type DatePreset = 'all' | 'today' | 'yesterday' | 'last7' | 'month' | 'custom';
 
@@ -24,12 +25,6 @@ export const DATE_PRESETS: Array<{ id: DatePreset; label: string }> = [
   { id: 'custom', label: 'Custom' },
 ];
 
-/** Local midnight `days` days after the day of `t` (DST safe). */
-function dayStart(t: number, days = 0): number {
-  const d = new Date(t);
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days).getTime();
-}
-
 /** "2026-10-08" → local midnight that day; null when blank or malformed. */
 export function parseDay(value: string | undefined): number | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? '');
@@ -38,8 +33,7 @@ export function parseDay(value: string | undefined): number | null {
 
 /** Local day of `t` as "YYYY-MM-DD", for a date input. */
 export function dayValue(t: number): string {
-  const d = new Date(t);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return isoOf(t);
 }
 
 /**

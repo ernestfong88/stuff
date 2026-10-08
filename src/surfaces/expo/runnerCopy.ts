@@ -10,11 +10,10 @@ import { dinerName } from '../../domain/orders';
 import { dinerPills } from '../../domain/residents';
 import { serverName } from '../../domain/servers';
 import { formatTime } from '../../lib/format';
+import { escapeHtml as esc, printHtml } from '../../lib/print';
 import { courseWord } from '../kitchen/kitchenTime';
 import type { ExpoTicket } from './expoTickets';
 
-const esc = (s: unknown) =>
-  String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c);
 
 const STYLES = `
   @page { margin: 10mm; }
@@ -85,27 +84,4 @@ export function runnerCopyHtml({ ticket, course, label, printedAt, cfg }: Runner
 }
 
 /** Print a document from a hidden frame. */
-export function printDocument(html: string): void {
-  const frame = document.createElement('iframe');
-  frame.setAttribute('aria-hidden', 'true');
-  frame.tabIndex = -1;
-  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
-  document.body.appendChild(frame);
-  const win = frame.contentWindow;
-  if (!win) {
-    frame.remove();
-    return;
-  }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  setTimeout(() => {
-    try {
-      win.focus();
-      win.print();
-    } catch {
-      // Printing blocked (sandboxed preview): nothing else to do.
-    }
-    setTimeout(() => frame.remove(), 60_000);
-  }, 80);
-}
+export const printDocument = printHtml;

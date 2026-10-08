@@ -1,47 +1,31 @@
-import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { getItem, meals, menu } from '../../data';
-import { avoidLabel, inferAllergens } from '../../domain/allergens';
-import { defaultSides, isDrink } from '../../domain/menu';
+import { useState } from 'react';
+import { useMenuVersion } from '../../data';
+import { MEALS, mealAt } from '../../domain/mealPeriods';
 import type { MealName, MenuItem } from '../../domain/types';
-import { today } from '../../lib/clock';
+import { now } from '../../lib/clock';
+import { useVenue } from '../../shell/session';
 import { is86, use86 } from '../../store/eightySix';
+import { venueName } from '../../store/sideWork';
 import { Modal, Tabs, cx } from '../../ui';
+import { DishView } from '../server/features/menu/DishView';
+import { menuSections } from '../server/features/menu/menuSections';
 import { DishPicture } from './DishPicture';
 import s from './MenuReference.module.css';
 
-function mealNow(): MealName {
-  const h = today().getHours();
-  return h >= 15 ? 'Dinner' : h >= 10 ? 'Lunch' : 'Breakfast';
-}
-
-interface MenuSections {
-  specials: MenuItem[];
-  groups: Array<{ category: string; items: MenuItem[] }>;
-}
-
-/** Today's menu for one meal: specials first (entrees, then starters, sides, desserts), then each category. */
-export function menuSections(meal: MealName, entreesOnly: boolean): MenuSections {
-  const seen = new Set<string>();
-  const all: Array<{ category: string; item: MenuItem }> = [];
-  for (const [category, items] of Object.entries(menu[meal] ?? {})) {
-    if (/add-?ons?|fees?/i.test(category)) continue;
-    for (const item of items) {
-      if (isDrink(item.id) || seen.has(item.id) || (entreesOnly && !item.entree)) continue;
-      seen.add(item.id);
-      all.push({ category: entreesOnly || /^specials?$/i.test(category) ? 'Entrées' : category, item });
+/** Specials, then each category; the cook line sees entrées only, all under one heading. */
+function kitchenSections(meal: MealName, room: string, entreesOnly: boolean) {
+  const { specials, categories } = menuSections(meal, room);
+  const keep = (it: MenuItem) => !entreesOnly || !!it.entree;
+  const groups: Array<{ category: string; items: MenuItem[] }> = [];
+  for (const c of categories) {
+    const category = entreesOnly || /^specials?$/i.test(c.name) ? 'Entrées' : c.name;
+    for (const item of c.items.filter(keep)) {
+      const g = groups.find((x) => x.category === category);
+      if (g) g.items.push(item);
+      else groups.push({ category, items: [item] });
     }
   }
-  const rank = (it: MenuItem) => (it.entree ? 0 : it.course === 1 ? 1 : it.course === 3 ? 3 : 2);
-  const specials = all.filter((x) => x.item.special).map((x) => x.item).sort((a, b) => rank(a) - rank(b));
-  const groups: MenuSections['groups'] = [];
-  for (const { category, item } of all) {
-    if (item.special) continue;
-    const g = groups.find((x) => x.category === category);
-    if (g) g.items.push(item);
-    else groups.push({ category, items: [item] });
-  }
-  return { specials, groups };
+  return { specials: specials.filter(keep), groups };
 }
 
 /**
@@ -49,10 +33,18 @@ export function menuSections(meal: MealName, entreesOnly: boolean): MenuSections
  * notes, choices and allergens. The cook line sees entrees only.
  */
 export function MenuReference({ open, onClose, entreesOnly }: { open: boolean; onClose: () => void; entreesOnly?: boolean }) {
-  const [meal, setMeal] = useState<MealName>(mealNow);
+  const [meal, setMeal] = useState<MealName>(() => mealAt(now()));
   const [dish, setDish] = useState<MenuItem | null>(null);
+  // Cook and Expo keep this mounted, so each opening starts on the meal being served then.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) setMeal(mealAt(now()));
+  }
   const marks = use86();
-  const { specials, groups } = menuSections(meal, !!entreesOnly);
+  const [venue] = useVenue();
+  useMenuVersion();
+  const { specials, groups } = open ? kitchenSections(meal, venue, !!entreesOnly) : { specials: [], groups: [] };
   const out = (it: MenuItem) => is86(marks, it.id);
 
   return (
@@ -62,7 +54,7 @@ export function MenuReference({ open, onClose, entreesOnly }: { open: boolean; o
         onClose={onClose}
         tall
         width={780}
-        title="Today's menu"
+        title={`Today's menu · ${venueName(venue)}`}
         subtitle={
           entreesOnly
             ? 'Entrées only: today’s specials, then every day. Tap one for the plating and cook notes.'
@@ -73,7 +65,7 @@ export function MenuReference({ open, onClose, entreesOnly }: { open: boolean; o
           aria-label="Meal"
           value={meal}
           onChange={setMeal}
-          options={meals.map((m) => ({ id: m.id, label: m.id }))}
+          options={MEALS.map((m) => ({ id: m, label: m }))}
           className={s.tabs}
         />
         {specials.length > 0 && (
@@ -117,77 +109,7 @@ export function MenuReference({ open, onClose, entreesOnly }: { open: boolean; o
         ))}
         {!specials.length && !groups.length && <p className={s.none}>Nothing on the {meal.toLowerCase()} menu today.</p>}
       </Modal>
-      {dish && <DishView item={dish} out={out(dish)} onClose={() => setDish(null)} />}
+      {dish && <DishView item={dish} out={out(dish)} cookNotes onClose={() => setDish(null)} />}
     </>
-  );
-}
-
-/** One dish, full screen and dark, readable from across the line. Tap anywhere or Escape to close. */
-function DishView({ item, out, onClose }: { item: MenuItem; out: boolean; onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const close = useRef(onClose);
-  close.current = onClose;
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
-    ref.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      e.stopPropagation();
-      close.current();
-    };
-    window.addEventListener('keydown', onKey, true);
-    return () => {
-      window.removeEventListener('keydown', onKey, true);
-      previous?.focus?.();
-    };
-  }, []);
-  const sides = defaultSides(item.id).flatMap((id) => getItem(id)?.name ?? []);
-  const choices = item.mods.filter((g) => g.opts.length).slice(0, 3);
-  return createPortal(
-    <div ref={ref} className={s.dish} role="dialog" aria-modal="true" aria-label={item.name} tabIndex={-1} onClick={onClose}>
-      <div className={s.dishInner}>
-        <DishPicture name={item.name} size="hero" dark />
-        <div className={s.dishText}>
-          <div>
-            {item.special && <div className={s.special}>Today&apos;s special</div>}
-            <div className={s.dishName}>{item.name}</div>
-            {item.desc && <div className={s.dishDesc}>{item.desc}</div>}
-            {out && <div className={s.dish86}>86&apos;d</div>}
-          </div>
-          <Fact label="Plated with" text={sides.length ? sides.join(' · ') : 'No default sides'} quiet={!sides.length} />
-          <Fact label="Cook notes" text={item.cookNotes || 'No cook notes on this recipe yet.'} tone={item.cookNotes ? 'gold' : undefined} quiet={!item.cookNotes} />
-          {choices.length > 0 && (
-            <div>
-              <div className={s.factLabel}>Choices</div>
-              {choices.map((g) => (
-                <div key={g.group} className={s.choice}>
-                  <b>{g.group}</b>: {g.opts.join(', ')}
-                  {g.default ? ` (comes with ${g.default})` : ''}
-                </div>
-              ))}
-            </div>
-          )}
-          <Fact label="Allergens" text={allergenText(item)} tone={allergenText(item) !== 'None listed' ? 'red' : undefined} />
-          <div className={s.closeHint}>Tap anywhere to close</div>
-        </div>
-      </div>
-    </div>,
-    document.getElementById('root') ?? document.body,
-  );
-}
-
-/** The recorded allergens, else what the dish's words suggest ("May contain …"), else none. */
-function allergenText(item: MenuItem): string {
-  if (item.allergens.length) return item.allergens.join(', ');
-  const maybe = inferAllergens(item).map(avoidLabel);
-  return maybe.length ? `May contain ${maybe.join(', ')} (suggested)` : 'None listed';
-}
-
-function Fact({ label, text, tone, quiet }: { label: string; text: string; tone?: 'gold' | 'red'; quiet?: boolean }) {
-  return (
-    <div>
-      <div className={s.factLabel}>{label}</div>
-      <div className={cx(s.fact, tone && s[`fact_${tone}`], quiet && s.factQuiet)}>{text}</div>
-    </div>
   );
 }

@@ -4,12 +4,11 @@
  * changes and the copy is clean (no buttons, no colours that waste ink).
  */
 
-export function escapeHtml(text: string | number | null | undefined): string {
-  return String(text ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+/** Escape text for HTML (null and undefined print as nothing). */
+export function escapeHtml(text: unknown): string {
+  return String(text ?? '').replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
 }
 
 const PRINT_CSS = `
@@ -30,32 +29,32 @@ const PRINT_CSS = `
   .ft { margin-top: 26px; font-size: 11px; color: #5e6b74; }
 `;
 
-/** A whole printable page around a body. */
+/** A whole printable page around a body, in the shared print style. */
 export function printableDocument(title: string, body: string, extraCss = ''): string {
   return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>${PRINT_CSS}${extraCss}</style></head><body>${body}</body></html>`;
 }
 
-/** Print an HTML page from a hidden frame. */
+/**
+ * Print an HTML page from a hidden frame. It prints once the page has
+ * loaded (images and fonts included), and the frame stays a minute because
+ * some browsers (the iPad's) return from print() before the dialog is done
+ * with the page.
+ */
 export function printHtml(html: string): void {
   const frame = document.createElement('iframe');
   frame.setAttribute('aria-hidden', 'true');
+  frame.tabIndex = -1;
   frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
-  document.body.appendChild(frame);
-  const win = frame.contentWindow;
-  if (!win) {
-    frame.remove();
-    return;
-  }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  // Give the frame a moment to lay out before the print dialog snapshots it.
-  window.setTimeout(() => {
+  frame.onload = () => {
     try {
-      win.focus();
-      win.print();
+      frame.contentWindow?.focus();
+      frame.contentWindow?.print();
+    } catch {
+      // Printing blocked (a sandboxed preview): nothing else to do.
     } finally {
       window.setTimeout(() => frame.remove(), 60_000);
     }
-  }, 120);
+  };
+  frame.srcdoc = html;
+  document.body.appendChild(frame);
 }

@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { COMMUNITY_NAME } from '../../data';
 import { isoDate } from '../../domain/pickup';
 import type { AssocMeal } from '../../domain/types';
-import { useDining } from '../../store/dining';
+import { useAssocOrders, useDiningActions, useDiningHistory, useDiningOrders } from '../../store/dining';
 import { Toggle, toast, useNow } from '../../ui';
 import { MealHistory } from './MealHistory';
 import { canChangeMeal, changeMeal } from './myMeals';
@@ -24,7 +24,10 @@ import { ShiftCard } from './ShiftCard';
 import s from './AssociatePhone.module.css';
 
 export default function AssociatePhone() {
-  const { assocOrders, setAssocOrders, orders, history } = useDining();
+  const { setAssocOrders } = useDiningActions();
+  const assocOrders = useAssocOrders();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const settings = useAssocSettings();
   const nowMs = useNow(30_000);
   const [anyTime, setAnyTime] = useState(false);

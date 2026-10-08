@@ -4,7 +4,7 @@ import { useSignedIn } from '../shell/session';
 import { registerDemoAction } from '../shell/demoTools';
 import { isoDate } from '../domain/pickup';
 import { syncAssocItems, useAssocMenuSettings } from '../store/assocMenu';
-import { DiningProvider, useDining } from '../store/dining';
+import { DiningProvider, useDiningActions } from '../store/dining';
 import { setSessionMode, setSignedIn } from '../store/session';
 
 /** Tells the dining store which surface this tab is and who is signed in (for check timelines and takeovers). */
@@ -18,7 +18,7 @@ function SessionBridge() {
 
 /** Demo tools, at the top of the screen menu on every screen. */
 function DemoTools() {
-  const { resetDemo, clearAll } = useDining();
+  const { resetDemo, clearAll } = useDiningActions();
   useEffect(() => {
     const offReset = registerDemoAction({
       id: 'reset',

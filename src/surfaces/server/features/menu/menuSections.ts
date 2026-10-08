@@ -3,7 +3,7 @@ import { isDrink } from '../../../../domain/menu';
 import { mealAtHour } from '../../../../domain/mealPeriods';
 import type { MealName, MenuItem } from '../../../../domain/types';
 
-export const MEALS: MealName[] = ['Breakfast', 'Lunch', 'Dinner'];
+export { MEALS } from '../../../../domain/mealPeriods';
 
 /** The meal being served at an hour of the day (see domain/mealPeriods: breakfast until 10:30, lunch until 3, then dinner). */
 export const mealAt = (hour: number): MealName => mealAtHour(hour);

@@ -34,7 +34,7 @@ describe("a venue's day on its menu cycle", () => {
 
   it('starts a scheduled menu on its day', () => {
     const v = { ...v1(), upcoming: [{ menuId: 'm5', startDt: weekStart(at).getTime() }] };
-    expect(venueServing(v, at, menus, SEED_GRID)).toMatchObject({ cycleId: 'm5', day: Math.round((at - weekStart(at).getTime()) / DAY_MS) + 1 });
+    expect(venueServing(v, at, menus, SEED_GRID)).toMatchObject({ cycleId: 'm5', day: Math.floor((at - weekStart(at).getTime()) / DAY_MS) + 1 });
   });
 
   it("counts a cycle's length from the menu, or the last placed day when later", () => {

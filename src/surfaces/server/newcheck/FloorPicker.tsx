@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { FloorTable } from '../../../domain/types';
-import { useDining } from '../../../store/dining';
+import { useDiningOrders } from '../../../store/dining';
 import { useRoomPlan } from '../../../store/floorLayout';
 import { cx } from '../../../ui';
 import { pickerTable, seatsText } from './floorTables';
@@ -9,7 +9,7 @@ import s from './FloorPicker.module.css';
 
 /** The venue's floor plan (as saved in Back Office) for picking the table of a new check. */
 export function FloorPicker({ room, me, onPick }: { room: string; me: string; onPick: (table: FloorTable) => void }) {
-  const { orders } = useDining();
+  const orders = useDiningOrders();
   const plan = useRoomPlan(room);
   const heldAt = useHeldFor(room);
   const tables = plan.tables;

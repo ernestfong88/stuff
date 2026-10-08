@@ -14,7 +14,7 @@ import { minuteLabel } from '../../../domain/pickupService/windows';
 import type { KioskState } from './flow';
 import { defaultMods, dishLongName, dishVersions, drinkName, modsFromWords, versionMods, type DishVersion } from '../../../domain/kioskMenu';
 import { ASAP_WIN, KIOSK_ROOM, winLabel } from './times';
-import { residentPlan } from '../../backoffice/kit/residentRecords';
+import { residentPlan } from '../../../store/residentRecords';
 
 /** "Sequoia" (the venue's first name, as residents say it). */
 export function kioskVenue(): string {

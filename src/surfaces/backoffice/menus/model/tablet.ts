@@ -8,10 +8,10 @@
  */
 import { baseMenu } from '../../../../data';
 import type { MealName, Menu, MenuItem } from '../../../../domain/types';
-import type { Recipe, RecipeCategory } from '../../../../store/menuEdits';
+import type { Recipe } from '../../../../store/menuEdits';
 import { normCategory, subGroup, subOf, subToEntreeType } from './categories';
 
-export const MEALS: MealName[] = ['Breakfast', 'Lunch', 'Dinner'];
+export { MEALS } from '../../../../domain/mealPeriods';
 
 /** The kind of tablet section a category key is. */
 export function sectionGroup(category: string): string {
@@ -23,22 +23,6 @@ export function sectionGroup(category: string): string {
   if (category === 'Alcohol' || category === 'Cocktails') return 'alc';
   if (category === 'Fees') return 'fee';
   return 'other';
-}
-
-/** Back Office category for a tablet section. */
-export function sectionCategory(category: string): RecipeCategory {
-  const g = sectionGroup(category);
-  return g === 'app'
-    ? 'Starters'
-    : g === 'side'
-      ? 'Sides'
-      : g === 'dessert'
-        ? 'Desserts'
-        : g === 'drink' || g === 'alc'
-          ? 'Drinks'
-          : g === 'fee'
-            ? 'Snacks'
-            : 'Entrees';
 }
 
 export interface TabletIndex {

@@ -1,5 +1,5 @@
 import { Check, CheckCircle2, Flame, MoreVertical, Printer, RotateCw, ShoppingBag, Truck } from 'lucide-react';
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import { memo, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import { getItem, getTable } from '../../data';
 import type { DiningConfig } from '../../domain/config';
 import { kitchenItemName } from '../../domain/menu';
@@ -9,7 +9,7 @@ import { formatElapsed, formatTime } from '../../lib/format';
 import { firstSend } from '../../domain/courses';
 import { dayBefore, orderAheadLabel, pickupDue } from '../../domain/pickup';
 import { itemReminders } from '../../store/menuEdits';
-import { Popover, cx, toast } from '../../ui';
+import { Popover, Ticking, cx, toast } from '../../ui';
 import { DinerPills } from '../kitchen/DinerPills';
 import { pickupWindow } from '../kitchen/kitchenTime';
 import { textFor, queueTextKey, type TextContext } from '../../domain/pickupService/texts';
@@ -96,7 +96,8 @@ function useChanged<T>(value: T, ms: number): boolean {
   return changed;
 }
 
-export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, selected, selectedLineId, actions }: ExpoTicketCardProps) {
+/** One ticket at the pass. Memoised: it redraws when its check, selection or state changes; its clock ticks on its own. */
+export const ExpoTicketCard = memo(function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, selected, selectedLineId, actions }: ExpoTicketCardProps) {
   const o = t.order;
   const queue = !!o.queueType;
   const [refireOpen, setRefireOpen] = useState(false);
@@ -134,7 +135,9 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
             </span>
           )}
           {allToGo && <span className={s.togo}>TO GO</span>}
-          <span className={cx(s.clock, s.clockPushed)}>{ticketClock(t, now)}</span>
+          <span className={cx(s.clock, s.clockPushed)}>
+            <Ticking text={(at) => ticketClock(t, at)} />
+          </span>
         </div>
         <div className={s.headRow}>
           {!o.queueType && (
@@ -246,7 +249,7 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
       </footer>
     </article>
   );
-}
+});
 
 function CourseDiners({
   lines,

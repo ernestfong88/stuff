@@ -53,7 +53,8 @@ import { DAY, now } from '../lib/clock';
 import { uid } from '../lib/id';
 import { createSharedStore, useShared } from '../lib/sharedStore';
 import { kitchenCrew } from './cleaning';
-import { productionDay, seedHash } from './production';
+import { productionDay } from './production';
+import { seedHash } from '../lib/hash';
 
 export interface TempDish {
   key: string;

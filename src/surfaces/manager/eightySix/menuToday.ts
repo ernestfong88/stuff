@@ -2,11 +2,6 @@
 import { DINING_ROOM, menuFor, rooms } from '../../../data';
 import type { MealName, MenuItem } from '../../../domain/types';
 
-/** __kMealNow: the meal the clock is in. */
-export function mealByHour(hour: number): MealName {
-  return hour >= 15 ? 'Dinner' : hour >= 10 ? 'Lunch' : 'Breakfast';
-}
-
 /**
  * Today's items of a meal by category, each item once, matching the search:
  * every room's menu (the dining room's first), each room on its own venue's

@@ -14,7 +14,8 @@ import {
   starterChecklist,
   updateProductionCounts,
 } from '../../../store/production';
-import { formatQuantity, formatScale, kitchenAmount, mealAt, noteWhen, signature } from '../logic';
+import { formatQuantity, formatScale, kitchenAmount, noteWhen, signature } from '../logic';
+import { mealAtHour } from '../../../domain/mealPeriods';
 
 /** Pin the demo clock to a time of day today. */
 function clockAt(h: number, m = 0) {
@@ -26,10 +27,11 @@ function clockAt(h: number, m = 0) {
 
 describe('prep helpers', () => {
   it('opens on the meal being served', () => {
-    expect(mealAt(7)).toBe('Breakfast');
-    expect(mealAt(10)).toBe('Lunch');
-    expect(mealAt(14)).toBe('Lunch');
-    expect(mealAt(15)).toBe('Dinner');
+    expect(mealAtHour(7)).toBe('Breakfast');
+    expect(mealAtHour(10.25)).toBe('Breakfast');
+    expect(mealAtHour(10.5)).toBe('Lunch');
+    expect(mealAtHour(14)).toBe('Lunch');
+    expect(mealAtHour(15)).toBe('Dinner');
   });
 
   it('writes scaled amounts in quarters, never zero', () => {

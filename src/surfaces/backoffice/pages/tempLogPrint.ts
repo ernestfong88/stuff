@@ -21,7 +21,7 @@ import {
 } from '../../../domain/tempLog';
 import { formatTime } from '../../../lib/format';
 import type { MealLog } from '../../../store/tempLog';
-import { esc, printHtml } from './productionPrint';
+import { escapeHtml as esc, printHtml } from '../../../lib/print';
 
 /** "Today", "Yesterday" or "Tue Oct 6". */
 export function dayName(iso: string, back: number): string {

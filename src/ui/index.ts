@@ -10,4 +10,6 @@ export { Toaster, toast } from './Toast';
 export { Confirm, useConfirm } from './Confirm';
 export { Eyebrow, PageTitle, EmptyState, Stat, Toggle, Stepper, Row, Stack, Spacer } from './Misc';
 export { useNow, useViewportWidth } from './hooks';
+export { useTick } from './ticker';
+export { Elapsed, Ticking, type ElapsedProps } from './Elapsed';
 export { cx } from './cx';

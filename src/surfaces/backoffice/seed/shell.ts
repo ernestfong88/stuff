@@ -14,7 +14,3 @@ export const COMMUNITY_COLUMNS: CommunityGroup[][] = seed.communities;
 
 /** Every community, in switcher order. */
 export const ALL_COMMUNITIES: string[] = COMMUNITY_COLUMNS.flat().flatMap(([, list]) => list);
-
-/** KiscoConnect modules; this app is "Culinary". */
-export const KISCO_MODULES: string[] = seed.modules;
-export const THIS_MODULE = 'Culinary';

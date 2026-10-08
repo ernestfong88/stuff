@@ -1,13 +1,14 @@
 import { getItem } from '../../../../data';
 import { tableName } from '../../../../domain/orders';
 import { formatTime } from '../../../../lib/format';
-import { useDining } from '../../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { BoSection } from '../../kit';
 import s from './residents.module.css';
 
 /** Today's checks this resident ate at, newest first. */
 export function RecentOrders({ residentId }: { residentId: string | null }) {
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const mine = residentId
     ? [...history, ...orders]
         .filter((o) => o.diners.some((d) => d.kind === 'resident' && !d.isGuest && d.refId === residentId))

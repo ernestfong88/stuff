@@ -7,13 +7,13 @@ import { startOfToday, today } from '../../../../lib/clock';
 import { formatDayLong } from '../../../../lib/format';
 import { useShared } from '../../../../lib/sharedStore';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions, useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { useNotes } from '../../../../store/notes';
 import { useTriviaOn } from '../../../../store/trivia';
 import { sideWorkDate } from '../../../../store/sideWork';
 import { Chip, Tabs, toast, useNow } from '../../../../ui';
-import { mealAt } from '../menu/menuSections';
-import { printHtml } from '../shared/print';
+import { mealAt } from '../../../../domain/mealPeriods';
+import { printHtml } from '../../../../lib/print';
 import { useMyInitials } from '../shared/useShiftServers';
 import { TriviaScoreboard } from '../trivia/TriviaScoreboard';
 import { ChecksTab } from './ChecksTab';
@@ -34,7 +34,9 @@ export function ShiftReviewView({ server, onOpenCheck }: { server?: string; onOp
   const me = useMyInitials();
   const who = server ?? me;
   const whoName = getStaff(who)?.name ?? serverName(who);
-  const { orders, history, closeOrder } = useDining();
+  const { closeOrder } = useDiningActions();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const cfg = useConfig();
   const notes = useNotes();
   const feedback = useTodaysFeedback();
@@ -64,7 +66,7 @@ export function ShiftReviewView({ server, onOpenCheck }: { server?: string; onOp
     for (const o of empty) closeOrder(o.id);
     toast(`Voided ${empty.length === 1 ? 'the empty check' : `${empty.length} empty checks`}.`);
   };
-  const meal = mealAt(today().getHours()).toLowerCase();
+  const meal = mealAt(today().getTime()).toLowerCase();
   const myNotes = notes.filter((n) => n.by === who);
 
   const exportCopy = () =>

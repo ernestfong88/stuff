@@ -9,6 +9,7 @@ import { choiceWords, minutesText } from '../model/recipeDraft';
 import { defaultShort, sameShortAs } from '../model/shortNames';
 import { DishPic } from '../ui/DishPic';
 import { ScoreChip } from '../ui/recipeBits';
+import { useDraft } from '../ui/useDraft';
 import { ApprovalChip, canSubmit, SendForApprovalDialog, useApproval, withdrawWithUndo } from './ApprovalBits';
 import type { RecipeFormProps } from './RecipeForm';
 import s from './RecipeHeader.module.css';
@@ -19,8 +20,11 @@ export function RecipeHeader({ r, update, rename, short, onShort, readOnly, glob
   const cfg = useConfig();
   const cat = normCategory(r.cat);
   const desc = r.menuDescriptor ?? r.desc ?? '';
+  // The short description follows the menu text until a chef sets it apart. Saved when typing pauses (useDraft).
+  const descField = useDraft(desc, (v) => update({ menuDescriptor: v, ...(!r.desc || r.desc === desc ? { desc: v } : {}) }), r.id, !!draft);
+  const portion = useDraft(r.servingDesc ?? r.servingSize ?? '', (v) => update({ servingDesc: v }), r.id, !!draft);
   const pinned = bo.modGroups.filter((g) => g.active && g.pinned.includes(r.id));
-  const choice = /^build your own\b/i.test(r.name) ? null : choiceWords(desc);
+  const choice = /^build your own\b/i.test(r.name) ? null : choiceWords(descField.value);
   const dups = r.name ? sameShortAs({ name: r.name, shortDefault: short || r.shortDefault }, bo.recipes, cfg).filter((n) => n !== r.name) : [];
   const nutrition = r.nutrition ?? {};
   // No allergens recorded: show what the recipe's words suggest, marked so a chef confirms them.
@@ -69,15 +73,10 @@ export function RecipeHeader({ r, update, rename, short, onShort, readOnly, glob
             <textarea
               className={s.desc}
               disabled={readOnly}
-              value={desc}
               rows={2}
               aria-label="Menu descriptor"
               placeholder="What residents read on the menu, and how it comes"
-              onChange={(e) => {
-                const v = e.target.value;
-                // The short description follows the menu text until a chef sets it apart.
-                update({ menuDescriptor: v, ...(!r.desc || r.desc === desc ? { desc: v } : {}) });
-              }}
+              {...descField}
             />
           </label>
           {choice && (
@@ -160,10 +159,9 @@ export function RecipeHeader({ r, update, rename, short, onShort, readOnly, glob
           <input
             className={s.portion}
             disabled={readOnly}
-            value={r.servingDesc ?? r.servingSize ?? ''}
             placeholder="e.g. 6 oz"
             title={r.servingDesc ?? ''}
-            onChange={(e) => update({ servingDesc: e.target.value })}
+            {...portion}
           />
         </label>
         {num('Prep', r.prepMin, (v) => update({ prepMin: v }))}

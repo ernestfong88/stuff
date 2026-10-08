@@ -10,7 +10,7 @@ import { isoDate, pickupLeadMinutes, ticketAverage } from '../../../domain/picku
 import type { MealName } from '../../../domain/types';
 import { now } from '../../../lib/clock';
 import { updateConfig, useConfig } from '../../../store/config';
-import { useDining } from '../../../store/dining';
+import { useAssocOrders, useDiningHistory, useDiningOrders } from '../../../store/dining';
 import { setSetting } from '../../../store/serviceConfig';
 import { Button, Tabs, Toggle, cx, toast } from '../../../ui';
 import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
@@ -297,7 +297,9 @@ function MealRanges({
 
 /** How many orders one range can take at a venue, and what's booked today. */
 function Capacity({ win, venue, setVenue, plain }: { win: WindowSettings; venue: string; setVenue: (v: string) => void; plain?: boolean }) {
-  const { orders, history, assocOrders } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
+  const assocOrders = useAssocOrders();
   const caps = windowCaps(win, venue);
   const set = (key: keyof WindowCaps, v: number | null) => setSetting(`win.cap.${venue}`, { ...caps, [key]: v && v > 0 ? Math.floor(v) : 0 });
   const date = isoDate(0);
@@ -362,7 +364,8 @@ function Capacity({ win, venue, setVenue, plain }: { win: WindowSettings; venue:
 /** When ordering closes, when NOC meals are made, packing time and the resulting fire lead. */
 function Timing({ win, plain }: { win: WindowSettings; plain?: boolean }) {
   const cfg = useConfig();
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const cut = windowCutoff(win);
   const all = [...orders, ...history];
   const avg = ticketAverage(all, cfg);

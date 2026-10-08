@@ -38,9 +38,6 @@ export function useConfig(): DiningConfig {
   return useMemo(() => effective(saved, plan, on), [saved, plan, on]);
 }
 
-/** The kitchen mode as saved, before the release phases have their say. */
-export const savedKitchenMode = (saved: DiningConfig = configStore.get()) => saved.kitchenMode;
-
 /** Merge a change into the settings. */
 export function updateConfig(patch: Partial<DiningConfig> | ((cfg: DiningConfig) => Partial<DiningConfig>)): void {
   configStore.set((prev) => {

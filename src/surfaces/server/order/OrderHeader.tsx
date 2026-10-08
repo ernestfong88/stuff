@@ -7,7 +7,7 @@ import type { MealName, Order } from '../../../domain/types';
 import { minutesSince, now } from '../../../lib/clock';
 import { ModeChip, TextZoom } from '../../../shell/controls';
 import { useFitLevel } from '../../../shell/headerFit';
-import { useDining } from '../../../store/dining';
+import { useDiningActions } from '../../../store/dining';
 import { MenuReferenceButton } from '../features';
 import { CompDialog } from '../shared/ManagerPin';
 import { MealSwitch } from './MealSwitch';
@@ -15,7 +15,7 @@ import s from './OrderHeader.module.css';
 
 /** Back, which check this is (a pick up booked ahead: its day), its meal, the menu reference and (pick up / delivery) a manager comp. */
 export function OrderHeader({ order: o, onBack, onMeal }: { order: Order; onBack: () => void; onMeal: (meal: MealName) => void }) {
-  const { setOrderComp } = useDining();
+  const { setOrderComp } = useDiningActions();
   const ahead = o.queueType ? orderAheadLabel(o) : '';
   const [askComp, setAskComp] = useState(false);
   const title = o.queueType ? tableName(o) : `Table ${tableName(o)}`;

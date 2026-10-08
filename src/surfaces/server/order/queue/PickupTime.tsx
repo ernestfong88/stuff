@@ -3,7 +3,7 @@ import { ChevronDown, Clock } from 'lucide-react';
 import { aheadDayLabel, pickupLeadMinutes } from '../../../../domain/pickup';
 import type { MealName, Order, QueueType } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useAssocOrders, useDiningActions, useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { useSetting } from '../../../../store/serviceConfig';
 import { cx } from '../../../../ui';
 import { anySent, bookableDays, dayChipLabel, dayTimes, landing, timeContext, type TimeChoice } from './orderWhen';
@@ -18,7 +18,10 @@ import s from './PickupTime.module.css';
  * day's menu (onWhen asks about lines the new menu doesn't have).
  */
 export function PickupTime({ order: o, onWhen }: { order: Order & { queueType: QueueType }; onWhen: (t: WhenTarget) => void }) {
-  const { orders, history, assocOrders, setOrderSchedule } = useDining();
+  const { setOrderSchedule } = useDiningActions();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
+  const assocOrders = useAssocOrders();
   const cfg = useConfig();
   useSetting('win');
   const [openMeal, setOpenMeal] = useState<MealName | null>(null);

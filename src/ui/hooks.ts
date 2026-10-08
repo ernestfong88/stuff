@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react';
-import { now } from '../lib/clock';
+import { useTick } from './ticker';
 
 /**
  * Re-render every `intervalMs` and return the current demo-clock time.
- * Use for ticket timers and "4m ago" labels.
+ * Use for "4m ago" labels and late checks; a timer that shows seconds is
+ * better as an <Elapsed> leaf. Every caller with the same interval shares
+ * one timer (see ticker.ts).
  */
 export function useNow(intervalMs = 1000): number {
-  const [t, setT] = useState(now);
-  useEffect(() => {
-    const id = setInterval(() => setT(now()), intervalMs);
-    return () => clearInterval(id);
-  }, [intervalMs]);
-  return t;
+  return useTick(intervalMs);
 }
 
 /** Current viewport width, updated on resize. */

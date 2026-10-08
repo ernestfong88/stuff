@@ -1,12 +1,10 @@
 /** Dates on P-Mix are "days back" from today (1 = yesterday), shown as ISO dates in the pickers. */
 import { DAY, startOfToday } from '../../../../lib/clock';
-
-const pad = (n: number) => String(n).padStart(2, '0');
+import { isoOf } from '../../../../lib/dates';
 
 export function isoDaysBack(back: number, todayStart: number = startOfToday()): string {
   // Noon avoids a daylight saving hour pushing the date across midnight.
-  const d = new Date(todayStart - back * DAY + 12 * 3_600_000);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return isoOf(todayStart - back * DAY + 12 * 3_600_000);
 }
 
 export function daysBackOf(iso: string, todayStart: number = startOfToday()): number {

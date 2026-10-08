@@ -3,7 +3,7 @@ import { diner, line, order } from '../../../../../domain/__tests__/helpers';
 import { dinerBilling } from '../../../../../domain/billing';
 import { hospiceStatus, isOnHospice } from '../../../../../domain/waivers';
 import { configStore, getConfig, switchHospice } from '../../../../../store/config';
-import { changeResidentPlan, residentPlan, residentRecordsStore } from '../../../kit/residentRecords';
+import { changeResidentPlan, residentPlan, residentRecordsStore } from '../../../../../store/residentRecords';
 import { seedPlans } from '../../../seed/billing';
 import { changePlanWithUndo, toggleHospiceWithUndo } from '../residentActions';
 

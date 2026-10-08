@@ -16,7 +16,7 @@
  * This module imports nothing from src/data (src/data imports it).
  */
 import type { MealName, MenuItem, ModGroup } from '../domain/types';
-import { createSharedStore, useShared } from '../lib/sharedStore';
+import { createSharedStore } from '../lib/sharedStore';
 
 // ─── Back Office working copy ────────────────────────────────────────────
 
@@ -301,11 +301,6 @@ export function dropSignOff(s: MenuEditsState): MenuEditsState {
   if (fixed !== saved) menuEditsStore.set(fixed);
 }
 
-/** Read the edits in a component. */
-export function useMenuEdits(): MenuEditsState {
-  return useShared(menuEditsStore);
-}
-
 /** The overlay the floor applies (always defined, even for an old saved copy). */
 export function liveOverlay(state: MenuEditsState = menuEditsStore.get()): LiveMenuOverlay {
   return state.live ?? EMPTY_OVERLAY;
@@ -315,9 +310,3 @@ export function liveOverlay(state: MenuEditsState = menuEditsStore.get()): LiveM
 export function itemReminders(itemId: string, state: MenuEditsState = menuEditsStore.get()): string[] {
   return liveOverlay(state).reminders[itemId] ?? [];
 }
-
-/** Reminders for an item, re-rendering when Back Office changes them. */
-export function useItemReminders(itemId: string): string[] {
-  return useShared(menuEditsStore, (s) => liveOverlay(s).reminders[itemId] ?? NONE);
-}
-const NONE: string[] = [];

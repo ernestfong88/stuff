@@ -7,7 +7,7 @@ import { firstName, formatDayLong, formatMoneyShort, formatTime, plural } from '
 import { isoDate } from '../../../domain/pickup';
 import { useMe } from '../../../shell/session';
 import { useConfig } from '../../../store/config';
-import { useDining } from '../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../store/dining';
 import { useNotes } from '../../../store/notes';
 import { Button, Eyebrow, cx } from '../../../ui';
 import { useTableName } from '../../../store/floorLayout';
@@ -19,7 +19,8 @@ import s from './ShiftView.module.css';
 
 /** __KMgrShift: one closing report for the whole shift, signed off by the manager. */
 export function ShiftView({ onOpen }: { onOpen: (o: Order) => void }) {
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const cfg = useConfig();
   const notes = useNotes();
   const me = useMe();

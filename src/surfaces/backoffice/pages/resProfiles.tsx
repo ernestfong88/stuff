@@ -22,6 +22,7 @@ import {
 } from './residents/residentFilters';
 import { ResidentProfile } from '../../server/features/residents/ResidentProfile';
 import { storyPick } from '../../server/features/residents/storyPick';
+import { safeStorage } from '../../../lib/storage';
 import s from './resProfiles.module.css';
 
 /** The filters (not the search) are remembered on this device. */
@@ -29,29 +30,21 @@ const FILTER_KEY = 'kisco_bo_resident_filters_v1';
 
 /** The saved filters, less any plan or tag nobody has any more. */
 function savedFilter(rows: ProfileRow[]): ProfileFilter {
-  try {
-    const saved = JSON.parse(localStorage.getItem(FILTER_KEY) ?? 'null') as Partial<ProfileFilter> | null;
-    if (!saved) return NO_FILTER;
-    const tagKeys = new Set(rows.flatMap((x) => x.tags.map((t) => `${t.cat}|${t.text}`)));
-    return {
-      query: '',
-      level: rows.some((x) => x.r.level === saved.level) ? String(saved.level) : ALL,
-      tags: (Array.isArray(saved.tags) ? saved.tags : []).filter(
-        (k): k is string => typeof k === 'string' && (tagKeys.has(k) || /^(any\||none$)/.test(k)),
-      ),
-      plan: rows.some((x) => x.plan.id === saved.plan) ? String(saved.plan) : ALL,
-    };
-  } catch {
-    return NO_FILTER;
-  }
+  const saved = safeStorage.getJSON<Partial<ProfileFilter>>(FILTER_KEY);
+  if (!saved || typeof saved !== 'object') return NO_FILTER;
+  const tagKeys = new Set(rows.flatMap((x) => x.tags.map((t) => `${t.cat}|${t.text}`)));
+  return {
+    query: '',
+    level: rows.some((x) => x.r.level === saved.level) ? String(saved.level) : ALL,
+    tags: (Array.isArray(saved.tags) ? saved.tags : []).filter(
+      (k): k is string => typeof k === 'string' && (tagKeys.has(k) || /^(any\||none$)/.test(k)),
+    ),
+    plan: rows.some((x) => x.plan.id === saved.plan) ? String(saved.plan) : ALL,
+  };
 }
 
 function saveFilter({ level, tags, plan }: ProfileFilter) {
-  try {
-    localStorage.setItem(FILTER_KEY, JSON.stringify({ level, tags, plan }));
-  } catch {
-    /* not remembered */
-  }
+  safeStorage.setJSON(FILTER_KEY, { level, tags, plan });
 }
 
 /**

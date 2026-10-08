@@ -21,9 +21,9 @@ import { now } from '../../lib/clock';
 import { uid } from '../../lib/id';
 import { useRoute } from '../../shell/router';
 import { useConfig } from '../../store/config';
-import { useDining } from '../../store/dining';
+import { useAssocOrders, useDiningActions, useDiningHistory, useDiningOrders } from '../../store/dining';
 import { is86, use86 } from '../../store/eightySix';
-import { useNow } from '../../ui';
+import { Ticking, useNow } from '../../ui';
 import { StaffCorner } from '../../shell/StaffCorner';
 import { sendText } from '../../store/textOutbox';
 import { mobileNumber } from '../../domain/pickupService/phones';
@@ -85,11 +85,15 @@ export default function ResidentKiosk() {
   const { query } = useRoute();
   const svc = useServiceSettings();
   const cfg = useConfig();
-  const dining = useDining();
+  const dining = useDiningActions();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
+  const assocOrders = useAssocOrders();
   const marks = use86();
   const frame = useRef<HTMLDivElement>(null);
   const unit = useMeasuredUnit(frame);
-  const at = useNow(1000);
+  // Menus and booking windows move by the minute; the countdowns tick on their own.
+  const at = useNow(60_000);
 
   // A new function when Back Office changes the menu, so a special taken off leaves the kiosk at once.
   // Tomorrow's order offers tomorrow's menu, and today's 86 list doesn't apply to it.
@@ -113,16 +117,31 @@ export default function ResidentKiosk() {
     setIdleSince(null);
     reset();
   }, [reset]);
+  // One timeout for the next deadline. A touch only moves lastTouch: when the timeout
+  // comes round early because of it, it waits out the rest.
   useEffect(() => {
     if (st.step === 'welcome') return;
-    const quiet = Math.max(0, at - lastTouch.current);
-    if (st.step === 'done') {
-      if (quiet >= (st.showSms ? DONE_TEXT_MS : DONE_MS)) startOver();
-      return;
-    }
-    if (idleSince == null && quiet >= IDLE_MS) setIdleSince(at);
-    else if (idleSince != null && at - idleSince >= IDLE_GRACE_MS) startOver();
-  }, [at, st.step, st.showSms, idleSince, startOver]);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const check = () => {
+      const t = now();
+      const quiet = Math.max(0, t - lastTouch.current);
+      let wait: number;
+      if (st.step === 'done') {
+        const limit = st.showSms ? DONE_TEXT_MS : DONE_MS;
+        if (quiet >= limit) return startOver();
+        wait = limit - quiet;
+      } else if (idleSince == null) {
+        if (quiet >= IDLE_MS) return setIdleSince(t);
+        wait = IDLE_MS - quiet;
+      } else {
+        if (t - idleSince >= IDLE_GRACE_MS) return startOver();
+        wait = IDLE_GRACE_MS - (t - idleSince);
+      }
+      timer = setTimeout(check, wait + 20);
+    };
+    check();
+    return () => clearTimeout(timer);
+  }, [st.step, st.showSms, idleSince, startOver]);
 
   // ─── What this order can book ─────────────────────────────────────────
   const win = windowSettings(svc);
@@ -133,11 +152,11 @@ export default function ResidentKiosk() {
     () => (st.type ? kioskMeals(win, st.type, minuteOfDay(minute), todayIso, isoDate(1)) : []),
     [win, st.type, todayIso, minute],
   );
-  const bookings = { orders: dining.orders, history: dining.history, assocOrders: dining.assocOrders };
+  const bookings = { orders, history, assocOrders };
   const meal = meals.find((m) => m.meal === st.meal && m.date === st.date);
   const isToday = st.date === todayIso;
 
-  const sickUsed = st.resident ? sickWaiversUsed(st.resident.id, [...dining.orders, ...dining.history], undefined, cfg) : 0;
+  const sickUsed = st.resident ? sickWaiversUsed(st.resident.id, [...orders, ...history], undefined, cfg) : 0;
   const preview = buildKioskOrder(st, { id: 'kiosk-preview', now: at, today: todayIso, sickUsed });
   const bill = preview.diners[0] ? dinerBilling(preview.diners[0], preview, cfg) : null;
   const copyTo = st.resident && textOn(textSettings(svc), 'kioskCopy') ? mobileNumber(mobileOverrides(svc), st.resident.id) : '';
@@ -212,13 +231,13 @@ export default function ResidentKiosk() {
 
   const screenKey = [st.step, st.special, st.others, st.pickSide, st.moreDessert, st.drinkList, st.changeUtensils, st.more].join('|');
   const doneFor = st.showSms ? DONE_TEXT_MS : DONE_MS;
-  const doneLeft = Math.min(doneFor / 1000, Math.max(0, Math.ceil((doneFor - (at - lastTouch.current)) / 1000)));
+  const doneLeft = (t: number) => Math.min(doneFor / 1000, Math.max(0, Math.ceil((doneFor - (t - lastTouch.current)) / 1000)));
 
   const footer = st.step !== 'welcome' && (
     <footer className={s.footer}>
       {st.step === 'done' ? (
         <span className={s.note}>
-          This screen starts over in {doneLeft} {doneLeft === 1 ? 'second' : 'seconds'}.
+          <Ticking text={(t) => `This screen starts over in ${doneLeft(t)} ${doneLeft(t) === 1 ? 'second' : 'seconds'}.`} />
         </span>
       ) : (
         <KButton className={s.back} icon={<ChevronLeft size="1.3em" strokeWidth={2.6} aria-hidden />} onClick={flow.back}>
@@ -260,8 +279,8 @@ export default function ResidentKiosk() {
             <ScrollBody screenKey={screenKey}>{body}</ScrollBody>
             {footer}
             {idleSince != null && (
-              <IdleOverlay
-                secondsLeft={Math.max(0, Math.ceil((IDLE_GRACE_MS - (at - idleSince)) / 1000))}
+              <IdleCountdown
+                since={idleSince}
                 onStay={() => {
                   lastTouch.current = now();
                   setIdleSince(null);
@@ -274,4 +293,10 @@ export default function ResidentKiosk() {
       <StaffCorner />
     </div>
   );
+}
+
+/** "Are you still there?" with its countdown, which ticks every second on its own. */
+function IdleCountdown({ since, onStay }: { since: number; onStay: () => void }) {
+  const t = useNow(1000);
+  return <IdleOverlay secondsLeft={Math.max(0, Math.ceil((IDLE_GRACE_MS - (t - since)) / 1000))} onStay={onStay} />;
 }

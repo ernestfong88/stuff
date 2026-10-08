@@ -25,11 +25,6 @@ export function notesFor(notes: ResidentNote[], kind: ResidentNoteKind, resident
   return notes.filter((n) => n.kind === kind && n.rid === residentId);
 }
 
-/** Notes a staff member added (for Shift Review points). */
-export function notesBy(notes: ResidentNote[], staffInitials: string): ResidentNote[] {
-  return notes.filter((n) => n.by === staffInitials);
-}
-
 /** Save a note; returns its id (for undo). `meta` carries by, table and the like. */
 export function addNote(
   kind: ResidentNoteKind,

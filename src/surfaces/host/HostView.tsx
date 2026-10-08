@@ -5,7 +5,7 @@ import { serversOnFloor, suggestServer } from '../../domain/servers';
 import type { MealName, Order } from '../../domain/types';
 import { now } from '../../lib/clock';
 import { useVenue } from '../../shell/session';
-import { useDining } from '../../store/dining';
+import { useDiningActions, useDiningOrders } from '../../store/dining';
 import { Button, cx, toast, useConfirm, useNow } from '../../ui';
 import { FloorPlan } from '../manager/floor/FloorPlan';
 import { checksAt, inPlan, useRoomPlan, useTableName, type PlanItem } from '../../store/floorLayout';
@@ -44,7 +44,8 @@ interface Props {
 export function HostView({ tab, onTab, onOpen }: Props) {
   const [venue] = useVenue();
   const plan = useRoomPlan(venue);
-  const { orders, newCheck, addDiner, patchOrder, removeDiner, closeOrder } = useDining();
+  const { newCheck, addDiner, patchOrder, removeDiner, closeOrder } = useDiningActions();
+  const orders = useDiningOrders();
   const [ask, confirmDialog] = useConfirm();
   const at = useNow(15_000);
   const name = useTableName();

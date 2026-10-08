@@ -127,14 +127,20 @@ export function ServerNavLeft({
 /**
  * The time of day, as on the kitchen screens ("5:45 PM"). It never folds
  * away: once the least-used chips have stepped aside (fold 4) it drops the
- * AM/PM. Its own component, so the tick redraws only the clock.
+ * AM/PM. Its own component, so the tick redraws only the clock, once a
+ * minute as the minute turns over.
  */
 export function ServerClock() {
   const fit = useHeaderFit();
-  const t = useNow(1000);
+  const t = useNow(60_000);
   const full = formatTime(t);
   return (
-    <time className={s.clock} dateTime={new Date(t).toISOString()} aria-label={`Time ${full}`} title={full}>
+    <time
+      className={s.clock}
+      dateTime={new Date(Math.floor(t / 60_000) * 60_000).toISOString().slice(0, 16) + 'Z'}
+      aria-label={`Time ${full}`}
+      title={full}
+    >
       {fit >= 4 ? full.replace(/\s*[AP]M$/, '') : full}
     </time>
   );

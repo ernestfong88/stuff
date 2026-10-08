@@ -6,6 +6,7 @@ import {
   claimPacingLeadership,
   createDiningEngine,
 } from '../../store/diningEngine';
+import { flushWrites, setWriteDelay } from '../../lib/writeBehind';
 import type { DiningState } from '../diningState';
 import { order } from './helpers';
 
@@ -46,6 +47,26 @@ describe('dining engine', () => {
     expect(b.get().orders.map((o) => o.id)).toEqual(['seed', 'new']);
     b.reset();
     expect(createDiningEngine({ seed, channel: null }).get().orders.map((o) => o.id)).toEqual(['seed']);
+  });
+
+  it('saves a run of changes once, a moment later; reset saves at once', () => {
+    vi.useFakeTimers();
+    setWriteDelay(300);
+    const data = stubStorage();
+    const a = createDiningEngine({ seed, channel: null });
+    a.update((s) => ({ ...s, orders: [...s.orders, order([], { id: 'one' })] }));
+    a.update((s) => ({ ...s, orders: [...s.orders, order([], { id: 'two' })] }));
+    expect(a.get().orders).toHaveLength(3);
+    expect(data.has(DINING_STORAGE_KEY)).toBe(false);
+    vi.advanceTimersByTime(300);
+    expect(JSON.parse(data.get(DINING_STORAGE_KEY)!).orders.map((o: { id: string }) => o.id)).toEqual(['seed', 'one', 'two']);
+    a.update((s) => ({ ...s, orders: [] }));
+    flushWrites();
+    expect(JSON.parse(data.get(DINING_STORAGE_KEY)!).orders).toEqual([]);
+    a.reset();
+    expect(JSON.parse(data.get(DINING_STORAGE_KEY)!).orders.map((o: { id: string }) => o.id)).toEqual(['seed']);
+    setWriteDelay(0);
+    vi.useRealTimers();
   });
 
   it('ignores another day’s saved state', () => {

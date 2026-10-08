@@ -75,6 +75,13 @@ export function limitLeft(marks: EightySixMarks, itemId: string, todays: Order[]
   return Math.max(0, lim.left - Math.max(0, usedOf(itemId, todays) - lim.used));
 }
 
+/** limitLeft, from lineCounts of today's orders (for counting many items at once). */
+export function limitLeftIn(marks: EightySixMarks, itemId: string, todayCounts: ReadonlyMap<string, number>): number | null {
+  const lim = limitOf(marks, itemId);
+  if (!lim) return null;
+  return Math.max(0, lim.left - Math.max(0, (todayCounts.get(itemId) ?? 0) - lim.used));
+}
+
 /** The smaller of two "portions left" counts, either of which may be unlimited (null). */
 export function fewerLeft(a: number | null, b: number | null): number | null {
   return a == null ? b : b == null ? a : Math.min(a, b);

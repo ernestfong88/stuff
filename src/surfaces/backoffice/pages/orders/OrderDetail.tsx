@@ -8,7 +8,7 @@ import type { Order } from '../../../../domain/types';
 import { now } from '../../../../lib/clock';
 import { formatTime } from '../../../../lib/format';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions } from '../../../../store/dining';
 import { useSetting } from '../../../../store/serviceConfig';
 import { Button, cx, toast, useConfirm } from '../../../../ui';
 import { BoCaption, BoSelect } from '../../kit';
@@ -26,7 +26,7 @@ function corrected(o: Order, what: string): Order {
 
 /** One check opened up: who ate what, how each diner paid, and corrections for closed checks. */
 export function OrderDetail({ row }: { row: OrderRow }) {
-  const { setHistory, reopenOrder } = useDining();
+  const { setHistory, reopenOrder } = useDiningActions();
   const cfg = useConfig();
   const [ask, dialog] = useConfirm();
   const o = row.order;

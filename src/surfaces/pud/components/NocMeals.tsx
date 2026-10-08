@@ -1,7 +1,7 @@
 import { isoDate } from '../../../domain/pickup';
 import { now } from '../../../lib/clock';
 import { formatTime } from '../../../lib/format';
-import { useDining } from '../../../store/dining';
+import { useAssocOrders, useDiningActions } from '../../../store/dining';
 import { nocGroups, setOutMeal, type NocMeal } from '../queue/noc';
 import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
 import { minuteLabel, nocMadeBy, rangeOf } from '../../../domain/pickupService/windows';
@@ -19,7 +19,8 @@ export function NocTag({ window }: { window: string }) {
 
 /** Tonight's NOC associate meals: the dinner line makes them, PU sets each one out. */
 export function NocMeals() {
-  const { assocOrders, setAssocOrders } = useDining();
+  const { setAssocOrders } = useDiningActions();
+  const assocOrders = useAssocOrders();
   const cfg = useServiceSettings();
   const groups = nocGroups(assocOrders as NocMeal[], isoDate(0));
   if (!groups.length) return null;

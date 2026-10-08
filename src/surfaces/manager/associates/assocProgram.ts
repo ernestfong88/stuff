@@ -12,7 +12,8 @@ import { rooms } from '../../../data';
 import type { AssocMeal } from '../../../domain/types';
 import { isoDate } from '../../../domain/pickup';
 import { DAY, MINUTE, startOfToday } from '../../../lib/clock';
-import type { AssocMealKind, AssocMenuItem } from '../../../domain/assocMeals/menu';
+import { formatMinuteOfDay } from '../../../lib/format';
+import type { AssocMealKind } from '../../../domain/assocMeals/menu';
 import { assocMenuSettings } from '../../../store/assocMenu';
 import { getSetting } from '../../../store/serviceConfig';
 
@@ -37,10 +38,7 @@ const ASSOC_DEFAULT: Array<[number, number]> = [
 const LUNCH_END = 960;
 
 /** 690 → "11:30 AM"; 1560 → "2:00 AM". */
-export function minutesLabel(v: number): string {
-  const h = Math.floor(v / 60) % 24;
-  return `${h % 12 || 12}:${String(v % 60).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
-}
+export const minutesLabel = formatMinuteOfDay;
 
 /** __kWinMin: "2:00 AM" → 1560 (after midnight counts as the same service day). */
 export function windowMinutes(w: string): number | null {
@@ -181,15 +179,6 @@ export function isLive(o: AssocMeal): boolean {
 /** How many live orders of an item a date already has (optionally not counting one). */
 export function countOf(all: AssocMeal[], date: string, item: string, skipId?: string): number {
   return all.filter((o) => o.date === date && o.item === item && o.id !== skipId && isLive(o)).length;
-}
-
-/** Menu order first, then by name. */
-export function compareOrders(menuList: AssocMenuItem[]) {
-  const rank = (name: string) => {
-    const i = menuList.findIndex((m) => m.name === name);
-    return i < 0 ? 99 : i;
-  };
-  return (a: AssocMeal, b: AssocMeal) => rank(a.item) - rank(b.item) || a.associate.localeCompare(b.associate);
 }
 
 /** Texts to associates can be switched off in Back Office, Text Messages. */

@@ -10,6 +10,12 @@
  *   - asking before a server changes someone else's check (takeover);
  *   - cross-tab sync, persistence and the 5 second course pacing timer,
  *     which runs in one tab only (see diningEngine.ts).
+ *
+ * Reading it: useDining() hands over everything and re-renders on every
+ * change anywhere. Prefer the narrow hooks: useDiningActions() (stable, never
+ * re-renders), useDiningSelector(s => ...) and its shorthands
+ * (useDiningOrders, useDiningOrder ...), which re-render only when the
+ * selected value changes, and useDiningDevice() for this device's own state.
  */
 import {
   createContext,
@@ -103,6 +109,8 @@ export interface DiningApi {
   setAssocOrders: Setter<AssocMeal[]>;
 
   // ── Selectors ──
+  /** The shared state right now, for event handlers (reading it does not re-render). */
+  getState(): DiningState;
   getTableOrder(tableId: string): Order | undefined;
   getOrderById(orderId: string): Order | undefined;
   learnedFavorites(residentId: string, meal?: MealName): LearnedFavorite[];
@@ -188,13 +196,62 @@ export interface DiningApi {
   resetDemo(): void;
 }
 
-const DiningContext = createContext<DiningApi | null>(null);
+/** Every action and stable reader: the same object for the life of the provider. */
+export type DiningActions = Omit<
+  DiningApi,
+  'orders' | 'history' | 'assocOrders' | 'recentBumps' | 'expoActive' | 'kitchenMode' | 'resPrefs' | 'pendingTakeover' | 'usageFor' | 'confirmTakeover'
+>;
 
-/** The dining store. Must be used under DiningProvider. */
-export function useDining(): DiningApi {
-  const v = useContext(DiningContext);
-  if (!v) throw new Error('useDining must be used inside <DiningProvider>');
+/** This device's own dining state (not synced to other tabs), and what goes with it. */
+export type DiningDevice = Pick<DiningApi, 'recentBumps' | 'expoActive' | 'kitchenMode' | 'resPrefs' | 'pendingTakeover' | 'usageFor' | 'confirmTakeover'>;
+
+const DiningContext = createContext<DiningApi | null>(null);
+const DiningActionsContext = createContext<DiningActions | null>(null);
+const DiningEngineContext = createContext<DiningEngine | null>(null);
+const DiningDeviceContext = createContext<DiningDevice | null>(null);
+
+function need<T>(v: T | null, hook: string): T {
+  if (!v) throw new Error(hook + ' must be used inside <DiningProvider>');
   return v;
+}
+
+/**
+ * The whole dining store. Re-renders on every change to any check, so
+ * prefer useDiningActions, useDiningSelector or useDiningDevice.
+ */
+export function useDining(): DiningApi {
+  return need(useContext(DiningContext), 'useDining');
+}
+
+/** Every dining action. The object never changes, so using it never re-renders. */
+export function useDiningActions(): DiningActions {
+  return need(useContext(DiningActionsContext), 'useDiningActions');
+}
+
+/**
+ * A slice of the shared dining state; re-renders only when it changes. The
+ * selector must return something already in the state (or a primitive), not
+ * a new array or object each call: derive those with useMemo on the slice.
+ */
+export function useDiningSelector<T>(select: (s: DiningState) => T): T {
+  const engine = need(useContext(DiningEngineContext), 'useDiningSelector');
+  const get = () => select(engine.get());
+  return useSyncExternalStore(engine.subscribe, get, get);
+}
+
+/** Open checks. */
+export const useDiningOrders = (): Order[] => useDiningSelector((s) => s.orders);
+/** Closed checks (today's). */
+export const useDiningHistory = (): Order[] => useDiningSelector((s) => s.history);
+/** Associate meals. */
+export const useAssocOrders = (): AssocMeal[] => useDiningSelector((s) => s.assocOrders);
+/** One open check, or undefined. */
+export const useDiningOrder = (orderId: string | null | undefined): Order | undefined =>
+  useDiningSelector((s) => (orderId ? s.orders.find((o) => o.id === orderId) : undefined));
+
+/** This device's dining state: recent bumps, kitchen mode, expo phase, the takeover waiting, preferences. */
+export function useDiningDevice(): DiningDevice {
+  return need(useContext(DiningDeviceContext), 'useDiningDevice');
 }
 
 const pushBump = (list: RecentBump[], orderId: string, level: RecentBump['level']): RecentBump[] =>
@@ -334,23 +391,12 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
     const setAssocOrders: Setter<AssocMeal[]> = (next) =>
       engine.update((s) => ({ ...s, assocOrders: typeof next === 'function' ? next(s.assocOrders) : next }));
 
-    const api: Omit<
-      DiningApi,
-      | 'orders'
-      | 'history'
-      | 'assocOrders'
-      | 'recentBumps'
-      | 'expoActive'
-      | 'kitchenMode'
-      | 'resPrefs'
-      | 'pendingTakeover'
-      | 'usageFor'
-      | 'confirmTakeover'
-    > = {
+    const api: DiningActions = {
       setOrders,
       setHistory,
       setAssocOrders,
 
+      getState: () => engine.get(),
       getTableOrder: (tableId) => engine.get().orders.find((o) => o.tableId === tableId),
       getOrderById: (orderId) => engine.get().orders.find((o) => o.id === orderId),
       learnedFavorites: (residentId, meal) => learnedFavorites(engine.get().history, residentId, meal),
@@ -619,10 +665,8 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
     t?.go();
   }, [pendingTakeover]);
 
-  const value = useMemo<DiningApi>(
+  const device = useMemo<DiningDevice>(
     () => ({
-      ...actions,
-      ...state,
       recentBumps,
       expoActive,
       kitchenMode,
@@ -631,8 +675,18 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
       usageFor,
       confirmTakeover,
     }),
-    [actions, state, recentBumps, expoActive, kitchenMode, resPrefs, pendingTakeover, usageFor, confirmTakeover],
+    [recentBumps, expoActive, kitchenMode, resPrefs, pendingTakeover, usageFor, confirmTakeover],
   );
 
-  return <DiningContext.Provider value={value}>{children}</DiningContext.Provider>;
+  const value = useMemo<DiningApi>(() => ({ ...actions, ...state, ...device }), [actions, state, device]);
+
+  return (
+    <DiningEngineContext.Provider value={engine}>
+      <DiningActionsContext.Provider value={actions}>
+        <DiningDeviceContext.Provider value={device}>
+          <DiningContext.Provider value={value}>{children}</DiningContext.Provider>
+        </DiningDeviceContext.Provider>
+      </DiningActionsContext.Provider>
+    </DiningEngineContext.Provider>
+  );
 }

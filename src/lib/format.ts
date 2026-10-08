@@ -6,6 +6,12 @@ export function formatTime(ts: number | Date | null | undefined): string {
   return new Date(ts).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
+/** Minutes after midnight → "5:00 PM"; past midnight wraps (1560 → "2:00 AM"). */
+export function formatMinuteOfDay(v: number): string {
+  const h = Math.floor(v / 60) % 24;
+  return `${h % 12 || 12}:${String(v % 60).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+}
+
 /** "Wednesday, Oct 7" */
 export function formatDayLong(ts: number | Date): string {
   return new Date(ts).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
@@ -37,11 +43,6 @@ export function formatElapsed(ms: number): string {
   return h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
 }
 
-/** Elapsed since ts on the demo clock, as m:ss. */
-export function elapsedSince(ts: number | null | undefined): string {
-  return ts ? formatElapsed(now() - ts) : '0:00';
-}
-
 /** "just now", "4m ago", "2h 5m ago" */
 export function formatAgo(ts: number | null | undefined): string {
   if (!ts) return '';
@@ -50,15 +51,6 @@ export function formatAgo(ts: number | null | undefined): string {
   if (mins < 60) return `${mins}m ago`;
   const h = Math.floor(mins / 60);
   return `${h}h ${mins % 60}m ago`;
-}
-
-/** "in 16m", "in 1h 1m", "now" */
-export function formatUntil(ts: number | null | undefined): string {
-  if (!ts) return '';
-  const mins = Math.round((ts - now()) / MINUTE);
-  if (mins <= 0) return 'now';
-  if (mins < 60) return `in ${mins}m`;
-  return `in ${Math.floor(mins / 60)}h ${mins % 60}m`;
 }
 
 /** "Marty Martin" -> "MM" */

@@ -54,7 +54,5 @@ export const FEEDBACK_TEMPLATES = seed.feedbackTemplates;
 export const CYCLE_DAY = seed.cycleDay;
 export const TODAYS_RATINGS: DishRating[] = seed.ratings;
 
-/** Today's production count for each special (menu item id). */
-export const SPECIALS_MADE: Record<string, number> = seed.specialsMade;
 /** Specials sold in the dining room before the floor's live checks begin. */
 export const SPECIALS_SOLD_EARLIER: Record<string, number> = seed.specialsSoldEarlier;

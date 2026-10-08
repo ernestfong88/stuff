@@ -6,7 +6,7 @@ import { MINUTE, now } from '../../../lib/clock';
 import { firstName, formatTime, plural } from '../../../lib/format';
 import { uid } from '../../../lib/id';
 import { useMe } from '../../../shell/session';
-import { useDining } from '../../../store/dining';
+import { useAssocOrders, useDiningActions, useDiningHistory, useDiningOrders } from '../../../store/dining';
 import { useShared } from '../../../lib/sharedStore';
 import { getSetting, serviceConfig } from '../../../store/serviceConfig';
 import { itemsLeft, modsText, type AssocMealKind, type AssocMenuItem } from '../../../domain/assocMeals/menu';
@@ -46,7 +46,10 @@ const endOf = (date: string) => (w: string) => windowAt(date, w) + 15 * MINUTE;
 
 /** __KMgrAssoc: one meal's associate pick ups in time order; the manager can add, change, cancel or hand over. */
 export function AssociatesView() {
-  const { assocOrders: all, setAssocOrders, orders, history: closedChecks } = useDining();
+  const { setAssocOrders } = useDiningActions();
+  const all = useAssocOrders();
+  const orders = useDiningOrders();
+  const closedChecks = useDiningHistory();
   const me = useMe();
   useShared(serviceConfig);
   const t = useNow(30_000);

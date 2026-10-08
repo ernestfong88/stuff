@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { AlertTriangle, Trash2, UserPlus, Wine } from 'lucide-react';
 import { alcoholThisMeal } from '../../../../domain/alcohol';
 import { dinerBilling } from '../../../../domain/billing';
@@ -7,7 +8,7 @@ import { dinerPills } from '../../../../domain/residents';
 import { initials } from '../../../../lib/format';
 import type { Associate, Diner, Order, OrderLine, Resident } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions, useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { isAlcoholItem } from '../../../../store/printing';
 import { startOfToday } from '../../../../lib/clock';
 import { Avatar, Chip, cx } from '../../../../ui';
@@ -57,7 +58,9 @@ export function DinerCard({
   onCloseDiner: (onPlan: boolean) => void;
 }) {
   const cfg = useConfig();
-  const { editSeat, orders, history } = useDining();
+  const { editSeat } = useDiningActions();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const person = dinerPerson(diner);
   const resident = diner.kind === 'resident' ? (person as Resident | undefined) : undefined;
   const isResident = diner.kind === 'resident' && !diner.isGuest;
@@ -67,7 +70,10 @@ export function DinerCard({
   const allOut = diner.items.length > 0 && diner.items.every((i) => i.sent && (i.kitchenState === 'cleared' || i.kitchenState === 'ready'));
   const onPlan = isResident && dinerBilling(diner, o, cfg).outOfPlan === 0;
   // Alcoholic drinks this resident has had this meal, on every check; it starts again next meal.
-  const drinks = isResident ? alcoholThisMeal([...orders, ...history], diner.refId, o.meal, startOfToday(), isAlcoholItem) : 0;
+  const drinks = useMemo(
+    () => (isResident ? alcoholThisMeal([...orders, ...history], diner.refId, o.meal, startOfToday(), isAlcoholItem) : 0),
+    [isResident, orders, history, diner.refId, o.meal],
+  );
 
   return (
     <article

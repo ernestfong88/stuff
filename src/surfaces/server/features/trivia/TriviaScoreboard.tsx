@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { today } from '../../../../lib/clock';
-import { useDining } from '../../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { monthBoard, serverTrivia, useTrivia } from '../../../../store/trivia';
 import { Avatar, Tabs } from '../../../../ui';
 import { RankBadge } from './RankBadge';
@@ -10,7 +10,8 @@ import s from './TriviaScoreboard.module.css';
 /** The trivia scoreboard at the end of a shift: this month or last, and how often each server played it. */
 export function TriviaScoreboard({ who }: { who: string }) {
   const state = useTrivia();
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const [period, setPeriod] = useState<'this' | 'last'>('this');
   const now = today();
   const ref = new Date(now.getFullYear(), now.getMonth() + (period === 'last' ? -1 : 0), 1, 12);

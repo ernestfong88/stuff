@@ -1,16 +1,9 @@
 /** Pure helpers for Production Prep. */
 import { cleaningStatus, isoOf, shortName, sortForShift, type CleaningSignOff, type CleaningStatus, type CleaningTask } from '../../domain/cleaning';
 import { cleaningSign, cleaningTasksFor, type CleaningState } from '../../store/cleaning';
-import type { CheckHow, PrepMeal } from '../../store/production';
+import type { CheckHow } from '../../store/production';
 import { TEMP_MEALS } from '../../domain/tempLog';
 import { mealLog, type TempLogState } from '../../store/tempLog';
-
-/** The meal being served at this hour: breakfast before 10, lunch until 3, then dinner. */
-export function mealAt(hour: number): PrepMeal {
-  if (hour < 10) return 'Breakfast';
-  if (hour < 15) return 'Lunch';
-  return 'Dinner';
-}
 
 const FRACTIONS: Record<number, string> = { 0.25: '¼', 0.5: '½', 0.75: '¾' };
 

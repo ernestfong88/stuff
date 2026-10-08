@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { isoDate } from '../../../../domain/pickup';
 import type { MealName, Order } from '../../../../domain/types';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions } from '../../../../store/dining';
 import { Button, Modal, toast } from '../../../../ui';
 import { menuWords, offMenuLines, type OffMenuLine } from './orderWhen';
 
@@ -28,7 +28,7 @@ const listNames = (lines: OffMenuLine[]) => {
  * them, or stay as it was. Nothing is ever dropped without asking.
  */
 export function useOrderWhen(o: Order): { change: (target: WhenTarget) => void; dialog: ReactNode } {
-  const dining = useDining();
+  const dining = useDiningActions();
   const [pending, setPending] = useState<Pending | null>(null);
 
   const apply = (t: WhenTarget, remove: OffMenuLine[]) => {

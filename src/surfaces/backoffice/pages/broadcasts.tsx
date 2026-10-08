@@ -7,16 +7,12 @@ import type { Broadcast } from '../../../domain/types';
 import { DAY, now, today } from '../../../lib/clock';
 import { formatDayShort, formatTime } from '../../../lib/format';
 import { uid } from '../../../lib/id';
-import { useDining } from '../../../store/dining';
+import { useDiningOrders } from '../../../store/dining';
 import { allNotices, setNoticeList, useNotices, type NoticesState } from '../../../store/notices';
 import { Button, Chip, TextArea, toast, useConfirm } from '../../../ui';
+import { isoOf } from '../../../lib/dates';
 import s from './broadcasts.module.css';
 
-/** "2026-10-07" for a date input. */
-const isoDate = (t: number) => {
-  const d = new Date(t);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
 
 /** A date input's value as local time: the start of the day, or its last moment. */
 const fromIsoDate = (iso: string, endOfDay = false) => {
@@ -47,11 +43,11 @@ function Acks({ notice, state, servers }: { notice: Broadcast; state: NoticesSta
 /** Broadcasts: notices servers open from the Notices button and acknowledge with Got it. */
 export default function Page(_props: BoPageProps) {
   const state = useNotices();
-  const { orders } = useDining();
+  const orders = useDiningOrders();
   const [ask, confirmDialog] = useConfirm();
   const [message, setMessage] = useState('');
-  const [from, setFrom] = useState(() => isoDate(now()));
-  const [until, setUntil] = useState(() => isoDate(now() + 7 * DAY));
+  const [from, setFrom] = useState(() => isoOf(now()));
+  const [until, setUntil] = useState(() => isoOf(now() + 7 * DAY));
   const list = allNotices(state);
   const servers = [...new Set([...staff.map((x) => x.initials), ...orders.filter((o) => !o.queueType).map((o) => o.server)])];
   const t = today().getTime();

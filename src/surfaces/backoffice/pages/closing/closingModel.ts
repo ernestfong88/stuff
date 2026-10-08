@@ -5,6 +5,7 @@
  * page, the printed copy, the export and the tests share it.
  */
 import { DEFAULT_CONFIG, type DiningConfig } from '../../../../domain/config';
+import { MEALS } from '../../../../domain/mealPeriods';
 import { mealOf } from '../../../../domain/metrics/stepsOfService';
 import { serverName } from '../../../../domain/servers';
 import type { MealName, Order, ResidentNote } from '../../../../domain/types';
@@ -23,9 +24,9 @@ import {
   type TicketKey,
 } from '../../../manager/shift/closingReport';
 import type { SignOff } from '../../../manager/shift/signOff';
-import { escapeHtml } from '../../../server/features/shared/print';
+import { escapeHtml } from '../../../../lib/print';
 
-export const MEALS: readonly MealName[] = ['Breakfast', 'Lunch', 'Dinner'];
+export { MEALS };
 
 /** Local midnight of the day of `t`, and of the day after (DST safe). */
 export function dayBounds(t: number): { start: number; end: number } {

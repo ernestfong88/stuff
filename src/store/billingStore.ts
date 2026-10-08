@@ -1,9 +1,9 @@
 /**
  * The back office billing store on its own, with no React or dining imports,
  * so domain code (close & charge) can read the meal plans without an import
- * cycle. kit/billing re-exports it with the hooks and the charge sync.
+ * cycle. Back Office's kit/billing re-exports it with the hooks and the charge sync.
  */
-import { createSharedStore } from '../../../lib/sharedStore';
+import { createSharedStore } from '../lib/sharedStore';
 import {
   seedCharges,
   seedDefaultPlans,
@@ -14,7 +14,7 @@ import {
   type Charge,
   type DeliveryOption,
   type MealCountOption,
-} from '../seed/billing';
+} from '../surfaces/backoffice/seed/billing';
 import { migrateDefaultPlans, type DefaultPlans } from './planDefaults';
 
 export interface BillingState {

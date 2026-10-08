@@ -5,7 +5,7 @@ import { isoDate } from '../../../../domain/pickup';
 import { MEALS } from '../../../../domain/pickupService/meals';
 import type { MealName } from '../../../../domain/types';
 import { startOfToday } from '../../../../lib/clock';
-import { useDining } from '../../../../store/dining';
+import { useAssocOrders, useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { Button, Tabs, cx } from '../../../../ui';
 import { CATEGORY_OTHER, categoryHue } from '../../kit/charts/palette';
 import { ringSlicePath, sliceAngles } from '../../kit/charts/scale';
@@ -26,7 +26,9 @@ interface Slice {
 
 /** P-Mix today: a wheel of the plates served so far by category; pick one to see its dishes. */
 export function PmixTodayCard({ goto }: { goto: (pageId: string) => void }) {
-  const { orders, history, assocOrders } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
+  const assocOrders = useAssocOrders();
   const todayStart = startOfToday();
   const [meal, setMeal] = useState<MealName | 'All'>('All');
   const [picked, setPicked] = useState<string | null>(null);

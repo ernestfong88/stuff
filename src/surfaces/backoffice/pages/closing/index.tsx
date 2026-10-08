@@ -7,14 +7,14 @@ import { startOfToday, today } from '../../../../lib/clock';
 import { formatDayLong, formatMoneyShort, formatTime, plural } from '../../../../lib/format';
 import { useShared } from '../../../../lib/sharedStore';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { useTableName } from '../../../../store/floorLayout';
 import { useNotes } from '../../../../store/notes';
 import { Button, Tabs, cx } from '../../../../ui';
 import { formatMinutes } from '../../../manager/shift/closingReport';
 import { useSignOff } from '../../../manager/shift/signOff';
-import { mealAt } from '../../../server/features/menu/menuSections';
-import { printHtml, printableDocument } from '../../../server/features/shared/print';
+import { mealAt } from '../../../../domain/mealPeriods';
+import { printHtml, printableDocument } from '../../../../lib/print';
 import { signOffStore } from '../../../server/features/shift/shiftState';
 import { BoIconButton, BoPage, BoSection, BoTable, type BoColumn } from '../../kit';
 import { dayValue, parseDay } from '../../kit/dateRange';
@@ -37,7 +37,8 @@ import s from './closing.module.css';
 
 /** Closing Reports: each shift's closing report, any day, with the manager's and the servers' sign-offs. */
 export default function ClosingPage(_props: BoPageProps) {
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const notes = useNotes();
   const cfg = useConfig();
   const tableName = useTableName();
@@ -52,7 +53,7 @@ export default function ClosingPage(_props: BoPageProps) {
   const counts = useMemo(() => mealCounts(history, start), [history, start]);
   const live = isToday ? orders : [];
   const tables = live.filter((o) => !o.queueType && !o.closedAt);
-  const meal = picked ?? defaultMeal(counts, isToday ? (tables.length ? shiftMeal(tables) : mealAt(today().getHours())) : null);
+  const meal = picked ?? defaultMeal(counts, isToday ? (tables.length ? shiftMeal(tables) : mealAt(today().getTime())) : null);
   const weekday = new Date(start).toLocaleDateString('en-US', { weekday: 'long' });
   const report = useMemo(
     () => shiftReport({ history, live, notes, start, meal, day, serverSignOffs, tableName, dayWord: isToday ? 'today' : `on ${weekday}`, cfg }),

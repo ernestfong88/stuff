@@ -15,13 +15,10 @@ import { cycleWeekLabel } from '../../../kitchen/admin/menuCycle';
 import { BoCallout, BoRow, BoSection } from '../../kit';
 import { SettingSelect } from '../../kit/SettingControls';
 import { thisWeek } from './summary';
+import { isoOf } from '../../../../lib/dates';
 import s from './venues.module.css';
 
 const NONE = '__none';
-const isoDay = (ts: number) => {
-  const d = new Date(ts);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
 
 /** "Q1 2027 (Jan 1 to Mar 31, 2027)" when a menu is for another quarter than today's, else null. */
 function otherQuarter(m: MenuSummary, at: number): string | null {
@@ -172,7 +169,7 @@ export function VenueMenu({ settings, venue, goto }: { settings: VenueAdminView;
             type="date"
             className={s.dateInput}
             aria-label={`${venue.name} week 1 started`}
-            value={venue.menuStartDt ? isoDay(weekStart(venue.menuStartDt).getTime()) : ''}
+            value={venue.menuStartDt ? isoOf(weekStart(venue.menuStartDt).getTime()) : ''}
             onChange={(e) => pickStart(e.target.value)}
           />
         </BoRow>

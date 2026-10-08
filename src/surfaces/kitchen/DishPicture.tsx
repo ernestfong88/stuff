@@ -3,10 +3,10 @@ import { cx } from '../../ui';
 import s from './DishPicture.module.css';
 
 /** The dish photo, or a plate drawing when the kitchen has not added one. */
-export function DishPicture({ name, size = 'row', dark }: { name: string; size?: 'row' | 'card' | 'hero'; dark?: boolean }) {
+export function DishPicture({ name, size = 'row' }: { name: string; size?: 'row' | 'card' }) {
   const url = dishPhoto(name, size !== 'row');
   return (
-    <span className={cx(s.pic, s[size], dark && s.dark)} aria-hidden="true">
+    <span className={cx(s.pic, s[size])} aria-hidden="true">
       {url ? (
         <img src={url} alt="" className={s.img} />
       ) : (

@@ -4,7 +4,7 @@ import type { BoPageProps } from '../nav';
 import { BoPage, BoTable, type BoColumn } from '../kit';
 import { COMMUNITY_NAME } from '../../../data';
 import { today } from '../../../lib/clock';
-import { useDining } from '../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../store/dining';
 import {
   ANSWER_LETTERS,
   TRIVIA_QUESTIONS,
@@ -23,7 +23,7 @@ import {
 import { Avatar, Button, Modal, Tabs, TextArea, Toggle, toast } from '../../../ui';
 import { RankBadge } from '../../server/features/trivia/RankBadge';
 import { TriviaServersCard } from '../../server/features/trivia/TriviaServersCard';
-import { escapeHtml, printHtml, printableDocument } from '../../server/features/shared/print';
+import { escapeHtml, printHtml, printableDocument } from '../../../lib/print';
 import s from './trivia.module.css';
 
 const monthName = (d: Date) => d.toLocaleDateString('en-US', { month: 'long' });
@@ -49,7 +49,8 @@ function printBoard(board: BoardEntry[], month: string, prize: string) {
 /** Trivia Scoreboard: monthly trivia points, winners and prizes. */
 export default function Page(_props: BoPageProps) {
   const state = useTrivia();
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const [period, setPeriod] = useState<'this' | 'last'>('this');
   const [big, setBig] = useState(false);
   const savedPrize = triviaPrize(state);

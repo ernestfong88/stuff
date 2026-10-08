@@ -23,7 +23,7 @@ import {
 import { Field, Input, Select } from '../ui/controls';
 import { fitMenu, useFittedMenu, type SplitMode } from '../ui/fitFrame';
 import { PagePreview } from '../ui/PagePreview';
-import { printHtml } from '../ui/printFrame';
+import { printHtml } from '../../../../lib/print';
 import { downloadWord } from '../ui/wordExport';
 import { exportWeeks, weekLabel } from './exportDays';
 import {

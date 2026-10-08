@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { isDrink, serverItemName } from '../../../../domain/menu';
+import { learnedFavorites } from '../../../../domain/orders';
 import type { Diner, MealName, Resident } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningHistory } from '../../../../store/dining';
 import { use86, is86 } from '../../../../store/eightySix';
 import { cx } from '../../../../ui';
 import s from './UsualsRow.module.css';
@@ -20,10 +22,11 @@ export function UsualsRow({
   onAdd: (u: Usual) => void;
 }) {
   const cfg = useConfig();
-  const dining = useDining();
+  const history = useDiningHistory();
   const marks = use86();
   const hasDrink = diner.items.some((l) => !l.cancelled && isDrink(l.itemId));
-  const u = usualsFor(resident, meal, dining.learnedFavorites(resident.id, meal));
+  const learned = useMemo(() => learnedFavorites(history, resident.id, meal), [history, resident.id, meal]);
+  const u = usualsFor(resident, meal, learned);
   const list = [...(hasDrink ? [] : u.drinks.map((x) => ({ ...x, drink: true }))), ...u.food.map((x) => ({ ...x, drink: false }))].filter(
     (x) => !is86(marks, x.item.id),
   );

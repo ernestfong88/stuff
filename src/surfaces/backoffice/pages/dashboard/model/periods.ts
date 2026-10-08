@@ -2,6 +2,7 @@
  * The dashboard compares the last N days (7, 14 or 28) with the N days
  * before, and shows 8 such periods on the trend charts.
  */
+import { dayStart } from '../../../../../lib/dates';
 
 export type RangeDays = 7 | 14 | 28;
 
@@ -20,10 +21,7 @@ export function period(k: number, n: RangeDays, todayStart: number): Period {
 
 /** Local midnight `days` after `t` (a calendar step, safe across daylight saving). */
 export function addDays(t: number, days: number): number {
-  const d = new Date(t);
-  d.setDate(d.getDate() + days);
-  d.setHours(0, 0, 0, 0);
-  return d.getTime();
+  return dayStart(t, days);
 }
 
 export interface DaySlot {

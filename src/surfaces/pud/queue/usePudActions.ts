@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import type { Order } from '../../../domain/types';
-import { useDining } from '../../../store/dining';
+import { useDiningActions } from '../../../store/dining';
 import { useQueueHandOff, useTextContext } from '../../../store/queueHandOff';
 import { toast } from '../../../ui';
 import { tracksPickups, useServiceSettings } from '../../../domain/pickupService/settings';
@@ -16,7 +16,7 @@ export { useTextContext };
  * closes the order.
  */
 export function usePudActions(rows: QueueRow[], onOpen: (orderId: string) => void) {
-  const dining = useDining();
+  const dining = useDiningActions();
   const cfg = useServiceSettings();
   const { setOut, leave } = useQueueHandOff();
   const { markDelivered, patchOrder, reopenOrder } = dining;

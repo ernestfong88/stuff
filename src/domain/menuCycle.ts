@@ -2,21 +2,16 @@
  * Menu cycles on the calendar: which cycle day a date is, the dates a
  * builder column shows, quarters, and a menu's lifecycle state.
  */
+import { addDays, dayStart as dayStartMs, isoOf } from '../lib/dates';
 import type { BoMenu, VenueSchedule } from '../store/menuEdits';
+
+export { addDays };
 
 export const DAY_MS = 86_400_000;
 
 /** Local midnight of a time. */
 export function dayStart(t: number | Date): Date {
-  const d = new Date(t);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-export function addDays(d: Date, n: number): Date {
-  const x = new Date(d);
-  x.setDate(x.getDate() + n);
-  return x;
+  return new Date(dayStartMs(t));
 }
 
 /** "10/7" */
@@ -25,9 +20,7 @@ export function monthDay(d: Date): string {
 }
 
 /** "2026-10-07" in local time, for date inputs. */
-export function isoDay(d: Date): string {
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
+export const isoDay: (d: Date) => string = isoOf;
 
 /** Parse "2026-10-07" as local midnight. */
 export function parseIsoDay(s: string): Date | null {

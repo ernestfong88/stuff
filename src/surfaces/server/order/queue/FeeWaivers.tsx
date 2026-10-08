@@ -18,7 +18,7 @@ import {
 import { now } from '../../../../lib/clock';
 import { formatMoney } from '../../../../lib/format';
 import { setHospice, useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions, useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { useSession } from '../../../../store/session';
 import { cx } from '../../../../ui';
 import { ManagerPinDialog } from '../../shared/ManagerPin';
@@ -45,7 +45,7 @@ function isoToday(): string {
  */
 export function HospiceWaiver({ order: o }: { order: Order }) {
   const cfg = useConfig();
-  const { patchOrder } = useDining();
+  const { patchOrder } = useDiningActions();
   const { mode } = useSession();
   const [ask, setAsk] = useState(false);
   const rid = o.queueType === 'delivery' ? orderResidentId(o) : undefined;
@@ -122,7 +122,9 @@ export function SickWaiver({
   onUndo?: () => void;
 }) {
   const cfg = useConfig();
-  const { orders, history, patchOrder } = useDining();
+  const { patchOrder } = useDiningActions();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const { mode } = useSession();
   const [ask, setAsk] = useState(false);
   const c = sickConfig(COMMUNITY_NAME, cfg);

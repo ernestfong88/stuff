@@ -6,9 +6,9 @@ import { formatElapsed } from '../../../lib/format';
 import { useShared } from '../../../lib/sharedStore';
 import { useVenue } from '../../../shell/session';
 import { useConfig } from '../../../store/config';
-import { useDining } from '../../../store/dining';
+import { useDiningOrders } from '../../../store/dining';
 import { serviceConfig } from '../../../store/serviceConfig';
-import { cx, useConfirm, useNow } from '../../../ui';
+import { cx, Elapsed, useConfirm, useTick } from '../../../ui';
 import { heldConfirm, heldWord, useHeldFor } from '../../server/newcheck/heldTable';
 import type { Reservation } from '../../host/reservations/model';
 import { FloorPlan } from '../floor/FloorPlan';
@@ -30,7 +30,7 @@ export function TablesView({
 }) {
   const [venue] = useVenue();
   const plan = useRoomPlan(venue);
-  const { orders } = useDining();
+  const orders = useDiningOrders();
   const live = orders.filter((o) => !o.queueType && inPlan(o, plan));
   const heldAt = useHeldFor(venue);
   const [confirm, confirmDialog] = useConfirm();
@@ -80,7 +80,8 @@ function Tile({
 }) {
   const cfg = useConfig();
   useShared(serviceConfig);
-  const t = useNow(1000);
+  // Stage colours and Late move within 15 s (one shared tick); only the timers in occupied tiles tick every second.
+  const t = useTick(15_000);
   const name = useTableName();
   const round = table.shape === 'round';
 
@@ -123,7 +124,9 @@ function Tile({
           {serverName(o.server)}
         </span>
         <span className={s.word}>{st.word}</span>
-        <span className={s.timer}>{formatElapsed(t - st.since)}</span>
+        <span className={s.timer}>
+          <Elapsed since={st.since} />
+        </span>
       </button>
     );
   }
@@ -148,7 +151,9 @@ function Tile({
               {o.checkTag ? `${o.checkTag} · ` : ''}
               {o.server}
             </span>
-            <span className={s.partTimer}>{formatElapsed(t - states[i].since)}</span>
+            <span className={s.partTimer}>
+              <Elapsed since={states[i].since} />
+            </span>
           </button>
         ))}
       </span>

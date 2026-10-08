@@ -6,6 +6,8 @@
  * 6 AM, and count as minutes from the service day's midnight, so 2:00 AM is
  * 1560 and falls on the next calendar day.
  */
+import { isoOf } from '../../lib/dates';
+import { formatMinuteOfDay } from '../../lib/format';
 import type { AssocMeal, Order } from '../types';
 
 export type AssocMealName = 'Lunch' | 'Dinner' | 'NOC';
@@ -44,11 +46,7 @@ export function windowMinutes(label: string | null | undefined): number | null {
 }
 
 /** 1035 → "5:15 PM". */
-export function minutesLabel(v: number): string {
-  const h = Math.floor(v / 60) % 24;
-  const m = v % 60;
-  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
-}
+export const minutesLabel = formatMinuteOfDay;
 
 /** 1035 → "5:15 to 5:30 PM"; 705 → "11:45 AM to 12:00 PM". */
 export function rangeLabel(start: number): string {
@@ -151,8 +149,7 @@ export interface WindowLoad {
 
 /** The local calendar date of a time, "2026-10-07". */
 export function isoOfTime(ts: number): string {
-  const d = new Date(ts);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return isoOf(ts);
 }
 
 function orderDate(o: Order): string {

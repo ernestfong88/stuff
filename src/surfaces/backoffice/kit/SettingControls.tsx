@@ -4,10 +4,9 @@
  * Metrics). Each writes straight to the shared settings, so the dining
  * screens change while the page is still open.
  */
-import { useState, type ReactNode } from 'react';
-import { RotateCcw } from 'lucide-react';
-import { resetSettingsSection, setSetting, useSetting } from '../../../store/serviceConfig';
-import { Button, cx, toast } from '../../../ui';
+import { useState } from 'react';
+import { setSetting, useSetting } from '../../../store/serviceConfig';
+import { cx } from '../../../ui';
 import { NumberBox } from '.';
 import s from './SettingControls.module.css';
 
@@ -89,22 +88,6 @@ export function Swatch({ tone, children }: { tone: 'red' | 'amber'; children: st
   );
 }
 
-/** Back to the defaults for some sections, with a short confirmation. */
-export function ResetButton({ onReset, sections = [], message }: { onReset?: () => void; sections?: string[]; message: string }) {
-  return (
-    <Button
-      icon={<RotateCcw size={14} />}
-      onClick={() => {
-        sections.forEach(resetSettingsSection);
-        onReset?.();
-        toast(message, { tone: 'success' });
-      }}
-    >
-      Reset to defaults
-    </Button>
-  );
-}
-
 /** Pill buttons to pick several (e.g. the meals a setting applies to). */
 export function PickMany<T extends string>({ options, value, onChange, label }: { options: T[]; value: T[]; onChange: (v: T[]) => void; label: string }) {
   return (
@@ -118,16 +101,6 @@ export function PickMany<T extends string>({ options, value, onChange, label }: 
         );
       })}
     </div>
-  );
-}
-
-/** A setting's name with a short note under it, for table rows. */
-export function NameAndNote({ name, note }: { name: string; note: string }) {
-  return (
-    <>
-      <div className={s.name}>{name}</div>
-      <div className={s.note}>{note}</div>
-    </>
   );
 }
 
@@ -154,20 +127,6 @@ export function SettingSelect<T extends string>({ value, options, onChange, labe
         </option>
       ))}
     </select>
-  );
-}
-
-/** A row of small labelled fields that wraps ("Sequoia [2] min  Bistro [2] min"). */
-export function InlineFields({ children }: { children: ReactNode }) {
-  return <div className={s.fields}>{children}</div>;
-}
-
-export function InlineField({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <label className={s.field}>
-      {label}
-      {children}
-    </label>
   );
 }
 

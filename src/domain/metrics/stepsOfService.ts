@@ -9,14 +9,16 @@
  * is that 90% of tables make both steps.
  */
 import { DAY, MINUTE, now, startOfToday } from '../../lib/clock';
+import { mixHash } from '../../lib/hash';
 import { DEFAULT_CONFIG, type DiningConfig } from '../config';
+import { MEALS, mealAt } from '../mealPeriods';
 import { courseSummaries, firstSend, normalizeOrder, type CourseSummary } from '../courses';
 import type { MealName, Order } from '../types';
 
 /** Goals in minutes, and the share of tables that should make both steps. */
 export const SOS_GOALS = { app: 7, ent: 15, sos: 90 } as const;
 
-export const MEALS: MealName[] = ['Breakfast', 'Lunch', 'Dinner'];
+export { MEALS };
 
 /** Share of tables (percent) that may miss and still be on goal. */
 export function missGoalPercent(): number {
@@ -60,9 +62,7 @@ export interface SosTable {
 
 /** __kTTMealOf: the check's meal, or the meal its open time falls in. */
 export function mealOf(o: Order): MealName {
-  if (o.meal) return o.meal;
-  const h = new Date(o.openedAt).getHours();
-  return h < 10.5 ? 'Breakfast' : h < 16 ? 'Lunch' : 'Dinner';
+  return o.meal || mealAt(o.openedAt);
 }
 
 /** __kShiftMeal: the meal most open tables are on (dinner when none). */
@@ -155,21 +155,8 @@ export interface SosSample {
   table: string;
 }
 
-/** Z1: the small string hash the demo week is built from. */
-function hash9973(s: string): number {
-  let t = 0;
-  for (const ch of s) t = (t * 31 + ch.charCodeAt(0)) % 9973;
-  return t;
-}
-
 /** A well-mixed integer from a key, so neighbouring days look different. */
-function mix(key: string): number {
-  let x = Math.imul(hash9973(key) | 0, 2654435761) >>> 0;
-  x ^= x >>> 15;
-  x = Math.imul(x, 2246822519) >>> 0;
-  x ^= x >>> 13;
-  return x >>> 0;
-}
+const mix = mixHash;
 
 /** Servers the demo week is spread across, with a slow habit each. */
 const DEMO_SERVERS = ['AA', 'RJ', 'MG'];

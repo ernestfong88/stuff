@@ -322,11 +322,6 @@ export function BoCallout({ tone = 'info', title, children }: { tone?: 'info' | 
   );
 }
 
-/** Grid of cards that wraps responsively. */
-export function BoGrid({ min = 280, gap = 16, children }: { min?: number; gap?: number; children: ReactNode }) {
-  return <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(min(${min}px, 100%), 1fr))`, gap }}>{children}</div>;
-}
-
 export { BoStatTile, BoStatRow, BoSelect, BoField, BoCaption, BoIconButton, BoFilterChip } from './controls';
 export { BarChart, type BarChartProps, type BarDatum, type BarSegment } from './charts/BarChart';
 export { DonutChart, type DonutChartProps, type DonutSlice } from './charts/DonutChart';
@@ -335,6 +330,6 @@ export { CHART } from './charts/palette';
 export { useCommunity, setCommunity } from './community';
 export { CrudTable, useCrudEditing, type CrudRow, type CrudColumn, type CrudEditing } from './CrudTable';
 export { useBilling, setBillingList, billingStore, chargesToReview, amountToReview, type BillingState } from './billing';
-export { useResidentRecords, updateResidentRecord, residentRecordsStore } from './residentRecords';
+export { useResidentRecords, updateResidentRecord, residentRecordsStore } from '../../../store/residentRecords';
 export { DateRangeFilter } from './DateRangeFilter';
 export { ANY_DATE, inRange, isRangeSet, rangeBounds, type DatePreset, type DateRange } from './dateRange';

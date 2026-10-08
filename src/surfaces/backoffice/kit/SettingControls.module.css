@@ -38,10 +38,6 @@
   color: #fff;
   box-shadow: none;
 }
-.name {
-  font-weight: 600;
-}
-.note,
 .muted {
   font-size: 12px;
   color: var(--s400);
@@ -55,21 +51,6 @@
   font-size: 13px;
   min-width: 0;
   max-width: 100%;
-}
-.fields {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.field {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 8px 6px 12px;
-  border-radius: var(--r-md);
-  background: var(--paper);
-  font-size: 13px;
-  font-weight: 600;
 }
 .checkCols {
   display: grid;

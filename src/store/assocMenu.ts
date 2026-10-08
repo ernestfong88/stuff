@@ -36,6 +36,7 @@ import { cycleEntrees, cycleItems } from './production';
 import { recipeInfo, type RecipeInfo } from './recipes';
 import { getSetting, serviceConfig, setSetting } from './serviceConfig';
 import { venueSettingsStore } from './venueSettings';
+import { isoOf } from '../lib/dates';
 
 export interface AssocMenuSettings {
   days: Record<string, DayPicks>;
@@ -311,8 +312,7 @@ export function syncAssocItems(todayIso: string, s: AssocMenuSettings = assocMen
   for (let k = 0; k < 14; k++) {
     const d = new Date(todayIso + 'T12:00:00');
     d.setDate(d.getDate() + k);
-    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    for (const m of assocMenuForDay(iso, s)) m.recipeIds.forEach((id) => ids.add(id));
+    for (const m of assocMenuForDay(isoOf(d), s)) m.recipeIds.forEach((id) => ids.add(id));
   }
   const byName = new Set(catalog.map((i) => i.name.toLowerCase()));
   ensureItems(

@@ -187,8 +187,6 @@ const isAlc = (m: MenuSummary | undefined) => !!m && (m.kind === 'alc' || m.cycl
 
 /** A cycle menu's every-day items, offered as an à la carte choice: "m1:everyday". */
 export const everyDayId = (menuId: string) => `${menuId}:everyday`;
-/** The menu an id belongs to: "m1:everyday" is part of m1. */
-export const baseMenuId = (id: string | null | undefined) => id?.replace(/:everyday$/, '') ?? null;
 
 /**
  * A venue's two menus: the cycle and the à la carte. Older saved venues kept
@@ -312,8 +310,4 @@ export function setPrinterRoutes(routes: Array<{ id: string; print?: Printer['pr
  */
 export interface VenueAdminView extends VenueSettings {
   menus: MenuSummary[];
-}
-
-export function menuById(s: Pick<VenueAdminView, 'menus'>, id: string | null | undefined): MenuSummary | undefined {
-  return id ? s.menus.find((m) => m.id === id) : undefined;
 }

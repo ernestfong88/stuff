@@ -16,6 +16,7 @@
  * Dates are "YYYY-MM-DD" in local time.
  */
 import { dateOf, isoOf } from './cleaning';
+import { MEALS } from './mealPeriods';
 
 export type TempMeal = 'Breakfast' | 'Lunch' | 'Dinner';
 export type HoldType = 'hot' | 'cold' | 'none';
@@ -23,7 +24,7 @@ export type HoldType = 'hot' | 'cold' | 'none';
 export type CookKind = 'reheat' | 'poultry' | 'ground' | 'egg' | 'whole' | 'other';
 export type TempAction = 'reheat' | 'chill' | 'discard' | 'recheck';
 
-export const TEMP_MEALS: TempMeal[] = ['Breakfast', 'Lunch', 'Dinner'];
+export const TEMP_MEALS: readonly TempMeal[] = MEALS;
 
 /** Hot food is held at this or above. */
 export const HOT_HOLD_F = 135;

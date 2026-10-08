@@ -2,14 +2,9 @@
  * Associate meals a server rings in on a tablet count against the day's
  * associate special limit, the same as meals planned in the Associate App.
  */
+import { isoOf } from '../../lib/dates';
 import type { MealName, Order } from '../types';
 import type { AssocMealKind } from './menu';
-
-/** "YYYY-MM-DD" of a timestamp, local time. */
-const dayOf = (ts: number) => {
-  const d = new Date(ts);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
 
 /** The associate meal a check counts as: dinner for dinner, lunch otherwise. */
 const kindOf = (meal: MealName): AssocMealKind => (meal === 'Dinner' ? 'Dinner' : 'Lunch');
@@ -23,7 +18,7 @@ export function serverRungCount(checks: readonly Order[], date: string, itemIds:
   if (!itemIds.length) return 0;
   let n = 0;
   for (const o of checks) {
-    if (dayOf(o.openedAt) !== date) continue;
+    if (isoOf(o.openedAt) !== date) continue;
     const kind = kindOf(o.meal);
     if (capMeals && !capMeals.includes(kind) && !(kind === 'Dinner' && capMeals.includes('NOC'))) continue;
     for (const d of o.diners) {

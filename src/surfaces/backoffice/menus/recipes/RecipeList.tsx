@@ -1,4 +1,5 @@
 import { ChevronRight, Copy } from 'lucide-react';
+import { memo } from 'react';
 import type { Recipe } from '../../../../store/menuEdits';
 import { Button, Chip, cx } from '../../../../ui';
 import { RECIPE_BOOK_COMMUNITY, useSubmissions } from '../approvals';
@@ -95,7 +96,21 @@ function GlobalActions({
 }
 
 /** Recipes as a table or as photo cards. */
-export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOpen, onAddLinked, onCopy, ownedFrom, compact, selectedId }: RecipeListProps) {
+/** Memoised: typing in the search redraws the list once, when the (deferred) results change. */
+export const RecipeList = memo(function RecipeList({
+  list,
+  view,
+  global,
+  scoreOf,
+  onMenu,
+  pinCount,
+  onOpen,
+  onAddLinked,
+  onCopy,
+  ownedFrom,
+  compact,
+  selectedId,
+}: RecipeListProps) {
   const subs = useSubmissions();
   const approvalOf = (r: Recipe) => (global || !canSubmit(r) ? null : approvalStatus(subs, RECIPE_BOOK_COMMUNITY, r));
   if (!list.length) return <div className={s.none}>No recipes match these filters.</div>;
@@ -203,4 +218,4 @@ export function RecipeList({ list, view, global, scoreOf, onMenu, pinCount, onOp
       </table>
     </TableFrame>
   );
-}
+});

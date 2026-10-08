@@ -17,8 +17,6 @@ export function cycleWeekLabel(startDt: number | null, menu: MenuSummary | undef
   return d == null ? null : `Week ${Math.ceil(d / 7)} of ${Math.ceil(menu.cycleLen / 7)}`;
 }
 
-export const isStaticMenu = (m: MenuSummary) => (m.kind || (m.cycleLen > 0 ? 'cycle' : 'alc')) === 'alc';
-
 export interface QuarterStyle {
   label: string;
   season: string;

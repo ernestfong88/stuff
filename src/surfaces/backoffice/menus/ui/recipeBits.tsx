@@ -1,7 +1,8 @@
 /** Small pieces that show a recipe the same way on every page. */
-import type { Recipe } from '../../../../store/menuEdits';
+import { useShared } from '../../../../lib/sharedStore';
+import { menuEditsStore, type Recipe } from '../../../../store/menuEdits';
 import { cx, toast } from '../../../../ui';
-import { getBo, updateBo, useBo } from '../data';
+import { getBo, updateBo } from '../data';
 import { categoryLabel, dishLong, normCategory, proteinLabel, proteinOf, subColor, subOf } from '../model/categories';
 import { scoreTone, type RecipeScore } from '../model/score';
 import s from './recipeBits.module.css';
@@ -75,8 +76,8 @@ export function toggleFavorite(r: Recipe): void {
 }
 
 export function FavStar({ r, onPhoto }: { r: Recipe; onPhoto?: boolean }) {
-  const bo = useBo();
-  const on = !!bo.favorites[r.id];
+  // Just this recipe's star: a row redraws when it is starred, not on every menu edit.
+  const on = useShared(menuEditsStore, (st) => !!st.favorites?.[r.id]);
   const name = dishLong(r.name);
   return (
     <button

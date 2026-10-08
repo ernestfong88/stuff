@@ -11,7 +11,7 @@ import { MINUTE } from '../../lib/clock';
 import { useVenue } from '../../shell/session';
 import { TabletShell } from '../../shell/TabletShell';
 import { useConfig } from '../../store/config';
-import { useDining } from '../../store/dining';
+import { useDiningActions, useDiningOrders } from '../../store/dining';
 import { Button, EmptyState, Eyebrow, cx, toast, useNow } from '../../ui';
 import { inPlan, useRoomPlan, useTableName } from '../../store/floorLayout';
 import { BAR_LATE_MIN, barQueue, roomHasBar, type BarTicket } from './barQueue';
@@ -21,7 +21,7 @@ export default function BarSurface() {
   const [venue] = useVenue();
   const plan = useRoomPlan(venue);
   const cfg = useConfig();
-  const { orders } = useDining();
+  const orders = useDiningOrders();
   const t = useNow(15_000);
   const q = barQueue(orders.filter((o) => inPlan(o, plan)));
   const roomName = rooms[venue]?.name ?? 'this venue';
@@ -68,7 +68,7 @@ export default function BarSurface() {
 }
 
 function Ticket({ ticket, at, done }: { ticket: BarTicket; at: number; done?: boolean }) {
-  const { markBarUp, serveDrinks, setItemKitchenState } = useDining();
+  const { markBarUp, serveDrinks, setItemKitchenState } = useDiningActions();
   const cfg = useConfig();
   const name = useTableName();
   const { order, lines } = ticket;

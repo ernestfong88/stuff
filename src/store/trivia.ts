@@ -15,6 +15,8 @@
 import { residents, staff } from '../data';
 import type { Order, Resident } from '../domain/types';
 import { today } from '../lib/clock';
+import { isoOf } from '../lib/dates';
+import { seedHash } from '../lib/hash';
 import { createSharedStore, useShared } from '../lib/sharedStore';
 
 export interface TriviaQuestion {
@@ -475,20 +477,13 @@ export const triviaStore = createSharedStore<TriviaState>({ days: {}, tables: {}
 // ─── Days and questions ──────────────────────────────────────────────────
 
 /** "2026-10-07" for a local date. */
-export function isoDay(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
+export const isoDay: (d: Date) => string = isoOf;
 
 export function todayIso(): string {
   return isoDay(today());
 }
 
-/** Small stable string hash (kept from the mockup so the seeded spread matches it). */
-export function seedHash(s: string): number {
-  let t = 0;
-  for (const ch of s) t = (t * 31 + ch.charCodeAt(0)) % 9973;
-  return t;
-}
+export { seedHash };
 
 /** Which question a day gets: steps through the list 13 at a time from New Year 2026. */
 export function questionIndex(iso: string, count = TRIVIA_QUESTIONS.length): number {

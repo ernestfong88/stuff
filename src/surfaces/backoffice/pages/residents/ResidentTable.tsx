@@ -7,7 +7,7 @@ import { isOnHospice } from '../../../../domain/waivers';
 import { useConfig } from '../../../../store/config';
 import { Avatar, Chip, Toggle } from '../../../../ui';
 import { BoSelect, useBilling } from '../../kit';
-import { useResidentRecords } from '../../kit/residentRecords';
+import { useResidentRecords } from '../../../../store/residentRecords';
 import { careLevel, planStatus } from '../../../server/features/residents/residentInfo';
 import type { BoMealPlan } from '../../seed/billing';
 import type { BoResident } from '../../seed/residents';

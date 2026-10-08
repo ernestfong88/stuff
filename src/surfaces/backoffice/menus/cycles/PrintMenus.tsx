@@ -9,7 +9,7 @@ import { monthDay, type CycleAnchor } from '../../../../domain/menuCycle';
 import { menuDoc } from '../model/menuDoc';
 import { printContext, printWeek, weekDays, type PrintKind } from '../model/menuPrint';
 import { fitMenu } from '../ui/fitFrame';
-import { printHtml } from '../ui/printFrame';
+import { printHtml } from '../../../../lib/print';
 import s from './PrintMenus.module.css';
 
 /** "Print menus" in the builder: the day, the week, à la carte and the order form, dated as the builder shows. */

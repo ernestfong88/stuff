@@ -10,9 +10,16 @@ export const SPARE_SERVER_COLORS = ['#2F8C8C', '#B23B2E', '#8A6A12', '#4D7093'];
 /** Staff outside the PIN list who still appear on seeded checks. */
 const EXTRA_SERVER_NAMES: Record<string, string> = { MG: 'Marisol' };
 
+/** Staff by id and by initials (the first one listed wins, as a find over the list would). */
+const staffByKey = new Map<string, (typeof staff)[number]>();
+for (const x of staff) {
+  if (!staffByKey.has(x.id)) staffByKey.set(x.id, x);
+  if (!staffByKey.has(x.initials)) staffByKey.set(x.initials, x);
+}
+
 /** __kServerName: a server's first name by id or initials. */
 export function serverName(id: string): string {
-  const s = staff.find((x) => x.id === id || x.initials === id);
+  const s = staffByKey.get(id);
   return s ? s.name.split(' ')[0] : (EXTRA_SERVER_NAMES[id] ?? id);
 }
 
@@ -39,14 +46,22 @@ export interface ServerOnFloor {
 /** __kServers: every staff member plus anyone holding a check, with their open check count. */
 export function serversOnFloor(live: Order[]): ServerOnFloor[] {
   const ids = staff.map((s) => s.initials);
-  for (const o of live) if (o.server && !ids.includes(o.server)) ids.push(o.server);
+  const seen = new Set(ids);
+  const open = new Map<string, number>();
+  for (const o of live) {
+    if (o.server && !seen.has(o.server)) {
+      seen.add(o.server);
+      ids.push(o.server);
+    }
+    open.set(o.server, (open.get(o.server) ?? 0) + 1);
+  }
   return ids.map((id) => {
-    const s = staff.find((x) => x.initials === id || x.id === id);
+    const s = staffByKey.get(id);
     return {
       id,
       name: s ? s.name.split(' ')[0] : '',
       color: serverColor(id),
-      open: live.filter((o) => o.server === id).length,
+      open: open.get(id) ?? 0,
     };
   });
 }

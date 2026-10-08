@@ -7,7 +7,7 @@ import { upcharge } from './menu';
 import { dinerPerson } from './orders';
 import type { Diner, Order, OrderLine, Resident } from './types';
 import { hospiceOnOrder, isHospiceDiner } from './waivers';
-import { residentPlan } from '../surfaces/backoffice/kit/residentRecords';
+import { residentPlan } from '../store/residentRecords';
 
 /**
  * ad: one line's price for a diner. Residents (not their guests) pay the

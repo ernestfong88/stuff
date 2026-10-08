@@ -3,7 +3,7 @@ import { catalog, getItem, getResident, residents } from '../../../../../data';
 import type { Order, ResidentNote } from '../../../../../domain/types';
 import { MINUTE, now, startOfToday } from '../../../../../lib/clock';
 import { useNotes } from '../../../../../store/notes';
-import { useDining } from '../../../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../../../store/dining';
 import { FEEDBACK_DISHES, HISTORY_SERVERS, TODAYS_RATINGS } from '../../../seed/dashboard';
 import { countSentiment, feedbackHistory, matchDish, ratingFeedback, sentimentOf, type FeedbackItem, type SentimentCount } from './feedback';
 import { addDays, currentDays, period, type DaySlot, type RangeDays } from './periods';
@@ -80,7 +80,8 @@ const dayStarts = (a: number, n: number) => {
 /** Everything the dashboard cards and their details read, for the last `n` days. */
 export function useDashboardData(n: RangeDays): DashboardData {
   const notes = useNotes();
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const todayStart = startOfToday();
   const past = useMemo(() => feedbackHistory(residents, todayStart), [todayStart]);
   const today = useMemo(() => todaysFeedback(notes, [...orders, ...history], now(), todayStart), [notes, orders, history, todayStart]);

@@ -18,11 +18,23 @@ export const layoutStore = createSharedStore<SavedLayouts>({}, {
   channel: 'kisco-floorplan',
 });
 
-/** A seat on a saved layout, with its room, or undefined when no saved layout has it. */
-export function savedTable(id: string, saved: SavedLayouts = layoutStore.get()): (PlanItem & { room: string }) | undefined {
-  for (const [room, items] of Object.entries(saved)) {
-    const t = items.find((x) => x.id === id && x.type === 'seat');
-    if (t) return { ...t, room };
+type SavedSeat = PlanItem & { room: string };
+
+/** Every saved seat by id, built once per saved layouts object (the store replaces it on each change). */
+const seatIndex = new WeakMap<SavedLayouts, Map<string, SavedSeat>>();
+
+function seatsOf(saved: SavedLayouts): Map<string, SavedSeat> {
+  let index = seatIndex.get(saved);
+  if (!index) {
+    index = new Map();
+    for (const [room, items] of Object.entries(saved))
+      for (const x of items) if (x.type === 'seat' && !index.has(x.id)) index.set(x.id, { ...x, room });
+    seatIndex.set(saved, index);
   }
-  return undefined;
+  return index;
+}
+
+/** A seat on a saved layout, with its room, or undefined when no saved layout has it. Treat it as read only. */
+export function savedTable(id: string, saved: SavedLayouts = layoutStore.get()): SavedSeat | undefined {
+  return seatsOf(saved).get(id);
 }

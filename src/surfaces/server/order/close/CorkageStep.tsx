@@ -1,7 +1,7 @@
 import { corkageSettings } from '../../../../domain/billing';
 import type { Order } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions } from '../../../../store/dining';
 import { Minus, Plus } from 'lucide-react';
 import s from './CorkageStep.module.css';
 
@@ -12,7 +12,7 @@ import s from './CorkageStep.module.css';
  */
 export function CorkageStep({ order: o }: { order: Order }) {
   const cfg = useConfig();
-  const { setCorkage } = useDining();
+  const { setCorkage } = useDiningActions();
   const c = corkageSettings(o.room, cfg);
   const bottles = o.corkage || 0;
   if (!c.on || o.queueType) return null;

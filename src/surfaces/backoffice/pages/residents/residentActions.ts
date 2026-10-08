@@ -5,7 +5,7 @@
 import { flag, type DiningConfig } from '../../../../domain/config';
 import { switchHospice } from '../../../../store/config';
 import { toast } from '../../../../ui';
-import { changeResidentPlan } from '../../kit/residentRecords';
+import { changeResidentPlan } from '../../../../store/residentRecords';
 import { BACK_OFFICE_USER } from '../../seed/associates';
 
 const firstName = (name: string) => name.split(' ')[0];

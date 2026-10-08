@@ -5,9 +5,8 @@
  * of" diet (gluten, lactose, salt) is its food struck through. Each page
  * prints a legend of the icons on it, and Word gets the same drawings.
  */
+import { escapeHtml as esc } from '../../../../lib/print';
 import { DIETS } from './categories';
-
-const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 export interface DietIcon {
   /** The diet as recipes name it ("Gluten-Friendly"). */

@@ -188,7 +188,16 @@ export function keepLiveMenu(): () => void {
   setMenuForDay((date) => liveOn(date));
   check();
   // A venue's schedule can change a later day's menu without changing today's.
+  // Only the schedule counts (what schedulesOf reads); other venue settings leave the menus alone.
+  let venues = venueSettingsStore.get().venues;
+  let schedules = JSON.stringify(schedulesOf(venueSettingsStore.get()));
   const offVenues = venueSettingsStore.subscribe(() => {
+    const vs = venueSettingsStore.get();
+    if (vs.venues === venues) return;
+    venues = vs.venues;
+    const next = JSON.stringify(schedulesOf(vs));
+    if (next === schedules) return;
+    schedules = next;
     check();
     forgetMenusAhead();
   });
@@ -210,14 +219,28 @@ export function keepLiveMenu(): () => void {
   };
 }
 
-/** Change Back Office's menu data; the floor sees the result at once. */
+/** Back Office data the floor's menu never reads: a change to only these leaves what the floor sees as it is. */
+const OFF_FLOOR: ReadonlySet<string> = new Set<keyof BoState>(['favorites']);
+
+/**
+ * Change Back Office's menu data; the floor sees the result at once. What the
+ * floor sees keeps its identity when the change doesn't move it (a favourite,
+ * a cook's note), so no tab rebuilds its menus for nothing.
+ */
 export function updateBo(change: (s: BoState) => Partial<BoState>): void {
+  let sameLive = false;
   menuEditsStore.set((prev) => {
     const patch = change(boStateOf(prev));
     const next: MenuEditsState = { ...prev, ...patch };
+    const keys = Object.keys(patch);
+    if (prev.live && keys.length > 0 && keys.every((k) => OFF_FLOOR.has(k))) return next;
     const state = boStateOf(next);
-    return { ...next, live: computeLive({ state, seed: SEED, idx: tabletIndex(), ruleDefaults: RULE_DEFAULTS, pinSeq, at: now() }) };
+    const live = computeLive({ state, seed: SEED, idx: tabletIndex(), ruleDefaults: RULE_DEFAULTS, pinSeq, at: now() });
+    sameLive = !!prev.live && JSON.stringify(live) === JSON.stringify(prev.live);
+    return { ...next, live: sameLive ? prev.live : live };
   });
+  // Today's menu is the same, but a later day's might not be (a dish placed on another cycle day).
+  if (sameLive) forgetMenusAhead();
 }
 
 /** Put every menu, recipe and modifier back the way it shipped. */

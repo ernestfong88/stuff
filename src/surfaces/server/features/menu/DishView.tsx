@@ -8,9 +8,10 @@ import s from './DishView.module.css';
 
 /**
  * One dish full screen on a dark background: the photo big enough to show
- * a resident across the table, and what it comes with.
+ * a resident across the table, and what it comes with. The kitchen's copy
+ * (`cookNotes`) adds the recipe's cook notes.
  */
-export function DishView({ item, out, onClose }: { item: MenuItem; out: boolean; onClose: () => void }) {
+export function DishView({ item, out, cookNotes, onClose }: { item: MenuItem; out: boolean; cookNotes?: boolean; onClose: () => void }) {
   const sides = defaultSides(item.id)
     .map((id) => getItem(id)?.name)
     .filter((n): n is string => !!n);
@@ -33,6 +34,12 @@ export function DishView({ item, out, onClose }: { item: MenuItem; out: boolean;
             <div className={s.label}>Plated with</div>
             <div className={sides.length ? s.value : s.muted}>{sides.length ? sides.join(' · ') : 'No default sides'}</div>
           </div>
+          {cookNotes && (
+            <div>
+              <div className={s.label}>Cook notes</div>
+              <div className={item.cookNotes ? s.notes : s.muted}>{item.cookNotes || 'No cook notes on this recipe yet.'}</div>
+            </div>
+          )}
           {choices.length > 0 && (
             <div>
               <div className={s.label}>Choices</div>

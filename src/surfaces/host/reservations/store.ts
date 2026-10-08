@@ -8,7 +8,7 @@ import { dinerName } from '../../../domain/orders';
 import type { Order } from '../../../domain/types';
 import { MINUTE, now, startOfToday, DAY } from '../../../lib/clock';
 import { createSharedStore, useShared } from '../../../lib/sharedStore';
-import { useDining } from '../../../store/dining';
+import { useDiningOrders } from '../../../store/dining';
 import { GUESTS_ON_FILE, textParty, type ResvTextKind } from './contacts';
 import { dayFromToday, dayKey, dayWord, hmAmPm, isOpen, mealAtMinutes, nowMinutes, resvAt, RESV_HOURS, type Reservation, type ResvPerson } from './model';
 import { seedItems } from '../../../store/floorLayout';
@@ -163,7 +163,7 @@ export function sendDueReminders(at: number = now()): void {
 /** The day's reservations; starts the book and the reminder clock on first use. */
 export function useReservations(): Reservation[] {
   const book = useShared(reservationStore);
-  const { orders } = useDining();
+  const orders = useDiningOrders();
   const today = dayFromToday(0);
   useEffect(() => {
     // Seeded once per day: once the book is current, floor changes leave it alone.

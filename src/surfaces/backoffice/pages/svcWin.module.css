@@ -3,10 +3,6 @@
   color: var(--s500);
 }
 
-.gridWrap {
-  overflow-x: auto;
-  margin: 4px 0 12px;
-}
 .grid {
   border-collapse: collapse;
 }
@@ -24,18 +20,6 @@
 .grid td {
   padding: 3px 10px;
 }
-.hourCol {
-  width: 70px;
-}
-.headTools {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 3px;
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 500;
-}
 .link {
   padding: 2px 0;
   font-size: 12px;
@@ -44,28 +28,6 @@
 }
 .link:hover {
   text-decoration: underline;
-}
-.band,
-.nocHead {
-  padding: 14px 10px 4px !important;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--s500);
-}
-.nocHead {
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 500;
-}
-.nocTitle {
-  margin-right: 8px;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: #4b3f8f;
 }
 .hour {
   width: 70px;
@@ -97,9 +59,6 @@
 .cellNoc {
   background: #4b3f8f;
   color: #fff;
-}
-.cellDim {
-  opacity: 0.45;
 }
 .none {
   font-size: 12px;

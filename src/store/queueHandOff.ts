@@ -17,7 +17,7 @@ import { dinerName } from '../domain/orders';
 import { mobileOverrides, textSettings, tracksPickups, useServiceSettings } from '../domain/pickupService/settings';
 import { queueTextKey, textFor, textMessage, textNumber, textRecipient, type TextContext } from '../domain/pickupService/texts';
 import type { Order } from '../domain/types';
-import { useDining } from './dining';
+import { useDiningActions } from './dining';
 import { sendText } from './textOutbox';
 
 /** The text settings PU & Delivery and Expo read, re-read when Back Office changes them. */
@@ -36,7 +36,7 @@ export interface QueueHandOff {
 }
 
 export function useQueueHandOff(): QueueHandOff {
-  const { notifyOrder, markPickedUp, markDelivered, patchOrder } = useDining();
+  const { notifyOrder, markPickedUp, markDelivered, patchOrder } = useDiningActions();
   const cfg = useServiceSettings();
   const ctx = useTextContext();
 

@@ -10,17 +10,17 @@ import { dinerName, tableName } from '../../domain/orders';
 import { isoDate } from '../../domain/pickup';
 import type { AssocMeal } from '../../domain/types';
 import { now } from '../../lib/clock';
-import { formatTime } from '../../lib/format';
 import { useConfig } from '../../store/config';
 import { useQueueHandOff, useTextContext } from '../../store/queueHandOff';
-import { useDining } from '../../store/dining';
+import { useAssocOrders, useDiningActions, useDiningDevice, useDiningOrders } from '../../store/dining';
 import { getSetting } from '../../store/serviceConfig';
-import { useNow } from '../../ui';
+import { useTick } from '../../ui';
 import { BumpKeysPage } from '../kitchen/BumpKeysPage';
-import { GridMessage, HeaderButton, KitchenHeader, KitchenShell, TicketArea, TicketGrid, TicketSlot } from '../kitchen/KitchenShell';
+import { GridMessage, HeaderButton, KitchenClock, KitchenHeader, KitchenShell, TicketArea, TicketGrid, TicketSlot } from '../kitchen/KitchenShell';
 import { KitchenUnavailable } from '../kitchen/KitchenUnavailable';
 import { MenuReference } from '../kitchen/MenuReference';
 import { RecallMenu } from '../kitchen/RecallMenu';
+import { ticketCache, useStableHandlers } from '../kitchen/stableTickets';
 import { useBumpBar } from '../kitchen/useBumpBar';
 import { useThreshold } from '../kitchen/useThreshold';
 import { kitchenHasExpo, kitchenPrinters, useVenueSettings } from '../../store/venueSettings';
@@ -42,6 +42,10 @@ import {
 } from './expoTickets';
 import { printDocument, runnerCopyHtml } from './runnerCopy';
 
+/** The same ticket object for a check that has not changed, so its card skips the redraw. */
+const sameTickets = ticketCache<ExpoTicket>();
+const NO_KEY: readonly unknown[] = [];
+
 /** The kitchen whose pick up settings apply to associate meals. */
 const ASSOC_ROOM = 'sequoia';
 
@@ -49,7 +53,7 @@ const ASSOC_ROOM = 'sequoia';
 const tracksPickup = (room: string) => getSetting<Record<string, boolean> | undefined>('pud.track')?.[room] !== false;
 
 export default function Expo() {
-  const { kitchenMode } = useDining();
+  const { kitchenMode } = useDiningDevice();
   const settings = useVenueSettings();
   // KDS Settings, Expo screen: No for every kitchen means the cook line clears its own tickets.
   const cookOnly = !Object.keys(rooms).some((room) => kitchenHasExpo(settings, room));
@@ -63,11 +67,17 @@ export default function Expo() {
 }
 
 function ExpoPass() {
-  const dining = useDining();
-  const { orders, recentBumps, assocOrders } = dining;
+  const dining = useDiningActions();
+  const orders = useDiningOrders();
+  const assocOrders = useAssocOrders();
+  const { recentBumps } = useDiningDevice();
   const cfg = useConfig();
-  const clock = useNow(1000);
-  const thresholds = { cookLate: useThreshold('cookLate'), expoPass: useThreshold('expoPass'), fireLate: useThreshold('fireLate') };
+  // Late and the filters move within 15 s; the ticket timers and the clock tick on their own.
+  const clock = useTick(15_000);
+  const cookLate = useThreshold('cookLate');
+  const expoPass = useThreshold('expoPass');
+  const fireLate = useThreshold('fireLate');
+  const thresholds = useMemo(() => ({ cookLate, expoPass, fireLate }), [cookLate, expoPass, fireLate]);
   const texts = useTextContext();
   const queue = useQueueHandOff();
   const [filter, setFilter] = useState<ExpoFilter>('all');
@@ -78,17 +88,22 @@ function ExpoPass() {
 
   const settings = useVenueSettings();
   // Only kitchens with an expo station (KDS Settings); the others' servers run their own courses.
-  const tickets = useMemo(() => buildExpoTickets(orders.filter((o) => kitchenHasExpo(settings, o.room))), [orders, settings]);
-  const lists = filterTickets(tickets, clock);
+  const tickets = useMemo(() => sameTickets(buildExpoTickets(orders.filter((o) => kitchenHasExpo(settings, o.room))), NO_KEY), [orders, settings]);
+  const lists = useMemo(() => filterTickets(tickets, clock), [tickets, clock]);
   const shown = lists[filter];
   const today = isoDate(0);
-  const assoc = assocTickets(assocOrders, today, tracksPickup(ASSOC_ROOM), clock);
-  const missed = missedAssocTickets(assocOrders, today, tracksPickup(ASSOC_ROOM), clock);
+  const tracks = tracksPickup(ASSOC_ROOM);
+  const assoc = useMemo(() => assocTickets(assocOrders, today, tracks, clock), [assocOrders, today, tracks, clock]);
+  const missed = useMemo(() => missedAssocTickets(assocOrders, today, tracks, clock), [assocOrders, today, tracks, clock]);
 
-  const recalls = recentBumps.flatMap((b) => {
-    const order = orders.find((o) => o.id === b.orderId);
-    return order && order.diners.some((d) => d.items.some((i) => i.kitchenState === 'cleared')) ? [{ ...b, order }] : [];
-  });
+  const recalls = useMemo(
+    () =>
+      recentBumps.flatMap((b) => {
+        const order = orders.find((o) => o.id === b.orderId);
+        return order && order.diners.some((d) => d.items.some((i) => i.kitchenState === 'cleared')) ? [{ ...b, order }] : [];
+      }),
+    [recentBumps, orders],
+  );
 
   const recallLabel = (o: ExpoTicket['order']) => (o.queueType ? `${tableName(o)} · ${o.diners[0] ? dinerName(o.diners[0]).split(' ')[0] : ''}` : tableName(o));
 
@@ -110,7 +125,8 @@ function ExpoPass() {
     dining.markCourseReady(t.order.id, course, [...lineIds, ...sides.map((i) => i.id)]);
   };
 
-  const actions: ExpoTicketActions = {
+  // Handed to the memoised cards: the same functions every render, running the latest code.
+  const actions: ExpoTicketActions = useStableHandlers({
     fire: dining.fireCourseNow,
     setLine: dining.setItemKitchenState,
     ready,
@@ -118,8 +134,8 @@ function ExpoPass() {
     bump: bumpOrder,
     handOff,
     refire: dining.remakeLine,
-    print: (t, label) => printDocument(runnerCopyHtml({ ticket: t, course: printCourse(t), label, printedAt: now(), cfg })),
-  };
+    print: (t: ExpoTicket, label: string) => printDocument(runnerCopyHtml({ ticket: t, course: printCourse(t), label, printedAt: now(), cfg })),
+  });
 
   /** Bump ticket from the bar: fire what is held, else plates up, else run the course. */
   const bumpTicket = (t: ExpoTicket) => {
@@ -188,9 +204,7 @@ function ExpoPass() {
         ownRow
         actions={
           <>
-            <span className={s.clock} aria-label="Time">
-              {formatTime(clock)}
-            </span>
+            <KitchenClock className={s.clock} />
             <HeaderButton onClick={() => setMenuOpen(true)} title="Today's menu: specials, plating and cook notes">
               MENU
             </HeaderButton>

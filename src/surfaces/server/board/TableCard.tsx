@@ -1,12 +1,13 @@
-import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
+import { memo, useEffect, useState, type MouseEvent, type ReactNode } from 'react';
 import { GlassWater } from 'lucide-react';
 import { courseWork } from '../../../domain/courses';
 import { leadDiner, tableName } from '../../../domain/orders';
 import type { Order } from '../../../domain/types';
-import { formatElapsed, formatTime } from '../../../lib/format';
+import { now } from '../../../lib/clock';
+import { formatTime } from '../../../lib/format';
 import { useConfig } from '../../../store/config';
-import { useDining } from '../../../store/dining';
-import { cx, toast, useNow } from '../../../ui';
+import { useDiningActions } from '../../../store/dining';
+import { cx, Elapsed, toast, useTick } from '../../../ui';
 import { TriviaButton } from '../features';
 import { drinkQueue } from '../shared/lines';
 import { checkInWakeMinutes, tableRoom, venueHasExpo } from '../../../domain/venue';
@@ -15,7 +16,7 @@ import { DrinksDialog, GetItemsDialog } from './CardDialogs';
 import { orderTime, orderTimeLabel } from './orderTime';
 import { ReminderRow } from './ReminderRow';
 import s from './TableCard.module.css';
-import { isLate, minutesBetween, type TableStage } from '../../../domain/tableStage';
+import { isLate, minutesBetween, type StageKey } from '../../../domain/tableStage';
 
 export interface OpenCheckOptions {
   /** Open the check on this menu category (e.g. "Desserts"). */
@@ -24,7 +25,8 @@ export interface OpenCheckOptions {
 
 export interface TableCardProps {
   order: Order;
-  stage: TableStage;
+  /** The lane it is in. */
+  stage: StageKey;
   /** When the table entered its lane. */
   since: number;
   /** Every diner is on plan with nothing to charge. */
@@ -34,26 +36,29 @@ export interface TableCardProps {
   plain?: boolean;
 }
 
-/** A table on My Tables: name, lead diner, lane timer and the next actions. Tapping it opens the check. */
-export function TableCard({ order: o, stage, since, covered, onOpen, plain }: TableCardProps) {
+/**
+ * A table on My Tables: name, lead diner, lane timer and the next actions. Tapping it opens the check.
+ * Memoised: it redraws when its check, lane or config changes, every 5 s for Late, and its timer each second.
+ */
+export const TableCard = memo(function TableCard({ order: o, stage, since, covered, onOpen, plain }: TableCardProps) {
   const cfg = useConfig();
-  const dining = useDining();
-  const t = useNow();
+  const dining = useDiningActions();
+  // Late and the next actions move in minutes: the board's 5 s tick is plenty. The timer ticks on its own (<Elapsed>).
+  const t = useTick(5000);
   const [dialog, setDialog] = useState<'drinks' | 'grab' | null>(null);
   const undo = dining.runUndoFor(o.id);
   const [, rerender] = useState(0);
   useEffect(() => {
     if (!undo) return;
-    const id = setTimeout(() => rerender((x) => x + 1), Math.max(0, undo.at + 8000 - t) + 50);
+    const id = setTimeout(() => rerender((x) => x + 1), Math.max(0, undo.at + 8000 - now()) + 50);
     return () => clearTimeout(id);
-  }, [undo, t]);
+  }, [undo]);
 
   const room = tableRoom(o);
-  const ms = t - since;
-  const late = isLate(o, stage.key, minutesBetween(since, t));
+  const late = isLate(o, stage, minutesBetween(since, t));
   const lead = leadDiner(o);
   const actions = cardActions(o, {
-    stage: stage.key,
+    stage,
     covered,
     hasExpo: venueHasExpo(room),
     checkInWakeMin: checkInWakeMinutes(o.room),
@@ -237,7 +242,7 @@ export function TableCard({ order: o, stage, since, covered, onOpen, plain }: Ta
   const when = orderTime(o);
   return (
     <div
-      className={cx(s.card, plain ? s.plainCard : s[`lane_${stage.key}`], !plain && late && s.late, !plain && stage.key === 'run' && !late && s.loud)}
+      className={cx(s.card, plain ? s.plainCard : s[`lane_${stage}`], !plain && late && s.late, !plain && stage === 'run' && !late && s.loud)}
       onClick={() => onOpen(o.id)}
     >
       <button
@@ -256,8 +261,10 @@ export function TableCard({ order: o, stage, since, covered, onOpen, plain }: Ta
             {formatTime(when.at)}
           </span>
         </span>
-        {!plain && late && stage.key !== 'check' && <span className={s.lateTag}>LATE</span>}
-        <span className={cx(s.timer, !plain && late && s.timerLate)}>{formatElapsed(ms)}</span>
+        {!plain && late && stage !== 'check' && <span className={s.lateTag}>LATE</span>}
+        <span className={cx(s.timer, !plain && late && s.timerLate)}>
+          <Elapsed since={since} />
+        </span>
       </button>
       {actions.length > 0 && <div className={s.actions}>{actions.map(render)}</div>}
       {undo && (
@@ -303,4 +310,4 @@ export function TableCard({ order: o, stage, since, covered, onOpen, plain }: Ta
       </span>
     </div>
   );
-}
+});

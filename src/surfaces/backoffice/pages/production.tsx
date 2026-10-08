@@ -8,8 +8,9 @@
 import { useState } from 'react';
 import { Check, CheckCheck, Plus, Printer, X } from 'lucide-react';
 import { specialPeriodOf, type AssocMealKind } from '../../../domain/assocMeals/menu';
+import { MEALS } from '../../../domain/mealPeriods';
 import { uid } from '../../../lib/id';
-import { useDining } from '../../../store/dining';
+import { useAssocOrders, useDiningHistory, useDiningOrders } from '../../../store/dining';
 import {
   DEFAULT_DIRECTOR,
   productionWeeks,
@@ -52,7 +53,7 @@ function weekRange(days: ProductionDay[]): string {
 
 export default function Page(_props: BoPageProps) {
   const state = useProduction();
-  const { assocOrders } = useDining();
+  const assocOrders = useAssocOrders();
   const [venueId, setVenueId] = useState(PRODUCTION_VENUES[0].id);
   const [week, setWeek] = useState(0);
   const [offset, setOffset] = useState(0);
@@ -216,7 +217,7 @@ export default function Page(_props: BoPageProps) {
  * confirming. Sides are counted, not listed. Tap a day to edit it.
  */
 function WeekGlance({ days, selected, venueId, state, onPick }: { days: ProductionDay[]; selected: number; venueId: string; state: ProductionState; onPick: (offset: number) => void }) {
-  const meals = (['Breakfast', 'Lunch', 'Dinner'] as PrepMeal[]).filter((m) => days.some((d) => d.rows.some((r) => r.meal === m && r.kind === 'special')));
+  const meals = MEALS.filter((m) => days.some((d) => d.rows.some((r) => r.meal === m && r.kind === 'special')));
   if (!meals.length) return null;
   return (
     <BoSection flush title="Week at a glance" sub="Specials on the cycle and how many to make. A tick means the count is confirmed. Tap a day to change it.">
@@ -471,7 +472,9 @@ function PrepTasks({ state, day, dayLabel }: { state: ProductionState; day: Prod
 }
 
 function MadeAndOrdered({ venueId, state }: { venueId: string; state: ProductionState }) {
-  const { orders, history, assocOrders } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
+  const assocOrders = useAssocOrders();
   const tallies = specialsMadeAndOrdered(state, venueId, [...orders, ...history], assocOrders);
   return (
     <BoSection title="Today's specials · made and ordered so far" sub="Made is the day's production count. Ordered counts every check rung in today and associate meals not cancelled.">

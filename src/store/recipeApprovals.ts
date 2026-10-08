@@ -5,7 +5,7 @@
  * `subs` missing means "still the seed"; Back Office merges it with its seed
  * (src/surfaces/backoffice/menus/approvals.ts), like the menu edits.
  */
-import { createSharedStore, useShared } from '../lib/sharedStore';
+import { createSharedStore } from '../lib/sharedStore';
 import type { Recipe } from './menuEdits';
 
 /** The parts of a recipe Home Office reviews; a change to any of them needs approving again. */
@@ -59,8 +59,3 @@ export const recipeApprovalsStore = createSharedStore<RecipeApprovalsState>(() =
   persistKey: 'kisco.recipeApprovals.v1',
   channel: 'kisco-recipe-approvals',
 });
-
-/** Read the saved submissions in a component (Back Office adds the seed). */
-export function useRecipeApprovalsState(): RecipeApprovalsState {
-  return useShared(recipeApprovalsStore);
-}

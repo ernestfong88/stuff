@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BadgeCheck, ChevronLeft, ShoppingBag, Truck } from 'lucide-react';
 import type { FloorTable } from '../../../domain/types';
-import { useDining } from '../../../store/dining';
+import { useDiningActions, useDiningOrders } from '../../../store/dining';
 import { now } from '../../../lib/clock';
 import { useConfirm } from '../../../ui';
 import { currentMeal } from '../shared/meal';
@@ -13,7 +13,8 @@ import s from './NewCheckView.module.css';
 
 /** Pick a table for a new check. A table where I already have a check asks first. */
 export function NewCheckView({ room, me, onBack, onOpen }: { room: string; me: string; onBack: () => void; onOpen: (orderId: string) => void }) {
-  const { orders, openOrder, newCheck, openQueueOrder, patchOrder } = useDining();
+  const { openOrder, newCheck, openQueueOrder, patchOrder } = useDiningActions();
+  const orders = useDiningOrders();
   const [ask, setAsk] = useState<{ table: FloorTable; mine: ReturnType<typeof myChecksAt> } | null>(null);
 
   const [confirm, confirmDialog] = useConfirm();

@@ -7,6 +7,7 @@ import { updateBo, useBo } from '../data';
 import { categoryLabel, ALLERGENS, CATEGORIES, DIETS, PROTEINS, categoryCourse, guessProtein, normCategory, subcategoryGroups, subOf } from '../model/categories';
 import { qtyUnit } from '../model/recipeDraft';
 import { Field, Input, Select } from '../ui/controls';
+import { useDraft } from '../ui/useDraft';
 import type { RecipeFormProps } from './RecipeForm';
 import { AiTag, RecipeSection } from './RecipeSection';
 import s from './recipeSections.module.css';
@@ -23,6 +24,34 @@ const NUTRIENTS: Array<[keyof Nutrition, string, string]> = [
   ['calcium', 'Calcium', 'mg'],
 ];
 
+/** One step's text area; what is typed is saved when typing pauses (useDraft). */
+function StepText({
+  value,
+  label,
+  readOnly,
+  draftKey,
+  immediate,
+  onCommit,
+}: {
+  value: string;
+  label: string;
+  readOnly: boolean;
+  draftKey: string;
+  immediate: boolean;
+  onCommit: (v: string) => void;
+}) {
+  const field = useDraft(value, onCommit, draftKey, immediate);
+  return (
+    <textarea
+      className={s.stepText}
+      disabled={readOnly}
+      aria-label={label}
+      rows={Math.max(1, Math.ceil((field.value || '').length / 80))}
+      {...field}
+    />
+  );
+}
+
 /** Numbered steps, each a small text area, with remove and add. */
 function StepList({
   steps,
@@ -32,6 +61,8 @@ function StepList({
   empty,
   tone,
   label,
+  draftKey,
+  immediate,
 }: {
   steps: string[];
   readOnly: boolean;
@@ -40,19 +71,23 @@ function StepList({
   empty: string;
   tone: 'ink' | 'clay';
   label: string;
+  /** The recipe being edited (see useDraft). */
+  draftKey: string;
+  /** Save every key at once (the dialog's draft). */
+  immediate: boolean;
 }) {
   return (
     <div className={s.steps}>
       {steps.map((t, i) => (
         <div key={i} className={s.step}>
           <span className={cx(s.stepNo, tone === 'clay' && s.stepNoClay)}>{i + 1}</span>
-          <textarea
-            className={s.stepText}
-            disabled={readOnly}
+          <StepText
             value={t}
-            aria-label={`${label} ${i + 1}`}
-            rows={Math.max(1, Math.ceil((t || '').length / 80))}
-            onChange={(e) => onChange(steps.map((x, j) => (j === i ? e.target.value : x)))}
+            label={`${label} ${i + 1}`}
+            readOnly={readOnly}
+            draftKey={draftKey}
+            immediate={immediate}
+            onCommit={(v) => onChange(steps.map((x, j) => (j === i ? v : x)))}
           />
           {!readOnly && (
             <button className={s.x} aria-label={`Remove ${label.toLowerCase()} ${i + 1}`} onClick={() => onChange(steps.filter((_, j) => j !== i))}>
@@ -189,7 +224,7 @@ export function IngredientsSection({ r, update, readOnly, scale, setScale }: P &
   );
 }
 
-export function MethodSection({ r, update, readOnly }: P) {
+export function MethodSection({ r, update, readOnly, draft }: P) {
   const [eq, setEq] = useState('');
   const equipment = r.equipment ?? [];
   return (
@@ -198,6 +233,8 @@ export function MethodSection({ r, update, readOnly }: P) {
         steps={r.method ?? []}
         readOnly={readOnly}
         onChange={(method) => update({ method })}
+        draftKey={r.id}
+        immediate={!!draft}
         addLabel="Add step"
         empty="No steps yet. Add them here, or let AI Autofill draft a starting point."
         tone="ink"
@@ -238,25 +275,18 @@ export function MethodSection({ r, update, readOnly }: P) {
   );
 }
 
-export function PlatingSection({ r, update, readOnly }: P) {
+export function PlatingSection({ r, update, readOnly, draft }: P) {
+  const portion = useDraft(r.servingDesc ?? r.servingSize ?? '', (v) => update({ servingDesc: v }), r.id, !!draft);
+  const garnish = useDraft(r.garnish ?? '', (v) => update({ garnish: v }), r.id, !!draft);
+  const cookNotes = useDraft(r.cookNotes ?? '', (v) => update({ cookNotes: v }), r.id, !!draft);
   return (
     <RecipeSection id="plating" title="Plating and presentation" hint="How it should look when it reaches the resident.">
       <div className={s.grid}>
         <Field label="Portion">
-          <Input
-            disabled={readOnly}
-            value={r.servingDesc ?? r.servingSize ?? ''}
-            placeholder="e.g. 6 oz fillet, or 1 cup (8 fl oz)"
-            onChange={(e) => update({ servingDesc: e.target.value })}
-          />
+          <Input disabled={readOnly} placeholder="e.g. 6 oz fillet, or 1 cup (8 fl oz)" {...portion} />
         </Field>
         <Field label="Garnish">
-          <Input
-            disabled={readOnly}
-            value={r.garnish ?? ''}
-            placeholder="e.g. Thyme sprig and sliced peaches"
-            onChange={(e) => update({ garnish: e.target.value })}
-          />
+          <Input disabled={readOnly} placeholder="e.g. Thyme sprig and sliced peaches" {...garnish} />
         </Field>
       </div>
       <Field label="Plating steps">
@@ -264,6 +294,8 @@ export function PlatingSection({ r, update, readOnly }: P) {
           steps={r.plating ?? []}
           readOnly={readOnly}
           onChange={(plating) => update({ plating })}
+          draftKey={r.id}
+          immediate={!!draft}
           addLabel="Add plating step"
           empty="No plating steps yet."
           tone="clay"
@@ -275,16 +307,33 @@ export function PlatingSection({ r, update, readOnly }: P) {
           className={s.area}
           disabled={readOnly}
           rows={2}
-          value={r.cookNotes ?? ''}
           placeholder="e.g. Rest 4 min. Sauce under, not over."
-          onChange={(e) => update({ cookNotes: e.target.value })}
+          {...cookNotes}
         />
       </Field>
     </RecipeSection>
   );
 }
 
-export function NutritionSection({ r, update, readOnly }: P) {
+/** A nutrition number, saved when typing pauses (useDraft). */
+function NutrientInput({
+  value,
+  readOnly,
+  draftKey,
+  immediate,
+  onCommit,
+}: {
+  value: number | undefined;
+  readOnly: boolean;
+  draftKey: string;
+  immediate: boolean;
+  onCommit: (v: number | undefined) => void;
+}) {
+  const field = useDraft(value == null ? '' : String(value), (v) => onCommit(v === '' ? undefined : Number(v)), draftKey, immediate);
+  return <input type="number" className={s.nutIn} disabled={readOnly} placeholder="—" {...field} />;
+}
+
+export function NutritionSection({ r, update, readOnly, draft }: P) {
   const n = r.nutrition ?? {};
   // No allergens recorded: suggest them from the recipe's words so a chef can confirm.
   const suggested = (r.allergens ?? []).length ? [] : inferAllergens(r);
@@ -318,14 +367,7 @@ export function NutritionSection({ r, update, readOnly }: P) {
             <label key={k} className={s.nut}>
               <span className={s.nutLabel}>{label}</span>
               <span className={s.nutRow}>
-                <input
-                  type="number"
-                  className={s.nutIn}
-                  disabled={readOnly}
-                  value={n[k] ?? ''}
-                  placeholder="—"
-                  onChange={(e) => update({ nutrition: { ...n, [k]: e.target.value === '' ? undefined : Number(e.target.value) } })}
-                />
+                <NutrientInput value={n[k]} readOnly={readOnly} draftKey={r.id} immediate={!!draft} onCommit={(v) => update({ nutrition: { ...n, [k]: v } })} />
                 <span className={s.nutUnit}>{unit}</span>
               </span>
             </label>
@@ -499,17 +541,17 @@ function Reminders({ r, update, readOnly }: Pick<P, 'r' | 'update' | 'readOnly'>
   );
 }
 
-export function NotesSection({ r, update, readOnly }: P) {
+export function NotesSection({ r, update, readOnly, draft }: P) {
+  const variations = useDraft(r.variations ?? '', (v) => update({ variations: v }), r.id, !!draft);
   return (
     <RecipeSection id="notes" title="Variations and chef's notes" hint="Diet versions, swaps, and anything the next chef should know.">
       <textarea
         className={s.area}
         rows={3}
         disabled={readOnly}
-        value={r.variations ?? ''}
         aria-label="Variations and chef's notes"
         placeholder="e.g. Mechanical altered: dice to 1/2 inch, sauce on the side."
-        onChange={(e) => update({ variations: e.target.value })}
+        {...variations}
       />
     </RecipeSection>
   );

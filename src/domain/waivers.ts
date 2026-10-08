@@ -15,15 +15,11 @@
  */
 import { COMMUNITY_NAME } from '../data';
 import { DAY, HOUR, now, today } from '../lib/clock';
+import { isoOf } from '../lib/dates';
 import { DEFAULT_CONFIG, flag, type DiningConfig, type HospiceStatus } from './config';
 import type { Diner, Order } from './types';
 
 // ─── Hospice ─────────────────────────────────────────────────────────────
-
-const isoOf = (t: number) => {
-  const d = new Date(t);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
 
 /** Residents on hospice at the start of the demo. */
 export function seedHospice(base: number = now()): Record<string, HospiceStatus> {

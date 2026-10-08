@@ -10,7 +10,7 @@ import { pickupLeadMinutes } from '../../../domain/pickup';
 import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
 import { WINDOW_TYPES, type WindowSettings, type WindowType } from '../../../domain/pickupService/windows';
 import { useConfig } from '../../../store/config';
-import { useDining } from '../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../store/dining';
 import { setSetting } from '../../../store/serviceConfig';
 import { Button, Modal, Toggle, cx, toast } from '../../../ui';
 import { BoRow, BoSection, useCommunity } from '../kit';
@@ -104,7 +104,8 @@ export function SvcWinSetup({ open, onClose, sections }: { open: boolean; onClos
   const win = windowSettings(useServiceSettings());
   const cfg = useConfig();
   const community = useCommunity();
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const [at, setAt] = useState(0);
   const [venue, setVenue] = useState(Object.keys(rooms)[0]);
   const input: SetupInput = { win, cfg, community, lead: pickupLeadMinutes([...orders, ...history], cfg) };

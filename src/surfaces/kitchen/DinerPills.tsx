@@ -1,6 +1,6 @@
 import { dinerPills } from '../../domain/residents';
 import type { Diner } from '../../domain/types';
-import { useKitchenNote } from '../backoffice/kit/residentRecords';
+import { useKitchenNote } from '../../store/residentRecords';
 import { cx } from '../../ui';
 import s from './DinerPills.module.css';
 

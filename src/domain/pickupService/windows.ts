@@ -20,6 +20,8 @@
  */
 import type { AssocMeal, MealName, Order } from '../types';
 import { mealSpans } from '../mealPeriods';
+import { isoOf } from '../../lib/dates';
+import { formatMinuteOfDay } from '../../lib/format';
 
 export type WindowType = 'pickup' | 'assoc' | 'delivery';
 
@@ -137,11 +139,7 @@ export function windowCaps(w: WindowSettings, room: string): WindowCaps {
 // ─── Labels ──────────────────────────────────────────────────────────────
 
 /** 1020 → "5:00 PM" (wraps past midnight for NOC ranges). */
-export function minuteLabel(v: number): string {
-  const h = Math.floor(v / 60) % 24;
-  const m = v % 60;
-  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
-}
+export const minuteLabel = formatMinuteOfDay;
 
 /** 1020 → "5:00 to 5:15 PM"; 705 → "11:45 AM to 12:00 PM". */
 export function rangeLabel(start: number): string {
@@ -201,12 +199,6 @@ export interface WindowBookings {
 
 export type WindowUsage = Record<WindowType | 'total', number>;
 
-/** "YYYY-MM-DD" in local time. */
-const ymd = (ts: number) => {
-  const d = new Date(ts);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
-
 /** Associate meals are made in the first venue (the main kitchen). */
 export const ASSOC_ROOM = 'sequoia';
 
@@ -226,7 +218,7 @@ export function windowUsage(
   for (const o of [...b.orders, ...b.history]) {
     if (!o?.queueType || o.id === excludeId || o.room !== room) continue;
     if (!o.diners.some((d) => d.items.some((x) => !x.cancelled))) continue;
-    const day = o.forDate || (o.openedAt ? ymd(o.openedAt) : date);
+    const day = o.forDate || (o.openedAt ? isoOf(o.openedAt) : date);
     if (day !== date || windowMinute(o.readyAt) !== start) continue;
     c[o.assoc ? 'assoc' : o.queueType === 'delivery' ? 'delivery' : 'pickup']++;
   }
@@ -267,7 +259,7 @@ export function windowRoom(
 }
 
 /** "Full", "2 left", or nothing while there is plenty of room. */
-export function roomTag(r: WindowRoom | null | undefined): string {
+export function roomTag(r: Pick<WindowRoom, 'left' | 'full'> | null | undefined): string {
   if (!r) return '';
   if (r.full) return 'Full';
   return r.left != null && r.left <= 2 ? `${r.left} left` : '';

@@ -6,7 +6,7 @@ All times come from the demo clock (`src/lib/clock.ts`).
 
 | Module | What it holds | Read with |
 | --- | --- | --- |
-| `dining.tsx` | Open checks, closed checks, associate meals, every check action | `useDining()` under `<DiningProvider>` |
+| `dining.tsx` | Open checks, closed checks, associate meals, every check action | `useDiningActions()`, `useDiningSelector()` / `useDiningOrders()`, `useDiningDevice()` (or the all-in-one `useDining()`) under `<DiningProvider>` |
 | `config.ts` | Community settings: coursing, routing, fees, waivers, flags | `useConfig()` / `getConfig()` |
 | `notices.ts` | Office notices and who acknowledged them | `useNotices()` + selectors |
 | `eightySix.ts` | Items run out of today | `use86()` / `useIs86(id)` |
@@ -19,8 +19,14 @@ The logic behind the dining store is pure and lives in `src/domain/` (see the en
 ## Dining store — `useDining()`
 
 Wrap the app once in `<DiningProvider>`. State is loaded from `kisco.dining.v1` (falls back to the seed when
-missing, corrupt or from another demo day), saved on every change, and synced over the `kisco-dining-orders`
-BroadcastChannel (tab id + sequence number, own echoes ignored). A 5 second pacing timer fires held courses that
+missing, corrupt or from another demo day), synced at once over the `kisco-dining-orders` BroadcastChannel (tab
+id + sequence number, own echoes ignored) and saved a moment later (the last of a run of changes, flushed when the
+page is hidden or left; `src/lib/writeBehind.ts`).
+
+`useDining()` re-renders on every change anywhere. Prefer the narrow hooks: `useDiningActions()` (every action plus
+`getState()`, `getTableOrder()` ...; the object never changes), `useDiningSelector(s => …)` and its shorthands
+`useDiningOrders()`, `useDiningHistory()`, `useAssocOrders()`, `useDiningOrder(id)` (re-render only when the slice
+changes), and `useDiningDevice()` for this device's own state (recent bumps, kitchen mode, pending takeover). A 5 second pacing timer fires held courses that
 are due; only the tab holding the `kisco-dining-leader` lease runs it.
 
 Most actions are **logged**: they append `{at, k, by, what, c}` to `order.log` (the check timeline), with `by`

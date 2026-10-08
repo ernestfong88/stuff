@@ -18,7 +18,8 @@ import { useState } from 'react';
 import { ModeChip, TextZoom } from '../../shell/controls';
 import { useSignedIn } from '../../shell/session';
 import { isoDate } from '../../domain/pickup';
-import { today } from '../../lib/clock';
+import { now } from '../../lib/clock';
+import { mealAt } from '../../domain/mealPeriods';
 import { cx, useNow } from '../../ui';
 import {
   checkMark,
@@ -37,7 +38,7 @@ import { tempTotals, type TempMeal } from '../../domain/tempLog';
 import { KitchenShell } from '../kitchen/KitchenShell';
 import { Checklist } from './Checklist';
 import { CleaningLog } from './CleaningLog';
-import { cleaningToday, mealAt, signature, tempOverdue } from './logic';
+import { cleaningToday, signature, tempOverdue } from './logic';
 import { MealPicker, prepDayName, type MealSelection } from './MealPicker';
 import { RecipeSheet } from './RecipeSheet';
 import { SpecialCard } from './SpecialCard';
@@ -67,12 +68,12 @@ function PrepScreen() {
   const cook = signedIn ? signature(signedIn.name) : PREP_COOK;
   const [venueId, setVenueId] = usePrepVenue();
   const venue = getProductionVenue(venueId);
-  const [sel, setSel] = useState<MealSelection>(() => ({ offset: 0, meal: mealAt(today().getHours()) }));
+  const [sel, setSel] = useState<MealSelection>(() => ({ offset: 0, meal: mealAt(now()) }));
   const [openSlot, setOpenSlot] = useState<string | null>(null);
   const [view, setView] = useState<View>('prep');
   const cleaning = cleaningToday(useCleaning(), venueId, nowMs);
   const temps = useTempLog();
-  const [tempMeal, setTempMeal] = useState<TempMeal>(() => mealAt(today().getHours()));
+  const [tempMeal, setTempMeal] = useState<TempMeal>(() => mealAt(now()));
 
   const iso = isoDate(sel.offset);
   const meal = sel.meal;

@@ -36,7 +36,7 @@ import {
 import { now } from '../lib/clock';
 import { createSharedStore, useShared } from '../lib/sharedStore';
 import { ADP_ASSOCIATES } from '../surfaces/backoffice/seed/associates';
-import { seedHash } from './production';
+import { seedHash } from '../lib/hash';
 
 // ─── Who can be assigned ─────────────────────────────────────────────────
 

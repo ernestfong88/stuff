@@ -2,12 +2,13 @@
  * Steps of Service, tracked by average table time: minutes from the order
  * to the entrée served (order → appetizer plus appetizer → entrée).
  */
+import { MEALS as ALL_MEALS } from '../../../../../domain/mealPeriods';
 import { mixHash } from './hash';
 import { GOALS, TABLE_TIME_GOAL, min1, type Insight, type Tone } from './insight';
 import type { Driver } from './sentiment';
 
 export type MealName = 'Breakfast' | 'Lunch' | 'Dinner';
-export const MEALS: MealName[] = ['Breakfast', 'Lunch', 'Dinner'];
+export const MEALS: readonly MealName[] = ALL_MEALS;
 
 export interface TimedTable {
   meal: MealName;

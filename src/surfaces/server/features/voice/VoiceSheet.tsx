@@ -4,7 +4,7 @@ import { getResident } from '../../../../data';
 import { tableName } from '../../../../domain/orders';
 import type { Order } from '../../../../domain/types';
 import { now } from '../../../../lib/clock';
-import { useDining } from '../../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { Avatar, Button, Chip, Sheet, TextArea, cx, useNow } from '../../../../ui';
 import { matchDish, sentimentOf, SENTIMENT_LABEL } from '../shared/feedback';
 import { NOTE_KINDS } from '../shared/noteKinds';
@@ -24,7 +24,8 @@ const mmss = (secs: number) => `${Math.floor(secs / 60)}:${String(secs % 60).pad
  * is undo, never a gate, because the server is walking.
  */
 export function VoiceSheet({ order, onClose, onBack }: { order: Order; onClose: () => void; onBack?: () => void }) {
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const residents = useMemo(() => tableResidents(order), [order]);
   const speech = useSpeech();
   const [said, setSaid] = useState('');

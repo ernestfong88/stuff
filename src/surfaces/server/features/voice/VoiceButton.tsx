@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Mic } from 'lucide-react';
 import { leadDiner, tableName } from '../../../../domain/orders';
 import type { Order } from '../../../../domain/types';
-import { useDining } from '../../../../store/dining';
+import { useDiningOrders } from '../../../../store/dining';
 import { Avatar, Button, Sheet } from '../../../../ui';
 import { RailButton } from '../shared/RailButton';
 import { tableResidents } from '../shared/tablePeople';
@@ -13,7 +13,7 @@ import s from './VoiceButton.module.css';
 /** Rail button that opens voice notes for one of the server's open tables. */
 export function VoiceButton() {
   const me = useMyInitials();
-  const { orders } = useDining();
+  const orders = useDiningOrders();
   const [step, setStep] = useState<'closed' | 'pick' | string>('closed');
   const mine = orders.filter((o) => o.server === me && !o.queueType);
   const picked = step !== 'closed' && step !== 'pick' ? mine.find((o) => o.id === step) : undefined;

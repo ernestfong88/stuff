@@ -220,6 +220,30 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Faster tablets
+- Timers on table cards, kitchen tickets and the floor map update on their own instead of redrawing whole screens every second. Late colours still change within 15 seconds, and the header clock turns over with the minute.
+- Tapping a plate, a table or a button on a check redraws only that ticket or card, not every card on the screen. On an idle My Tables, Cook, Expo or floor map screen, redraws dropped by about 85 to 95 percent.
+- Changes reach the other screens at once and are saved to the device a moment later, once per burst of taps. Nothing is lost when a tab is closed, reloaded or hidden.
+- The order menu's "left" counts, usual orders and table names are worked out once per change, not once per tile.
+- Back Office recipe editing saves when you pause or leave a field, instead of rebuilding the floor menus on every key (typing a sentence went from about 3.4 s of work to 0.2 s). Recipe Book search keeps up with typing, and starring a recipe no longer refreshes the floor menus.
+- Nothing looks different: before and after screenshots match.
+
+### Meal times match everywhere
+- Breakfast runs until 10:30 AM and lunch until 3:00 PM on every screen: the kitchen menu reference, Prep, the 86 list, Steps of Service metrics, reservations, Shift Review and the closing report. Before, some switched to lunch at 10:00 and Steps of Service counted dinner from 4:00.
+
+### Kitchen menu shows your venue
+- The Cook and Expo menu reference shows the tablet's own venue menu, with its name in the title, and opens on the meal being served. Dishes open in the same full-screen view as on the server tablet, with cook notes.
+
+### Fixes
+- Production sheets no longer get cut off when printing from an iPad.
+- Overnight (NOC) pick up times past midnight now count correctly when the server tablet checks how full a range is.
+
+### Code cleanup
+- One shared helper each for dates, clock times, seeded demo numbers and printing, replacing many copies.
+- Unused screens, settings controls and styles are removed (about 400 lines).
+- Resident records and meal-plan billing moved into the shared stores.
+- A test that failed every afternoon (it rounded the time of day) is fixed.
+
 ### Server: the menu reference shows the tablet's venue
 - The menu reference (the book button in the server and manager top bars) now shows the menu of the venue the tablet is set to, with its own cycle specials and à la carte, and its name in the title (*Today's menu · The Bistro*). It used to always show the Sequoia dining room menu.
 - It updates live when the menu changes in Back Office, the same as ordering.

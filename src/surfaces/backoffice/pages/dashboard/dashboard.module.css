@@ -169,52 +169,6 @@
   margin-top: auto;
   padding-top: 6px;
 }
-.dir {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.dirGlyph {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--r-lg);
-  display: grid;
-  place-items: center;
-  font-size: 22px;
-  flex-shrink: 0;
-}
-.dirLabel {
-  font-family: var(--font-serif);
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 1.1;
-}
-.dirSub {
-  margin-top: 3px;
-  font-size: 12.5px;
-  color: var(--s500);
-}
-.dirGood .dirGlyph {
-  color: var(--green);
-  background: var(--green-100);
-}
-.dirGood .dirLabel {
-  color: var(--green);
-}
-.dirBad .dirGlyph {
-  color: var(--danger);
-  background: var(--danger-bg);
-}
-.dirBad .dirLabel {
-  color: var(--danger);
-}
-.dirFlat .dirGlyph {
-  color: var(--s500);
-  background: var(--limestone);
-}
-.dirFlat .dirLabel {
-  color: var(--s700);
-}
 
 .money {
   display: flex;
@@ -462,23 +416,16 @@
   font-size: 11.5px;
   color: var(--s400);
 }
-.dstats2,
 .dstats3,
 .dstats4 {
   display: grid;
   gap: 10px;
-}
-.dstats2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .dstats3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .dstats4 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-.dstats3 + .dstats2 {
-  margin-top: -6px;
 }
 .dstat {
   padding: 10px 12px;
@@ -591,10 +538,6 @@
 .follow + .follow {
   margin-top: 8px;
 }
-.followFirst {
-  background: #fdf3f1;
-  box-shadow: inset 0 0 0 1px #f0cfc9;
-}
 .followHead {
   display: flex;
   align-items: baseline;
@@ -609,11 +552,6 @@
   flex: 1;
   font-size: 12px;
   color: var(--s500);
-}
-.followStart {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--danger);
 }
 .followTable {
   width: 100%;

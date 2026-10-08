@@ -5,7 +5,7 @@ import { isDrink, isSide, modsText } from '../../../../domain/menu';
 import { serverName } from '../../../../domain/servers';
 import type { MealName, Resident } from '../../../../domain/types';
 import { formatAgo } from '../../../../lib/format';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions } from '../../../../store/dining';
 import { useResidentNotes } from '../../../../store/notes';
 import { residentPref, updateResidentPref, useResidentPrefs } from '../../../../store/residentPrefs';
 import { conversationStarters, useResidentStory } from '../../../../store/residentStories';
@@ -118,7 +118,7 @@ function PreferenceCard({ resident }: { resident: Resident }) {
 }
 
 function UsualsCard({ resident }: { resident: Resident }) {
-  const { learnedFavorites } = useDining();
+  const { learnedFavorites } = useDiningActions();
   const meals = MEALS.map((meal: MealName) => {
     const favs = learnedFavorites(resident.id, meal)
       .map((f) => ({ ...f, item: getItem(f.itemId) }))

@@ -61,15 +61,30 @@ function scoreOk(sc: RecipeScore | null, f: ScoreFilter): boolean {
   return f === 'love' ? sc.score >= 4 : f === 'ok' ? sc.score >= 3 && sc.score < 4 : sc.score < 3;
 }
 
+interface SearchKeys {
+  /** The long dish name, as the list sorts and shows it. */
+  long: string;
+  /** Name, long name and description, lower case. */
+  text: string[];
+}
+
+/** Worked out once per recipe object (an edit replaces the recipe), not on every keystroke. */
+const searchKeys = new WeakMap<Recipe, SearchKeys>();
+
+function keysOf(r: Recipe): SearchKeys {
+  let k = searchKeys.get(r);
+  if (!k) {
+    const long = dishLong(r.name);
+    k = { long, text: [r.name.toLowerCase(), long.toLowerCase(), (r.desc || '').toLowerCase()] };
+    searchKeys.set(r, k);
+  }
+  return k;
+}
+
 export function matchesText(r: Recipe, q: string, shortOf: (r: Recipe) => string): boolean {
   const s = q.trim().toLowerCase();
   if (!s) return true;
-  return (
-    r.name.toLowerCase().includes(s) ||
-    dishLong(r.name).toLowerCase().includes(s) ||
-    (r.desc || '').toLowerCase().includes(s) ||
-    shortOf(r).toLowerCase().includes(s)
-  );
+  return keysOf(r).text.some((t) => t.includes(s)) || shortOf(r).toLowerCase().includes(s);
 }
 
 /** Whether a recipe's subcategory is in a named group of its category (Alcoholic / Non-Alcoholic drinks). */
@@ -93,12 +108,12 @@ export function filterRecipes(recipes: Recipe[], f: RecipeFilters, c: FilterCont
   );
   const sc = (r: Recipe) => c.scoreOf(r)?.score;
   const cmp: Record<RecipeSort, (a: Recipe, b: Recipe) => number> = {
-    name: (a, b) => dishLong(a.name).localeCompare(dishLong(b.name)),
+    name: (a, b) => keysOf(a).long.localeCompare(keysOf(b).long),
     hi: (a, b) => (sc(b) ?? 0) - (sc(a) ?? 0),
     lo: (a, b) => (sc(a) ?? 9) - (sc(b) ?? 9),
     sold: (a, b) => (c.scoreOf(b)?.sales?.orders ?? 0) - (c.scoreOf(a)?.sales?.orders ?? 0),
   };
-  return list.sort((a, b) => cmp[f.sort](a, b) || dishLong(a.name).localeCompare(dishLong(b.name)));
+  return list.sort((a, b) => cmp[f.sort](a, b) || keysOf(a).long.localeCompare(keysOf(b).long));
 }
 
 /** Categories the master has recipes in, in menu order. */

@@ -14,6 +14,7 @@
  */
 import { rooms } from '../data';
 import { now, today } from '../lib/clock';
+import { isoOf } from '../lib/dates';
 import { createSharedStore, useShared } from '../lib/sharedStore';
 import { featureOn, useFeatureOn } from './phases';
 
@@ -172,7 +173,7 @@ export const sideWorkStore = createSharedStore<SideWorkState>({ libs: {}, days: 
 
 /** "2026-10-07" on the demo clock. */
 export function sideWorkDate(d: Date = today()): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return isoOf(d);
 }
 
 const dayKey = (venue: string, iso: string) => venue + '|' + iso;

@@ -7,6 +7,7 @@ import { BoCallout, BoPage } from '../../kit';
 import { useBo } from '../data';
 import { addPlacements, removePlacements, setAnyDayMeals } from '../menuActions';
 import { dishLong, normCategory } from '../model/categories';
+import { MEALS } from '../../../../domain/mealPeriods';
 import { menuState, venuesAt } from '../../../../domain/menuCycle';
 import { countAlc } from '../model/alcStandards';
 import { roomVenue } from '../../../../store/venueMenu';
@@ -19,7 +20,6 @@ import { AlcCounter, alcWarnings } from './AlcCounter';
 import { SlotSearch } from './SlotSearch';
 import s from './AlaCarteBuilder.module.css';
 
-const MEALS: BuilderMeal[] = ['Breakfast', 'Lunch', 'Dinner'];
 const SECTIONS: Array<[RecipeCategory, string]> = [
   ['Starters', 'Soups and starters'],
   ['Entrees', 'Entrées'],
@@ -32,7 +32,7 @@ const SECTIONS: Array<[RecipeCategory, string]> = [
 /** The meals a newly added dish is served at: the meal shown, else drinks all day and food at lunch and dinner. */
 export function defaultMeals(cat: string, meal: string): BuilderMeal[] {
   if (meal !== 'All') return [meal as BuilderMeal];
-  return normCategory(cat) === 'Drinks' ? MEALS : ['Lunch', 'Dinner'];
+  return normCategory(cat) === 'Drinks' ? [...MEALS] : ['Lunch', 'Dinner'];
 }
 
 interface Row {

@@ -3,9 +3,9 @@
  * special that has a recipe scaled to its count. Printed from a hidden
  * frame so the back office page itself never goes to the printer.
  */
+import { escapeHtml as esc, printHtml } from '../../../lib/print';
 import { productionCount, recipeFor, type ProductionDay, type ProductionState } from '../../../store/production';
 
-export const esc = (t: string | number) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c);
 
 /** Quantities on a sheet round to the nearest quarter. */
 const quarter = (q: number) => String(Math.max(0.25, Math.round(q * 4) / 4));
@@ -58,24 +58,6 @@ export function productionSheetsHtml(venueName: string, dayLabel: string, day: P
 export function productionWeekHtml(venueName: string, days: Array<{ label: string; day: ProductionDay }>, state: ProductionState, venueId: string): string {
   const body = days.map((d, i) => dayHtml(venueName, d.label, d.day, state, venueId, i === 0)).join('');
   return documentHtml(`Production · ${venueName} · week`, body);
-}
-
-export function printHtml(html: string): void {
-  const frame = document.createElement('iframe');
-  frame.setAttribute('aria-hidden', 'true');
-  frame.style.cssText = 'position:fixed;width:0;height:0;border:0;opacity:0';
-  document.body.appendChild(frame);
-  const doc = frame.contentDocument;
-  if (!doc || !frame.contentWindow) {
-    frame.remove();
-    return;
-  }
-  doc.open();
-  doc.write(html);
-  doc.close();
-  frame.contentWindow.focus();
-  frame.contentWindow.print();
-  setTimeout(() => frame.remove(), 1000);
 }
 
 export function printProductionSheets(venueName: string, dayLabel: string, day: ProductionDay, state: ProductionState, venueId: string): void {

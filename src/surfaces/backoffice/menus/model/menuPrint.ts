@@ -6,6 +6,7 @@
  * browser (see printFit). Always the full dish name, and every value is
  * escaped.
  */
+import { escapeHtml } from '../../../../lib/print';
 import { COMMUNITY_NAME } from '../../../../data';
 import type { GridEntry, Recipe, VenueSchedule } from '../../../../store/menuEdits';
 import type { BoState } from './types';
@@ -16,7 +17,6 @@ import { isUpchargeRecipe, tabletItem } from './tablet';
 import { printedPrice, venuePrices, type PriceField } from './pricing';
 import { dietSvg } from './dietIcons';
 import {
-  alaCarteDoc,
   alaCarteItems,
   alaCarteMeals,
   dailyDoc,
@@ -28,7 +28,6 @@ import {
   printWeek,
   snackLines,
   weekDays,
-  weekDoc,
   pickedMeals,
   sheetDiets,
   type DocBlock,
@@ -219,9 +218,7 @@ export function printContext(bo: BoState, o: PrintOptions, sidesOf: (menuId: str
 // ─── HTML ────────────────────────────────────────────────────────────────
 
 /** Escape text for HTML. */
-export function esc(s: unknown): string {
-  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
-}
+export const esc = escapeHtml;
 
 /** "a, b and c" */
 export function andList(a: string[]): string {
@@ -509,16 +506,6 @@ export function docHtml(d: MenuDoc, o: PrintOptions): string {
 /** The day's menu by meal (see dailyDoc). */
 export function dailyMenuHtml(C: PrintContext, day: number, meals: string[] = []): string {
   return docHtml(dailyDoc(C, day, meals), C.options);
-}
-
-/** The week at a glance: a landscape table of days by meal. */
-export function weekHtml(C: PrintContext, w: number): string {
-  return docHtml(weekDoc(C, w), C.options);
-}
-
-/** The Any Day menu (see alaCarteDoc). */
-export function alaCarteHtml(C: PrintContext, opts: MenuPick = {}): string {
-  return docHtml(alaCarteDoc(C, opts), C.options);
 }
 
 /** The weekly order form for residents who pick up, with tick boxes and lines. */

@@ -10,7 +10,7 @@ import { useConfig } from '../../../store/config';
 import { printWarning } from '../../../store/kitchenPrint';
 import { liveOverlay } from '../../../store/menuEdits';
 import { isoDate } from '../../../domain/pickup';
-import { useDining } from '../../../store/dining';
+import { useDiningActions, useDiningOrder } from '../../../store/dining';
 import { useSession } from '../../../store/session';
 import { useMe } from '../../../shell/session';
 import { cx, toast, useConfirm } from '../../../ui';
@@ -57,9 +57,9 @@ const SENT_FLASH_MS = 900;
  * orders (`order.queueType`).
  */
 export function OrderScreen({ orderId, onClose, initialCategory }: OrderScreenProps) {
-  const dining = useDining();
+  const dining = useDiningActions();
   const { mode } = useSession();
-  const o = dining.orders.find((x) => x.id === orderId);
+  const o = useDiningOrder(orderId);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
 
@@ -87,7 +87,7 @@ export function OrderScreen({ orderId, onClose, initialCategory }: OrderScreenPr
 }
 
 function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClose: () => void; initialCategory?: string }) {
-  const dining = useDining();
+  const dining = useDiningActions();
   const cfg = useConfig();
   const menuRoom = orderMenuRoom(o);
   const menuDate = orderMenuDate(o);
@@ -115,8 +115,9 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
     if (!o.queueType) return dining.setOrderMeal(o.id, meal);
     const date = orderDate(o);
     const q = o as Order & { queueType: QueueType };
+    const st = dining.getState();
     const l = rangesOn(o.queueType)
-      ? landing(o, dayTimes(q, date, timeContext(o, { orders: dining.orders, history: dining.history, assoc: dining.assocOrders })), { meal })
+      ? landing(o, dayTimes(q, date, timeContext(o, { orders: st.orders, history: st.history, assoc: st.assocOrders })), { meal })
       : { meal, readyAt: o.readyAt ?? null };
     when.change({ date, ...l });
   };

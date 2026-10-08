@@ -1,5 +1,5 @@
 import { serverName } from '../../../domain/servers';
-import { useDining } from '../../../store/dining';
+import { useDiningActions, useDiningDevice } from '../../../store/dining';
 import { Button, Modal } from '../../../ui';
 import s from './TakeoverDialog.module.css';
 
@@ -8,7 +8,8 @@ import s from './TakeoverDialog.module.css';
  * the store until they confirm; the check then becomes theirs.
  */
 export function TakeoverDialog() {
-  const { pendingTakeover, confirmTakeover, cancelTakeover } = useDining();
+  const { cancelTakeover } = useDiningActions();
+  const { pendingTakeover, confirmTakeover } = useDiningDevice();
   if (!pendingTakeover) return null;
   const from = serverName(pendingTakeover.from);
   return (

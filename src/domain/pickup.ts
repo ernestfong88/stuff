@@ -8,6 +8,8 @@
  */
 import { getItem } from '../data';
 import { DAY, MINUTE, now, today } from '../lib/clock';
+import { addDays, isoOf } from '../lib/dates';
+import { formatMinuteOfDay } from '../lib/format';
 import { DEFAULT_CONFIG, type DiningConfig } from './config';
 import { courseSummaries, normalizeOrder } from './courses';
 import { isSide, serverItemName } from './menu';
@@ -30,8 +32,7 @@ export function parseClockTime(label: string | null | undefined): number | null 
 /** __kPudLbl: ms → "4:15 PM". */
 export function clockLabel(ts: number): string {
   const d = new Date(ts);
-  const h = d.getHours();
-  return `${h % 12 || 12}:${String(d.getMinutes()).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  return formatMinuteOfDay(d.getHours() * 60 + d.getMinutes());
 }
 
 /** __kPudSlot: the quarter hour nearest to `minutes` from now, kept within today 12:15 AM – 11:30 PM. */
@@ -45,9 +46,7 @@ export function quarterHourSlot(minutes: number): number {
 
 /** Me: "YYYY-MM-DD" for today plus `days` on the demo clock. */
 export function isoDate(days = 0): string {
-  const d = today();
-  d.setDate(d.getDate() + days);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return isoOf(addDays(today(), days));
 }
 
 /** __kDayOff: how many days ahead an order is booked for (0 = today). */
@@ -78,9 +77,7 @@ export const orderAheadLabel = (o: Pick<Order, 'forDate'> | null | undefined): s
 
 /** "tomorrow " / "Fri 10/10 " before a clock time on a later day, or "" for today. */
 export function dayBefore(ts: number): string {
-  const d = new Date(ts);
-  const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  const label = aheadDayLabel(iso);
+  const label = aheadDayLabel(isoOf(ts));
   return label ? (label === 'Tomorrow' ? 'tomorrow ' : label + ' ') : '';
 }
 
@@ -125,17 +122,6 @@ export function pickupDue(o: Order): number {
 }
 
 export type PickupStage = 'draft' | 'scheduled' | 'cooking' | 'ready' | 'waiting' | 'out' | 'done';
-
-/** __K_PUD_STEP: progress bar step per stage. */
-export const PICKUP_STAGE_STEP: Record<PickupStage, number> = {
-  draft: 0,
-  scheduled: 0,
-  cooking: 1,
-  ready: 2,
-  waiting: 3,
-  out: 3,
-  done: 4,
-};
 
 /**
  * __kPudStage: the one thing the order needs next. `kitchenMode` "printers"

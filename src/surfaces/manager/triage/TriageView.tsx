@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { Order } from '../../../domain/types';
 import { needsTakeover, type LoggedAction } from '../../../domain/activityLog';
 import { serverName } from '../../../domain/servers';
 import { checkInWakeMinutes, tableRoom, venueHasExpo } from '../../../domain/venue';
 import { useConfig } from '../../../store/config';
-import { useDining } from '../../../store/dining';
+import { useDiningActions, useDiningDevice, useDiningOrders } from '../../../store/dining';
 import { serviceConfig } from '../../../store/serviceConfig';
 import { sessionStore } from '../../../store/session';
 import { now } from '../../../lib/clock';
@@ -25,18 +25,22 @@ type TriageMode = 'table' | 'assoc';
 
 /** __KTriage: what the manager should do next, most urgent first, by table or by associate. */
 export function TriageView({ onOpen }: { onOpen: (o: Order) => void }) {
-  const { orders, kitchenMode } = useDining();
+  const orders = useDiningOrders();
+  const { kitchenMode } = useDiningDevice();
   const cfg = useConfig();
   // Thresholds live in the service config: re-render when Back Office changes them,
   // and every 15 seconds so the minutes keep counting.
-  useShared(serviceConfig);
-  useNow(15_000);
+  const svc = useShared(serviceConfig);
+  const at = useNow(15_000);
   const [mode, setMode] = useState<TriageMode>('table');
   const [showFine, setShowFine] = useState(false);
   const name = useTableName();
 
-  const rows = triageRows(orders, { cfg });
-  const g = triageGroups(rows, name, pickupIssues(orders, kitchenMode));
+  // Worked out again when the checks or settings change, and on the 15 s tick.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- svc and at are the triggers
+  const rows = useMemo(() => triageRows(orders, { cfg }), [orders, cfg, svc, at]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- svc and at are the triggers
+  const g = useMemo(() => triageGroups(rows, name, pickupIssues(orders, kitchenMode)), [rows, name, orders, kitchenMode, svc, at]);
   const open = g.now.length + g.soon.length + g.kitchen.length;
 
   return (
@@ -124,7 +128,7 @@ function Group({
 
 function ItemRow({ item: x, name, onOpen }: { item: TriageItem; name: string; onOpen: (o: Order) => void }) {
   const cfg = useConfig();
-  const dining = useDining();
+  const dining = useDiningActions();
   const o = x.order;
   const acts =
     x.kind === 'pickup'

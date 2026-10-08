@@ -1,6 +1,6 @@
 import { mealPlans } from '../../../../data';
 import type { MealPlan, Resident } from '../../../../domain/types';
-import { residentPlan } from '../../../backoffice/kit/residentRecords';
+import { residentPlan } from '../../../../store/residentRecords';
 
 export const CARE_LEVELS: Record<string, string> = {
   IL: 'Independent Living',

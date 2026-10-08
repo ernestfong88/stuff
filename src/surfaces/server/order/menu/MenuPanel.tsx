@@ -1,14 +1,14 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Star } from 'lucide-react';
 import { getItem, useMenuVersion } from '../../../../data';
 import { flag } from '../../../../domain/config';
 import { hasFoodConflict } from '../../../../domain/allergens';
-import { availableCount, findLine } from '../../../../domain/orders';
+import { availableCountIn, findLine, lineCounts } from '../../../../domain/orders';
 import type { Diner, MenuItem, ModSelection, Order, Resident } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useAssocOrders, useDiningActions, useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { useAssocMenuSettings } from '../../../../store/assocMenu';
-import { fewerLeft, limitLeft, ordersToday, use86 } from '../../../../store/eightySix';
+import { fewerLeft, limitLeftIn, ordersToday, use86 } from '../../../../store/eightySix';
 import { isoDate } from '../../../../domain/pickup';
 import { cx, SearchField } from '../../../../ui';
 import { sideParentFor } from '../checkLines';
@@ -66,7 +66,10 @@ export function MenuPanel({
   onProfile: (residentId: string) => void;
 }) {
   const cfg = useConfig();
-  const dining = useDining();
+  const dining = useDiningActions();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
+  const assocOrders = useAssocOrders();
   const [search, setSearch] = useState('');
   const [drinkGroup, setDrinkGroup] = useState<DrinkGroup>('Non-Alcoholic');
   const [modItem, setModItem] = useState<MenuItem | null>(null);
@@ -75,26 +78,33 @@ export function MenuPanel({
   // A guest's diner points at the host, whose allergies are not the guest's.
   const person = allergyPerson(diner);
   // Re-render when Back Office changes the menu, so an open order shows the change at once.
-  useMenuVersion();
+  const menuVersion = useMenuVersion();
   const room = orderMenuRoom(o);
   // A pick up or delivery booked for a later day orders from that day's menu.
   const date = orderMenuDate(o);
   const tabs = menuTabs(o.meal, room, date);
-  const sections = menuSections(o.meal, tab, { drinkGroup, room, search, cfg, date });
+  const sections = useMemo(
+    () => menuSections(o.meal, tab, { drinkGroup, room, search, cfg, date }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- menuVersion: Back Office changed the menu
+    [o.meal, tab, drinkGroup, room, search, cfg, date, menuVersion],
+  );
   const isResident = diner.kind === 'resident' && !diner.isGuest;
   // An associate's meal is locked to the associate menu: the chef's special, the special of the week and the standing choices.
   const assocOnly = !!o.assoc || diner.kind === 'associate';
   useAssocMenuSettings();
   const assoc = assocOnly ? assocSections(todaysAssocMenu(o.meal, date ?? isoDate(0)), o.meal) : [];
   // The special's daily limit counts App meals and meals rung in here; one this diner already has stays theirs.
+  const allChecks = useMemo(() => [...orders, ...history], [orders, history]);
   const assocLeft = (sec: AssocSection) => {
     if (diner.items.some((l) => !l.cancelled && sec.items.some((i) => i.id === l.itemId))) return null;
-    return assocSectionLeft(sec, dining.assocOrders, [...dining.orders, ...dining.history], date ?? isoDate(0));
+    return assocSectionLeft(sec, assocOrders, allChecks, date ?? isoDate(0));
   };
   // A count the manager set on the 86 list caps the menu's own limit. Both are today's: a later day's order ignores them.
   const marks = use86();
-  const todays = ordersToday(dining.orders, dining.history);
-  const left = (id: string) => (date ? null : fewerLeft(availableCount(id, dining.orders), limitLeft(marks, id, todays)));
+  // Counted once per change to the checks, not once per tile.
+  const openCounts = useMemo(() => lineCounts(orders), [orders]);
+  const todayCounts = useMemo(() => lineCounts(ordersToday(orders, history)), [orders, history]);
+  const left = (id: string) => (date ? null : fewerLeft(availableCountIn(id, openCounts), limitLeftIn(marks, id, todayCounts)));
 
   const add = (item: MenuItem, mods: ModSelection, note: string) => {
     dining.addItem(o.id, diner.id, item.id, mods, note, sideParentFor(item.id, diner));
@@ -240,7 +250,7 @@ function PinnedEditor({
   onClose: () => void;
   onDone: (itemId: string) => void;
 }) {
-  const { updateItem } = useDining();
+  const { updateItem } = useDiningActions();
   const found = findLine(order, lineId);
   const item = found ? getItem(found.line.itemId) : undefined;
   if (!found || !item) return null;

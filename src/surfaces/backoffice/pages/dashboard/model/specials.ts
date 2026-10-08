@@ -2,7 +2,7 @@
  * Today's specials: how many were made and how many are ordered so far,
  * counting the dining room, pick up and delivery, and associate meals.
  */
-import type { AssocMeal, CatalogItem, MealName, Order } from '../../../../../domain/types';
+import type { AssocMeal, Order } from '../../../../../domain/types';
 
 export interface SpecialToday {
   id: string;
@@ -10,23 +10,6 @@ export interface SpecialToday {
   /** "Lunch & Dinner" */
   meals: string;
   category: string;
-}
-
-const MEAL_ORDER: MealName[] = ['Breakfast', 'Lunch', 'Dinner'];
-
-/** Every special on today's menu, by meal and then menu order. */
-export function specialsToday(catalog: CatalogItem[]): SpecialToday[] {
-  const by = new Map<string, { it: CatalogItem; meals: MealName[] }>();
-  for (const it of catalog) {
-    if (!it.special) continue;
-    const x = by.get(it.id) ?? { it, meals: [] };
-    if (!x.meals.includes(it.meal)) x.meals.push(it.meal);
-    by.set(it.id, x);
-  }
-  return [...by.values()]
-    .map(({ it, meals }) => ({ it, meals: meals.sort((a, b) => MEAL_ORDER.indexOf(a) - MEAL_ORDER.indexOf(b)) }))
-    .sort((a, b) => MEAL_ORDER.indexOf(a.meals[0]) - MEAL_ORDER.indexOf(b.meals[0]))
-    .map(({ it, meals }) => ({ id: it.id, name: it.name, meals: meals.join(' & '), category: it.category }));
 }
 
 export interface SpecialCount {

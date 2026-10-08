@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { AssocMeal } from '../../domain/types';
 import { now as clockNow } from '../../lib/clock';
 import { formatElapsed } from '../../lib/format';
-import { cx } from '../../ui';
+import { cx, Ticking } from '../../ui';
 import { GridMessage, TicketGrid, TicketSlot } from '../kitchen/KitchenShell';
 import { pickupWindow } from '../kitchen/kitchenTime';
 import { assocNext, assocState, dishTitle, NOC_CLOSE, shortSpan, type AssocStage, type AssocTicket } from './assocTickets';
@@ -53,7 +53,7 @@ function AssocTicketCard({ ticket: t, index, now, onUpdate }: { ticket: AssocTic
   }, [state]);
 
   const next = assocNext(m);
-  const timer =
+  const timer = (now: number) =>
     next.kind === 'fire' ? (now > t.at ? shortSpan(now - t.at) + ' over' : 'in ' + shortSpan(t.at - now)) : formatElapsed(now - (next.kind === 'ready' ? m.firedAt ?? now : m.readyAt ?? now));
   const courseChip = state === 'late' ? (next.kind === 'fire' ? 'Holding' : 'Ready') : TICKET_STATE_LABEL[state];
   const detail = [m.note ? '“' + m.note + '”' : '', t.noc ? `Set out before the ${NOC_CLOSE} close` : ''].filter(Boolean).join(', ');
@@ -64,7 +64,9 @@ function AssocTicketCard({ ticket: t, index, now, onUpdate }: { ticket: AssocTic
         <div className={s.headRow}>
           {index < 10 && <span className={s.seq}>{index}</span>}
           <span className={cx(s.label, s.assocName)}>{m.associate}</span>
-          <span className={cx(s.clock, s.clockPushed)}>{timer}</span>
+          <span className={cx(s.clock, s.clockPushed)}>
+            <Ticking text={timer} />
+          </span>
         </div>
         <div className={s.headRow}>
           <span className={s.window}>{(t.noc ? 'NOC ' : '') + pickupWindow(m.window)}</span>

@@ -1,12 +1,12 @@
 import { X } from 'lucide-react';
 import type { Order, OrderLine } from '../../../domain/types';
-import { useDining } from '../../../store/dining';
+import { useDiningActions } from '../../../store/dining';
 import { remindersFor } from './lines';
 import s from './ReminderChips.module.css';
 
 /** The chef's "don't forget" reminders on a line; tap one to drop it (e.g. for a guest). */
 export function ReminderChips({ order, line, who }: { order: Order; line: OrderLine; who?: string }) {
-  const { dismissReminder } = useDining();
+  const { dismissReminder } = useDiningActions();
   const list = remindersFor(line);
   if (!list.length) return null;
   return (

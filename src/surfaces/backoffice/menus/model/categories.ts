@@ -273,11 +273,6 @@ export function proteinLabel(id: string | null | undefined, short = false): stri
   return p ? (short ? p.short : p.label) : '';
 }
 
-/** Protein group for menu balance: fish and shellfish are seafood, egg counts as vegetarian. */
-export function proteinBalance(id: string | null | undefined): string {
-  return id === 'fish' || id === 'shellfish' ? 'seafood' : id === 'egg' ? 'veg' : id || '';
-}
-
 // ─── Names ────────────────────────────────────────────────────────────────
 
 /**

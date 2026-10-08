@@ -3,7 +3,7 @@ import { pickupLeadMinutes } from '../../domain/pickup';
 import { startOfToday } from '../../lib/clock';
 import { useView } from '../../shell/router';
 import { useConfig } from '../../store/config';
-import { useDining } from '../../store/dining';
+import { useDiningActions, useDiningDevice, useDiningHistory, useDiningOrders } from '../../store/dining';
 import { toast, useConfirm, useNow } from '../../ui';
 import { pickupWho } from '../../domain/pickup';
 import type { Order } from '../../domain/types';
@@ -33,7 +33,10 @@ export function PudBoard({ onOpen, onNew, local }: PudBoardProps) {
   const filter: QueueFilter = FILTERS.includes(view) ? view : 'all';
   const showDone = local ? own.done : rest[0] === 'done';
   const at = useNow(15_000);
-  const { orders, history, kitchenMode, setOrders, setHistory } = useDining();
+  const { setOrders, setHistory } = useDiningActions();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
+  const { kitchenMode } = useDiningDevice();
   const [ask, confirmDialog] = useConfirm();
 
   /** Reopening changes today's numbers, so it asks first and can be undone. */

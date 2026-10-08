@@ -7,7 +7,7 @@
 import type { Order } from '../../domain/types';
 import { useView } from '../../shell/router';
 import { useMe, useVenue } from '../../shell/session';
-import { useDining } from '../../store/dining';
+import { useDiningActions } from '../../store/dining';
 import { currentMeal } from '../server/shared/meal';
 import { TabletShell } from '../../shell/TabletShell';
 import { NoticesButton, ResidentsView, ShiftReviewView } from '../server/features';
@@ -31,7 +31,7 @@ export default function ManagerSurface() {
   const open = (o: Order) => setView(view, ['check', o.id]);
   const me = useMe().initials;
   const [venue] = useVenue();
-  const { openOrder } = useDining();
+  const { openOrder } = useDiningActions();
 
   if (openId) return <OrderScreen orderId={openId} onClose={() => setView(view)} />;
 

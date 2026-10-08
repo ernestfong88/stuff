@@ -149,7 +149,7 @@ function Greet() {
       header: 'Meals timed',
       render: (v) => (
         <PickMany<MealName>
-          options={MEALS}
+          options={[...MEALS]}
           value={greetConfig(v.key).meals}
           onChange={(meals) => set(v.key, { meals })}
           label={`${v.name} meals timed`}

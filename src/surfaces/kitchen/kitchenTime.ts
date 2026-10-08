@@ -1,10 +1,5 @@
 /** Time labels on the kitchen screens. */
-
-const fmt = (minutes: number) => {
-  const h = Math.floor(minutes / 60) % 24;
-  const m = minutes % 60;
-  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
-};
+import { formatMinuteOfDay as fmt } from '../../lib/format';
 
 /**
  * A promised time is a 15 minute window: "4:45 PM" → "4:45 to 5:00 PM"

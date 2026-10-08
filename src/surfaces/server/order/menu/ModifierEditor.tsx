@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, ChevronDown, ChevronLeft, X } from 'lucide-react';
 import { conflictSentence, foodConflicts } from '../../../../domain/allergens';
 import type { Diner, MenuItem, ModSelection, Resident } from '../../../../domain/types';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions, useDiningDevice } from '../../../../store/dining';
 import { upcharge } from '../../../../domain/menu';
 import { Button, cx } from '../../../../ui';
 import {
@@ -49,7 +49,8 @@ export function ModifierEditor({
   /** Save each change as it happens (the line is already on the check). */
   onAuto?: (mods: ModSelection, note: string) => void;
 }) {
-  const { usageFor, recordModUsage } = useDining();
+  const { recordModUsage } = useDiningActions();
+  const { usageFor } = useDiningDevice();
   const [picks, setPicks] = useState<ModPick[]>(() => picksFromMods(initialMods));
   const [action, setAction] = useState('Add');
   const [openGroup, setOpenGroup] = useState<string | null>(null);

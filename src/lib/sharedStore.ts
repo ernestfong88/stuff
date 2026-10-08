@@ -3,12 +3,14 @@
  * notices, side work, resident notes and so on.
  *
  * - React reads it with useSyncExternalStore (no context needed).
- * - Optional persistence to localStorage.
+ * - Optional persistence to localStorage, a moment behind the change
+ *   (see writeBehind.ts); listeners and other tabs hear of it at once.
  * - Optional cross-tab sync over BroadcastChannel, so the kitchen screen in
  *   one tab sees what the server tablet does in another.
  */
 import { useSyncExternalStore } from 'react';
 import { safeStorage } from './storage';
+import { cancelWrite, flushWrites, writeBehind } from './writeBehind';
 
 export interface SharedStore<T> {
   get(): T;
@@ -70,7 +72,10 @@ export function resetPersistedStores(): void {
   demoStores.forEach((store) => store.reset());
   try {
     for (const key of Object.keys(window.localStorage)) {
-      if (/^kisco[._-]/.test(key) && !DEVICE_KEYS.has(key)) window.localStorage.removeItem(key);
+      if (/^kisco[._-]/.test(key) && !DEVICE_KEYS.has(key)) {
+        cancelWrite(key);
+        window.localStorage.removeItem(key);
+      }
     }
   } catch {
     /* storage unavailable */
@@ -96,10 +101,13 @@ export function createSharedStore<T>(initial: T | (() => T), opts: SharedStoreOp
     };
   }
 
+  const key = opts.persistKey;
+  const save = () => key && safeStorage.setJSON(key, state);
+
   const commit = (next: T, broadcast: boolean) => {
     if (Object.is(next, state)) return;
     state = next;
-    if (opts.persistKey) safeStorage.setJSON(opts.persistKey, state);
+    if (key) writeBehind(key, save);
     if (broadcast && bc) bc.postMessage({ from: instanceId, state });
     emit();
   };
@@ -114,8 +122,9 @@ export function createSharedStore<T>(initial: T | (() => T), opts: SharedStoreOp
       return () => listeners.delete(listener);
     },
     reset() {
-      if (opts.persistKey) safeStorage.remove(opts.persistKey);
+      if (key) safeStorage.remove(key);
       commit(init(), true);
+      if (key) flushWrites(key);
     },
   };
   if (opts.persistKey && !opts.deviceSetting) demoStores.add(store as SharedStore<unknown>);

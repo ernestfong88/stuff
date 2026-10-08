@@ -5,7 +5,7 @@
  * Plans; saved copies that only have the tick are carried over.
  * Pure: no React, store or data imports.
  */
-import type { BoMealPlan } from '../seed/billing';
+import type { BoMealPlan } from '../surfaces/backoffice/seed/billing';
 
 /** Care level → plan id. A blank id means "no default" was chosen. */
 export type DefaultPlans = Record<string, string>;

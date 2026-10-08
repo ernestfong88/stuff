@@ -8,22 +8,22 @@ import { Keyboard, ListOrdered } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { now } from '../../lib/clock';
 import { safeStorage } from '../../lib/storage';
-import { formatTime } from '../../lib/format';
 import { useConfig } from '../../store/config';
-import { useDining } from '../../store/dining';
+import { useDiningActions, useDiningDevice, useDiningOrders } from '../../store/dining';
 import { useSetting } from '../../store/serviceConfig';
 import { getItem } from '../../data';
 import { kitchenItemName } from '../../domain/menu';
 import { tableName } from '../../domain/orders';
 import { serverName } from '../../domain/servers';
-import { cx, useNow } from '../../ui';
+import { cx, useTick } from '../../ui';
 import { BumpKeysPage } from '../kitchen/BumpKeysPage';
 import { screensForItem } from '../../domain/kdsScreens';
-import { GridMessage, HeaderButton, KitchenHeader, KitchenShell, TicketArea, TicketGrid, TicketSlot } from '../kitchen/KitchenShell';
+import { GridMessage, HeaderButton, KitchenClock, KitchenHeader, KitchenShell, TicketArea, TicketGrid, TicketSlot } from '../kitchen/KitchenShell';
 import { KitchenUnavailable } from '../kitchen/KitchenUnavailable';
 import { MenuReference } from '../kitchen/MenuReference';
 import { RecallMenu } from '../kitchen/RecallMenu';
 import type { SubcategoryChoices } from '../../domain/subcategories';
+import { ticketCache, useStableHandlers } from '../kitchen/stableTickets';
 import { useBumpBar } from '../kitchen/useBumpBar';
 import { useThreshold } from '../kitchen/useThreshold';
 import { kitchenHasExpo, kitchenPrinters, kitchenScreens, screenOptions, useDeviceScreen, useVenueSettings } from '../../store/venueSettings';
@@ -34,11 +34,13 @@ import s from './Cook.module.css';
 import { ScreenPicker } from './ScreenPicker';
 
 const NO_CHOICES: SubcategoryChoices = {};
+/** The same ticket object for a check that has not changed, so its card skips the redraw. */
+const sameTickets = ticketCache<CookTicket>();
 /** Whether this device shows the all day strip. */
 const ALL_DAY_KEY = 'kisco_cook_allday';
 
 export default function Cook() {
-  const { kitchenMode } = useDining();
+  const { kitchenMode } = useDiningDevice();
   const settings = useVenueSettings();
   const screen = useDeviceScreen();
   if (kitchenMode === 'printers')
@@ -51,14 +53,16 @@ export default function Cook() {
 }
 
 function CookLine() {
-  const dining = useDining();
-  const { orders, expoActive, recentBumps } = dining;
+  const dining = useDiningActions();
+  const orders = useDiningOrders();
+  const { expoActive, recentBumps } = useDiningDevice();
   const settings = useVenueSettings();
   const screen = useDeviceScreen();
   const cfg = useConfig();
   const choices = useSetting<SubcategoryChoices | undefined>('csub') ?? NO_CHOICES;
   const lateAfter = useThreshold('cookLate');
-  const clock = useNow(1000);
+  // Late turns red within 15 s; the ticket timers and the clock tick on their own.
+  const clock = useTick(15_000);
   const [keysOpen, setKeysOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [allDay, setAllDay] = useState(() => safeStorage.get(ALL_DAY_KEY) === '1');
@@ -71,19 +75,27 @@ function CookLine() {
   // Per kitchen: KDS Settings says whether it has an expo station, and the Expo screen's phase must be on.
   const expoAt = useCallback((room: string) => expoActive && kitchenHasExpo(settings, room), [expoActive, settings]);
   const tickets = useMemo(
-    () => buildCookTickets(orders, { screen: screen.key, expoActive: expoAt, cfg, screensOf }),
+    () => sameTickets(buildCookTickets(orders, { screen: screen.key, expoActive: expoAt, cfg, screensOf }), [screen.key, expoAt, cfg, screensOf]),
     [orders, screen.key, expoAt, cfg, screensOf],
   );
 
-  const bumped = recentBumps.flatMap((b) => {
-    const order = orders.find((o) => o.id === b.orderId);
-    return order ? [{ ...b, order }] : [];
-  });
-  const avg = averageTicketMinutes(bumped, now());
+  const bumped = useMemo(
+    () =>
+      recentBumps.flatMap((b) => {
+        const order = orders.find((o) => o.id === b.orderId);
+        return order ? [{ ...b, order }] : [];
+      }),
+    [recentBumps, orders],
+  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- clock re-reads the average as time passes
+  const avg = useMemo(() => averageTicketMinutes(bumped, now()), [bumped, clock]);
   // Only tickets that still have plates up can be pulled back; once expo runs them there is nothing to recall.
-  const recallable = bumped.filter((b) => b.order.diners.some((d) => d.items.some((i) => i.kitchenState === 'ready')));
+  const recallable = useMemo(() => bumped.filter((b) => b.order.diners.some((d) => d.items.some((i) => i.kitchenState === 'ready'))), [bumped]);
   const notFired = useMemo(() => notFiredLines(orders, { screen: screen.key, expoActive: expoAt, cfg, screensOf }), [orders, screen.key, expoAt, cfg, screensOf]);
-  const counts = allDayCounts(tickets, screen.key, (id) => kitchenItemName(getItem(id)?.name ?? '', cfg), notFired);
+  const counts = useMemo(
+    () => (allDay ? allDayCounts(tickets, screen.key, (id) => kitchenItemName(getItem(id)?.name ?? '', cfg), notFired) : []),
+    [allDay, tickets, screen.key, cfg, notFired],
+  );
 
   const toggleAllDay = () => {
     safeStorage.set(ALL_DAY_KEY, allDay ? '0' : '1');
@@ -113,6 +125,15 @@ function CookLine() {
     if (recallable[0]) dining.recallToCooking(recallable[0].orderId);
   };
 
+  // Handed to the memoised cards: the same functions every render, running the latest code.
+  const card = useStableHandlers({
+    select: (index: number, line: number) => setSel({ ticket: index, line }),
+    tapLine,
+    bump: bumpTicket,
+    clear: clearTicket,
+    clearCancelled,
+  });
+
   const [sel, setSel] = useBumpBar({
     enabled: !keysOpen && !menuOpen,
     ticketCount: tickets.length,
@@ -141,9 +162,7 @@ function CookLine() {
         subtitle={screen.roomName}
         actions={
           <>
-            <span className={s.clock} aria-label="Time">
-              {formatTime(clock)}
-            </span>
+            <KitchenClock className={s.clock} />
             <HeaderButton
               icon={<ListOrdered size={15} strokeWidth={2.5} />}
               on={allDay}
@@ -189,11 +208,11 @@ function CookLine() {
                 cfg={cfg}
                 selected={i === sel.ticket}
                 selectedLine={i === sel.ticket ? sel.line : -1}
-                onSelect={(line) => setSel({ ticket: i, line })}
-                onTapLine={(line) => tapLine(t, line)}
-                onBump={() => bumpTicket(t)}
-                onClear={() => clearTicket(t)}
-                onClearCancelled={() => clearCancelled(t)}
+                onSelect={card.select}
+                onTapLine={card.tapLine}
+                onBump={card.bump}
+                onClear={card.clear}
+                onClearCancelled={card.clearCancelled}
               />
             </TicketSlot>
           ))}

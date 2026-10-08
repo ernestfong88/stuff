@@ -8,6 +8,9 @@
  * off is kept per period: the day for a daily task, the week's Sunday for a
  * weekly one.
  */
+import { isoOf } from '../lib/dates';
+
+export { isoOf };
 
 export type CleaningWhen = 'open' | 'mid' | 'close';
 export type CleaningFreq = 'daily' | 'weekly';
@@ -62,10 +65,6 @@ export function shortName(name: string): string {
 }
 
 // ─── Dates ───────────────────────────────────────────────────────────────
-
-export function isoOf(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
 
 /** Midnight of a "YYYY-MM-DD" date, local time. */
 export function dateOf(iso: string): Date {

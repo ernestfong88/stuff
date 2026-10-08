@@ -4,7 +4,7 @@ import { diner, line, order } from '../../../../domain/__tests__/helpers';
 import { dinerBilling } from '../../../../domain/billing';
 import { seedPlans, type BoMealPlan } from '../../seed/billing';
 import { seedBoResidents, type BoResident } from '../../seed/residents';
-import { residentPlan, residentRecordsStore, tabletPlan, updateResidentRecord } from '../residentRecords';
+import { residentPlan, residentRecordsStore, tabletPlan, updateResidentRecord } from '../../../../store/residentRecords';
 
 const plans = seedPlans();
 const rec = (planId: string, changed = true): BoResident[] => [

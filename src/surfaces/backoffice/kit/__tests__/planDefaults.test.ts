@@ -3,8 +3,8 @@ import { mealPlans, residents } from '../../../../data';
 import type { Resident } from '../../../../domain/types';
 import { seedDefaultPlans, seedPlans, type BoMealPlan } from '../../seed/billing';
 import { fromDining, seedBoResidents } from '../../seed/residents';
-import { careLevelsOf, defaultPlanFor, migrateDefaultPlans } from '../planDefaults';
-import { residentPlan } from '../residentRecords';
+import { careLevelsOf, defaultPlanFor, migrateDefaultPlans } from '../../../../store/planDefaults';
+import { residentPlan } from '../../../../store/residentRecords';
 
 const plans = seedPlans();
 

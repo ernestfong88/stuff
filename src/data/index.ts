@@ -166,11 +166,13 @@ export const getItem = (id: string | null | undefined) => (id ? catalogById.get(
 
 export const rooms = roomsJson as Record<string, Room>;
 export const allTables = Object.entries(rooms).flatMap(([roomId, r]) => r.tables.map((t) => ({ ...t, room: roomId })));
+const tableById = new Map<string, (typeof allTables)[number]>();
+for (const t of allTables) if (!tableById.has(t.id)) tableById.set(t.id, t);
 /**
  * __kGetTable: a table by id. A table added, renamed or moved in Back Office
  * Floor Plans comes from the saved layout, so every screen shows its name.
  */
-export const getTable = (id: string | null | undefined) => (id ? (savedTable(id) ?? allTables.find((t) => t.id === id)) : undefined);
+export const getTable = (id: string | null | undefined) => (id ? (savedTable(id) ?? tableById.get(id)) : undefined);
 
 /** Pick up / delivery fee per venue. */
 export const venueFees = venueFeesJson as Record<string, { pickup: number; delivery: number }>;
@@ -266,6 +268,8 @@ export const pickupPromiseOffsets = pickupPromisesJson as Record<string, number>
  */
 let menuVersionNo = 0;
 let appliedOverlay: LiveMenuOverlay | null = null;
+/** The applied overlay as JSON, to tell an equal copy (from another tab) from a change. */
+let appliedJson = '';
 const menuListeners = new Set<() => void>();
 
 function replaceContents<T extends object>(target: T, source: T) {
@@ -464,7 +468,12 @@ export function forgetMenusAhead(): void {
 function syncMenuEdits() {
   const o = liveOverlay(menuEditsStore.get());
   if (o === appliedOverlay) return;
+  // The same overlay as a new object (another tab's copy of it): today's menus
+  // stand as they are; a later day's are worked out again when next asked.
+  const json = JSON.stringify(o);
   appliedOverlay = o;
+  if (json === appliedJson) return forgetMenusAhead();
+  appliedJson = json;
   aheadMenus.clear();
   applyMenuEdits(o);
   menuVersionNo++;

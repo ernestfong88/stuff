@@ -5,7 +5,7 @@ import { conflictSentence } from '../../../../domain/allergens';
 import { allergenConflicts, lineCourse } from '../../../../domain/orders';
 import type { Diner, Order, OrderLine, Resident } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions } from '../../../../store/dining';
 import { cx } from '../../../../ui';
 import { priceTag, shownPrice } from '../checkLines';
 import { CoursePick, DrinkChip, LineState, LineTags, type CourseChoice } from './LineChips';
@@ -28,7 +28,7 @@ export function LineRow({
   onEdit: () => void;
 }) {
   const cfg = useConfig();
-  const dining = useDining();
+  const dining = useDiningActions();
   const it = getItem(line.itemId);
   const conflicts = allergenConflicts(line, person);
   const price = shownPrice(line, diner);

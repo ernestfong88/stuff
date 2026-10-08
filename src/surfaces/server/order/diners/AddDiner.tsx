@@ -4,7 +4,7 @@ import { associates, residents } from '../../../../data';
 import { moveNote, seatedAt, seatedAtText } from '../../../../domain/seating';
 import type { Contact, Order, Resident } from '../../../../domain/types';
 import { initials } from '../../../../lib/format';
-import { useDining } from '../../../../store/dining';
+import { useDiningActions, useDiningOrders } from '../../../../store/dining';
 import { Avatar, Button, cx, SearchField, TextField, useConfirm } from '../../../../ui';
 import s from './AddDiner.module.css';
 import { GUEST_RELATIONS, saveContact, searchPeople, useContacts } from './guestContacts';
@@ -28,7 +28,8 @@ export function AddDiner({
   onClose: () => void;
   onAdded: (dinerId: string) => void;
 }) {
-  const { addDiner, patchOrder, removeDiner, closeOrder, orders } = useDining();
+  const { addDiner, patchOrder, removeDiner, closeOrder } = useDiningActions();
+  const orders = useDiningOrders();
   const [ask, confirmDialog] = useConfirm();
   // An associate meal starts on the associate list.
   const [kind, setKind] = useState<Kind>(guestHost ? 'guest' : order.assoc ? 'associate' : 'resident');

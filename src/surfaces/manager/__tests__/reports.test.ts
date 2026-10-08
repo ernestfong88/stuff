@@ -4,7 +4,8 @@ import { checkMoney, feedbackSummary, formatMinutes, shiftMoney, ticketWeek } fr
 import { atRisk, byServer, demoSosTables, missPercent, offGoal, shiftMeal, summarize, weekLabels } from '../../../domain/metrics/stepsOfService';
 import { formatMetric, isScored, metricDefs } from '../../../domain/metrics/shiftMetrics';
 import { assocWindows, isNoc, mealOfWindow, rangeLabel, windowMinutes } from '../associates/assocProgram';
-import { mealByHour, menuForToday } from '../eightySix/menuToday';
+import { menuForToday } from '../eightySix/menuToday';
+import { mealAtHour } from '../../../domain/mealPeriods';
 import { clampItem, freeSpot, nextTableLabel } from '../floor/planEdit';
 import type { PlanItem } from '../../../store/floorLayout';
 
@@ -130,7 +131,7 @@ describe('86 list', () => {
     const ids = all.flatMap(([, items]) => items.map((i) => i.id));
     expect(new Set(ids).size).toBe(ids.length);
     expect(menuForToday('Dinner', 'peach').flatMap(([, i]) => i).every((i) => i.name.toLowerCase().includes('peach'))).toBe(true);
-    expect([mealByHour(8), mealByHour(12), mealByHour(17)]).toEqual(['Breakfast', 'Lunch', 'Dinner']);
+    expect([mealAtHour(8), mealAtHour(10.25), mealAtHour(10.5), mealAtHour(17)]).toEqual(['Breakfast', 'Breakfast', 'Lunch', 'Dinner']);
   });
 });
 

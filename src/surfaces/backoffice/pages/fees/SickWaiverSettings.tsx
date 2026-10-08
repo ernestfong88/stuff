@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { getResident } from '../../../../data';
 import { sickConfig, sickPeriodEnd, sickWaiversThisMonth } from '../../../../domain/waivers';
 import { updateConfig, useConfig } from '../../../../store/config';
-import { useDining } from '../../../../store/dining';
+import { useDiningHistory, useDiningOrders } from '../../../../store/dining';
 import { Chip, Toggle } from '../../../../ui';
 import { BoCaption, BoRow, BoSection, NumberBox, useCommunity } from '../../kit';
 import { waiverUseByResident, waiverUseText } from './sickWaivers';
@@ -21,7 +21,8 @@ const when = (t: number) => {
 export function SickWaiverSettings({ plain }: { plain?: boolean }) {
   const community = useCommunity();
   const cfg = useConfig();
-  const { orders, history } = useDining();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
   const c = sickConfig(community, cfg);
   const till = sickPeriodEnd();
   const set = (patch: { on?: boolean; allow?: number }) => updateConfig((x) => ({ sick: { ...x.sick, [community]: { ...sickConfig(community, x), ...patch } } }));

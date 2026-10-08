@@ -68,9 +68,3 @@ for (const it of catalog) {
   const key = it.name.toLowerCase();
   if (!canonicalByName.has(key)) canonicalByName.set(key, it.id);
 }
-
-/** __kCanon: the recipe behind a menu item; the same dish on several meals shares one. */
-export function canonicalItemId(itemId: string): string {
-  const it = catalog.find((x) => x.id === itemId);
-  return (it && canonicalByName.get(it.name.toLowerCase())) || itemId;
-}
