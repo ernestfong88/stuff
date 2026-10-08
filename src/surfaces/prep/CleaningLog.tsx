@@ -7,6 +7,7 @@ import { crewMember, signCleaning, unsignCleaning, useCleaning } from '../../sto
 import { Button, Modal, cx, toast, useConfirm } from '../../ui';
 import { PinPad } from '../server/shared/ManagerPin';
 import { cleaningToday, dayLabel, type CleaningRow } from './logic';
+import k from '../kitchen/KitchenShell.module.css';
 import s from './CleaningLog.module.css';
 
 type Row = CleaningRow;
@@ -38,6 +39,7 @@ export function CleaningLog({ venueId, nowMs }: { venueId: string; nowMs: number
       message: `${r.sign!.by}'s sign-off at ${formatTime(r.sign!.at)} is removed and the task is open again.`,
       confirmLabel: 'Un-sign',
       tone: 'danger',
+      className: k.dialog,
     });
     if (ok) unsignCleaning(venueId, r.task, iso);
   };
@@ -89,7 +91,14 @@ export function CleaningLog({ venueId, nowMs }: { venueId: string; nowMs: number
       )}
 
       {signing && (
-        <Modal open onClose={() => setSigning(null)} width={380} title={`Sign off: ${signing.text}`} subtitle="Enter your PIN">
+        <Modal
+          open
+          onClose={() => setSigning(null)}
+          width={380}
+          title={`Sign off: ${signing.text}`}
+          subtitle="Enter your PIN"
+          className={k.dialog}
+        >
           <PinPad
             accept={(pin) => !!checkPin(pin)}
             onOk={(pin) => {

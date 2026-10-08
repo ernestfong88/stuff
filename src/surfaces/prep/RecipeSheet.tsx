@@ -3,6 +3,7 @@ import type { Recipe } from '../../store/menuEdits';
 import { SPECIAL_KIND_LABEL, type PrepSpecial } from '../../store/production';
 import { isWritten, useRecipeCard } from '../../store/recipeCards';
 import { formatScale, kitchenAmount } from './logic';
+import k from '../kitchen/KitchenShell.module.css';
 import s from './RecipeSheet.module.css';
 
 interface RecipeSheetProps {
@@ -41,6 +42,7 @@ export function RecipeSheet({ special, make, onClose }: RecipeSheetProps) {
       open
       onClose={onClose}
       width={820}
+      className={k.dialog}
       title={
         <span className={s.title}>
           <span>{special.name}</span>

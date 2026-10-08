@@ -22,6 +22,8 @@ import { isoOf } from '../../domain/cleaning';
 import { formatTime } from '../../lib/format';
 import { addTempDish, mealLog, recordTemp, useTempLog, type DishLog } from '../../store/tempLog';
 import { Button, Modal, Tabs, TextField, cx, toast } from '../../ui';
+import { HeaderButton } from '../kitchen/KitchenShell';
+import k from '../kitchen/KitchenShell.module.css';
 import { PinPad } from '../server/shared/ManagerPin';
 import { dayLabel } from './logic';
 import s from './TempLog.module.css';
@@ -52,6 +54,7 @@ export function TempLog({ venueId, meal, onMeal, nowMs }: { venueId: string; mea
         </h2>
         <Tabs
           variant="segmented"
+          dark
           aria-label="Meal"
           value={meal}
           onChange={onMeal}
@@ -63,9 +66,9 @@ export function TempLog({ venueId, meal, onMeal, nowMs }: { venueId: string; mea
           })}
           className={s.meals}
         />
-        <Button icon={<Plus size={16} />} onClick={() => setAdding(true)} className={s.addBtn}>
+        <HeaderButton icon={<Plus size={16} />} onClick={() => setAdding(true)} className={s.addBtn}>
           Add a dish
-        </Button>
+        </HeaderButton>
       </div>
 
       {log.dishes.length ? (
@@ -237,6 +240,7 @@ function TempEntry({
       open
       onClose={onClose}
       width={400}
+      className={k.dialog}
       title={title}
       subtitle={step === 'pin' ? 'Enter your PIN to sign it' : `Target ${cell.target.label} (${which})`}
     >
@@ -334,7 +338,14 @@ function AddDish({ onAdd, onClose }: { onAdd: (name: string, hold: Exclude<HoldT
   const [name, setName] = useState('');
   const [hold, setHold] = useState<Exclude<HoldType, 'none'>>('hot');
   return (
-    <Modal open onClose={onClose} width={400} title="Add a dish" subtitle="A dish on the line that isn’t on the menu, for this meal">
+    <Modal
+      open
+      onClose={onClose}
+      width={400}
+      className={k.dialog}
+      title="Add a dish"
+      subtitle="A dish on the line that isn’t on the menu, for this meal"
+    >
       <form
         onSubmit={(e) => {
           e.preventDefault();

@@ -4,6 +4,7 @@ import { useConfirm, useNow } from '../../ui';
 import { addPrepNote, prepNotes, removePrepNote, useProduction, type PrepMeal } from '../../store/production';
 import { noteWhen } from './logic';
 import { useSpeechNote } from './useSpeechNote';
+import k from '../kitchen/KitchenShell.module.css';
 import s from './PrepNotes.module.css';
 
 interface PrepNotesProps {
@@ -51,6 +52,7 @@ export function PrepNotes({ venueId, iso, meal, dish, cook, lead }: PrepNotesPro
       ),
       confirmLabel: 'Remove note',
       tone: 'danger',
+      className: k.dialog,
     });
     if (ok) removePrepNote(venueId, iso, meal, dish, id);
   };

@@ -11,7 +11,7 @@
   font-weight: 900;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--flora);
+  color: var(--k-done);
 }
 .meals {
   max-width: 100%;
@@ -21,10 +21,10 @@
 }
 
 .group {
-  background: var(--surface);
+  background: var(--k-card);
   border-radius: var(--r-xl);
   padding: 10px 10px 12px;
-  box-shadow: var(--shadow-1);
+  box-shadow: inset 0 0 0 1px var(--k-rule);
   margin-bottom: 14px;
 }
 .groupHead {
@@ -43,15 +43,15 @@
   align-self: center;
 }
 .hot {
-  color: var(--clay-600);
+  color: var(--k-callout);
 }
 .cold {
-  color: var(--ocean);
+  color: var(--k-togo);
 }
 .rule {
   font-size: 12px;
   font-weight: 700;
-  color: var(--s500);
+  color: var(--k-dim);
 }
 
 .items {
@@ -66,8 +66,8 @@
   gap: 8px 12px;
   padding: 8px 8px 8px 12px;
   border-radius: var(--r-lg);
-  background: var(--paper);
-  box-shadow: inset 0 0 0 1px var(--hair);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 0 0 1px var(--k-rule);
 }
 .text {
   flex: 1 1 200px;
@@ -78,14 +78,14 @@
   font-size: 15px;
   font-weight: 800;
   line-height: 1.3;
-  color: var(--ink);
+  color: var(--k-text);
 }
 .meta {
   display: block;
   margin-top: 2px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--s500);
+  color: var(--k-dim);
 }
 .cells {
   display: grid;
@@ -109,38 +109,39 @@
   padding: 7px 10px;
   text-align: left;
   border-radius: var(--r-md);
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--hair-2);
+  background: var(--k-card-2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
 }
 .tap:hover {
-  background: var(--limestone);
+  background: var(--k-head);
 }
 .cellHead {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--s500);
+  color: var(--k-soft);
 }
 .target {
-  color: var(--s400);
+  color: var(--k-dim);
   text-transform: none;
 }
+/* Kitchen states: green in range, red out or overdue, amber due. */
 .cellOk {
-  background: var(--flora-100);
-  box-shadow: inset 0 0 0 1.5px rgba(93, 117, 69, 0.35);
+  background: rgba(63, 125, 63, 0.42);
+  box-shadow: none;
 }
 .cellOut {
-  background: var(--danger-bg);
-  box-shadow: inset 0 0 0 1.5px rgba(196, 59, 47, 0.5);
+  background: rgba(178, 59, 46, 0.38);
+  box-shadow: inset 0 0 0 1.5px var(--k-late);
 }
 .cellDue {
-  background: var(--clay-100);
-  box-shadow: inset 0 0 0 1.5px rgba(184, 101, 42, 0.45);
+  background: rgba(240, 160, 48, 0.14);
+  box-shadow: inset 0 0 0 1.5px rgba(240, 160, 48, 0.6);
 }
 .cellLate {
-  background: var(--danger-bg);
-  box-shadow: inset 0 0 0 1.5px rgba(196, 59, 47, 0.5);
+  background: rgba(178, 59, 46, 0.38);
+  box-shadow: inset 0 0 0 1.5px var(--k-late);
 }
 .cellMissed {
   opacity: 0.75;
@@ -149,20 +150,20 @@
   font-size: 18px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
-  color: var(--flora);
+  color: var(--k-done);
 }
 .cellOut .temp {
-  color: var(--danger);
+  color: var(--k-cancel);
 }
 .stamp {
   font-size: 11.5px;
   font-weight: 700;
-  color: var(--s500);
+  color: var(--k-soft);
 }
 .fix {
   font-size: 11.5px;
   font-weight: 800;
-  color: var(--danger);
+  color: var(--k-cancel);
 }
 
 .pill {
@@ -172,31 +173,32 @@
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
-  background: var(--limestone);
-  color: var(--s500);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--k-soft);
 }
+/* The same chips as Expo's Fired and Late. */
 .pillDue {
-  background: var(--clay-600);
-  color: #fff;
+  background: var(--k-amber);
+  color: var(--k-amber-ink);
 }
 .pillLate {
-  background: var(--danger);
+  background: var(--k-late);
   color: #fff;
 }
 .pillMissed {
-  color: var(--danger);
+  color: var(--k-cancel);
 }
 
 .empty {
   padding: 16px;
   border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-1);
-  color: var(--s500);
+  background: var(--k-card);
+  box-shadow: inset 0 0 0 1px var(--k-rule);
+  color: var(--k-dim);
   font-size: 14px;
 }
 
-/* ── Entering a reading ── */
+/* ── Entering a reading (in the kitchen's dark dialog) ── */
 .readout {
   display: flex;
   align-items: baseline;
@@ -206,29 +208,29 @@
   font-size: 44px;
   font-weight: 900;
   font-variant-numeric: tabular-nums;
-  color: var(--ink);
+  color: var(--k-text);
 }
 .readout small {
   font-size: 18px;
   font-weight: 800;
-  color: var(--s400);
+  color: var(--k-dim);
 }
 .readoutSmall {
   font-size: 30px;
   padding-top: 2px;
 }
 .readoutOk {
-  color: var(--flora);
+  color: var(--k-done);
 }
 .readoutOut {
-  color: var(--danger);
+  color: var(--k-cancel);
 }
 .hint {
   min-height: 18px;
   text-align: center;
   font-size: 12.5px;
   font-weight: 700;
-  color: var(--danger);
+  color: var(--k-cancel);
 }
 .keys {
   display: grid;
@@ -242,13 +244,13 @@
   justify-content: center;
   height: 52px;
   border-radius: var(--r-xl);
-  background: #f0f3f6;
-  color: var(--ink);
+  background: var(--pad-key);
+  color: var(--k-text);
   font-size: 22px;
   font-weight: 700;
 }
 .key:active {
-  background: #e2e7ec;
+  background: var(--pad-key-down);
 }
 .next {
   margin-top: 12px;
@@ -260,8 +262,8 @@
 .outNote {
   padding: 10px 12px;
   border-radius: var(--r-md);
-  background: var(--danger-bg);
-  color: var(--danger);
+  background: rgba(178, 59, 46, 0.38);
+  color: #ffd9d3;
   font-size: 14px;
   font-weight: 700;
   line-height: 1.4;
@@ -278,12 +280,12 @@
   border-radius: var(--r-pill);
   font-size: 14px;
   font-weight: 800;
-  background: var(--limestone);
-  color: var(--s700);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--k-ink);
 }
 .actionOn {
-  background: var(--ocean);
-  color: #fff;
+  background: var(--k-ink);
+  color: var(--night);
 }
 .recheckHead {
   margin-top: 10px;
@@ -291,12 +293,12 @@
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--s500);
+  color: var(--k-dim);
 }
 .optional {
   font-weight: 700;
   text-transform: none;
-  color: var(--s400);
+  color: var(--night-dim);
 }
 .summary {
   margin-bottom: 4px;
@@ -305,8 +307,8 @@
   font-weight: 900;
 }
 .summaryOk {
-  color: var(--flora);
+  color: var(--k-done);
 }
 .summaryOut {
-  color: var(--danger);
+  color: var(--k-cancel);
 }

@@ -10,6 +10,9 @@
  * The Cleaning log tab holds the kitchen's daily and weekly cleaning; each
  * task is signed off with the cook's PIN. The Temp log tab takes each
  * dish's temperature at today's meals, signed the same way.
+ *
+ * It wears the kitchen's dark look, the same as Cook and Expo, and so do
+ * the dialogs it opens.
  */
 import { useState } from 'react';
 import { ModeChip, TextZoom } from '../../shell/controls';
@@ -31,6 +34,7 @@ import {
 import { useCleaning } from '../../store/cleaning';
 import { mealLog, useTempLog } from '../../store/tempLog';
 import { tempTotals, type TempMeal } from '../../domain/tempLog';
+import { KitchenShell } from '../kitchen/KitchenShell';
 import { Checklist } from './Checklist';
 import { CleaningLog } from './CleaningLog';
 import { cleaningToday, mealAt, signature, tempOverdue } from './logic';
@@ -47,7 +51,16 @@ const PREP_COOK = 'L. Ortega';
 
 type View = 'prep' | 'cleaning' | 'temp';
 
+/** In the kitchen's dark frame, the same as Cook and Expo. */
 export default function ProductionPrep() {
+  return (
+    <KitchenShell>
+      <PrepScreen />
+    </KitchenShell>
+  );
+}
+
+function PrepScreen() {
   const state = useProduction();
   const nowMs = useNow(30_000);
   const signedIn = useSignedIn();
@@ -116,8 +129,8 @@ export default function ProductionPrep() {
                 {cleaning.done} of {cleaning.rows.length} <small>signed off</small>
               </span>
             )}
-            <TextZoom tall />
-            <ModeChip tall />
+            <TextZoom dark tall />
+            <ModeChip dark tall />
           </span>
         </div>
         <div className={s.subRow}>

@@ -27,7 +27,7 @@
   padding: 0 12px;
   border-radius: var(--r-md);
   background: var(--surface);
-  box-shadow: inset 0 0 0 1px #d5dbe1;
+  box-shadow: inset 0 0 0 1px var(--field-rule, #d5dbe1);
   transition: box-shadow var(--fast);
 }
 .control:focus-within {

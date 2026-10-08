@@ -11,16 +11,29 @@ export interface ConfirmProps {
   tone?: ButtonVariant;
   onConfirm: () => void;
   onCancel: () => void;
+  /** Extra class on the dialog (the kitchen's dark dialog). */
+  className?: string;
 }
 
 /** "Are you sure?" dialog for destructive or hard-to-undo actions. */
-export function Confirm({ open, title, message, confirmLabel = 'Confirm', cancelLabel = 'Cancel', tone = 'primary', onConfirm, onCancel }: ConfirmProps) {
+export function Confirm({
+  open,
+  title,
+  message,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  tone = 'primary',
+  onConfirm,
+  onCancel,
+  className,
+}: ConfirmProps) {
   return (
     <Modal
       open={open}
       onClose={onCancel}
       title={title}
       width={440}
+      className={className}
       footer={
         <>
           <Button variant="ghost" onClick={onCancel}>

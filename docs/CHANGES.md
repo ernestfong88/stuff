@@ -220,6 +220,15 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Production Prep in the kitchen's dark look
+- Production Prep now wears the same dark look as Cook and Expo: the near-black screen, dark cards, white text, and the kitchen's heavy type. The title reads in capitals like *COOK* and *EXPO*.
+- The venue buttons are the kitchen's header buttons. Prep checklist / Cleaning log / Temp log, the days and the meals are dark groups; the one chosen is white, like Expo's filters. Today keeps its amber.
+- The same state colours as the tickets: green for done and in range, amber for due, red for overdue and out of range. *Due today* and *Overdue* chips match Expo's *Fired* and *Late*.
+- Special cards: the amount to make in amber, *Complete* a solid kitchen green, the voice note button amber, the typed note button a dark header button. A prepped special drops to a green line, as a finished plate does on Cook.
+- Every dialog opened from Prep is dark too: the recipe sheet, the PIN pad, the temperature pad and corrective actions, *Add a dish*, and the remove and un-sign confirms.
+- The layout and what everything does are unchanged; only the title grows to the kitchen's size. All text keeps at least 4.5:1 contrast. The shared buttons, text field and PIN pad read a few new colour settings so they can go dark in these dialogs; everywhere else they look as before.
+
+
 ### Coursing: Manual coursing is the default
 *Hold for server* is renamed **Manual coursing**, and it is now the default for every venue and meal: each course waits until the server or expo fires it, with the 15-minute safety net. A venue and meal still set to another option in *Pacing & Coursing* keeps it. Ones never changed, which were *Fire when served* until now, follow the new default.
 

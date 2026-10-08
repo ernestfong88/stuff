@@ -2,8 +2,11 @@
  * Kitchen palette. Read at a distance under heat lamps: white on near
  * black, and a few strong state colours that mean the same on both
  * screens (red late, green ready, amber fired or to fire, blue selected).
+ * A dialog opened from a dark kitchen screen (Production Prep) takes the
+ * same palette with .dialog.
  */
-.shell {
+.shell,
+.dialog {
   --k-card: #161b21;
   --k-card-2: #1c232b;
   --k-head: #252d36;
@@ -25,7 +28,9 @@
   --k-cancel: #ff8a7a;
   --k-callout: #f0a868;
   --k-neutral: #2a323b;
+}
 
+.shell {
   position: fixed;
   inset: 0;
   display: flex;
@@ -36,6 +41,45 @@
 }
 
 .shell :focus-visible {
+  outline: 3px solid var(--k-select);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/*
+ * Dialogs portal outside the shell, so .dialog maps the neutral tokens the
+ * shared Modal, Button, TextField and PIN pad read onto the kitchen palette.
+ */
+.dialog {
+  --surface: var(--k-card);
+  --paper: var(--night);
+  --limestone: rgba(255, 255, 255, 0.08);
+  --sunken: rgba(255, 255, 255, 0.05);
+  --ink: var(--k-ink);
+  --s700: var(--k-soft);
+  --s500: var(--k-dim);
+  --s400: var(--night-dim);
+  --s200: var(--k-neutral);
+  --hair: var(--k-rule);
+  --hair-2: rgba(255, 255, 255, 0.16);
+  --btn-secondary-ring: var(--k-rule);
+  --btn-secondary-hover: var(--k-head);
+  --btn-ghost-hover: rgba(255, 255, 255, 0.08);
+  --field-rule: rgba(255, 255, 255, 0.18);
+  --pad-key: var(--k-head);
+  --pad-key-down: #323c47;
+  --pad-dot: var(--k-neutral);
+  --pad-dot-on: var(--k-select);
+  --pad-bad: var(--k-cancel);
+  --shadow-3: inset 0 0 0 1px var(--k-rule), 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+/* The dialog's title in the kitchen's type: sans, heavy. */
+.dialog > header h2 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: 0;
+}
+.dialog :focus-visible {
   outline: 3px solid var(--k-select);
   outline-offset: 2px;
   box-shadow: none;

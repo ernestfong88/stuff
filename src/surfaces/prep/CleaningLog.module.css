@@ -12,11 +12,11 @@
 }
 .capToday {
   composes: cap;
-  color: var(--flora);
+  color: var(--k-done);
 }
 .capWeek {
   composes: cap;
-  color: var(--ocean);
+  color: var(--k-togo);
 }
 
 .grid {
@@ -28,10 +28,10 @@
 }
 
 .group {
-  background: var(--surface);
+  background: var(--k-card);
   border-radius: var(--r-xl);
   padding: 10px 10px 12px;
-  box-shadow: var(--shadow-1);
+  box-shadow: inset 0 0 0 1px var(--k-rule);
 }
 .weekGroup {
   max-width: 820px;
@@ -46,15 +46,15 @@
   flex: 1;
   font-size: 15px;
   font-weight: 900;
-  color: var(--ink);
+  color: var(--k-text);
 }
 .count {
   font-size: 12px;
   font-weight: 800;
-  color: var(--s400);
+  color: var(--k-dim);
 }
 .countDone {
-  color: var(--flora);
+  color: var(--k-done);
 }
 
 .items {
@@ -72,23 +72,24 @@
   padding: 10px 12px;
   text-align: left;
   border-radius: var(--r-lg);
-  background: var(--paper);
-  box-shadow: inset 0 0 0 1px var(--hair);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 0 0 1px var(--k-rule);
 }
 .tap:hover {
-  background: var(--limestone);
+  background: rgba(255, 255, 255, 0.07);
 }
+/* Kitchen states: amber due, red overdue, green done. */
 .rowDue {
-  background: var(--clay-100);
-  box-shadow: inset 0 0 0 1.5px rgba(184, 101, 42, 0.45);
+  background: rgba(240, 160, 48, 0.14);
+  box-shadow: inset 0 0 0 1.5px rgba(240, 160, 48, 0.6);
 }
 .rowLate {
-  background: var(--danger-bg);
-  box-shadow: inset 0 0 0 1.5px rgba(196, 59, 47, 0.5);
+  background: rgba(178, 59, 46, 0.38);
+  box-shadow: inset 0 0 0 1.5px var(--k-late);
 }
 .rowDone {
-  background: var(--flora-100);
-  box-shadow: inset 0 0 0 1.5px rgba(93, 117, 69, 0.35);
+  background: rgba(63, 125, 63, 0.42);
+  box-shadow: none;
 }
 
 .box {
@@ -99,12 +100,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 0 2px var(--s200);
-  background: var(--surface);
+  box-shadow: inset 0 0 0 2.5px var(--k-soft);
   color: #fff;
 }
 .boxOn {
-  background: var(--flora);
+  background: #5fa35f;
   box-shadow: none;
 }
 
@@ -117,10 +117,10 @@
   font-size: 15px;
   font-weight: 800;
   line-height: 1.3;
-  color: var(--ink);
+  color: var(--k-text);
 }
 .rowDone .label {
-  color: var(--flora);
+  color: var(--k-done);
 }
 .meta {
   display: flex;
@@ -134,10 +134,13 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--s500);
+  color: var(--k-dim);
+}
+.rowLate .who {
+  color: var(--k-soft);
 }
 .stamp {
-  color: var(--moss);
+  color: var(--k-soft);
 }
 
 .pill {
@@ -147,15 +150,16 @@
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
-  background: var(--limestone);
-  color: var(--s500);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--k-soft);
 }
+/* The same chips as Expo's Fired and Late. */
 .pillDue {
-  background: var(--clay-600);
-  color: #fff;
+  background: var(--k-amber);
+  color: var(--k-amber-ink);
 }
 .pillLate {
-  background: var(--danger);
+  background: var(--k-late);
   color: #fff;
 }
 
@@ -166,20 +170,19 @@
   border-radius: var(--r-md);
   font-size: 13px;
   font-weight: 800;
-  color: var(--ocean);
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--hair-2);
+  color: var(--k-ink);
+  background: rgba(255, 255, 255, 0.08);
 }
 .undo:hover {
-  background: var(--paper);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .empty {
   padding: 16px;
   border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-1);
-  color: var(--s500);
+  background: var(--k-card);
+  box-shadow: inset 0 0 0 1px var(--k-rule);
+  color: var(--k-dim);
   font-size: 14px;
   margin-bottom: 24px;
 }
