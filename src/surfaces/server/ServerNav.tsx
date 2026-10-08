@@ -1,4 +1,4 @@
-import { Check, ChevronDown, ClipboardList, ListChecks, Map as MapIcon, ShoppingBag, Users } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, ClipboardList, ListChecks, Map as MapIcon, ShoppingBag, Users } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { Order } from '../../domain/types';
 import { cx, MenuItem, Popover, useViewportWidth } from '../../ui';
@@ -54,6 +54,14 @@ export function ServerNavLeft({
   const current = MINE_MODES.find((x) => x.id === mode) ?? MINE_MODES[0];
   return (
     <>
+      {onMineView && mode !== 'tables' && (
+        // Pick up & delivery and the table map are a tap away from My tables, and so is the way back.
+        <button className={s.btn} onClick={() => onMine('tables')} title="Back to My tables">
+          <ArrowLeft size={16} strokeWidth={2.25} />
+          {width >= 900 ? ' My tables' : <span className="sr-only">My tables</span>}
+          <span className={s.count}>{counts.tables}</span>
+        </button>
+      )}
       <Popover
         align="left"
         minWidth={280}
@@ -91,8 +99,9 @@ export function ServerNavLeft({
           ))
         }
       </Popover>
-      <PointsChip short={narrow} onOpen={onShift} />
-      {width >= 900 && <SideWorkChip short={width < 1200} />}
+      {/* The way back to My tables takes room, so the chips go short while it shows. */}
+      <PointsChip short={narrow || (onMineView && mode !== 'tables')} onOpen={onShift} />
+      {width >= 900 && <SideWorkChip short={width < 1200 || (onMineView && mode !== 'tables')} />}
       {view === 'mine' && mode === 'tables' && (
         <div className={cx(s.servers, 'scroll-hidden')} role="group" aria-label="Other servers' tables">
           {servers

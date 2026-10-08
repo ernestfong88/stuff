@@ -220,6 +220,12 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### A way back to My tables
+The PU & Delivery screen now has a **← My tables** button.
+
+- **On the server tablet:** the button shows next to the view button whenever P/U & delivery or the table map is showing, and the chips beside it go short to make room.
+- **On the PU & Delivery screen** (opened from the screen menu): the button opens the server's My tables.
+
 ### Pre-ship audit fixes
 All 6 blockers and the majors from the audit are fixed. See [`AUDIT.md`](AUDIT.md) for the full list, including the known gaps.
 
