@@ -1,0 +1,147 @@
+/* Wide: Resident · Apt · Level · Meal plan · Hospice · Diets & allergies. Narrow: Apt and level fold under the name, diets drop below. */
+.wrap {
+  container-type: inline-size;
+  --cols: minmax(170px, 1.3fr) 48px 42px minmax(170px, 1fr) 64px minmax(150px, 1.4fr) 16px;
+}
+.head,
+.row {
+  display: grid;
+  grid-template-columns: var(--cols);
+  grid-template-areas: 'who apt level plan hospice diets chev';
+  align-items: center;
+  column-gap: 12px;
+  padding: 0 14px;
+}
+.head {
+  padding-bottom: 6px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--s500);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+.row {
+  min-height: 58px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  cursor: pointer;
+}
+.row + .row {
+  border-top: 1px solid var(--hair);
+}
+.row:hover {
+  background: #fafbfc;
+}
+.who {
+  grid-area: who;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  text-align: left;
+  border-radius: var(--r-sm);
+}
+.whoText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.name {
+  font-size: 14px;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sub {
+  font-size: 12px;
+  color: var(--s500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aptLevel {
+  display: none;
+}
+.apt {
+  grid-area: apt;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.level {
+  grid-area: level;
+  font-size: 13px;
+}
+.plan {
+  grid-area: plan;
+  min-width: 0;
+  cursor: default;
+}
+.select {
+  width: 100%;
+  height: 32px;
+  font-size: 13px;
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.hospice {
+  grid-area: hospice;
+  justify-self: start;
+  cursor: default;
+}
+.diets {
+  grid-area: diets;
+  min-width: 0;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.none {
+  font-size: 12.5px;
+  color: var(--s400);
+}
+.chev {
+  grid-area: chev;
+  color: var(--s400);
+}
+.hWho {
+  grid-area: who;
+}
+
+@container (max-width: 860px) {
+  .head,
+  .row {
+    grid-template-columns: minmax(150px, 1fr) minmax(160px, 220px) 52px 16px;
+    grid-template-areas:
+      'who plan hospice chev'
+      'diets diets diets diets';
+    row-gap: 6px;
+  }
+  .head {
+    grid-template-areas: 'who plan hospice chev';
+  }
+  .apt,
+  .level,
+  .head .diets {
+    display: none;
+  }
+  .aptLevel {
+    display: inline;
+  }
+  .row .diets {
+    padding-left: 44px;
+  }
+  .row .diets:has(.none) {
+    display: none;
+  }
+}

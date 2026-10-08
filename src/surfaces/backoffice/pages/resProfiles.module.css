@@ -1,11 +1,6 @@
 .search {
   max-width: 340px;
 }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
-  gap: 8px;
-}
 .hospice {
   max-width: 640px;
 }

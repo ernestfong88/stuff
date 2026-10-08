@@ -2,9 +2,10 @@ import { flag } from '../../../../domain/config';
 import { hospiceStatus } from '../../../../domain/waivers';
 import { formatTime } from '../../../../lib/format';
 import { setHospice, useConfig } from '../../../../store/config';
-import { Chip, TextArea, Toggle, toast } from '../../../../ui';
+import { Chip, TextArea, Toggle } from '../../../../ui';
 import { BoRow, BoSection } from '../../kit';
 import { BACK_OFFICE_USER } from '../../seed/associates';
+import { hospiceDoes, toggleHospiceWithUndo } from './residentActions';
 import s from './residents.module.css';
 
 const dateText = (iso: string) => (iso ? new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '');
@@ -21,11 +22,8 @@ export function HospiceCard({ rid, name }: { rid: string; name: string }) {
   const first = name.split(' ')[0];
   const meals = flag(cfg, 'hospiceAuto');
   const fees = flag(cfg, 'freeDeliveryComp');
-  const does = [meals && 'meals are comped at close', fees && 'delivery fees are waived'].filter(Boolean).join(' and ');
-  const set = (patch: Parameters<typeof setHospice>[1], message?: string) => {
-    setHospice(rid, patch, BACK_OFFICE_USER.name);
-    if (message) toast(message, { tone: 'success' });
-  };
+  const does = hospiceDoes(cfg);
+  const set = (patch: Parameters<typeof setHospice>[1]) => setHospice(rid, patch, BACK_OFFICE_USER.name);
   return (
     <BoSection
       title="Hospice"
@@ -39,7 +37,7 @@ export function HospiceCard({ rid, name }: { rid: string; name: string }) {
       <BoRow label="On hospice" hint={h.on ? `Since ${dateText(h.since)}` : 'Off: meals and delivery fees are charged as usual'}>
         <Toggle
           checked={h.on}
-          onChange={(on) => set({ on }, on ? `${first} is on hospice${does ? `: ${does} from now on` : ''}.` : `${first} is no longer on hospice.`)}
+          onChange={(on) => toggleHospiceWithUndo(rid, name, on, cfg)}
           label={<span className="sr-only">On hospice, {name}</span>}
         />
       </BoRow>

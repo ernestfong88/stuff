@@ -220,6 +220,15 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Residents list: meal plan, hospice and diets at a glance
+- *Residents → Profiles* is now a list with columns: Resident (with meals left) · Apt · Level · Meal plan · Hospice · Diets & allergies. Clicking a row still opens the profile.
+- **Meal plan** is a dropdown of the active Meal Plans. A change here is the same as on the resident's own page: it is logged for billing, close & charge counts the new plan straight away, and the toast offers *Undo*.
+- **Hospice** is a switch on each row. It uses the same hospice status as the resident's page, so meal comps at close and delivery fee waivers follow it. Every switch is logged, and *Undo* puts the status back as it was.
+- **Diets & allergies** show as small tags, allergies in red and diets in grey, the first three with "+2" for the rest (hover for all of them).
+- On a narrower screen, the apartment and level move under the name and the tags drop below the row.
+- The *Allergies & diets* button above the list (the same as the tab) and the *ON HOSPICE* tags are gone.
+
+
 ### Cleaning Log, separate from the Prep Checklist
 The prep checklist used to hold the kitchen's cleaning too (*Cleaning AM* and *Cleaning PM*). Cleaning now has its own log, so a cook signs off each task with their PIN and the log shows who did it and when.
 

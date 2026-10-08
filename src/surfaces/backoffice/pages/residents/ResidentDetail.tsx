@@ -1,15 +1,14 @@
 import { ArrowLeft, Info } from 'lucide-react';
 import { allergenKeysIn, avoidLabel, personAvoids } from '../../../../domain/allergens';
-import { now } from '../../../../lib/clock';
 import { formatTime } from '../../../../lib/format';
 import { navigate } from '../../../../shell/router';
 import { residentPref, updateResidentPref, useResidentPrefs } from '../../../../store/residentPrefs';
-import { Button, Chip, TextArea, toast } from '../../../../ui';
+import { Button, Chip, TextArea } from '../../../../ui';
 import { BoCallout, BoField, BoPage, BoSection, BoSelect, NumberBox, updateResidentRecord, useBilling, useResidentRecords } from '../../kit';
-import { BACK_OFFICE_USER } from '../../seed/associates';
 import { diningResident, type BoResident } from '../../seed/residents';
 import { HospiceCard } from './HospiceCard';
 import { RecentOrders } from './RecentOrders';
+import { changePlanWithUndo } from './residentActions';
 import s from './residents.module.css';
 
 const dayValue = (v: number | null) => (v == null ? null : Math.min(28, Math.max(1, Math.round(v))));
@@ -32,16 +31,7 @@ export function ResidentDetail({ resident: r, onBack, goto }: { resident: BoResi
   const prefText = dining ? residentPref({ [r.id]: r.prefs, ...prefs }, r.id) : r.prefs;
   const setPref = (text: string) => (dining ? updateResidentPref(r.id, text) : set({ prefs: text }));
 
-  const changePlan = (planId: string) => {
-    const to = plans.find((p) => p.id === planId);
-    const before: Partial<BoResident> = { planId: r.planId, planLog: r.planLog };
-    set({ planId, planLog: [{ at: now(), by: BACK_OFFICE_USER.name, from: plan?.text ?? 'No plan', to: to?.text ?? planId }, ...(r.planLog ?? [])].slice(0, 10) });
-    const undo = () => {
-      set(before);
-      toast(`${r.name.split(' ')[0]}'s plan is back to ${plan?.text ?? 'no plan'}.`);
-    };
-    toast(`Plan changed to ${to?.text}. The change is recorded for billing.`, { tone: 'success', action: { label: 'Undo', onClick: undo } });
-  };
+  const changePlan = (planId: string) => changePlanWithUndo(r.id, r.name, planId);
 
   return (
     <BoPage

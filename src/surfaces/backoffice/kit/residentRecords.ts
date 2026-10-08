@@ -4,6 +4,7 @@
  */
 import { getResident, mealPlans } from '../../../data';
 import type { MealPlan } from '../../../domain/types';
+import { now } from '../../../lib/clock';
 import { createSharedStore, useShared } from '../../../lib/sharedStore';
 import type { BoMealPlan } from '../seed/billing';
 import { seedBoResidents, withAllResidents, type BoResident } from '../seed/residents';
@@ -31,6 +32,34 @@ export function useResidentRecords(): BoResident[] {
 
 export function updateResidentRecord(id: string, patch: Partial<BoResident>): void {
   residentRecordsStore.set((list) => list.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+}
+
+/** A plan change just made: the plan names either side, and how to take it back. */
+export interface PlanChange {
+  from: string;
+  to: string;
+  undo: () => void;
+}
+
+/**
+ * Change a resident's meal plan. Plan changes drive billing, so each is
+ * logged (newest first, the latest 10 kept). Undo puts back the plan and the
+ * log exactly as they were. Null when the resident is unknown or already on
+ * that plan.
+ */
+export function changeResidentPlan(
+  id: string,
+  planId: string,
+  by: string,
+  plans: readonly BoMealPlan[] = billingStore.get().plans,
+): PlanChange | null {
+  const r = residentRecordsStore.get().find((x) => x.id === id);
+  if (!r || r.planId === planId) return null;
+  const from = plans.find((p) => p.id === r.planId)?.text ?? 'No plan';
+  const to = plans.find((p) => p.id === planId)?.text ?? planId;
+  const before: Partial<BoResident> = { planId: r.planId, planLog: r.planLog };
+  updateResidentRecord(id, { planId, planLog: [{ at: now(), by, from, to }, ...(r.planLog ?? [])].slice(0, 10) });
+  return { from, to, undo: () => updateResidentRecord(id, before) };
 }
 
 /**

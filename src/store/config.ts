@@ -64,3 +64,21 @@ export function setItemRoute(room: string, itemId: string, route: string | null)
 export function setHospice(rid: string, patch: Partial<HospiceStatus>, by: string): void {
   updateConfig((cfg) => ({ hospice: { ...cfg.hospice, [rid]: nextHospiceStatus(hospiceStatus(rid, cfg), patch, by) } }));
 }
+
+/**
+ * Switch hospice on or off (logged, like setHospice). The undo puts the saved
+ * status back exactly as it was, log included, rather than logging a second switch.
+ */
+export function switchHospice(rid: string, on: boolean, by: string): () => void {
+  const saved = configStore.get().hospice ?? {};
+  const had = Object.prototype.hasOwnProperty.call(saved, rid);
+  const before = saved[rid];
+  setHospice(rid, { on }, by);
+  return () =>
+    updateConfig((cfg) => {
+      const hospice = { ...cfg.hospice };
+      if (had) hospice[rid] = before;
+      else delete hospice[rid];
+      return { hospice };
+    });
+}
