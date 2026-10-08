@@ -220,6 +220,15 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Manager › Associates: easier to read
+- **Lunch / Dinner / Overnight** tabs at the top. The tab for the meal under way opens first.
+- Orders still to hand over are listed by pick up time, for example "7:00 PM · 1 order", with when changes close. Each row shows the associate, what they ordered, a status (Planned, In kitchen, Ready, Picked up) and one button. The button is **Change**, or **Mark picked up** once the meal is ready.
+- Picked up and cancelled orders, and pick up times that have passed with nothing waiting, are folded under one **Earlier and cancelled** line.
+- One line above the list shows the meal's special with how many are left (red when sold out), the special of the week, the soup, the cutoff and where associates pick up.
+- **Order for an associate** is one button. It opens the order form at the next open pick up time. The form has fewer lines: name, pick up time and meal side by side, choices next to them, and the buttons on one row. The rules, limits and cutoff reason are unchanged.
+- The heading counts, the explanation paragraph, the per-time item tallies and the "Planned in the Associate App" line on every row are gone. A row still shows its last logged change, and tapping it opens the full history.
+
+
 ### Residents list: meal plan, hospice and diets at a glance
 - *Residents → Profiles* is now a list with columns: Resident (with meals left) · Apt · Level · Meal plan · Hospice · Diets & allergies. Clicking a row still opens the profile.
 - **Meal plan** is a dropdown of the active Meal Plans. A change here is the same as on the resident's own page: it is logged for billing, close & charge counts the new plan straight away, and the toast offers *Undo*.

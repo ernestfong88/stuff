@@ -228,3 +228,76 @@ export function orderFormTodo(f: OrderFormState): string | null {
 export function orderFormReady(f: OrderFormState): boolean {
   return !orderFormTodo(f) && (f.editing || !f.taken);
 }
+
+// ─── The manager's pick up board ─────────────────────────────────────────
+
+/** Where an order is, as the manager reads it. */
+export type AssocOrderStatus = 'planned' | 'kitchen' | 'ready' | 'picked' | 'cancelled';
+
+export const STATUS_LABEL: Record<AssocOrderStatus, string> = {
+  planned: 'Planned',
+  kitchen: 'In kitchen',
+  ready: 'Ready',
+  picked: 'Picked up',
+  cancelled: 'Cancelled',
+};
+
+/** When expo fired the meal; the shared AssocMeal type does not carry it. */
+function firedAtOf(o: AssocMeal): number | undefined {
+  const v: unknown = Reflect.get(o, 'firedAt');
+  return typeof v === 'number' ? v : undefined;
+}
+
+export function orderStatus(o: AssocMeal): AssocOrderStatus {
+  if (!isLive(o)) return 'cancelled';
+  if (o.status === 'Picked up') return 'picked';
+  if (readyAtOf(o)) return 'ready';
+  if (firedAtOf(o)) return 'kitchen';
+  return 'planned';
+}
+
+/** Staff mark associate pick ups collected unless Back Office says a meal is done once set out (same switch as Expo). */
+export function assocTracksPickup(): boolean {
+  return getSetting<Record<string, boolean> | undefined>('pud.track')?.[assocRoom()] !== false;
+}
+
+/** The meal the manager is working now: the first pick up range that has not ended yet, else the last one. */
+export function mealNow(windows: AssocWindow[], at: number, endOf: (w: string) => number): AssocMealKind {
+  return (windows.find((x) => endOf(x.w) >= at) ?? windows[windows.length - 1])?.meal ?? 'Lunch';
+}
+
+export interface PickupGroup {
+  /** Start of the pick up range, "5:30 PM". */
+  w: string;
+  orders: AssocMeal[];
+}
+
+/**
+ * One meal's orders for the manager: those still to hand over, grouped by
+ * pick up range in time order, and the rest (cancelled, picked up, or a
+ * range that has ended with nothing waiting at the pass) in one list.
+ */
+export function pickupBoard(
+  orders: AssocMeal[],
+  meal: AssocMealKind,
+  at: number,
+  endOf: (w: string) => number,
+  tracksPickup: boolean,
+): { now: PickupGroup[]; earlier: AssocMeal[] } {
+  const byTime = (a: AssocMeal, b: AssocMeal) =>
+    (windowMinutes(a.window) ?? 0) - (windowMinutes(b.window) ?? 0) || a.associate.localeCompare(b.associate);
+  const mine = orders.filter((o) => mealOfWindow(o.window) === meal).sort(byTime);
+  const done = (o: AssocMeal) => {
+    const st = orderStatus(o);
+    if (st === 'cancelled' || st === 'picked') return true;
+    // A meal set out and waiting stays up front while staff mark pick ups.
+    return endOf(o.window) < at && !(st === 'ready' && tracksPickup);
+  };
+  const now: PickupGroup[] = [];
+  for (const o of mine.filter((x) => !done(x))) {
+    const last = now[now.length - 1];
+    if (last?.w === o.window) last.orders.push(o);
+    else now.push({ w: o.window, orders: [o] });
+  }
+  return { now, earlier: mine.filter(done) };
+}

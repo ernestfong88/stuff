@@ -1,15 +1,27 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   margin-top: 8px;
-  padding: 10px;
+  padding: 12px;
   background: #f0f3f6;
   border-radius: var(--r-lg);
 }
 .who {
   font-size: 14px;
   font-weight: 800;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+  align-items: start;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 .warn {
   font-size: 12px;
@@ -24,6 +36,7 @@
   background: var(--surface);
   font-size: 13.5px;
   min-width: 0;
+  width: 100%;
 }
 .override {
   display: flex;
@@ -37,13 +50,13 @@
 }
 .actions {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 6px;
   flex-wrap: wrap;
 }
-.grow {
-  flex: 1;
-}
 .todo {
+  flex: 1;
   font-size: 12px;
   font-weight: 600;
   color: var(--s500);
