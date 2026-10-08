@@ -8,7 +8,7 @@ import { countSentiment, sentimentTrend } from './model/feedback';
 import { dayLabel, longDay } from './model/periods';
 import { sentimentAction, sentimentDay, sentimentWeek } from './model/sentiment';
 import type { DashboardData } from './model/useDashboardData';
-import { CardHead, DayModal, DirectionHead, Drivers, PeriodTrend, RangeModal, StartHere, TopAction } from './parts';
+import { CardHead, DayModal, Drivers, PeriodTrend, RangeModal, StartHere, TopAction } from './parts';
 import s from './dashboard.module.css';
 
 /** "Email me yesterday's summary" (a per-device preference until mail is wired up to accounts). */
@@ -86,11 +86,57 @@ export function SentimentCard({ data }: { data: DashboardData }) {
   const sub = { up: `More positive than the ${n} days before`, down: `More negative than the ${n} days before`, flat: `About the same as the ${n} days before`, none: 'Too few comments to compare' }[dir];
   const max = Math.max(1, ...days.map((d) => d.count.n));
   const action = sentimentAction(days);
+  const items = days.flatMap((d) => d.items);
+  const pct = c.n ? Math.round((c.pos / c.n) * 100) : null;
+  const prev = sentimentPeriods[6];
+  const pts = pct != null && prev.n ? pct - Math.round((prev.pos / prev.n) * 100) : null;
+  const praised = topDish(items, 'pos');
+  const panned = topDish(items, 'neg');
   return (
     <article className={s.card}>
       <CardHead title="Resident meal sentiment" onDetail={() => setRange(true)} />
-      <DirectionHead dir={dir} noneLabel="Not enough comments" sub={sub} />
-      {c.n > 0 && <ShareBar parts={SENT_PARTS(c)} label={`Comments in the last ${n} days`} />}
+      {/* The number that matters, big; how it is moving, small beside it (like Steps of Service). */}
+      <div className={s.hero}>
+        <div className={s.heroMain}>
+          <span className={cx(s.heroValue, pct == null ? undefined : pct >= 60 ? s.good : c.neg > c.pos ? s.bad : s.clay)}>
+            {pct ?? '–'}
+            <span className={s.heroUnit}>%</span>
+          </span>
+          <span className={s.heroLabel}>positive · {c.n} comments</span>
+        </div>
+        <span className={cx(s.trendChip, dir === 'up' ? s.trendGood : dir === 'down' ? s.trendBad : s.trendFlat)} title={sub}>
+          {dir === 'up' ? '▲' : dir === 'down' ? '▼' : '–'}{' '}
+          {dir === 'none' || pts == null ? 'No trend yet' : dir === 'flat' ? 'Steady' : `${Math.abs(pts)} pts ${dir === 'up' ? 'better' : 'worse'}`}
+          <span className={s.trendVs}>vs the {n} days before</span>
+        </span>
+      </div>
+      {c.n > 0 && (
+        <div className={s.sentCounts}>
+          <span className={cx(s.sentCount, s.sentPos)}>
+            <b>{c.pos}</b> liked
+          </span>
+          <span className={cx(s.sentCount, s.sentNeu)}>
+            <b>{c.neu}</b> neutral
+          </span>
+          <span className={cx(s.sentCount, s.sentNeg)}>
+            <b>{c.neg}</b> disliked
+          </span>
+        </div>
+      )}
+      {(praised || panned) && (
+        <div className={s.sentDishes}>
+          {praised && (
+            <span>
+              <span className={s.good}>♥</span> Most liked <b>{praised}</b>
+            </span>
+          )}
+          {panned && (
+            <span>
+              <span className={s.bad}>!</span> Most complaints <b>{panned}</b>
+            </span>
+          )}
+        </div>
+      )}
       <div className={s.chart}>
         <BarChart
           label={`Comments per day, last ${n} days`}
@@ -100,6 +146,8 @@ export function SentimentCard({ data }: { data: DashboardData }) {
             key: String(d.a),
             label: dayLabel({ a: d.a, i, today: d.today }, n),
             highlight: d.today,
+            valueLabel: n > 14 || !d.count.n ? undefined : String(d.count.n),
+            valueColor: d.count.neg > d.count.pos ? 'var(--danger)' : 'var(--s700)',
             segments: d.count.n
               ? [
                   { value: d.count.pos, color: CHART.good, name: 'Positive' },
@@ -181,4 +229,11 @@ function SentimentRangeModal({ data, onClose }: { data: DashboardData; onClose: 
       />
     </RangeModal>
   );
+}
+
+/** The dish named most often in one kind of comment, if any comment names a dish. */
+function topDish(items: FeedbackItem[], sent: FeedbackItem['sent']): string | null {
+  const n = new Map<string, number>();
+  for (const f of items) if (f.sent === sent && f.dish) n.set(f.dish, (n.get(f.dish) ?? 0) + 1);
+  return [...n.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? null;
 }

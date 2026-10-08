@@ -1128,3 +1128,44 @@ details:not([open]) .whenOpen,
 details[open] .whenShut {
   display: none;
 }
+
+/* Resident meal sentiment: liked / neutral / disliked counts and the dishes behind them. */
+.sentCounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sentCount {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+}
+.sentCount b {
+  font-size: 13px;
+}
+.sentPos {
+  background: var(--green-100);
+  color: var(--green);
+}
+.sentNeu {
+  background: var(--paper);
+  color: var(--s500);
+}
+.sentNeg {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.sentDishes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--s500);
+}
+.sentDishes b {
+  color: var(--ink);
+}
