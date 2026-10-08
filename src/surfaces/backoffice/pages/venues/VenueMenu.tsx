@@ -32,12 +32,8 @@ function otherQuarter(m: MenuSummary, at: number): string | null {
 
 /** Why going live with a menu today needs a second look, or null when it doesn't. */
 function liveWarning(m: MenuSummary, at: number): string | null {
-  const notes: string[] = [];
-  if (m.approval === 'waiting') notes.push("the dietitian hasn't approved it yet");
-  else if (m.approval === 'none') notes.push("it hasn't been sent to the dietitian for approval");
   const q = otherQuarter(m, at);
-  if (q) notes.push(`it is for ${q}`);
-  return notes.length ? notes.join(', and ') : null;
+  return q ? `it is for ${q}` : null;
 }
 
 /** The two menus a venue serves: its menu cycle and its à la carte menu. */

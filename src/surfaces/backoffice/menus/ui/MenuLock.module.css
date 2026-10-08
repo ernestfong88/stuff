@@ -21,33 +21,3 @@
 .text b {
   color: var(--ink);
 }
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  font-weight: 700;
-}
-.approved {
-  color: #1f8a70;
-}
-.waiting {
-  color: var(--clay-600);
-}
-.detail {
-  font-weight: 500;
-  color: var(--s500);
-}
-.send {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 28px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ocean);
-}
-.send:hover {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}

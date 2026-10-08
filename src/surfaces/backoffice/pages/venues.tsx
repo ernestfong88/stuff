@@ -21,7 +21,6 @@ import { PricingPage } from '../menus/pricing/PricingPage';
 import { ConfirmReset } from './ConfirmReset';
 import { everyDayId, patchVenue, useVenueSettings, venueSettingsStore, type Venue, type VenueAdminView } from '../../../store/venueSettings';
 import { cycleLenOf, refreshLiveMenu, useBo } from '../menus/data';
-import { approvalOf } from '../menus/model/approval';
 import { BoEmbedded, BoPage, BoSection } from '../kit';
 import type { BoPageProps } from '../nav';
 import { NewVenueDialog } from './venues/NewVenueDialog';
@@ -51,7 +50,6 @@ export default function Page({ goto }: BoPageProps) {
           kind: m.kind,
           status: m.status,
           cycleLen: cycleLenOf(bo, m.id),
-          approval: approvalOf(m).step,
         };
         // A cycle's every-day items can be a venue's à la carte menu too.
         return m.kind === 'cycle' ? [own, { ...own, id: everyDayId(m.id), name: `${m.name} · Every-day items`, kind: 'alc', cycleLen: 0 }] : [own];

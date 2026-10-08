@@ -1,25 +1,19 @@
 /**
- * Lock and approval in the menu builders. A locked menu opens read-only
- * with a banner saying so; unlocking an approved menu warns that changes
- * need approving again.
+ * Lock in the menu builders. A locked menu opens read-only with a banner
+ * saying so, and a button to unlock it.
  */
-import { Check, Clock, Lock, LockOpen, Send } from 'lucide-react';
+import { Lock, LockOpen } from 'lucide-react';
 import type { BoMenu } from '../../../../store/menuEdits';
-import { Button, cx, toast, useConfirm } from '../../../../ui';
+import { Button, toast, useConfirm } from '../../../../ui';
 import { updateMenu } from '../menuActions';
-import { approvalOf, REQUEST_APPROVAL } from '../model/approval';
 import s from './MenuLock.module.css';
 
 export function LockBanner({ menu }: { menu: BoMenu }) {
   const [ask, dialog] = useConfirm();
-  const ap = approvalOf(menu);
   const unlock = async () => {
     const ok = await ask({
       title: `Unlock ${menu.name}?`,
-      message:
-        ap.step === 'approved'
-          ? 'The dietitian approved this version. If you change it, send it for approval again.'
-          : 'Anyone with access to the menu builder can then change it.',
+      message: 'Anyone with access to the menu builder can then change it.',
       confirmLabel: 'Unlock',
     });
     if (!ok) return;
@@ -53,31 +47,5 @@ export function LockButton({ menu }: { menu: BoMenu }) {
     >
       Lock
     </Button>
-  );
-}
-
-/** "Approved · Dana Whitfield, RD · Sep 30", "Waiting for the dietitian", or a button to send it. */
-export function ApprovalStatus({ menu }: { menu: BoMenu }) {
-  const ap = approvalOf(menu);
-  if (ap.step === 'none')
-    return (
-      <button
-        className={s.send}
-        onClick={() => {
-          updateMenu(menu.id, REQUEST_APPROVAL);
-          toast(`${menu.name} sent to the dietitian to approve`, {
-            tone: 'success',
-          });
-        }}
-      >
-        <Send size={13} aria-hidden /> Send for approval
-      </button>
-    );
-  return (
-    <span className={cx(s.status, ap.step === 'approved' ? s.approved : s.waiting)}>
-      {ap.step === 'approved' ? <Check size={13} strokeWidth={3} aria-hidden /> : <Clock size={13} aria-hidden />}
-      {ap.label}
-      {ap.detail && <span className={s.detail}>· {ap.detail}</span>}
-    </span>
   );
 }

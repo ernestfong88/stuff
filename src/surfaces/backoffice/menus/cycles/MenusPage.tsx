@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Archive, ArchiveRestore, Check, Clock, Copy, Eye, Lock, LockOpen, MoreVertical, Pencil, Plus, Printer, Send } from 'lucide-react';
+import { Archive, ArchiveRestore, Copy, Eye, Lock, LockOpen, MoreVertical, Pencil, Plus, Printer } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import { navigate, useRoute } from '../../../../shell/router';
 import type { BoMenu, MenuKind } from '../../../../store/menuEdits';
@@ -10,7 +10,6 @@ import { blankMenu, cloneMenu, updateMenu } from '../menuActions';
 import { menuState, parseQuarter, quarterIndexOf, quarterLabel, quarterRange, quarterSeason, venuesAt } from '../../../../domain/menuCycle';
 import { ARCHIVE, YEAR_ROUND, isArchived, menuRows, quarterFilterOptions, quarterGaps, type MenuRow } from '../model/menuList';
 import { Select } from '../ui/controls';
-import { approvalOf, REQUEST_APPROVAL } from '../model/approval';
 import { StateChip } from '../ui/menuBits';
 import { AlaCarteBuilder } from './AlaCarteBuilder';
 import { CycleBuilder } from './CycleBuilder';
@@ -145,7 +144,6 @@ function MenuList() {
             <tr>
               <th aria-label="Favorite" />
               <th>Menu</th>
-              <th>Dietitian approval</th>
               <th>Last edited</th>
               <th className={s.r}>
                 <span className="sr-only">Actions</span>
@@ -158,7 +156,6 @@ function MenuList() {
               const st = menuState(m, venues);
               const w = r.everyDay ? venues.filter((v) => v.alcMenuId === `${m.id}:everyday`).map((v) => v.name.replace(/ Dining Room$/, '')) : where(m);
               const len = cycleLenOf(bo, m.id);
-              const ap = approvalOf(m);
               return (
                 <tr key={(r.everyDay ? 'ev' : '') + m.id}>
                   <td className={s.starCell}>
@@ -190,32 +187,6 @@ function MenuList() {
                       )}
                     </div>
                     <div className={s.muted}>{w.length ? 'Served at ' + w.join(', ') : 'Not on a venue yet'}</div>
-                  </td>
-                  <td>
-                    {!r.everyDay && (
-                      <div className={cx(s.ap, s[`ap_${ap.step}`])}>
-                        <span className={s.apLabel}>
-                          {ap.step === 'approved' ? (
-                            <Check size={14} strokeWidth={3} aria-hidden />
-                          ) : ap.step === 'waiting' ? (
-                            <Clock size={14} aria-hidden />
-                          ) : null}
-                          {ap.label}
-                        </span>
-                        {ap.detail && <span className={s.apDetail}>{ap.detail}</span>}
-                        {ap.step === 'none' && (
-                          <button
-                            className={s.apSend}
-                            onClick={() => {
-                              updateMenu(m.id, REQUEST_APPROVAL);
-                              toast(`${m.name} sent to the dietitian to approve`, { tone: 'success' });
-                            }}
-                          >
-                            <Send size={13} aria-hidden /> Send for approval
-                          </button>
-                        )}
-                      </div>
-                    )}
                   </td>
                   <td>
                     <div className={s.strong}>{m.editedBy || '–'}</div>

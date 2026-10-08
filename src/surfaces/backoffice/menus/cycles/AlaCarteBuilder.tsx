@@ -14,7 +14,7 @@ import { isUpchargeRecipe } from '../model/tablet';
 import type { BuilderMeal } from '../model/types';
 import { RecipeDialog } from '../recipes/RecipeDialog';
 import { QuarterBadge, QuarterPick, StateChip } from '../ui/menuBits';
-import { ApprovalStatus, LockBanner, LockButton } from '../ui/MenuLock';
+import { LockBanner, LockButton } from '../ui/MenuLock';
 import { AlcCounter, alcWarnings } from './AlcCounter';
 import { SlotSearch } from './SlotSearch';
 import s from './AlaCarteBuilder.module.css';
@@ -128,7 +128,6 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
           {everyDay ? <QuarterBadge q={m.quarter} big /> : <QuarterPick menu={m} at={now()} readOnly={readOnly} />}
           <StateChip state={menuState(m, venues)} />
           <span>{where.length ? `Served at ${where.join(', ')}` : 'Not on a venue yet'}</span>
-          {!everyDay && <ApprovalStatus menu={m} />}
         </span>
       }
       actions={

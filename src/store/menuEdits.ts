@@ -137,10 +137,6 @@ export interface BoMenu {
   editedBy?: string;
   editedAt?: number;
   locked?: boolean;
-  signedBy?: string | null;
-  signedAt?: number | null;
-  approveReq?: boolean;
-  approval?: string;
   fav?: boolean;
   /** Default rows (starters, entree, desserts) the menu builder leaves off a meal, by meal. */
   hiddenLanes?: Record<string, string[]>;
@@ -275,6 +271,33 @@ export const menuEditsStore = createSharedStore<MenuEditsState>(() => ({ live: E
   persistKey: 'kisco.menuEdits.v1',
   channel: 'kisco-menu-edits',
 });
+
+/** The dietitian's sign-off on a menu, which older saved copies still carry. */
+const SIGN_OFF = ['signedBy', 'signedAt', 'approveReq', 'approval'];
+
+/**
+ * A saved copy from before menus dropped the dietitian's sign-off: take its
+ * fields off every menu, and unlock the seed's live cycle (m1, "VT Fall
+ * 2026"), which shipped locked because the dietitian had signed it. The
+ * fields are gone afterwards, so this runs once: a menu locked later by hand
+ * stays locked.
+ */
+export function dropSignOff(s: MenuEditsState): MenuEditsState {
+  if (!s.menus?.some((m) => SIGN_OFF.some((k) => k in m))) return s;
+  const menus = s.menus.map((m) => {
+    if (!SIGN_OFF.some((k) => k in m)) return m;
+    const out = Object.fromEntries(Object.entries(m).filter(([k]) => !SIGN_OFF.includes(k))) as unknown as BoMenu;
+    const signed = (m as BoMenu & { approval?: string }).approval === 'Approved';
+    return m.id === 'm1' && m.locked && signed ? { ...out, locked: false } : out;
+  });
+  return { ...s, menus };
+}
+
+{
+  const saved = menuEditsStore.get();
+  const fixed = dropSignOff(saved);
+  if (fixed !== saved) menuEditsStore.set(fixed);
+}
 
 /** Read the edits in a component. */
 export function useMenuEdits(): MenuEditsState {

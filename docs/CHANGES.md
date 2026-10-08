@@ -220,6 +220,12 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Menus: no dietitian approval; VT Fall 2026 unlocked
+- This app has no dietitian sign-off for menus yet, so it is gone from Back Office: the *Dietitian approval* column and *Send for approval* on Menu Cycle & À la Carte, the approval status in the menu cycle and à la carte builders, and the warnings in Venue Settings about serving a menu the dietitian hasn't approved. Unlocking a menu no longer mentions the dietitian.
+- Lock and Unlock work as before. Venue Settings still asks before serving a menu meant for another quarter, and still offers Undo.
+- **VT Fall 2026** (the live menu cycle) now starts unlocked. A browser that saved the menus while it was locked unlocks it once on the next load; if you lock it again yourself, it stays locked. Archived menus stay locked.
+- Recipe Approval (HO Settings) is a separate thing and is unchanged. The *Snacks (dietitian copy)* print option in Menu Export is unchanged too.
+
 ### Back Office: Closing Reports
 - New page **Closing Reports** in Back Office → Metrics & Reporting, after Dashboard and P-Mix. Search finds it by words such as *closing*, *end of day*, *sign off* and *comps*.
 - Pick a day (previous and next day buttons, or a date) and a meal: Breakfast, Lunch or Dinner, each with its count of closed checks. Today opens on the meal being served; a past day opens on its last meal with checks.

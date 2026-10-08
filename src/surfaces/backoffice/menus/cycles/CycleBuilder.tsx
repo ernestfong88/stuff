@@ -10,7 +10,7 @@ import { addDays, menuAnchor, menuState, monthDay, venuesAt } from '../../../../
 import { emptyDays } from '../model/dayGroup';
 import { RecipeDialog } from '../recipes/RecipeDialog';
 import { Field, Select } from '../ui/controls';
-import { ApprovalStatus, LockBanner, LockButton } from '../ui/MenuLock';
+import { LockBanner, LockButton } from '../ui/MenuLock';
 import { PlanLegend, QuarterPick, StateChip } from '../ui/menuBits';
 import { AiReview, type AiHighlight } from './AiReview';
 import { CopyMealDialog, type MealAction } from './CopyMealDialog';
@@ -106,7 +106,6 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
         <span className={s.sub}>
           <QuarterPick menu={m} at={at} readOnly={readOnly} />
           <StateChip state={menuState(m, venues)} />
-          <ApprovalStatus menu={m} />
         </span>
       }
       actions={

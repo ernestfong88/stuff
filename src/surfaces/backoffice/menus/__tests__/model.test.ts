@@ -4,7 +4,6 @@ import { SEED } from '../data';
 import { aiCheck, applyOps, undoOps } from '../model/aiReview';
 import { guessCategory, guessProtein, guessSubcategory, normCategory, subOf } from '../model/categories';
 import { cycleDayOn, DAY_MS, menuAnchor, menuState, quarterLabel, quarterMenuName, SEED_TODAY, seedShift, shiftDay, venuesAt } from '../../../../domain/menuCycle';
-import { approvalOf } from '../model/approval';
 import { searchRecipes } from '../cycles/slotSearchModel';
 import { groupDay, parseDays, sameWeekday, sideMatches } from '../model/dayGroup';
 import { menuRows, quarterGaps } from '../model/menuList';
@@ -246,13 +245,6 @@ describe('menu builder helpers', () => {
     expect(sameWeekday(3, 35)).toEqual([10, 17, 24, 31]);
     expect(sameWeekday(10, 35)).toEqual([3, 17, 24, 31]);
     expect(sameWeekday(7, 14)).toEqual([14]);
-  });
-
-  it('says where a menu is in its approval', () => {
-    expect(approvalOf({ approval: '', approveReq: false })).toEqual({ step: 'none', label: 'Not sent for approval' });
-    expect(approvalOf({ approval: 'Pending signature', approveReq: true }).step).toBe('waiting');
-    const ok = approvalOf({ approval: 'Approved', approveReq: true, signedBy: 'Dana Whitfield, RD', signedAt: new Date(2026, 8, 30).getTime() });
-    expect(ok).toEqual({ step: 'approved', label: 'Approved', detail: 'Dana Whitfield, RD · Sep 30, 2026' });
   });
 });
 

@@ -130,45 +130,6 @@
   font-weight: 650;
   color: var(--s700);
 }
-.ap {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-}
-.apLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-weight: 700;
-}
-.ap_approved .apLabel {
-  color: #1f8a70;
-}
-.ap_waiting .apLabel {
-  color: var(--clay-600);
-}
-.ap_none .apLabel {
-  font-weight: 600;
-  color: var(--s500);
-}
-.apDetail {
-  font-size: 12px;
-  color: var(--s500);
-}
-.apSend {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 28px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--ocean);
-}
-.apSend:hover {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
 .actions {
   display: inline-flex;
   align-items: center;
@@ -194,8 +155,8 @@
   color: var(--s500);
 }
 @media (max-width: 1100px) {
-  .table th:nth-child(4),
-  .table td:nth-child(4) {
+  .table th:nth-child(3),
+  .table td:nth-child(3) {
     display: none;
   }
 }

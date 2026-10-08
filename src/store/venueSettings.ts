@@ -52,8 +52,6 @@ export interface MenuSummary {
   status: 'active' | 'draft' | 'archived' | string;
   /** Days in the cycle; 0 for a static menu. */
   cycleLen: number;
-  /** The dietitian's sign-off: approved, waiting, or not sent (none). Missing means not tracked. */
-  approval?: 'approved' | 'waiting' | 'none';
 }
 
 export type PrinterType = 'Kitchen' | 'Receipt' | 'Label';
