@@ -64,7 +64,7 @@ function PerVenue({ label, hint, control }: { label: string; hint?: string; cont
 function Coursing() {
   const cfg = useConfig();
   if (printerMode(cfg))
-    return <BoSection title="Coursing" sub="Off with printers: the whole ticket prints at send. Coursing comes back with kitchen screens." />;
+    return <BoSection span title="Coursing" sub="Off with printers: the whole ticket prints at send. Coursing comes back with kitchen screens." />;
   const set = (room: string, meal: MealName, mode: CourseMode) =>
     updateConfig((c) => {
       const venue = { ...c.course[room] };
@@ -90,7 +90,7 @@ function Coursing() {
     ),
   ];
   return (
-    <BoSection flush title="Coursing" sub="When each course goes to the kitchen, set for each venue and meal.">
+    <BoSection flush span title="Coursing" sub="When each course goes to the kitchen, set for each venue and meal.">
       <BoTable columns={columns} rows={venues} rowKey={(v) => v.key} />
       {/* What each option means, one per line, and the safety net they all share. */}
       <dl className={css.key}>
@@ -164,6 +164,7 @@ function Greet() {
   return (
     <BoSection
       flush
+      span
       title="Time to greet"
       sub="From opening the check to drinks served. Slow ones are flagged to the manager on Triage, for the meals timed. Greets under the floor are left out of greet times."
     >
@@ -225,6 +226,7 @@ export default function Page({ goto }: BoPageProps) {
   const [tab, setTab] = usePageTab<FlowTab>('svcFlow', TABS);
   return (
     <BoPage
+      columns
       title="Pacing & Coursing"
       actions={
         <ConfirmReset

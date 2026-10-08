@@ -206,6 +206,18 @@
 .anchor {
   scroll-margin-top: 16px;
 }
+/* Menus and Details: one above the other, side by side on a wide window. */
+.menuDetails {
+  display: contents;
+}
+@media (min-width: 1500px) {
+  .menuDetails {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+    gap: 16px 20px;
+    align-items: start;
+  }
+}
 .statusControl {
   display: inline-flex;
   align-items: center;

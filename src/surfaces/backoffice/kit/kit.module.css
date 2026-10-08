@@ -57,6 +57,37 @@
   padding: 0;
   overflow: hidden;
 }
+
+/*
+ * BoPage columns: a settings page's sections in two columns on a wide window.
+ * Narrower, the body is not a box at all, so the page is one column as before.
+ */
+.columns {
+  display: contents;
+}
+@media (min-width: 1500px) {
+  .columns {
+    display: block;
+    columns: 2 600px;
+    column-gap: 20px;
+  }
+  .columns > * {
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  .columns > :last-child {
+    margin-bottom: 0;
+  }
+  /*
+   * Only sections flow into the columns. A section that only reads well full
+   * width (BoSection span: a wide table) and everything else on the page (its
+   * tabs, callouts, notes) stay full width.
+   */
+  .columns > .span,
+  .columns > :not(section) {
+    column-span: all;
+  }
+}
 .sectionHead {
   display: flex;
   align-items: flex-start;

@@ -25,21 +25,39 @@ export function BoEmbedded({ children }: { children: ReactNode }) {
   return <EmbeddedPage.Provider value={true}>{children}</EmbeddedPage.Provider>;
 }
 
-/** A back office page. `wide` lets a work surface (the menu builder) use the whole window instead of the shell's reading width. */
+/** Set by a BoTabbedPage with `columns`, so each tab's page lays its sections out in two columns. */
+const ColumnsPage = createContext(false);
+
+/**
+ * A page's body. With `columns`, a wide window (1500px and up, once the page
+ * has room for two 600px columns: about 1600px with the side menu) flows its
+ * sections into two columns; narrower, it is the same single column as ever.
+ */
+function PageBody({ columns, children }: { columns?: boolean; children?: ReactNode }) {
+  return columns ? <div className={s.columns}>{children}</div> : <>{children}</>;
+}
+
+/**
+ * A back office page. `wide` lets a work surface (the menu builder) use the whole window instead of the shell's reading width.
+ * `columns` puts a settings page's sections in two columns on a wide window (BoSection `span` keeps one full width).
+ */
 export function BoPage({
   title,
   sub,
   actions,
   wide,
+  columns,
   children,
 }: {
   title: ReactNode;
   sub?: ReactNode;
   actions?: ReactNode;
   wide?: boolean;
+  columns?: boolean;
   children?: ReactNode;
 }) {
   const embedded = useContext(EmbeddedPage);
+  const cols = useContext(ColumnsPage) || columns;
   if (embedded)
     return (
       <div className={s.page} data-bo-wide={wide || undefined}>
@@ -49,7 +67,7 @@ export function BoPage({
             {actions && <div className={s.pageActions}>{actions}</div>}
           </header>
         )}
-        {children}
+        <PageBody columns={cols}>{children}</PageBody>
       </div>
     );
   return (
@@ -61,7 +79,7 @@ export function BoPage({
         </div>
         {actions && <div className={s.pageActions}>{actions}</div>}
       </header>
-      {children}
+      <PageBody columns={cols}>{children}</PageBody>
     </div>
   );
 }
@@ -87,6 +105,7 @@ export function BoTabbedPage({
   current,
   onTab,
   actions,
+  columns,
 }: {
   page: string;
   title: ReactNode;
@@ -96,6 +115,8 @@ export function BoTabbedPage({
   onTab: (id: string) => void;
   /** Buttons beside the title, for the whole page (each tab keeps its own). */
   actions?: ReactNode;
+  /** Each tab's sections in two columns on a wide window (as BoPage `columns`). */
+  columns?: boolean;
 }) {
   const tab = tabs.find((t) => t.id === current) ?? tabs[0];
   return (
@@ -108,14 +129,17 @@ export function BoTabbedPage({
         {actions && <div className={s.pageActions}>{actions}</div>}
       </header>
       <Tabs variant="underline" aria-label={`${typeof title === 'string' ? title : page} sections`} value={tab.id} onChange={onTab} options={tabs.map((t) => ({ id: t.id, label: t.label, count: t.count }))} />
-      <EmbeddedPage.Provider value={true}>{tab.render()}</EmbeddedPage.Provider>
+      <EmbeddedPage.Provider value={true}>
+        <ColumnsPage.Provider value={!!columns}>{tab.render()}</ColumnsPage.Provider>
+      </EmbeddedPage.Provider>
     </div>
   );
 }
 
-export function BoSection({ title, sub, actions, children, flush, className }: { title?: ReactNode; sub?: ReactNode; actions?: ReactNode; children?: ReactNode; flush?: boolean; className?: string }) {
+/** A card of settings. `span` keeps it full width on a `columns` page (a wide table). */
+export function BoSection({ id, title, sub, actions, children, flush, span, className }: { id?: string; title?: ReactNode; sub?: ReactNode; actions?: ReactNode; children?: ReactNode; flush?: boolean; span?: boolean; className?: string }) {
   return (
-    <section className={cx(s.section, flush && s.flush, className)}>
+    <section id={id} className={cx(s.section, flush && s.flush, span && s.span, className)}>
       {(title || actions) && (
         <header className={s.sectionHead}>
           <div className={s.sectionTitles}>

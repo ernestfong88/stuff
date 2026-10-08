@@ -63,6 +63,7 @@ export default function Page() {
 
   return (
     <BoPage
+      columns
       title="Release Phases"
       actions={
         <>

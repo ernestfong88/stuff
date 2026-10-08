@@ -30,6 +30,7 @@ export default function Page({ goto }: BoPageProps) {
 
   return (
     <BoPage
+      columns
       title="Meal Credits"
       actions={
         <ConfirmReset

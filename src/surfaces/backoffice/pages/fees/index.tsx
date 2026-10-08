@@ -22,7 +22,7 @@ export function cleanFee(v: number | null | undefined): number | null {
  */
 export default function DeliveryFeesTab(_props: Partial<BoPageProps>) {
   return (
-    <BoPage title="Delivery fees">
+    <BoPage columns title="Delivery fees">
       <FeePerVenue />
       <SickWaiverSettings />
     </BoPage>

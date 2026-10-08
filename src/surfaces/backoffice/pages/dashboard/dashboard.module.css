@@ -32,6 +32,19 @@
 .attRow + .attRow {
   border-top: 1px solid var(--hair);
 }
+/* A desktop screen: two to a row, so each action's link sits near its line. */
+@media (min-width: 1600px) {
+  .attList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
+  }
+  .attRow:nth-child(2) {
+    border-top: 0;
+  }
+  .attRow:nth-child(even) {
+    border-left: 1px solid var(--hair);
+  }
+}
 .attIcon {
   width: 26px;
   height: 26px;

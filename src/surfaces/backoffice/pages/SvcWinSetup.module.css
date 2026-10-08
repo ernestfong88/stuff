@@ -82,6 +82,12 @@
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 14px;
 }
+/* A desktop screen: each venue and Every venue side by side, three across. */
+@media (min-width: 1500px) {
+  .review {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
 .card {
   padding: 14px 16px 8px;
   border-radius: var(--r-xl);

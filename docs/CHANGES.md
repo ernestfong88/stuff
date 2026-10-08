@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Back Office uses the width on desktop
+- Nothing changes at 1280px wide and below.
+- **Wider page from 1600px:** every Back Office page is up to 1600px wide (was 1280px, or 1520px for the menu builder), with 48px either side.
+- **Two-column settings pages from about 1600px:** sections sit in two columns, read down the first column and then the second. Wide tables, tabs and notices stay full width. Below that width the page is one column, as before.
+  - Pacing & Coursing (*How orders reach the kitchen*, *Coursing* and *Time to greet* stay full width; *After the entrée* and *Dessert* sit side by side), Alerts & Timing (the five moments), Meal Credits, Messages (*Texts to residents* wording; *Residents without a mobile* and *Sent from this demo* stay full width), Kiosk Settings, Release Phases, Associate Meals (the *Associate menu* week table stays full width), Meal Plans (*Plan types*: the plans table stays full width, then *Default plan by care level* and *Guest meals*), and Pick Up & Delivery's *Delivery fees & sick waivers*.
+  - In Venue Settings, a venue's *Menus* and *Details* sit side by side.
+- **Cards fill the room:** the Dashboard's *Needs your attention* list goes two to a row from 1600px (the three trend cards stay three). The Review step of *Set up Pick Up & Delivery* shows the venues and *Every venue* three across. Venue Settings and the Recipe Book's card view were already a grid that adds columns as the page gets wider (4 venues and 6 recipe cards across at full width).
+- Left as they are: Shift Metrics, KDS Settings and Pick Up & Delivery's *Pick up times* tab, since each has one main section that reads better full width. List and table pages (Recipe Book, Order History, Charge Approval, Resident Dining Profile, Printers, Cleaning Log, Temperature Log, P-Mix) are also unchanged; they just get the wider page.
+
+
 ### Recipe Book: import a recipe from a file
 - **Add recipe has two ways in: Type it in · Import a file.** The first screen of *Add a recipe* also offers **Import a file** ("Have it in a Word document, PDF or photo?").
 - **Drop a file or choose one:** Word (.docx), text (.txt, .md), RTF, PDF, or a photo (.jpg, .png, .heic). Files are read in the browser; nothing is uploaded. Older .doc files get a note to save them as .docx.

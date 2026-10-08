@@ -91,19 +91,19 @@ function Timeline({ k, moment, noRed }: { k: string; moment: string; noRed?: boo
 function Moment({ index, desc, children }: { index: number; desc: string; children: ReactNode }) {
   const m = MOMENTS[index];
   return (
-    <div id={m.id} className={s.anchor}>
-      <BoSection
-        title={
-          <span className={s.momentTitle}>
-            <span className={s.num}>{index + 1}</span>
-            {m.title}
-          </span>
-        }
-        sub={desc}
-      >
-        {children}
-      </BoSection>
-    </div>
+    <BoSection
+      id={m.id}
+      className={s.anchor}
+      title={
+        <span className={s.momentTitle}>
+          <span className={s.num}>{index + 1}</span>
+          {m.title}
+        </span>
+      }
+      sub={desc}
+    >
+      {children}
+    </BoSection>
   );
 }
 
@@ -137,6 +137,7 @@ export default function Page(_props: BoPageProps) {
   const printers = printerMode(useConfig());
   return (
     <BoPage
+      columns
       title="Alerts & Timing"
       sub="How long each moment of a meal can take before a screen flags it. Leave a box blank to turn that alert off."
       actions={

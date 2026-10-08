@@ -156,6 +156,7 @@ function NoMobile() {
   };
   return (
     <BoSection
+      span
       title="Residents without a mobile"
       sub="Their orders go through the same way. Nothing is texted to them, and the pick up, delivery and expo screens say no mobile instead of texted, so staff let them know another way."
       actions={<Chip tone={none ? 'warning' : 'neutral'}>{none === 1 ? '1 resident' : `${none} residents`}</Chip>}
@@ -192,6 +193,7 @@ function Outbox() {
   const sent = useOutbox();
   return (
     <BoSection
+      span
       title="Sent from this demo"
       sub="The demo has no texting service, so nothing leaves this page. Each text the demo would have sent is kept here."
       actions={<Chip>{sent.length === 1 ? '1 text' : `${sent.length} texts`}</Chip>}
@@ -276,6 +278,7 @@ export default function Page(props: BoPageProps) {
     <BoTabbedPage
       page="svcTexts"
       title="Messages"
+      columns
       current={tab}
       onTab={go}
       tabs={[

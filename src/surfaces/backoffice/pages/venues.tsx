@@ -236,9 +236,11 @@ function VenueDetail({
         {TAB_LINE[shown] && <p className={s.tabLine}>{TAB_LINE[shown]}</p>}
         {shown === 'menu' && (
           <>
-            <VenueMenu settings={settings} venue={venue} goto={goto} />
-            <div ref={detailsRef} className={s.anchor}>
-              <VenueDetails settings={settings} venue={venue} onRetired={onRetired} />
+            <div className={s.menuDetails}>
+              <VenueMenu settings={settings} venue={venue} goto={goto} />
+              <div ref={detailsRef} className={s.anchor}>
+                <VenueDetails settings={settings} venue={venue} onRetired={onRetired} />
+              </div>
             </div>
             <p className={s.tabLine}>
               Printers and card terminals for {venue.name} are on{' '}

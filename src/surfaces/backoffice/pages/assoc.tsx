@@ -53,7 +53,7 @@ export default function Page({ goto }: BoPageProps) {
   const rangesFor = (meal: AssocMealName) => spansText(assocWindows(settings.grid, meal, '', []).map((w) => windowMinutes(w) ?? 0));
 
   return (
-    <BoPage title="Associate Meals">
+    <BoPage columns title="Associate Meals">
       <MenuSection settings={menuSettings} todayIso={todayIso} />
       <StandingChoices settings={menuSettings} todayIso={todayIso} />
 
@@ -129,6 +129,7 @@ function MenuSection({ settings, todayIso }: { settings: AssocMenuSettings; toda
 
   return (
     <BoSection
+      span
       title="Associate menu"
       sub="Each lunch and dinner gets one chef special from that day's menu cycle, first come, first served up to the daily limit. Overnight (NOC) meals get the dinner special. The special of the week is on every day of its week."
       actions={

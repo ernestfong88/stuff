@@ -37,7 +37,7 @@ export function KitchenModeSetting() {
   const current: KitchenMode = printerMode(cfg) ? 'printers' : 'kds';
   return (
     <>
-      <BoSection title="How orders reach the kitchen" sub="For every venue. Checks already sent keep what they had; new sends follow this.">
+      <BoSection span title="How orders reach the kitchen" sub="For every venue. Checks already sent keep what they had; new sends follow this.">
         <div className={s.choices} role="radiogroup" aria-label="How orders reach the kitchen">
           {CHOICES.map((c) => {
             const on = c.id === current;

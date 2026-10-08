@@ -36,6 +36,7 @@ function MealPlansTab({ goto }: BoPageProps) {
   const editing = useCrudEditing<BoMealPlan>();
   return (
     <BoPage
+      columns
       title="Meal Plans"
       actions={
         <Button variant="primary" icon={<Plus size={15} />} onClick={() => editing.add({ id: uid('pl'), text: 'New plan', amt: 30, type: 'Monthly', isDefault: false, active: true })} disabled={editing.draft != null}>

@@ -39,6 +39,14 @@
   max-width: 1520px;
   padding-inline: 48px;
 }
+/* Desktop screens: every page gets the room, so two-column settings pages and card grids can spread out. */
+@media (min-width: 1600px) {
+  .content,
+  .content:has([data-bo-wide]) {
+    max-width: 1600px;
+    padding-inline: 48px;
+  }
+}
 
 .scrim {
   display: none;

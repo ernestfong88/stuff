@@ -171,9 +171,7 @@ function FeaturedCard({ list, title, sub }: { list: FeaturedList; title: string;
 /** Featured on Kiosk: The drinks and sides residents see first at the lobby kiosk. */
 export default function Page(_props: BoPageProps) {
   return (
-    <BoPage
-      title="Kiosk Settings"
-    >
+    <BoPage columns title="Kiosk Settings">
       <FeaturedCard list="drinks" title="Drinks" sub="Use the arrows to change the order. Beer, wine and spirits always sit behind their own button, even when listed here." />
       <FeaturedCard list="sides" title="Sides" sub="Use the arrows to change the order. “No side, thanks” always comes first, above these." />
       <Rotation />
