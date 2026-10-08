@@ -1,5 +1,5 @@
 /**
- * Filters over the Resident Dining Profile list: care level, diets and
+ * Filters over the Resident Dining Profiles list: care level, diets and
  * allergies (any of the chosen), meal plan, and a search box. Each filter's
  * counts are worked out with the other filters applied, so "Gluten-free 2"
  * under AL means two AL residents.

@@ -126,7 +126,7 @@ function Row({ r, rec, plans, onOpen }: { r: Resident; rec: BoResident | undefin
 }
 
 /**
- * The Resident Dining Profile list: each resident's meal plan (changed
+ * The Resident Dining Profiles list: each resident's meal plan (changed
  * right here, logged for billing), hospice switch, and allergies and diets.
  * The rest of the row opens the profile.
  */

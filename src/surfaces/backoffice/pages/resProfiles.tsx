@@ -55,7 +55,7 @@ function saveFilter({ level, tags, plan }: ProfileFilter) {
 }
 
 /**
- * Resident Dining Profile: everyone with their meal plan, hospice switch and
+ * Resident Dining Profiles: everyone with their meal plan, hospice switch and
  * allergies and diets, filtered by care level, diet or allergy and meal
  * plan, and each profile exactly as servers see it on the tablet. A
  * resident opens at #/backoffice/resProfiles/<id>, so the browser's back
@@ -125,7 +125,7 @@ function ResidentList({
   const shown = filterProfiles(rows, filter);
   return (
     <BoPage
-      title="Resident Dining Profile"
+      title="Resident Dining Profiles"
       actions={
         <>
           <Button variant="ghost" onClick={() => goto('residents')}>
@@ -156,7 +156,7 @@ function ResidentList({
 const HUB_TABS = ['profiles', 'trivia'] as const;
 
 /**
- * Resident Dining Profile: everyone as servers see them, with their
+ * Resident Dining Profiles: everyone as servers see them, with their
  * allergies and diets, and the trivia scoreboard. An open profile shows on
  * its own, without the tabs. The old Allergies & diets tab
  * (#/backoffice/resProfiles/diets) is now the list's filters, and its
@@ -169,7 +169,7 @@ export default function Page(props: BoPageProps) {
   return (
     <BoTabbedPage
       page="resProfiles"
-      title="Resident Dining Profile"
+      title="Resident Dining Profiles"
       current={tab}
       onTab={go}
       tabs={[

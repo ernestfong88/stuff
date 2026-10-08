@@ -79,18 +79,18 @@ describe('the standard phase split', () => {
   Screen › Manager
   Screen › PU & Delivery
   Screen › Back Office
-  Back Office › Today › Dashboard
-  Back Office › Today › P-Mix
+  Back Office › Metrics & Reporting › Dashboard
+  Back Office › Metrics & Reporting › P-Mix
   Back Office › Menus & Recipes › Recipe Book
   Back Office › Menus & Recipes › Menu Cycle & À la Carte
-  Back Office › Menus & Recipes › Modifiers
   Back Office › Menus & Recipes › Associate Meals
   Back Office › Venues › Venue Settings
   Back Office › Venues › Printers
   Back Office › POS Settings › Pacing & Coursing
   Back Office › POS Settings › Pick Up & Delivery
   Back Office › POS Settings › Messages
-  Back Office › Resident Dining Profile › Resident Dining Profile
+  Back Office › POS Settings › Modifiers
+  Back Office › Resident Dining Profiles › Resident Dining Profiles
   Back Office › Billing › Charge Approval
   Back Office › Billing › Order History
   Back Office › Billing › Meal Plans

@@ -44,7 +44,7 @@ export interface BoPageProps {
 export const BO_SECTIONS: BoSectionDef[] = [
   {
     id: 'today',
-    label: 'Today',
+    label: 'Metrics & Reporting',
     icon: LayoutGrid,
     pages: [
       {
@@ -81,13 +81,6 @@ export const BO_SECTIONS: BoSectionDef[] = [
         blurb: 'Seasonal menus and when each venue starts one',
         keywords: 'cycle schedule season draft scheduled active archive',
         component: lazy(() => import('./pages/menus')),
-      },
-      {
-        id: 'modifiers',
-        label: 'Modifiers',
-        blurb: 'Choices like cook temp, sides and dressing',
-        keywords: 'options add-ons choices',
-        component: lazy(() => import('./pages/modifiers')),
       },
       {
         id: 'export',
@@ -225,6 +218,13 @@ export const BO_SECTIONS: BoSectionDef[] = [
         keywords: 'sms text message template wording mobile phone cell no mobile broadcast alert announcement notice acknowledge',
         component: lazy(() => import('./pages/svcTexts')),
       },
+      {
+        id: 'modifiers',
+        label: 'Modifiers',
+        blurb: 'Choices like cook temp, sides and dressing',
+        keywords: 'options add-ons choices pos',
+        component: lazy(() => import('./pages/modifiers')),
+      },
     ],
   },
   {
@@ -244,12 +244,12 @@ export const BO_SECTIONS: BoSectionDef[] = [
   },
   {
     id: 'residents',
-    label: 'Resident Dining Profile',
+    label: 'Resident Dining Profiles',
     icon: Users,
     pages: [
       {
         id: 'resProfiles',
-        label: 'Resident Dining Profile',
+        label: 'Resident Dining Profiles',
         blurb: 'Care level, meal plan, allergies and diets for every resident, with filters; trivia',
         keywords:
           'residents resident profiles dining profile server view story family usuals preference allergy allergies diet diets texture puree thickened gluten shellfish care level il al independent assisted meal plan a la carte filter trivia quiz score scoreboard prize',
@@ -387,8 +387,8 @@ export const BO_ALIASES: BoPageAlias[] = [
   { id: 'svcRoute', label: 'Kitchen routing', blurb: 'In Venue Settings, on each venue', keywords: 'kitchen routing kds expo bar station route', to: ['venues', 'first', 'kitchen'] },
   { id: 'fees', label: 'Delivery fees & sick waivers', blurb: 'In Pick Up & Delivery', keywords: 'delivery options tray room service fee sick waiver', to: ['svcWin', 'fees'] },
   { id: 'broadcasts', label: 'Broadcasts to staff', blurb: 'In Messages', keywords: 'broadcast notice announcement', to: ['svcTexts', 'broadcasts'] },
-  { id: 'resDiets', label: 'Allergies & diets', blurb: 'Filters in Resident Dining Profile', keywords: 'allergy diet texture', to: ['resProfiles'] },
-  { id: 'trivia', label: 'Trivia scoreboard', blurb: 'In Resident Dining Profile', keywords: 'trivia quiz score prize', to: ['resProfiles', 'trivia'] },
+  { id: 'resDiets', label: 'Allergies & diets', blurb: 'Filters in Resident Dining Profiles', keywords: 'allergy diet texture', to: ['resProfiles'] },
+  { id: 'trivia', label: 'Trivia scoreboard', blurb: 'In Resident Dining Profiles', keywords: 'trivia quiz score prize', to: ['resProfiles', 'trivia'] },
   { id: 'mealdrops', label: 'Meal counts', blurb: 'In Meal Plans', keywords: 'meal counts guest associate close', to: ['plans', 'counts'] },
   { id: 'corkage', label: 'Corkage', blurb: 'In Meal Plans', keywords: 'corkage wine bottle fee', to: ['plans', 'corkage'] },
 ];

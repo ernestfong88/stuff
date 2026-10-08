@@ -220,6 +220,11 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Back Office: section and page names
+- The **Today** section is now **Metrics & Reporting** (Dashboard and P-Mix).
+- **Modifiers** moved from Menus & Recipes to **POS Settings**, after Messages. The page itself is unchanged, and search still finds it.
+- **Resident Dining Profile** is now **Resident Dining Profiles**, in the menu, the page title and wherever other pages point to it.
+
 ### Trivia mode switch
 - Back Office → Resident Dining Profile → Trivia scoreboard has a **Trivia mode** switch at the top, with a line saying what on and off mean. Turning it off or on shows a toast with Undo.
 - Off hides trivia on the server tablets: the Trivia button on table cards and closed checks, and the Trivia scoreboard tab in Shift Review (an open tab falls back to Checks and payments). Scores, the scoreboard and prizes are kept and still show in Back Office.
