@@ -1,0 +1,145 @@
+.sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.back {
+  order: -1;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  height: 32px;
+  margin-bottom: -12px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--s500);
+}
+.back:hover {
+  color: var(--ink);
+}
+.meals {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mealLabel {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.mealHint,
+.liveNote {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--s500);
+}
+/*
+ * Side-by-side columns once the page has room for 420px each. Newspaper
+ * columns: a long section carries on at the top of the next column (each piece
+ * keeps the card look), so every column fills evenly whatever the section count.
+ */
+.sections {
+  columns: 420px;
+  column-gap: 12px;
+}
+.section {
+  margin-bottom: 12px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 14px 16px 10px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.secHead {
+  break-after: avoid;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.secTitle {
+  font-size: 15px;
+  font-weight: 700;
+}
+.count {
+  flex: 1;
+  font-size: 12px;
+  color: var(--s400);
+}
+.none {
+  margin: 4px 0 8px;
+  font-size: 13px;
+  color: var(--s400);
+}
+.row {
+  break-inside: avoid;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--hair);
+}
+.name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--ink);
+  text-align: left;
+}
+.name:hover:not(:disabled) {
+  color: var(--ocean);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.chips {
+  display: inline-flex;
+  gap: 4px;
+}
+.mealChip {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--s400);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.mealOn {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: none;
+}
+.remove {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  color: var(--s400);
+}
+.remove:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.mealStatic {
+  cursor: default;
+}
+.addSearch {
+  width: 280px;
+  max-width: 50%;
+}
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}

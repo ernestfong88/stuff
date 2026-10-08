@@ -1,0 +1,41 @@
+.place {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--k) * 16);
+  margin-bottom: calc(var(--k) * 22);
+  padding: calc(var(--k) * 16) calc(var(--k) * 22);
+  border-radius: calc(var(--k) * 22);
+  font-size: calc(var(--k) * 30);
+  font-weight: 700;
+  color: var(--kk-deep);
+}
+.placeIcon {
+  width: calc(var(--k) * 40);
+  height: calc(var(--k) * 40);
+  flex-shrink: 0;
+}
+.time,
+.timeBig {
+  gap: calc(var(--k) * 4);
+  min-height: calc(var(--k) * 108);
+  font-size: calc(var(--k) * 32);
+}
+.timeBig {
+  min-height: calc(var(--k) * 120);
+  font-size: calc(var(--k) * 38);
+}
+.tag {
+  font-size: calc(var(--k) * 24);
+  font-weight: 800;
+  color: var(--kk-blue);
+}
+[aria-pressed='true'] .tag {
+  color: #fff;
+}
+:disabled .tag {
+  color: inherit;
+}
+.moreRow {
+  display: flex;
+  margin-top: calc(var(--k) * 18);
+}

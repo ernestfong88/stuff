@@ -1,0 +1,65 @@
+.list {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  min-height: 52px;
+  padding: 6px 0;
+  border-top: 1px solid var(--hair);
+}
+.icon {
+  flex-shrink: 0;
+  color: var(--s500);
+}
+.main {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+}
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.empty {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  color: var(--s500);
+}
+.pairNote {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  color: var(--s500);
+}
+.pairForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pairActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.group + .group {
+  margin-top: 18px;
+}
+.groupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 4px;
+}
+.groupName {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink);
+}

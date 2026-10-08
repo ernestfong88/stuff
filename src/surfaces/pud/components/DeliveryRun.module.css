@@ -1,0 +1,44 @@
+.run {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 11px 14px;
+  border-radius: var(--r-xl);
+  background: var(--ocean-100);
+}
+.icon {
+  flex-shrink: 0;
+  color: var(--coast);
+}
+.text {
+  flex: 1;
+  min-width: 0;
+}
+.title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ocean-700);
+}
+.detail {
+  margin-top: 1px;
+  font-size: 12.5px;
+  color: #3a5a75;
+}
+.take {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 11px;
+  background: var(--coast);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.take:hover {
+  filter: brightness(1.08);
+}

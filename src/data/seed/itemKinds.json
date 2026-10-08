@@ -1,0 +1,22 @@
+{
+ "entree": {
+  "c": "#4D7093",
+  "bg": "#DCE8F1"
+ },
+ "side": {
+  "c": "#0F4368",
+  "bg": "#DCE8F1"
+ },
+ "soup": {
+  "c": "#C38A51",
+  "bg": "#F6EADB"
+ },
+ "dessert": {
+  "c": "#5D7545",
+  "bg": "#E5EBDD"
+ },
+ "beverage": {
+  "c": "#4D7093",
+  "bg": "#DCE8F1"
+ }
+}

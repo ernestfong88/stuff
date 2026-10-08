@@ -1,0 +1,229 @@
+/* Lane colours match the manager floor, so a colour means the same state everywhere. */
+.lane_seat {
+  --lane: #8a949b;
+}
+.lane_order {
+  --lane: #4d7093;
+}
+.lane_cook {
+  --lane: #c9a227;
+}
+.lane_run {
+  --lane: #3f7d3f;
+}
+.lane_eat {
+  --lane: #2f8c8c;
+}
+.lane_check {
+  --lane: #1f6fb8;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 10px 10px 12px;
+  border-radius: var(--r-xl);
+  border-left: 5px solid var(--lane);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  cursor: pointer;
+  transition:
+    box-shadow var(--fast) var(--ease),
+    transform var(--fast) var(--ease);
+}
+.card:hover {
+  box-shadow:
+    inset 0 0 0 1px var(--hair-2),
+    var(--shadow-2);
+}
+.loud {
+  box-shadow:
+    inset 0 0 0 2px #3f7d3f,
+    0 6px 16px -8px #3f7d3f;
+}
+.late {
+  box-shadow: inset 0 0 0 2px var(--danger);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  /* The card's open-the-check target: a full 44px on a tablet. */
+  min-height: 44px;
+  border-radius: var(--r-sm);
+  text-align: left;
+}
+.table {
+  flex-shrink: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink);
+}
+.who {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.lead {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--s700);
+}
+.nobody {
+  color: #a3abb1;
+}
+.lateTag {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  background: var(--danger);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+.timer {
+  flex-shrink: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.timerLate {
+  color: var(--danger);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 40px;
+}
+.act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition:
+    transform var(--fast) var(--ease),
+    filter var(--fast);
+}
+.act:active {
+  transform: scale(0.97);
+}
+.act:hover {
+  filter: brightness(0.96);
+}
+.go {
+  background: #3f7d3f;
+  color: #fff;
+  box-shadow: 0 4px 12px -5px #3f7d3f;
+}
+.nav {
+  background: var(--ocean-100);
+  color: var(--ocean-700);
+}
+.fire {
+  background: var(--amber);
+  color: #2a1a02;
+  box-shadow: 0 4px 12px -5px var(--amber);
+}
+.close {
+  background: var(--flora);
+  color: #fff;
+  box-shadow: 0 4px 12px -5px rgba(93, 117, 69, 0.7);
+}
+.plain {
+  background: var(--surface);
+  color: var(--s700);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.16);
+}
+.sleepy {
+  background: #e3e8ec;
+  color: var(--s500);
+}
+.ready {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #2f6b33;
+}
+.note {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--s400);
+}
+.atBar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #6a4f84;
+}
+.slot {
+  display: contents;
+}
+.portal {
+  display: contents;
+}
+
+.undo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 10px;
+  border-radius: 11px;
+  background: rgba(63, 125, 63, 0.09);
+  cursor: default;
+}
+.undoText {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #2f6b33;
+}
+.undoBtn {
+  height: 40px;
+}
+.plainCard {
+  border-left: 4px solid var(--s200);
+}
+
+/* When the order went in, under the diner names: just the time. Grey until something is sent (the check's open time). */
+.when {
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--s700);
+  font-variant-numeric: tabular-nums;
+}
+.whenOpened {
+  font-weight: 700;
+  color: var(--s500);
+}

@@ -1,0 +1,220 @@
+[
+ {
+  "id": "amc1",
+  "date": "2026-10-07",
+  "meal": "Dinner",
+  "window": "7:30 PM",
+  "associate": "Grace Kim",
+  "item": "Peach Glazed Chicken Breast",
+  "status": "Planned",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "d_peach"
+  ]
+ },
+ {
+  "id": "amc2",
+  "date": "2026-10-07",
+  "meal": "Dinner",
+  "window": "7:45 PM",
+  "associate": "Devon Carter",
+  "item": "Southwest Summer Salad",
+  "status": "Planned",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "l_swsalad"
+  ]
+ },
+ {
+  "id": "am1",
+  "date": "2026-10-07",
+  "meal": "Lunch",
+  "window": "11:00 AM",
+  "associate": "Maria Lopez",
+  "item": "Turkey Club",
+  "status": "Planned",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "vf_turkeyclub"
+  ]
+ },
+ {
+  "id": "am2",
+  "date": "2026-10-07",
+  "meal": "Lunch",
+  "window": "1:30 PM",
+  "associate": "Devon Carter",
+  "item": "Reuben Sandwich",
+  "status": "Planned",
+  "note": "no onions",
+  "log": [],
+  "recipeIds": [
+   "l_reuben"
+  ]
+ },
+ {
+  "id": "am3",
+  "date": "2026-10-07",
+  "meal": "Lunch",
+  "window": "1:30 PM",
+  "associate": "Grace Kim",
+  "item": "Southwest Summer Salad",
+  "status": "Planned",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "l_swsalad"
+  ]
+ },
+ {
+  "id": "am4",
+  "date": "2026-10-07",
+  "meal": "Dinner",
+  "window": "4:30 PM",
+  "associate": "Priya Nair",
+  "item": "Soup & Salad Combo",
+  "status": "Planned",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "l_cbsoup",
+   "l_sidesalad"
+  ]
+ },
+ {
+  "id": "am5",
+  "date": "2026-10-07",
+  "meal": "Dinner",
+  "window": "7:00 PM",
+  "associate": "Tom Ellis",
+  "item": "Peach Glazed Chicken Breast",
+  "status": "Planned",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "d_peach"
+  ]
+ },
+ {
+  "id": "am6",
+  "date": "2026-10-08",
+  "meal": "Lunch",
+  "window": "11:00 AM",
+  "associate": "Luis Ortega",
+  "item": "Hummus Veggie Wrap",
+  "status": "Planned",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "vf_hummuswrap"
+  ]
+ },
+ {
+  "id": "am7",
+  "date": "2026-10-08",
+  "meal": "Dinner",
+  "window": "7:00 PM",
+  "associate": "Jordan Reyes",
+  "item": "Turkey Club",
+  "status": "Planned",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "vf_turkeyclub"
+  ]
+ },
+ {
+  "id": "am8",
+  "date": "2026-10-09",
+  "meal": "Lunch",
+  "window": "1:30 PM",
+  "associate": "Maria Lopez",
+  "item": "Southwest Summer Salad",
+  "status": "Planned",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "l_swsalad"
+  ]
+ },
+ {
+  "id": "am9",
+  "date": "2026-10-07",
+  "meal": "NOC",
+  "window": "11:00 PM",
+  "associate": "Luis Ortega",
+  "item": "Turkey Club",
+  "status": "Planned",
+  "note": "Chips",
+  "mods": {
+   "Side": "Chips"
+  },
+  "log": [],
+  "recipeIds": [
+   "vf_turkeyclub"
+  ]
+ },
+ {
+  "id": "am10",
+  "date": "2026-10-07",
+  "meal": "NOC",
+  "window": "2:00 AM",
+  "associate": "Maria Lopez",
+  "item": "Cheeseburger Soup",
+  "status": "Planned",
+  "note": "Bowl",
+  "mods": {
+   "Size": "Bowl"
+  },
+  "log": [],
+  "recipeIds": [
+   "l_cbsoup"
+  ]
+ },
+ {
+  "id": "h1",
+  "date": "2026-10-06",
+  "meal": "Lunch",
+  "window": "1:30 PM",
+  "associate": "Jordan Reyes",
+  "item": "Patty Melt",
+  "status": "Picked up",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "vf_pattymelt"
+  ]
+ },
+ {
+  "id": "h2",
+  "date": "2026-10-05",
+  "meal": "Dinner",
+  "window": "7:00 PM",
+  "associate": "Jordan Reyes",
+  "item": "Turkey Club",
+  "status": "Picked up",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "vf_turkeyclub"
+  ]
+ },
+ {
+  "id": "h3",
+  "date": "2026-10-04",
+  "meal": "Lunch",
+  "window": "11:00 AM",
+  "associate": "Jordan Reyes",
+  "item": "Soup & Salad Combo",
+  "status": "Cancelled — shift removed",
+  "note": "",
+  "log": [],
+  "recipeIds": [
+   "l_cbsoup",
+   "l_sidesalad"
+  ]
+ }
+]

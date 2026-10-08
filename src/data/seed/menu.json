@@ -1,0 +1,4945 @@
+{
+ "Breakfast": {
+  "Entrées": [
+   {
+    "id": "b_sbpancakes",
+    "name": "Strawberry Banana Pancakes",
+    "desc": "Buttermilk pancakes with fresh strawberries, banana, whipped cream and maple syrup",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Egg",
+     "Dairy"
+    ],
+    "course": 2,
+    "special": true,
+    "entree": true,
+    "etype": "plate",
+    "protein": "veg",
+    "cookNotes": "Three pancakes, golden. Strawberries and banana on top as it goes out, whipped cream last, warm maple syrup over."
+   },
+   {
+    "id": "b_bburrito",
+    "name": "Breakfast Burrito",
+    "desc": "Scrambled egg, sausage and cheddar in a warm flour tortilla, salsa on the side",
+    "residentPrice": 0,
+    "guestPrice": 9,
+    "alaPrice": 11,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Egg",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "pork",
+    "defaultSideIds": [
+     "b_hashbrowns"
+    ]
+   },
+   {
+    "id": "b_bsandwich",
+    "name": "Breakfast Sandwich",
+    "desc": "Fried egg, sausage patty and American cheese on a toasted English muffin",
+    "residentPrice": 0,
+    "guestPrice": 8,
+    "alaPrice": 10,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Egg",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "pork",
+    "defaultSideIds": [
+     "b_hbpatty"
+    ]
+   },
+   {
+    "id": "b_omelet",
+    "name": "Build Your Own Omelet",
+    "desc": "Three eggs with your choice of fillings and cheese",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Egg"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "byo",
+    "protein": "egg",
+    "presets": [
+     [
+      "Western",
+      {
+       "g_omelet": [
+        "Diced Ham",
+        "Onions",
+        "Green Peppers"
+       ],
+       "g_cheese": [
+        "Cheddar"
+       ]
+      },
+      "Three eggs with diced ham, onions, green peppers and cheddar"
+     ],
+     [
+      "Garden",
+      {
+       "g_omelet": [
+        "Mushrooms",
+        "Spinach",
+        "Tomatoes"
+       ],
+       "g_cheese": [
+        "Swiss"
+       ]
+      },
+      "Three eggs with mushrooms, spinach, tomatoes and Swiss"
+     ]
+    ],
+    "defaultSideIds": [
+     "b_hashbrowns",
+     "b_toast"
+    ]
+   },
+   {
+    "id": "b_eggs",
+    "name": "Choice of Eggs",
+    "desc": "Two scrambled eggs",
+    "residentPrice": 0,
+    "guestPrice": 7,
+    "alaPrice": 9,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Style",
+      "opts": [
+       "Scrambled",
+       "Over Easy",
+       "Over Medium",
+       "Over Hard",
+       "Sunny Side Up",
+       "Poached"
+      ],
+      "default": "Scrambled"
+     }
+    ],
+    "allergens": [
+     "Egg"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "egg",
+    "defaultSideIds": [
+     "b_hashbrowns",
+     "b_toast"
+    ]
+   },
+   {
+    "id": "b_cereal",
+    "name": "Cold Cereal",
+    "desc": "A bowl of cold cereal with milk",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "veg",
+    "route": "expo"
+   },
+   {
+    "id": "b_ftoast",
+    "name": "French Toast",
+    "desc": "Thick sliced and griddled, with butter and warm syrup",
+    "residentPrice": 0,
+    "guestPrice": 8,
+    "alaPrice": 10,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Egg",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "veg"
+   },
+   {
+    "id": "b_hamsteak",
+    "name": "Ham Steak Plate",
+    "desc": "Grilled ham steak with two scrambled eggs",
+    "residentPrice": 0,
+    "guestPrice": 11,
+    "alaPrice": 13,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Style",
+      "opts": [
+       "Scrambled",
+       "Over Easy",
+       "Over Medium",
+       "Over Hard",
+       "Sunny Side Up",
+       "Poached"
+      ],
+      "default": "Scrambled"
+     }
+    ],
+    "allergens": [
+     "Egg"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "pork",
+    "defaultSideIds": [
+     "b_hashbrowns",
+     "b_toast"
+    ]
+   },
+   {
+    "id": "b_loaded",
+    "name": "Loaded Terrace Breakfast",
+    "desc": "Two scrambled eggs with hashbrowns, bacon and toast",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Style",
+      "opts": [
+       "Scrambled",
+       "Over Easy",
+       "Over Medium",
+       "Over Hard",
+       "Sunny Side Up",
+       "Poached"
+      ],
+      "default": "Scrambled"
+     }
+    ],
+    "allergens": [
+     "Egg",
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "pork",
+    "defaultSideIds": [
+     "b_hashbrowns",
+     "b_bacon",
+     "b_toast"
+    ]
+   },
+   {
+    "id": "b_oatmeal",
+    "name": "Oatmeal",
+    "desc": "Hot oatmeal with brown sugar and raisins on the side",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "veg"
+   },
+   {
+    "id": "b_pancakes",
+    "name": "Pancakes",
+    "desc": "Three buttermilk pancakes with butter and syrup",
+    "residentPrice": 0,
+    "guestPrice": 8,
+    "alaPrice": 10,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Egg",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "veg"
+   },
+   {
+    "id": "b_pureed",
+    "name": "Pureed Molded Meal",
+    "desc": "The meal of the day pureed and molded, for pureed diets",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "other"
+   },
+   {
+    "id": "b_parfait",
+    "name": "Yogurt Parfait",
+    "desc": "Vanilla yogurt layered with mixed berries and granola",
+    "residentPrice": 0,
+    "guestPrice": 6,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy",
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "veg",
+    "route": "expo"
+   },
+   {
+    "id": "b_waffle",
+    "name": "Waffle",
+    "desc": "Golden Belgian waffle with butter and syrup",
+    "residentPrice": 0,
+    "guestPrice": 8,
+    "alaPrice": 10,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Egg",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "veg"
+   }
+  ],
+  "Sides": [
+   {
+    "id": "b_applesauce",
+    "name": "Applesauce Cup",
+    "desc": "Chilled applesauce",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "b_avocado",
+    "name": "Avocado Slices",
+    "desc": "Fresh sliced avocado",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "b_bagel",
+    "name": "Bagel",
+    "desc": "Toasted bagel with cream cheese",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Type",
+      "opts": [
+       "Plain",
+       "Everything",
+       "Cinnamon Raisin"
+      ],
+      "default": "Plain"
+     }
+    ],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "b_cottage",
+    "name": "Cottage Cheese",
+    "desc": "Small curd cottage cheese",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "b_pastry",
+    "name": "Pastry",
+    "desc": "A fresh baked breakfast pastry",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Egg",
+     "Dairy"
+    ],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "b_emuffin",
+    "name": "English Muffin",
+    "desc": "Toasted English muffin with butter and jam",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "b_fruit",
+    "name": "Fresh Fruit",
+    "desc": "Seasonal cut fruit",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "b_hashbrowns",
+    "name": "Hashbrowns",
+    "desc": "Shredded potatoes, griddled crisp",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "b_hbpatty",
+    "name": "Hashbrown Patty",
+    "desc": "Crispy hashbrown patty",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "b_berries",
+    "name": "Mixed Berries",
+    "desc": "Strawberries, blueberries and raspberries",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "b_tbacon",
+    "name": "Turkey Bacon",
+    "desc": "Two strips of turkey bacon",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "b_tsausage",
+    "name": "Turkey Sausage",
+    "desc": "Two turkey sausage patties",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "b_bacon",
+    "name": "2 Strips Bacon",
+    "desc": "Two strips of crisp bacon",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "b_sausage",
+    "name": "2 Sausage Links",
+    "desc": "Two pork sausage links",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "b_toast",
+    "name": "Toast",
+    "desc": "Two slices with butter and jam",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Bread",
+      "opts": [
+       "White",
+       "Wheat",
+       "Rye",
+       "Sourdough",
+       "Multigrain"
+      ],
+      "default": "Wheat"
+     }
+    ],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "ctype": "side",
+    "creditKind": "none"
+   }
+  ],
+  "Desserts": [
+   {
+    "id": "b_sfjello",
+    "name": "Sugar-Free Jello",
+    "desc": "Sugar-free gelatin",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   },
+   {
+    "id": "b_yogurt",
+    "name": "Yogurt",
+    "desc": "Individual yogurt cup",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   }
+  ],
+  "Drinks": [
+   {
+    "id": "b_coffee",
+    "name": "Coffee",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_decaf",
+    "name": "Decaf Coffee",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_hottea",
+    "name": "Hot Tea",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Type",
+      "opts": [
+       "Black",
+       "Green",
+       "Herbal",
+       "Decaf"
+      ],
+      "default": "Black"
+     }
+    ],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_icedtea",
+    "name": "Iced Tea",
+    "desc": "Fresh brewed, unsweetened",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_water",
+    "name": "Water",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 0,
+    "alaPrice": 2,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_milk2",
+    "name": "2% Milk",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_wholemilk",
+    "name": "Whole Milk",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_almondmilk",
+    "name": "Almond Milk",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Tree Nuts"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_oj",
+    "name": "Orange Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_apple",
+    "name": "Apple Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_cran",
+    "name": "Cranberry Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_prune",
+    "name": "Prune Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_coke",
+    "name": "Coca-Cola",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_diet",
+    "name": "Diet Coke",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_sprite",
+    "name": "Sprite",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_sevenup",
+    "name": "7-Up",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_rootbeer",
+    "name": "Root Beer",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_dietrootbeer",
+    "name": "Diet Root Beer",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_sflemonade",
+    "name": "Sugar-Free Lemonade",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "b_vitwater",
+    "name": "Vitamin Water",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   }
+  ]
+ },
+ "Lunch": {
+  "Starters": [
+   {
+    "id": "l_cbsoup",
+    "name": "Cheeseburger Soup",
+    "desc": "Creamy soup with ground beef, potato and cheddar",
+    "residentPrice": 0,
+    "guestPrice": 5,
+    "alaPrice": 7,
+    "day": 15,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Size",
+      "opts": [
+       "Cup",
+       "Bowl"
+      ],
+      "default": "Cup"
+     }
+    ],
+    "allergens": [
+     "Dairy",
+     "Gluten"
+    ],
+    "course": 1,
+    "special": true,
+    "route": "expo"
+   }
+  ],
+  "Entrées": [
+   {
+    "id": "l_reuben",
+    "name": "Reuben Sandwich",
+    "desc": "Corned beef, Swiss, sauerkraut and Thousand Island on grilled rye",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Dairy"
+    ],
+    "course": 2,
+    "special": true,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "beef",
+    "cookNotes": "Rye grilled golden, cheese fully melted. Cut on the bias, potato salad in a ramekin.",
+    "defaultSideIds": [
+     "l_potsalad"
+    ]
+   },
+   {
+    "id": "l_bbqsalad",
+    "name": "BBQ Chopped Chicken Salad",
+    "desc": "Chopped greens with BBQ chicken, corn, tomato and cheddar",
+    "residentPrice": 0,
+    "guestPrice": 11,
+    "alaPrice": 13,
+    "day": 15,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Dressing",
+      "opts": [
+       "BBQ Ranch",
+       "Ranch",
+       "Honey Mustard"
+      ],
+      "default": "BBQ Ranch"
+     }
+    ],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "special": true,
+    "entree": true,
+    "etype": "salad",
+    "protein": "chicken",
+    "route": "kds",
+    "cookNotes": "Chicken chopped small and warm. Dressing on the side unless asked, roll on the plate rim.",
+    "defaultSideIds": [
+     "l_roll"
+    ]
+   },
+   {
+    "id": "l_wings",
+    "name": "BBQ Chicken Wings",
+    "desc": "Crispy wings tossed in BBQ sauce, ranch on the side",
+    "residentPrice": 0,
+    "guestPrice": 11,
+    "alaPrice": 13,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Sauce",
+      "opts": [
+       "BBQ",
+       "Buffalo",
+       "Honey Garlic"
+      ],
+      "default": "BBQ"
+     }
+    ],
+    "allergens": [],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "chicken",
+    "defaultSideIds": [
+     "l_carrotcelery"
+    ]
+   },
+   {
+    "id": "l_deli",
+    "name": "Build Your Own Deli Sandwich",
+    "desc": "Your choice of deli meat or salad, bread and cheese",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "byo",
+    "protein": "other",
+    "presets": [
+     [
+      "Turkey & Swiss",
+      {
+       "g_delibread": [
+        "Wheat"
+       ],
+       "g_delimeat": [
+        "Turkey"
+       ],
+       "g_cheese": [
+        "Swiss"
+       ],
+       "g_deli": [
+        "Toasted"
+       ]
+      },
+      "Sliced turkey and Swiss on toasted wheat"
+     ],
+     [
+      "Ham & Cheddar",
+      {
+       "g_delibread": [
+        "Rye"
+       ],
+       "g_delimeat": [
+        "Ham"
+       ],
+       "g_cheese": [
+        "Cheddar"
+       ],
+       "g_deli": [
+        "Cut in Half"
+       ]
+      },
+      "Ham and cheddar on rye, cut in half"
+     ],
+     [
+      "Chicken Salad Croissant",
+      {
+       "g_delibread": [
+        "Croissant"
+       ],
+       "g_delimeat": [
+        "Chicken Salad"
+       ],
+       "g_deli": [
+        "Sprouts"
+       ]
+      },
+      "House chicken salad and sprouts on a croissant"
+     ]
+    ]
+   },
+   {
+    "id": "l_omelet",
+    "name": "Build Your Own Omelet",
+    "desc": "Three eggs with your choice of fillings and cheese",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Egg"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "byo",
+    "protein": "egg",
+    "presets": [
+     [
+      "Western",
+      {
+       "g_omelet": [
+        "Diced Ham",
+        "Onions",
+        "Green Peppers"
+       ],
+       "g_cheese": [
+        "Cheddar"
+       ]
+      },
+      "Three eggs with diced ham, onions, green peppers and cheddar"
+     ],
+     [
+      "Garden",
+      {
+       "g_omelet": [
+        "Mushrooms",
+        "Spinach",
+        "Tomatoes"
+       ],
+       "g_cheese": [
+        "Swiss"
+       ]
+      },
+      "Three eggs with mushrooms, spinach, tomatoes and Swiss"
+     ]
+    ]
+   },
+   {
+    "id": "l_pizza",
+    "name": "Build Your Own Pizza",
+    "desc": "Personal pizza with mozzarella and your choice of toppings",
+    "residentPrice": 0,
+    "guestPrice": 11,
+    "alaPrice": 13,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "byo",
+    "protein": "other",
+    "presets": [
+     [
+      "Veggie",
+      {
+       "g_pizzacrust": [
+        "Regular Crust"
+       ],
+       "g_pizzasauce": [
+        "Marinara Base"
+       ],
+       "g_pizza": [
+        "Mushrooms",
+        "Green Peppers",
+        "Black Olives"
+       ],
+       "g_cheese": [
+        "Mozzarella"
+       ]
+      },
+      "Mushrooms, green peppers and black olives on marinara and mozzarella"
+     ],
+     [
+      "Meat Lover's",
+      {
+       "g_pizzacrust": [
+        "Regular Crust"
+       ],
+       "g_pizzasauce": [
+        "Marinara Base"
+       ],
+       "g_pizza": [
+        "Pepperoni",
+        "Italian Sausage",
+        "Canadian Bacon"
+       ],
+       "g_cheese": [
+        "Mozzarella"
+       ]
+      },
+      "Pepperoni, Italian sausage and Canadian bacon on marinara and mozzarella"
+     ],
+     [
+      "Margherita",
+      {
+       "g_pizzacrust": [
+        "Thin Crust"
+       ],
+       "g_pizzasauce": [
+        "Marinara Base"
+       ],
+       "g_pizza": [
+        "Fresh Basil"
+       ],
+       "g_cheese": [
+        "Mozzarella"
+       ]
+      },
+      "Thin crust with marinara, mozzarella and fresh basil"
+     ]
+    ]
+   },
+   {
+    "id": "l_byosalad",
+    "name": "Build Your Own Salad",
+    "desc": "Your choice of greens, toppings and dressing",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "entree": true,
+    "etype": "byo",
+    "protein": "other",
+    "route": "kds",
+    "presets": [
+     [
+      "Garden",
+      {
+       "g_saladbase": [
+        "Romaine"
+       ],
+       "g_salad": [
+        "Cherry Tomatoes",
+        "Cucumbers",
+        "Shredded Carrots",
+        "Croutons"
+       ],
+       "g_dress": [
+        "Ranch"
+       ]
+      },
+      "Romaine with tomatoes, cucumbers, carrots and croutons, ranch dressing"
+     ],
+     [
+      "Southwest",
+      {
+       "g_saladbase": [
+        "Romaine"
+       ],
+       "g_salad": [
+        "Black Beans",
+        "Corn",
+        "Cherry Tomatoes",
+        "Tortilla Strips"
+       ],
+       "g_dress": [
+        "Chipotle Ranch"
+       ]
+      },
+      "Romaine with black beans, corn, tomatoes and tortilla strips, chipotle ranch"
+     ],
+     [
+      "Spinach Cranberry",
+      {
+       "g_saladbase": [
+        "Baby Spinach"
+       ],
+       "g_salad": [
+        "Dried Cranberries",
+        "Sunflower Seeds",
+        "Red Onion"
+       ],
+       "g_dress": [
+        "Raspberry Vinaigrette"
+       ]
+      },
+      "Baby spinach with dried cranberries, sunflower seeds and red onion, raspberry vinaigrette"
+     ]
+    ]
+   },
+   {
+    "id": "l_catch",
+    "name": "COD · Wild Salmon",
+    "desc": "Grilled wild salmon with dill butter",
+    "residentPrice": 0,
+    "guestPrice": 15,
+    "alaPrice": 17,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Prep",
+      "opts": [
+       "Grilled",
+       "Blackened",
+       "Broiled",
+       "Pan-Seared"
+      ],
+      "default": "Grilled"
+     }
+    ],
+    "allergens": [
+     "Fish"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "fish",
+    "defaultSideIds": [
+     "l_bakedpot",
+     "l_broccoli"
+    ]
+   },
+   {
+    "id": "l_flounder",
+    "name": "Breaded Flounder",
+    "desc": "Golden breaded flounder with lemon and tartar sauce",
+    "residentPrice": 0,
+    "guestPrice": 13,
+    "alaPrice": 15,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Fish",
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "fish",
+    "defaultSideIds": [
+     "l_fries",
+     "l_coleslaw"
+    ]
+   },
+   {
+    "id": "l_chicken",
+    "name": "Chicken Breast",
+    "desc": "Boneless chicken breast, grilled and lightly seasoned",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Prep",
+      "opts": [
+       "Grilled",
+       "Blackened",
+       "Lemon Pepper"
+      ],
+      "default": "Grilled"
+     }
+    ],
+    "allergens": [],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "chicken",
+    "defaultSideIds": [
+     "l_bakedpot",
+     "l_peas"
+    ]
+   },
+   {
+    "id": "l_quesa",
+    "name": "Chicken Quesadilla",
+    "desc": "Grilled chicken and melted cheese in a flour tortilla, with salsa and sour cream",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "chicken"
+   },
+   {
+    "id": "l_burger",
+    "name": "Classic Terrace Burger",
+    "desc": "Beef patty with lettuce, tomato, onion and cheese on a toasted bun",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Temp",
+      "opts": [
+       "Medium Rare",
+       "Medium",
+       "Medium Well",
+       "Well Done"
+      ],
+      "default": "Medium Well"
+     },
+     {
+      "group": "Cheese",
+      "opts": [
+       "American",
+       "Cheddar",
+       "Swiss",
+       "Pepper Jack",
+       "No cheese"
+      ],
+      "default": "American"
+     }
+    ],
+    "allergens": [
+     "Gluten",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "beef",
+    "defaultSideIds": [
+     "l_fries"
+    ]
+   },
+   {
+    "id": "l_krab",
+    "name": "Krab Cakes",
+    "desc": "Two golden krab cakes with remoulade and lemon",
+    "residentPrice": 0,
+    "guestPrice": 13,
+    "alaPrice": 15,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Fish",
+     "Shellfish",
+     "Gluten",
+     "Egg"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "fish",
+    "defaultSideIds": [
+     "l_coleslaw"
+    ]
+   },
+   {
+    "id": "l_orange",
+    "name": "Orange Chicken Bowl",
+    "desc": "Crispy chicken in orange glaze over rice with stir-fry vegetables",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Rice",
+      "opts": [
+       "White Rice",
+       "Brown Rice",
+       "Fried Rice"
+      ],
+      "default": "White Rice"
+     }
+    ],
+    "allergens": [
+     "Gluten",
+     "Soy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "chicken"
+   },
+   {
+    "id": "l_pbj",
+    "name": "PB & Jelly Sandwich",
+    "desc": "Peanut butter and grape jelly on wheat bread",
+    "residentPrice": 0,
+    "guestPrice": 6,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Bread",
+      "opts": [
+       "White",
+       "Wheat"
+      ],
+      "default": "Wheat"
+     }
+    ],
+    "allergens": [
+     "Peanuts",
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "veg",
+    "defaultSideIds": [
+     "l_fruit"
+    ]
+   },
+   {
+    "id": "l_pureed",
+    "name": "Pureed Molded Meal",
+    "desc": "The meal of the day pureed and molded, for pureed diets",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "other"
+   },
+   {
+    "id": "l_salmonburger",
+    "name": "Salmon Burger",
+    "desc": "Grilled salmon patty with lettuce, tomato and lemon aioli",
+    "residentPrice": 0,
+    "guestPrice": 13,
+    "alaPrice": 15,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Fish",
+     "Gluten",
+     "Egg"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "fish",
+    "defaultSideIds": [
+     "l_coleslaw"
+    ]
+   },
+   {
+    "id": "l_swsalad",
+    "name": "Southwest Summer Salad",
+    "desc": "Greens with black beans, corn, tomato, cheddar and tortilla strips",
+    "residentPrice": 0,
+    "guestPrice": 11,
+    "alaPrice": 13,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Dressing",
+      "opts": [
+       "Chipotle Ranch",
+       "Ranch",
+       "Balsamic Vinaigrette"
+      ],
+      "default": "Chipotle Ranch"
+     }
+    ],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "salad",
+    "protein": "veg",
+    "route": "kds"
+   },
+   {
+    "id": "l_spag",
+    "name": "Spaghetti Bolognese",
+    "desc": "Spaghetti with slow simmered beef and tomato sauce, parmesan on top",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "pasta",
+    "protein": "beef",
+    "defaultSideIds": [
+     "l_sidesalad"
+    ]
+   }
+  ],
+  "Sides": [
+   {
+    "id": "l_potsalad",
+    "name": "Creamy Potato Salad",
+    "desc": "Red potatoes, egg and celery in a creamy dressing",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Egg"
+    ],
+    "course": 2,
+    "special": true,
+    "ctype": "side"
+   },
+   {
+    "id": "l_roll",
+    "name": "Baked Roll",
+    "desc": "Warm baked roll with butter",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "special": true,
+    "ctype": "side",
+    "creditKind": "none"
+   },
+   {
+    "id": "l_applesauce",
+    "name": "Applesauce Cup",
+    "desc": "Chilled applesauce",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "l_avocado",
+    "name": "Avocado Slices",
+    "desc": "Fresh sliced avocado",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_bakedpot",
+    "name": "Baked Potato",
+    "desc": "Russet potato with butter and sour cream",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Toppings",
+      "opts": [
+       "Butter & Sour Cream",
+       "Butter Only",
+       "Plain"
+      ],
+      "default": "Butter & Sour Cream"
+     }
+    ],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_yam",
+    "name": "Baked Yam",
+    "desc": "Baked sweet yam with cinnamon butter",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Toppings",
+      "opts": [
+       "Cinnamon Butter",
+       "Butter Only",
+       "Plain"
+      ],
+      "default": "Cinnamon Butter"
+     }
+    ],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_carrotcelery",
+    "name": "Carrot & Celery Sticks",
+    "desc": "Crisp carrot and celery sticks with ranch",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_coleslaw",
+    "name": "Coleslaw",
+    "desc": "Creamy cabbage slaw",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Egg"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_cottage",
+    "name": "Cottage Cheese",
+    "desc": "Small curd cottage cheese",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "l_fries",
+    "name": "French Fries",
+    "desc": "Golden crinkle cut fries",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_fruit",
+    "name": "Fresh Fruit",
+    "desc": "Seasonal cut fruit",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "l_onionrings",
+    "name": "Onion Rings",
+    "desc": "Beer battered onion rings",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_peas",
+    "name": "Peas & Carrots",
+    "desc": "Buttered peas and diced carrots",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_corn",
+    "name": "Sauteed Corn",
+    "desc": "Sweet corn sauteed in butter",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_sidesalad",
+    "name": "Side Salad",
+    "desc": "Greens, tomato, cucumber and croutons",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Dressing",
+      "opts": [
+       "Ranch",
+       "Italian",
+       "Balsamic Vinaigrette",
+       "Blue Cheese",
+       "Thousand Island"
+      ],
+      "default": "Ranch"
+     }
+    ],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "l_tomatoes",
+    "name": "Sliced Tomatoes",
+    "desc": "Fresh sliced tomatoes",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_spinach",
+    "name": "Spinach & Mushrooms",
+    "desc": "Sauteed spinach and mushrooms with garlic",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_broccoli",
+    "name": "Steamed Broccoli",
+    "desc": "Steamed broccoli florets",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_swpfries",
+    "name": "Sweet Potato Fries",
+    "desc": "Crispy sweet potato fries",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "l_toast",
+    "name": "Toast",
+    "desc": "Two slices with butter and jam",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Bread",
+      "opts": [
+       "White",
+       "Wheat",
+       "Rye",
+       "Sourdough",
+       "Multigrain"
+      ],
+      "default": "Wheat"
+     }
+    ],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "ctype": "side",
+    "creditKind": "none"
+   }
+  ],
+  "Desserts": [
+   {
+    "id": "l_cerealbar",
+    "name": "Cereal Bar",
+    "desc": "Crispy rice cereal treat bar",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 3,
+    "special": true,
+    "ctype": "dessert",
+    "route": "expo"
+   },
+   {
+    "id": "l_sfcheese",
+    "name": "Sugar-Free Cheesecake",
+    "desc": "New York style cheesecake, no sugar added",
+    "residentPrice": 0,
+    "guestPrice": 5,
+    "alaPrice": 7,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy",
+     "Gluten",
+     "Egg"
+    ],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   },
+   {
+    "id": "l_sfjello",
+    "name": "Sugar-Free Jello",
+    "desc": "Sugar-free gelatin",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   },
+   {
+    "id": "l_icecream",
+    "name": "Vanilla Ice Cream Cup",
+    "desc": "A cup of vanilla ice cream",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Style",
+      "opts": [
+       "Regular",
+       "Fat-Free",
+       "No Sugar Added"
+      ],
+      "default": "Regular"
+     }
+    ],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   },
+   {
+    "id": "l_yogurt",
+    "name": "Yogurt",
+    "desc": "Individual yogurt cup",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   }
+  ],
+  "Drinks": [
+   {
+    "id": "l_coffee",
+    "name": "Coffee",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_decaf",
+    "name": "Decaf Coffee",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_hottea",
+    "name": "Hot Tea",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Type",
+      "opts": [
+       "Black",
+       "Green",
+       "Herbal",
+       "Decaf"
+      ],
+      "default": "Black"
+     }
+    ],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_icedtea",
+    "name": "Iced Tea",
+    "desc": "Fresh brewed, unsweetened",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_water",
+    "name": "Water",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 0,
+    "alaPrice": 2,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_milk2",
+    "name": "2% Milk",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_wholemilk",
+    "name": "Whole Milk",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_almondmilk",
+    "name": "Almond Milk",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Tree Nuts"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_oj",
+    "name": "Orange Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_apple",
+    "name": "Apple Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_cran",
+    "name": "Cranberry Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_prune",
+    "name": "Prune Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_coke",
+    "name": "Coca-Cola",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_diet",
+    "name": "Diet Coke",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_sprite",
+    "name": "Sprite",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_sevenup",
+    "name": "7-Up",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_rootbeer",
+    "name": "Root Beer",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_dietrootbeer",
+    "name": "Diet Root Beer",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_sflemonade",
+    "name": "Sugar-Free Lemonade",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_vitwater",
+    "name": "Vitamin Water",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   }
+  ],
+  "Add-Ons": [
+   {
+    "id": "cv_ao_chicken",
+    "name": "Add Protein: Chicken",
+    "desc": "On any salad, charged à la carte",
+    "residentPrice": 4,
+    "guestPrice": 4,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "upcharge": true
+   },
+   {
+    "id": "cv_ao_salmon",
+    "name": "Add Protein: Salmon",
+    "desc": "On any salad, charged à la carte",
+    "residentPrice": 6,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "upcharge": true
+   },
+   {
+    "id": "cv_ao_shrimp",
+    "name": "Add Protein: Shrimp",
+    "desc": "On any salad, charged à la carte",
+    "residentPrice": 6,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "upcharge": true
+   },
+   {
+    "id": "cv_ao_side",
+    "name": "Add-On: side",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "creditKind": "side"
+   }
+  ],
+  "Cocktails": [
+   {
+    "id": "cv_scotch",
+    "name": "Scotch on the Rocks",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 11,
+    "alaPrice": 11,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_rumcoke",
+    "name": "Rum & Coke",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 12,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_vodkatonic",
+    "name": "Vodka Tonic",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 9,
+    "alaPrice": 9,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_whiskeysour",
+    "name": "Whiskey Sour",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 12,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_rumginger",
+    "name": "Rum & Ginger",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 10,
+    "alaPrice": 10,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_tequilasun",
+    "name": "Tequila Sunrise",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 12,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_bloody",
+    "name": "Bloody Mary",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 5,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_marg",
+    "name": "Margarita",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 12,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_gintonic",
+    "name": "Gin & Tonic",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 9,
+    "alaPrice": 9,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_captlem",
+    "name": "Captain & Lemonade",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 11,
+    "alaPrice": 11,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_jimbean",
+    "name": "Jim Bean Black Whiskey",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_mimosa",
+    "name": "Champagne / Mimosa",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 5,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   }
+  ],
+  "Alcohol": [
+   {
+    "id": "l_beer805",
+    "name": "Firestone 805 Blonde Ale",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_bluemoon",
+    "name": "Blue Moon Belgian White Ale",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_corona",
+    "name": "Corona Extra Lager",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_modelo",
+    "name": "Modelo Especial Lager",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "l_housewine",
+    "name": "House Wine",
+    "desc": "By the glass",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "cv_sauza",
+    "name": "Sauza Tequila",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_captain",
+    "name": "Captain Morgan Rum",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_ketel",
+    "name": "K One Vodka",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_cab",
+    "name": "Mondavi Cabernet Sauvignon",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_cab_b",
+    "name": "BTL - Mondavi Cabernet Sauvignon",
+    "desc": "",
+    "residentPrice": 9,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_pinot",
+    "name": "Mondavi Pinot Noir",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_pinot_b",
+    "name": "BTL - Mondavi Pinot Noir",
+    "desc": "",
+    "residentPrice": 9,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_merlot",
+    "name": "Mondavi Merlot",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_merlot_b",
+    "name": "BTL - Mondavi Merlot",
+    "desc": "",
+    "residentPrice": 9,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_chard",
+    "name": "Mondavi Chardonnay",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_chard_b",
+    "name": "BTL - Mondavi Chardonnay",
+    "desc": "",
+    "residentPrice": 9,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_blanc",
+    "name": "Glass of Blanc Mondavi",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_grigio",
+    "name": "Glass of Grigio Mondavi",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_nachard",
+    "name": "Wine Alcohol Free Chardonnay",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_nachard_b",
+    "name": "BTL - Fre Chardonnay NA",
+    "desc": "",
+    "residentPrice": 8,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_nacab",
+    "name": "Wine Alcohol Free Cab",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_nacab_b",
+    "name": "BTL - Fre Cabernet No Alcohol",
+    "desc": "",
+    "residentPrice": 8,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_bubbles_b",
+    "name": "BTL - Butter Bubbles Sparkling",
+    "desc": "",
+    "residentPrice": 12,
+    "guestPrice": 35,
+    "alaPrice": 35,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   }
+  ]
+ },
+ "Dinner": {
+  "Starters": [
+   {
+    "id": "d_cbsoup",
+    "name": "Cheeseburger Soup",
+    "desc": "Creamy soup with ground beef, potato and cheddar",
+    "residentPrice": 0,
+    "guestPrice": 5,
+    "alaPrice": 7,
+    "day": 15,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Size",
+      "opts": [
+       "Cup",
+       "Bowl"
+      ],
+      "default": "Cup"
+     }
+    ],
+    "allergens": [
+     "Dairy",
+     "Gluten"
+    ],
+    "course": 1,
+    "special": true,
+    "route": "expo"
+   }
+  ],
+  "Entrées": [
+   {
+    "id": "d_peach",
+    "name": "Peach Glazed Chicken Breast",
+    "desc": "Roasted chicken breast with a sweet peach glaze",
+    "residentPrice": 0,
+    "guestPrice": 16,
+    "alaPrice": 18,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "special": true,
+    "entree": true,
+    "etype": "plate",
+    "protein": "chicken",
+    "cookNotes": "Glaze in the last 5 minutes so it sets, not burns. Whole breast, spoon the peaches over. Mashed potatoes and green beans alongside.",
+    "defaultSideIds": [
+     "d_mashed",
+     "d_greenbeans"
+    ]
+   },
+   {
+    "id": "d_shells",
+    "name": "Cheese Stuffed Shells with Marinara",
+    "desc": "Pasta shells filled with ricotta and mozzarella, baked in marinara",
+    "residentPrice": 0,
+    "guestPrice": 14,
+    "alaPrice": 16,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Dairy",
+     "Egg"
+    ],
+    "course": 2,
+    "special": true,
+    "entree": true,
+    "etype": "pasta",
+    "protein": "veg",
+    "cookNotes": "Three shells, bubbling. Marinara under and over, parmesan and basil to finish. Garlic knot on the side.",
+    "defaultSideIds": [
+     "d_greenbeans",
+     "d_knot"
+    ]
+   },
+   {
+    "id": "d_wings",
+    "name": "BBQ Chicken Wings",
+    "desc": "Crispy wings tossed in BBQ sauce, ranch on the side",
+    "residentPrice": 0,
+    "guestPrice": 11,
+    "alaPrice": 13,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Sauce",
+      "opts": [
+       "BBQ",
+       "Buffalo",
+       "Honey Garlic"
+      ],
+      "default": "BBQ"
+     }
+    ],
+    "allergens": [],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "chicken",
+    "defaultSideIds": [
+     "d_carrotcelery"
+    ]
+   },
+   {
+    "id": "d_deli",
+    "name": "Build Your Own Deli Sandwich",
+    "desc": "Your choice of deli meat or salad, bread and cheese",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "byo",
+    "protein": "other",
+    "presets": [
+     [
+      "Turkey & Swiss",
+      {
+       "g_delibread": [
+        "Wheat"
+       ],
+       "g_delimeat": [
+        "Turkey"
+       ],
+       "g_cheese": [
+        "Swiss"
+       ],
+       "g_deli": [
+        "Toasted"
+       ]
+      },
+      "Sliced turkey and Swiss on toasted wheat"
+     ],
+     [
+      "Ham & Cheddar",
+      {
+       "g_delibread": [
+        "Rye"
+       ],
+       "g_delimeat": [
+        "Ham"
+       ],
+       "g_cheese": [
+        "Cheddar"
+       ],
+       "g_deli": [
+        "Cut in Half"
+       ]
+      },
+      "Ham and cheddar on rye, cut in half"
+     ],
+     [
+      "Chicken Salad Croissant",
+      {
+       "g_delibread": [
+        "Croissant"
+       ],
+       "g_delimeat": [
+        "Chicken Salad"
+       ],
+       "g_deli": [
+        "Sprouts"
+       ]
+      },
+      "House chicken salad and sprouts on a croissant"
+     ]
+    ]
+   },
+   {
+    "id": "d_omelet",
+    "name": "Build Your Own Omelet",
+    "desc": "Three eggs with your choice of fillings and cheese",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Egg"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "byo",
+    "protein": "egg",
+    "presets": [
+     [
+      "Western",
+      {
+       "g_omelet": [
+        "Diced Ham",
+        "Onions",
+        "Green Peppers"
+       ],
+       "g_cheese": [
+        "Cheddar"
+       ]
+      },
+      "Three eggs with diced ham, onions, green peppers and cheddar"
+     ],
+     [
+      "Garden",
+      {
+       "g_omelet": [
+        "Mushrooms",
+        "Spinach",
+        "Tomatoes"
+       ],
+       "g_cheese": [
+        "Swiss"
+       ]
+      },
+      "Three eggs with mushrooms, spinach, tomatoes and Swiss"
+     ]
+    ]
+   },
+   {
+    "id": "d_pizza",
+    "name": "Build Your Own Pizza",
+    "desc": "Personal pizza with mozzarella and your choice of toppings",
+    "residentPrice": 0,
+    "guestPrice": 11,
+    "alaPrice": 13,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "byo",
+    "protein": "other",
+    "presets": [
+     [
+      "Veggie",
+      {
+       "g_pizzacrust": [
+        "Regular Crust"
+       ],
+       "g_pizzasauce": [
+        "Marinara Base"
+       ],
+       "g_pizza": [
+        "Mushrooms",
+        "Green Peppers",
+        "Black Olives"
+       ],
+       "g_cheese": [
+        "Mozzarella"
+       ]
+      },
+      "Mushrooms, green peppers and black olives on marinara and mozzarella"
+     ],
+     [
+      "Meat Lover's",
+      {
+       "g_pizzacrust": [
+        "Regular Crust"
+       ],
+       "g_pizzasauce": [
+        "Marinara Base"
+       ],
+       "g_pizza": [
+        "Pepperoni",
+        "Italian Sausage",
+        "Canadian Bacon"
+       ],
+       "g_cheese": [
+        "Mozzarella"
+       ]
+      },
+      "Pepperoni, Italian sausage and Canadian bacon on marinara and mozzarella"
+     ],
+     [
+      "Margherita",
+      {
+       "g_pizzacrust": [
+        "Thin Crust"
+       ],
+       "g_pizzasauce": [
+        "Marinara Base"
+       ],
+       "g_pizza": [
+        "Fresh Basil"
+       ],
+       "g_cheese": [
+        "Mozzarella"
+       ]
+      },
+      "Thin crust with marinara, mozzarella and fresh basil"
+     ]
+    ]
+   },
+   {
+    "id": "d_byosalad",
+    "name": "Build Your Own Salad",
+    "desc": "Your choice of greens, toppings and dressing",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "entree": true,
+    "etype": "byo",
+    "protein": "other",
+    "route": "kds",
+    "presets": [
+     [
+      "Garden",
+      {
+       "g_saladbase": [
+        "Romaine"
+       ],
+       "g_salad": [
+        "Cherry Tomatoes",
+        "Cucumbers",
+        "Shredded Carrots",
+        "Croutons"
+       ],
+       "g_dress": [
+        "Ranch"
+       ]
+      },
+      "Romaine with tomatoes, cucumbers, carrots and croutons, ranch dressing"
+     ],
+     [
+      "Southwest",
+      {
+       "g_saladbase": [
+        "Romaine"
+       ],
+       "g_salad": [
+        "Black Beans",
+        "Corn",
+        "Cherry Tomatoes",
+        "Tortilla Strips"
+       ],
+       "g_dress": [
+        "Chipotle Ranch"
+       ]
+      },
+      "Romaine with black beans, corn, tomatoes and tortilla strips, chipotle ranch"
+     ],
+     [
+      "Spinach Cranberry",
+      {
+       "g_saladbase": [
+        "Baby Spinach"
+       ],
+       "g_salad": [
+        "Dried Cranberries",
+        "Sunflower Seeds",
+        "Red Onion"
+       ],
+       "g_dress": [
+        "Raspberry Vinaigrette"
+       ]
+      },
+      "Baby spinach with dried cranberries, sunflower seeds and red onion, raspberry vinaigrette"
+     ]
+    ]
+   },
+   {
+    "id": "d_catch",
+    "name": "COD · Wild Salmon",
+    "desc": "Grilled wild salmon with dill butter",
+    "residentPrice": 0,
+    "guestPrice": 15,
+    "alaPrice": 17,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Prep",
+      "opts": [
+       "Grilled",
+       "Blackened",
+       "Broiled",
+       "Pan-Seared"
+      ],
+      "default": "Grilled"
+     }
+    ],
+    "allergens": [
+     "Fish"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "fish",
+    "defaultSideIds": [
+     "d_bakedpot",
+     "d_broccoli"
+    ]
+   },
+   {
+    "id": "d_chicken",
+    "name": "Chicken Breast",
+    "desc": "Boneless chicken breast, grilled and lightly seasoned",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Prep",
+      "opts": [
+       "Grilled",
+       "Blackened",
+       "Lemon Pepper"
+      ],
+      "default": "Grilled"
+     }
+    ],
+    "allergens": [],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "chicken",
+    "defaultSideIds": [
+     "d_bakedpot",
+     "d_peas"
+    ]
+   },
+   {
+    "id": "d_quesa",
+    "name": "Chicken Quesadilla",
+    "desc": "Grilled chicken and melted cheese in a flour tortilla, with salsa and sour cream",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "chicken"
+   },
+   {
+    "id": "d_burger",
+    "name": "Classic Terrace Burger",
+    "desc": "Beef patty with lettuce, tomato, onion and cheese on a toasted bun",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Temp",
+      "opts": [
+       "Medium Rare",
+       "Medium",
+       "Medium Well",
+       "Well Done"
+      ],
+      "default": "Medium Well"
+     },
+     {
+      "group": "Cheese",
+      "opts": [
+       "American",
+       "Cheddar",
+       "Swiss",
+       "Pepper Jack",
+       "No cheese"
+      ],
+      "default": "American"
+     }
+    ],
+    "allergens": [
+     "Gluten",
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "beef",
+    "defaultSideIds": [
+     "d_fries"
+    ]
+   },
+   {
+    "id": "d_krab",
+    "name": "Krab Cakes",
+    "desc": "Two golden krab cakes with remoulade and lemon",
+    "residentPrice": 0,
+    "guestPrice": 13,
+    "alaPrice": 15,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Fish",
+     "Shellfish",
+     "Gluten",
+     "Egg"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "fish",
+    "defaultSideIds": [
+     "d_coleslaw"
+    ]
+   },
+   {
+    "id": "d_orange",
+    "name": "Orange Chicken Bowl",
+    "desc": "Crispy chicken in orange glaze over rice with stir-fry vegetables",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Rice",
+      "opts": [
+       "White Rice",
+       "Brown Rice",
+       "Fried Rice"
+      ],
+      "default": "White Rice"
+     }
+    ],
+    "allergens": [
+     "Gluten",
+     "Soy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "chicken"
+   },
+   {
+    "id": "d_pbj",
+    "name": "PB & Jelly Sandwich",
+    "desc": "Peanut butter and grape jelly on wheat bread",
+    "residentPrice": 0,
+    "guestPrice": 6,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Bread",
+      "opts": [
+       "White",
+       "Wheat"
+      ],
+      "default": "Wheat"
+     }
+    ],
+    "allergens": [
+     "Peanuts",
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "veg",
+    "defaultSideIds": [
+     "d_fruit"
+    ]
+   },
+   {
+    "id": "d_pureed",
+    "name": "Pureed Molded Meal",
+    "desc": "The meal of the day pureed and molded, for pureed diets",
+    "residentPrice": 0,
+    "guestPrice": 10,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "entree": true,
+    "etype": "plate",
+    "protein": "other"
+   },
+   {
+    "id": "d_salmonburger",
+    "name": "Salmon Burger",
+    "desc": "Grilled salmon patty with lettuce, tomato and lemon aioli",
+    "residentPrice": 0,
+    "guestPrice": 13,
+    "alaPrice": 15,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Fish",
+     "Gluten",
+     "Egg"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "sandwich",
+    "protein": "fish",
+    "defaultSideIds": [
+     "d_coleslaw"
+    ]
+   },
+   {
+    "id": "d_swsalad",
+    "name": "Southwest Summer Salad",
+    "desc": "Greens with black beans, corn, tomato, cheddar and tortilla strips",
+    "residentPrice": 0,
+    "guestPrice": 11,
+    "alaPrice": 13,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Dressing",
+      "opts": [
+       "Chipotle Ranch",
+       "Ranch",
+       "Balsamic Vinaigrette"
+      ],
+      "default": "Chipotle Ranch"
+     }
+    ],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "salad",
+    "protein": "veg",
+    "route": "kds"
+   },
+   {
+    "id": "d_spag",
+    "name": "Spaghetti Bolognese",
+    "desc": "Spaghetti with slow simmered beef and tomato sauce, parmesan on top",
+    "residentPrice": 0,
+    "guestPrice": 12,
+    "alaPrice": 14,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "entree": true,
+    "etype": "pasta",
+    "protein": "beef",
+    "defaultSideIds": [
+     "d_sidesalad"
+    ]
+   }
+  ],
+  "Sides": [
+   {
+    "id": "d_mashed",
+    "name": "Mashed Potatoes",
+    "desc": "Creamy mashed potatoes with butter",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "special": true,
+    "ctype": "side"
+   },
+   {
+    "id": "d_greenbeans",
+    "name": "Garlic Green Beans",
+    "desc": "Green beans sauteed with garlic",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "special": true,
+    "ctype": "side"
+   },
+   {
+    "id": "d_knot",
+    "name": "Garlic Knot",
+    "desc": "Soft garlic butter knot",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten",
+     "Dairy"
+    ],
+    "course": 2,
+    "special": true,
+    "ctype": "side",
+    "creditKind": "none"
+   },
+   {
+    "id": "d_applesauce",
+    "name": "Applesauce Cup",
+    "desc": "Chilled applesauce",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "d_avocado",
+    "name": "Avocado Slices",
+    "desc": "Fresh sliced avocado",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_bakedpot",
+    "name": "Baked Potato",
+    "desc": "Russet potato with butter and sour cream",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Toppings",
+      "opts": [
+       "Butter & Sour Cream",
+       "Butter Only",
+       "Plain"
+      ],
+      "default": "Butter & Sour Cream"
+     }
+    ],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_yam",
+    "name": "Baked Yam",
+    "desc": "Baked sweet yam with cinnamon butter",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Toppings",
+      "opts": [
+       "Cinnamon Butter",
+       "Butter Only",
+       "Plain"
+      ],
+      "default": "Cinnamon Butter"
+     }
+    ],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_carrotcelery",
+    "name": "Carrot & Celery Sticks",
+    "desc": "Crisp carrot and celery sticks with ranch",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_coleslaw",
+    "name": "Coleslaw",
+    "desc": "Creamy cabbage slaw",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Egg"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_cottage",
+    "name": "Cottage Cheese",
+    "desc": "Small curd cottage cheese",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "d_fries",
+    "name": "French Fries",
+    "desc": "Golden crinkle cut fries",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_fruit",
+    "name": "Fresh Fruit",
+    "desc": "Seasonal cut fruit",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "d_onionrings",
+    "name": "Onion Rings",
+    "desc": "Beer battered onion rings",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_peas",
+    "name": "Peas & Carrots",
+    "desc": "Buttered peas and diced carrots",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_corn",
+    "name": "Sauteed Corn",
+    "desc": "Sweet corn sauteed in butter",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_sidesalad",
+    "name": "Side Salad",
+    "desc": "Greens, tomato, cucumber and croutons",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Dressing",
+      "opts": [
+       "Ranch",
+       "Italian",
+       "Balsamic Vinaigrette",
+       "Blue Cheese",
+       "Thousand Island"
+      ],
+      "default": "Ranch"
+     }
+    ],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side",
+    "route": "expo"
+   },
+   {
+    "id": "d_tomatoes",
+    "name": "Sliced Tomatoes",
+    "desc": "Fresh sliced tomatoes",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_spinach",
+    "name": "Spinach & Mushrooms",
+    "desc": "Sauteed spinach and mushrooms with garlic",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_broccoli",
+    "name": "Steamed Broccoli",
+    "desc": "Steamed broccoli florets",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_swpfries",
+    "name": "Sweet Potato Fries",
+    "desc": "Crispy sweet potato fries",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_toast",
+    "name": "Toast",
+    "desc": "Two slices with butter and jam",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Bread",
+      "opts": [
+       "White",
+       "Wheat",
+       "Rye",
+       "Sourdough",
+       "Multigrain"
+      ],
+      "default": "Wheat"
+     }
+    ],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 2,
+    "ctype": "side",
+    "creditKind": "none"
+   },
+   {
+    "id": "d_pilaf",
+    "name": "Rice Pilaf",
+    "desc": "Seasoned rice with herbs",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 2,
+    "ctype": "side"
+   },
+   {
+    "id": "d_asparagus",
+    "name": "Buttered Asparagus",
+    "desc": "Tender asparagus with butter",
+    "residentPrice": 0,
+    "guestPrice": 4,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 2,
+    "ctype": "side"
+   }
+  ],
+  "Desserts": [
+   {
+    "id": "d_trifle",
+    "name": "Pineapple Trifle",
+    "desc": "Layers of pound cake, pineapple, vanilla pudding and whipped cream",
+    "residentPrice": 0,
+    "guestPrice": 6,
+    "alaPrice": 8,
+    "day": 15,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy",
+     "Gluten",
+     "Egg"
+    ],
+    "course": 3,
+    "special": true,
+    "ctype": "dessert",
+    "route": "expo"
+   },
+   {
+    "id": "d_sfcheese",
+    "name": "Sugar-Free Cheesecake",
+    "desc": "New York style cheesecake, no sugar added",
+    "residentPrice": 0,
+    "guestPrice": 5,
+    "alaPrice": 7,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy",
+     "Gluten",
+     "Egg"
+    ],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   },
+   {
+    "id": "d_sfjello",
+    "name": "Sugar-Free Jello",
+    "desc": "Sugar-free gelatin",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   },
+   {
+    "id": "d_icecream",
+    "name": "Vanilla Ice Cream Cup",
+    "desc": "A cup of vanilla ice cream",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Style",
+      "opts": [
+       "Regular",
+       "Fat-Free",
+       "No Sugar Added"
+      ],
+      "default": "Regular"
+     }
+    ],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   },
+   {
+    "id": "d_yogurt",
+    "name": "Yogurt",
+    "desc": "Individual yogurt cup",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 3,
+    "ctype": "dessert",
+    "route": "expo"
+   }
+  ],
+  "Drinks": [
+   {
+    "id": "d_coffee",
+    "name": "Coffee",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_decaf",
+    "name": "Decaf Coffee",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_hottea",
+    "name": "Hot Tea",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [
+     {
+      "group": "Type",
+      "opts": [
+       "Black",
+       "Green",
+       "Herbal",
+       "Decaf"
+      ],
+      "default": "Black"
+     }
+    ],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_icedtea",
+    "name": "Iced Tea",
+    "desc": "Fresh brewed, unsweetened",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_water",
+    "name": "Water",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 0,
+    "alaPrice": 2,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_milk2",
+    "name": "2% Milk",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_wholemilk",
+    "name": "Whole Milk",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Dairy"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_almondmilk",
+    "name": "Almond Milk",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 2,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Tree Nuts"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_oj",
+    "name": "Orange Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_apple",
+    "name": "Apple Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_cran",
+    "name": "Cranberry Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_prune",
+    "name": "Prune Juice",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_coke",
+    "name": "Coca-Cola",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_diet",
+    "name": "Diet Coke",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_sprite",
+    "name": "Sprite",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_sevenup",
+    "name": "7-Up",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_rootbeer",
+    "name": "Root Beer",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_dietrootbeer",
+    "name": "Diet Root Beer",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_sflemonade",
+    "name": "Sugar-Free Lemonade",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_vitwater",
+    "name": "Vitamin Water",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   }
+  ],
+  "Add-Ons": [
+   {
+    "id": "cv_ao_chicken",
+    "name": "Add Protein: Chicken",
+    "desc": "On any salad, charged à la carte",
+    "residentPrice": 4,
+    "guestPrice": 4,
+    "alaPrice": 4,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "upcharge": true
+   },
+   {
+    "id": "cv_ao_salmon",
+    "name": "Add Protein: Salmon",
+    "desc": "On any salad, charged à la carte",
+    "residentPrice": 6,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "upcharge": true
+   },
+   {
+    "id": "cv_ao_shrimp",
+    "name": "Add Protein: Shrimp",
+    "desc": "On any salad, charged à la carte",
+    "residentPrice": 6,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "upcharge": true
+   },
+   {
+    "id": "cv_ao_side",
+    "name": "Add-On: side",
+    "desc": "",
+    "residentPrice": 0,
+    "guestPrice": 3,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "creditKind": "side"
+   }
+  ],
+  "Cocktails": [
+   {
+    "id": "cv_scotch",
+    "name": "Scotch on the Rocks",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 11,
+    "alaPrice": 11,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_rumcoke",
+    "name": "Rum & Coke",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 12,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_vodkatonic",
+    "name": "Vodka Tonic",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 9,
+    "alaPrice": 9,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_whiskeysour",
+    "name": "Whiskey Sour",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 12,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_rumginger",
+    "name": "Rum & Ginger",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 10,
+    "alaPrice": 10,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_tequilasun",
+    "name": "Tequila Sunrise",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 12,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_bloody",
+    "name": "Bloody Mary",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 5,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_marg",
+    "name": "Margarita",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 12,
+    "alaPrice": 12,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_gintonic",
+    "name": "Gin & Tonic",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 9,
+    "alaPrice": 9,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_captlem",
+    "name": "Captain & Lemonade",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 11,
+    "alaPrice": 11,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_jimbean",
+    "name": "Jim Bean Black Whiskey",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_mimosa",
+    "name": "Champagne / Mimosa",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 5,
+    "alaPrice": 5,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   }
+  ],
+  "Alcohol": [
+   {
+    "id": "d_beer805",
+    "name": "Firestone 805 Blonde Ale",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_bluemoon",
+    "name": "Blue Moon Belgian White Ale",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_corona",
+    "name": "Corona Extra Lager",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_modelo",
+    "name": "Modelo Especial Lager",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [
+     "Gluten"
+    ],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "d_housewine",
+    "name": "House Wine",
+    "desc": "By the glass",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0,
+    "ctype": "beverage"
+   },
+   {
+    "id": "cv_sauza",
+    "name": "Sauza Tequila",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_captain",
+    "name": "Captain Morgan Rum",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_ketel",
+    "name": "K One Vodka",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_cab",
+    "name": "Mondavi Cabernet Sauvignon",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_cab_b",
+    "name": "BTL - Mondavi Cabernet Sauvignon",
+    "desc": "",
+    "residentPrice": 9,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_pinot",
+    "name": "Mondavi Pinot Noir",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_pinot_b",
+    "name": "BTL - Mondavi Pinot Noir",
+    "desc": "",
+    "residentPrice": 9,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_merlot",
+    "name": "Mondavi Merlot",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_merlot_b",
+    "name": "BTL - Mondavi Merlot",
+    "desc": "",
+    "residentPrice": 9,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_chard",
+    "name": "Mondavi Chardonnay",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_chard_b",
+    "name": "BTL - Mondavi Chardonnay",
+    "desc": "",
+    "residentPrice": 9,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_blanc",
+    "name": "Glass of Blanc Mondavi",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_grigio",
+    "name": "Glass of Grigio Mondavi",
+    "desc": "",
+    "residentPrice": 3,
+    "guestPrice": 8,
+    "alaPrice": 8,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_nachard",
+    "name": "Wine Alcohol Free Chardonnay",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_nachard_b",
+    "name": "BTL - Fre Chardonnay NA",
+    "desc": "",
+    "residentPrice": 8,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_nacab",
+    "name": "Wine Alcohol Free Cab",
+    "desc": "",
+    "residentPrice": 2,
+    "guestPrice": 6,
+    "alaPrice": 6,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_nacab_b",
+    "name": "BTL - Fre Cabernet No Alcohol",
+    "desc": "",
+    "residentPrice": 8,
+    "guestPrice": 24,
+    "alaPrice": 24,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   },
+   {
+    "id": "cv_bubbles_b",
+    "name": "BTL - Butter Bubbles Sparkling",
+    "desc": "",
+    "residentPrice": 12,
+    "guestPrice": 35,
+    "alaPrice": 35,
+    "day": 0,
+    "avail": null,
+    "mods": [],
+    "allergens": [],
+    "course": 0
+   }
+  ]
+ }
+}

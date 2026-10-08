@@ -1,0 +1,10 @@
+{
+ "sequoia": {
+  "pickup": 0,
+  "delivery": 3
+ },
+ "bistro": {
+  "pickup": 2,
+  "delivery": 3
+ }
+}

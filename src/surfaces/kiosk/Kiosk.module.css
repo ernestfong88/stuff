@@ -1,0 +1,84 @@
+.stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #0f2233;
+}
+
+/* The kiosk's box. Everything inside sizes from its shorter side. */
+.frame,
+.rotated {
+  container-type: size;
+  overflow: hidden;
+}
+.frame {
+  position: absolute;
+  inset: 0;
+}
+/* A portrait kiosk turned a quarter turn to fill a landscape screen. */
+.rotated {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vh;
+  height: 100vw;
+  transform: translate(-50%, -50%) rotate(var(--turn));
+}
+
+.app {
+  /* One kiosk unit: about 0.9px on a 1080 x 1920 screen. */
+  --k: calc(1cqmin / 12);
+  --kk-blue: var(--ocean);
+  --kk-deep: #0f3f63;
+  --kk-ink: #10263a;
+  --kk-mute: #44596b;
+  --kk-bg: #eaf3fb;
+  --kk-soft: #cfe2f3;
+  --kk-pale: #f3f8fc;
+  --kk-line: rgba(16, 38, 58, 0.12);
+  --kk-off: #e3e8ed;
+  --kk-off-ink: #5e6b74;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--kk-bg);
+  color: var(--kk-ink);
+  font-size: calc(var(--k) * 30);
+  line-height: 1.3;
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* Landscape grows with the width too, so a tablet's type isn't tiny (kioskUnitFor in ui/unit.ts). */
+@container (orientation: landscape) {
+  .app {
+    --k: clamp(1cqmin / 12, 1cqw / 14.6, 1cqmin / 9.6);
+  }
+}
+
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--k) * 18);
+  padding: calc(var(--k) * 14) calc(var(--k) * 36) calc(var(--k) * 18);
+  background: #fff;
+  box-shadow: 0 -2px 0 var(--kk-line);
+}
+.grow {
+  flex: 1;
+}
+.back {
+  min-width: calc(var(--k) * 230);
+}
+.next {
+  min-width: calc(var(--k) * 300);
+}
+.nextBig {
+  min-width: calc(var(--k) * 420);
+  font-size: calc(var(--k) * 36);
+}
+.note {
+  font-size: calc(var(--k) * 24);
+  color: var(--kk-mute);
+}

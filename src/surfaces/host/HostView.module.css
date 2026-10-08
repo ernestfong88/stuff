@@ -1,0 +1,71 @@
+.wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 14px;
+  padding: 0 16px 16px;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 10px;
+}
+.top {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+}
+.hint {
+  font-size: 12.5px;
+  color: var(--s500);
+  max-width: 420px;
+}
+.keys {
+  display: flex;
+  gap: 12px;
+  margin-top: 3px;
+  font-weight: 600;
+}
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.swatch {
+  width: 14px;
+  height: 11px;
+  border-radius: 4px;
+  background: var(--surface);
+}
+/* The same outlines the floor tiles use for a held table. */
+.swHeld {
+  box-shadow: inset 0 0 0 2px #a86a00;
+}
+.swLate {
+  box-shadow: inset 0 0 0 2px #b4441f;
+}
+.seating {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 4px 4px 12px;
+  border-radius: var(--r-lg);
+  background: #e6f0f7;
+  color: var(--ocean);
+  font-size: 13px;
+  font-weight: 700;
+}
+.legend {
+  margin-left: auto;
+}
+.planScroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}

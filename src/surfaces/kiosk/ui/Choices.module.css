@@ -1,0 +1,8 @@
+.choice {
+  min-height: calc(var(--k) * 84);
+  padding: calc(var(--k) * 8) calc(var(--k) * 14);
+  font-size: calc(var(--k) * 28);
+}
+.group {
+  margin-bottom: calc(var(--k) * 24);
+}

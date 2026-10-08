@@ -1,0 +1,137 @@
+{
+ "stage": {
+  "o1": [
+   "run",
+   "Ready at Expo · C1"
+  ],
+  "o2": [
+   "cook",
+   "Cooking · C2"
+  ],
+  "o3": [
+   "cook",
+   "Cooking · C2"
+  ],
+  "o4": [
+   "check",
+   "Served · C2"
+  ],
+  "o5": [
+   "eat",
+   "Eating · C2"
+  ],
+  "o6": [
+   "check",
+   "Served · C3"
+  ],
+  "o7": [
+   "cook",
+   "Cooking · C2"
+  ],
+  "o8": [
+   "run",
+   "Ready at Expo · C1"
+  ],
+  "o9": [
+   "run",
+   "Ready at Expo · C1"
+  ],
+  "o10": [
+   "cook",
+   "Cooking · C2"
+  ],
+  "o11": [
+   "order",
+   "Ordering"
+  ],
+  "o12": [
+   "cook",
+   "Cooking · C2"
+  ],
+  "o13": [
+   "cook",
+   "Cooking · C2"
+  ],
+  "o14": [
+   "run",
+   "Ready at Expo · C2"
+  ]
+ },
+ "triage": {
+  "o1": [
+   [
+    true,
+    8,
+    "Starters up 8 min, not run",
+    "Run the starters"
+   ]
+  ],
+  "o3": [],
+  "o4": [
+   [
+    false,
+    15,
+    "Served 15 min ago, check still open",
+    "Help close the check"
+   ]
+  ],
+  "o5": [
+   [
+    true,
+    8,
+    "No check-in after course 2 · 8 min",
+    "Check in with the table"
+   ]
+  ],
+  "o6": [
+   [
+    false,
+    18,
+    "Served 18 min ago, check still open",
+    "Help close the check"
+   ]
+  ],
+  "o7": [],
+  "o8": [
+   [
+    true,
+    6,
+    "Starters up 6 min, not run",
+    "Run the starters"
+   ]
+  ],
+  "o9": [
+   [
+    true,
+    10,
+    "Starters up 10 min, not run",
+    "Run the starters"
+   ]
+  ],
+  "o11": [],
+  "o12": [],
+  "o13": [],
+  "o14": [
+   [
+    false,
+    4,
+    "Entrees up 4 min, not run",
+    "Run the entrees"
+   ]
+  ]
+ },
+ "mgr": {
+  "o1": "run",
+  "o3": "cook",
+  "o4": "check",
+  "o5": "eat",
+  "o6": "check",
+  "o7": "cook",
+  "o8": "run",
+  "o9": "run",
+  "o11": "idle",
+  "o12": "cook",
+  "o13": "cook",
+  "o14": "run"
+ }
+}

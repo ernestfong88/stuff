@@ -1,0 +1,23 @@
+{
+ "monthly30": {
+  "id": "monthly30",
+  "type": "Monthly",
+  "label": "30 meals / month",
+  "amt": 30,
+  "unit": "meals"
+ },
+ "daily2": {
+  "id": "daily2",
+  "type": "Daily",
+  "label": "2 meals / day",
+  "amt": 2,
+  "unit": "meals"
+ },
+ "alacarte": {
+  "id": "alacarte",
+  "type": "A la carte",
+  "label": "No plan — à la carte",
+  "amt": 0,
+  "unit": null
+ }
+}

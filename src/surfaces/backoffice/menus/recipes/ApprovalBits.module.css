@@ -1,0 +1,22 @@
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lead {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--s500);
+}
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.banner > span {
+  flex: 1 1 320px;
+  min-width: 0;
+}

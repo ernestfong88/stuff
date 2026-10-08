@@ -1,0 +1,98 @@
+.lead {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  color: var(--s700);
+}
+.quick {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.quick:empty {
+  display: none;
+}
+.weeks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.week {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.weekLabel {
+  width: 56px;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--s500);
+}
+.days {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-height: 44px;
+  padding: 5px 2px;
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+  transition: background var(--fast);
+}
+.day:hover:not(:disabled) {
+  background: var(--sunken);
+}
+.dayOn,
+.dayOn:hover:not(:disabled) {
+  background: var(--ocean-100);
+  box-shadow: inset 0 0 0 1.5px var(--ocean);
+}
+.daySelf {
+  opacity: 0.55;
+  cursor: default;
+}
+.dayName {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.dayNote {
+  font-size: 11px;
+  color: var(--s500);
+}
+.actionTabs {
+  margin-bottom: 14px;
+}
+.opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-bottom: 14px;
+}
+.opt {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.optLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--s500);
+}
+.dayWarn,
+.dayWarn:hover:not(:disabled) {
+  background: var(--warning-bg);
+  box-shadow: inset 0 0 0 1.5px var(--warning);
+}
+.warnBox {
+  margin-top: 14px;
+}

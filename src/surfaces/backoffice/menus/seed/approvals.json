@@ -1,0 +1,230 @@
+[
+  {
+    "id": "ap_vt_soup",
+    "recipeId": "l_cbsoup",
+    "community": "Valencia Terrace",
+    "fromSeedRecipe": true,
+    "sentBy": "Dana Whitaker",
+    "sentDaysAgo": 1,
+    "note": "Back for fall. Moved to low-sodium beef stock after residents said it ran salty.",
+    "status": "waiting"
+  },
+  {
+    "id": "ap_cnh_meatloaf",
+    "recipeId": "oc1",
+    "community": "Cardinal at North Hills",
+    "sentBy": "Marcus Bell",
+    "sentDaysAgo": 3,
+    "note": "Our BBQ night favorite. We'd like it in the Kisco library so other communities can run it.",
+    "status": "waiting",
+    "recipe": {
+      "name": "Carolina Meatloaf",
+      "cat": "Entrees",
+      "sub": "Plates",
+      "desc": "BBQ-glazed, smoked paprika",
+      "menuDescriptor": "Smoked paprika meatloaf with a tangy Carolina BBQ glaze, mashed potatoes and collards",
+      "servingDesc": "6 oz slice with 1 oz glaze",
+      "garnish": "Sliced scallion",
+      "prepMin": 20,
+      "cookMin": 55,
+      "ingredients": [
+        { "qty": 5, "unit": "oz", "name": "ground beef 80/20" },
+        { "qty": 2, "unit": "tbsp", "name": "breadcrumbs" },
+        { "qty": 0.25, "unit": "each", "name": "egg" },
+        { "qty": 1, "unit": "tbsp", "name": "onion, grated" },
+        { "qty": 0.5, "unit": "tsp", "name": "smoked paprika" },
+        { "qty": 1, "unit": "fl oz", "name": "Carolina BBQ sauce (vinegar base)" }
+      ],
+      "method": [
+        "Heat the oven to 350°F.",
+        "Mix the beef, breadcrumbs, egg, onion and paprika. Do not overmix.",
+        "Form loaves in hotel pans and bake 45 minutes.",
+        "Brush with BBQ sauce and bake 10 more minutes to set the glaze.",
+        "Rest 10 minutes. Slice 1 inch thick. Hold hot at 140°F or above."
+      ],
+      "plating": ["Mashed potatoes at 10 o'clock, collards at 2 o'clock.", "Slice leaning on the potatoes, glaze spooned over.", "Scallion on top."],
+      "equipment": ["Hotel pans", "Combi oven", "Probe thermometer"],
+      "nutrition": { "calories": 520, "protein": 29, "carbs": 24, "fat": 32, "sodium": 840 },
+      "allergens": ["Egg", "Wheat"],
+      "cookNotes": "Glaze in the last 10 minutes only. 160°F internal before resting."
+    }
+  },
+  {
+    "id": "ap_lp_meatloaf_2",
+    "recipeId": "oc2",
+    "community": "La Posada",
+    "sentBy": "Rosa Delgado",
+    "sentDaysAgo": 2,
+    "note": "Milder chile for residents who found it too hot, and a gluten-friendly binder so more residents can have it.",
+    "status": "waiting",
+    "recipe": {
+      "name": "Green Chile Meatloaf",
+      "cat": "Entrees",
+      "sub": "Plates",
+      "desc": "Hatch chile, cotija crumble",
+      "menuDescriptor": "Meatloaf with roasted Hatch green chile and a cotija crumble, with Spanish rice",
+      "servingDesc": "6 oz slice",
+      "garnish": "Cotija and cilantro",
+      "prepMin": 25,
+      "cookMin": 50,
+      "ingredients": [
+        { "qty": 5, "unit": "oz", "name": "ground beef 85/15" },
+        { "qty": 2, "unit": "tbsp", "name": "rolled oats, gluten-friendly" },
+        { "qty": 0.25, "unit": "each", "name": "egg" },
+        { "qty": 1, "unit": "tbsp", "name": "roasted mild Hatch green chile, diced" },
+        { "qty": 0.25, "unit": "tsp", "name": "ground cumin" },
+        { "qty": 0.5, "unit": "oz", "name": "cotija, crumbled" }
+      ],
+      "method": [
+        "Heat the oven to 350°F.",
+        "Mix the beef, oats, egg, chile and cumin. Do not overmix.",
+        "Form loaves in hotel pans and bake 45 minutes to 160°F.",
+        "Rest 10 minutes. Slice 1 inch thick.",
+        "Top each slice with cotija just before it goes out."
+      ],
+      "plating": ["Spanish rice at 10 o'clock.", "Slice at 6 o'clock, cotija and cilantro on top."],
+      "equipment": ["Hotel pans", "Probe thermometer"],
+      "nutrition": { "calories": 470, "protein": 30, "carbs": 12, "fat": 33, "sodium": 690 },
+      "allergens": ["Egg", "Milk"],
+      "dietFlags": ["Gluten-Friendly"],
+      "cookNotes": "Taste the chile batch: if it is hot, use half and add roasted poblano for the rest."
+    }
+  },
+  {
+    "id": "ap_carnegie_bisque",
+    "recipeId": "carn_bisque",
+    "community": "The Carnegie",
+    "sentBy": "Owen Hartley",
+    "sentHoursAgo": 5,
+    "note": "New soup for the fall menu. Vegetarian and dairy-free as written; cream optional on the side.",
+    "status": "waiting",
+    "recipe": {
+      "name": "Butternut Squash Bisque",
+      "cat": "Starters",
+      "sub": "Soup",
+      "desc": "Roasted squash, apple and sage",
+      "menuDescriptor": "Velvety roasted butternut squash bisque with apple and a whisper of sage",
+      "servingDesc": "8 fl oz bowl",
+      "garnish": "Toasted pepitas and a sage leaf",
+      "prepMin": 20,
+      "cookMin": 45,
+      "ingredients": [
+        { "qty": 6, "unit": "oz", "name": "butternut squash, peeled and cubed" },
+        { "qty": 1, "unit": "oz", "name": "apple, diced" },
+        { "qty": 1, "unit": "tbsp", "name": "onion, diced" },
+        { "qty": 1, "unit": "tsp", "name": "olive oil" },
+        { "qty": 6, "unit": "fl oz", "name": "vegetable stock, low sodium" },
+        { "qty": 0.25, "unit": "tsp", "name": "fresh sage, chopped" },
+        { "qty": 1, "unit": "tsp", "name": "pepitas, toasted" }
+      ],
+      "method": [
+        "Toss the squash in oil and roast at 400°F for 30 minutes until browned at the edges.",
+        "Sweat the onion and apple 5 minutes.",
+        "Add the squash, stock and sage. Simmer 15 minutes.",
+        "Blend smooth with an immersion blender. Thin with stock if needed.",
+        "Hold hot at 140°F or above."
+      ],
+      "plating": ["Ladle into a warm bowl.", "Pepitas in a line across the top, sage leaf at the end."],
+      "equipment": ["Sheet pans", "Steam kettle or stockpot", "Immersion blender"],
+      "nutrition": { "calories": 190, "protein": 4, "carbs": 32, "fat": 6, "sodium": 380, "fiber": 6 },
+      "dietFlags": ["Vegetarian", "Gluten-Friendly", "Heart-Healthy"],
+      "cookNotes": "Blend fully: no strings for residents on a puree diet."
+    }
+  },
+  {
+    "id": "ap_lp_meatloaf_1",
+    "recipeId": "oc2",
+    "community": "La Posada",
+    "sentBy": "Rosa Delgado",
+    "sentDaysAgo": 40,
+    "note": "Our take on the Kisco meatloaf for the Southwest menu.",
+    "status": "approved",
+    "decidedBy": "Ernest Fong",
+    "decidedDaysAgo": 38,
+    "comment": "Approved. Great use of Hatch chile. Keep an eye on the heat for residents who prefer mild.",
+    "recipe": {
+      "name": "Green Chile Meatloaf",
+      "cat": "Entrees",
+      "sub": "Plates",
+      "desc": "Hatch chile, cotija crumble",
+      "menuDescriptor": "Meatloaf with roasted Hatch green chile and a cotija crumble, with Spanish rice",
+      "servingDesc": "6 oz slice",
+      "garnish": "Cotija and cilantro",
+      "prepMin": 25,
+      "cookMin": 50,
+      "ingredients": [
+        { "qty": 5, "unit": "oz", "name": "ground beef 85/15" },
+        { "qty": 2, "unit": "tbsp", "name": "breadcrumbs" },
+        { "qty": 0.25, "unit": "each", "name": "egg" },
+        { "qty": 1.5, "unit": "tbsp", "name": "roasted hot Hatch green chile, diced" },
+        { "qty": 0.25, "unit": "tsp", "name": "ground cumin" },
+        { "qty": 0.5, "unit": "oz", "name": "cotija, crumbled" }
+      ],
+      "method": [
+        "Heat the oven to 350°F.",
+        "Mix the beef, breadcrumbs, egg, chile and cumin. Do not overmix.",
+        "Form loaves in hotel pans and bake 45 minutes to 160°F.",
+        "Rest 10 minutes. Slice 1 inch thick.",
+        "Top each slice with cotija just before it goes out."
+      ],
+      "plating": ["Spanish rice at 10 o'clock.", "Slice at 6 o'clock, cotija and cilantro on top."],
+      "equipment": ["Hotel pans", "Probe thermometer"],
+      "nutrition": { "calories": 480, "protein": 30, "carbs": 14, "fat": 33, "sodium": 720 },
+      "allergens": ["Egg", "Milk", "Wheat"]
+    }
+  },
+  {
+    "id": "ap_vt_peach",
+    "recipeId": "d_peach",
+    "community": "Valencia Terrace",
+    "fromSeedRecipe": true,
+    "sentBy": "Dana Whitaker",
+    "sentDaysAgo": 20,
+    "note": "Summer special that residents asked to keep.",
+    "status": "approved",
+    "decidedBy": "Ernest Fong",
+    "decidedDaysAgo": 18,
+    "comment": "Approved as written. Clear plating notes."
+  },
+  {
+    "id": "ap_carnegie_teriyaki",
+    "recipeId": "carn_teriyaki",
+    "community": "The Carnegie",
+    "sentBy": "Owen Hartley",
+    "sentDaysAgo": 12,
+    "note": "Turkey meatloaf with a teriyaki glaze for our lighter-fare night.",
+    "status": "denied",
+    "decidedBy": "Ernest Fong",
+    "decidedDaysAgo": 10,
+    "comment": "Sodium is 1,450 mg a serving; the Kisco cap for an entrée is 900 mg. Use low-sodium soy, drop the bouillon, and send it again.",
+    "recipe": {
+      "name": "Teriyaki Turkey Meatloaf",
+      "cat": "Entrees",
+      "sub": "Plates",
+      "desc": "Ground turkey, ginger, teriyaki glaze",
+      "menuDescriptor": "Ginger turkey meatloaf with a teriyaki glaze and steamed jasmine rice",
+      "servingDesc": "6 oz slice",
+      "garnish": "Sesame seeds and scallion",
+      "prepMin": 20,
+      "cookMin": 50,
+      "ingredients": [
+        { "qty": 5, "unit": "oz", "name": "ground turkey 93/7" },
+        { "qty": 2, "unit": "tbsp", "name": "panko" },
+        { "qty": 0.25, "unit": "each", "name": "egg" },
+        { "qty": 0.5, "unit": "tsp", "name": "fresh ginger, grated" },
+        { "qty": 1, "unit": "tsp", "name": "chicken bouillon base" },
+        { "qty": 1, "unit": "fl oz", "name": "teriyaki sauce" }
+      ],
+      "method": [
+        "Heat the oven to 350°F.",
+        "Mix the turkey, panko, egg, ginger and bouillon.",
+        "Form loaves and bake 40 minutes.",
+        "Glaze with teriyaki and bake 10 more minutes to 165°F."
+      ],
+      "plating": ["Jasmine rice at 10 o'clock.", "Slice at 6 o'clock, sesame and scallion on top."],
+      "equipment": ["Hotel pans", "Probe thermometer"],
+      "nutrition": { "calories": 380, "protein": 31, "carbs": 22, "fat": 16, "sodium": 1450 },
+      "allergens": ["Egg", "Wheat", "Soy", "Sesame"]
+    }
+  }
+]

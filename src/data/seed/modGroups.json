@@ -1,0 +1,464 @@
+[
+ {
+  "id": "g_bistro",
+  "name": "Bistro Sides",
+  "mods": [
+   "Kettle Chips",
+   "Pasta Salad",
+   "Pickle Spear",
+   "Fruit Cup",
+   "Tortilla Chips & Salsa"
+  ]
+ },
+ {
+  "id": "g_bread",
+  "name": "Breads",
+  "mods": [
+   "White",
+   "Wheat",
+   "Rye",
+   "Sourdough",
+   "Multigrain",
+   "Gluten-Free Bread",
+   "Croissant",
+   "Plain Bagel",
+   "Everything Bagel",
+   "Cinnamon Raisin Bagel",
+   "Flour Tortilla"
+  ]
+ },
+ {
+  "id": "g_bkpastry",
+  "name": "Breakfast Pastries",
+  "mods": [
+   "Blueberry Muffin",
+   "Bran Muffin",
+   "Cinnamon Roll",
+   "Cheese Danish",
+   "Coffee Cake",
+   "Butter Croissant",
+   "Sugar-Free Muffin"
+  ]
+ },
+ {
+  "id": "g_bkside",
+  "name": "Breakfast Sides",
+  "mods": [
+   "Hashbrowns",
+   "Hashbrown Patty",
+   "Bacon Strips",
+   "Sausage Links",
+   "Turkey Bacon",
+   "Turkey Sausage",
+   "Fresh Fruit Cup",
+   "Grits"
+  ]
+ },
+ {
+  "id": "g_burger",
+  "name": "Burgers",
+  "mods": [
+   "Lettuce",
+   "Tomato",
+   "Onion",
+   "Pickles",
+   "Grilled Onions",
+   "Sauteed Mushrooms",
+   "Bacon",
+   "Avocado",
+   "Jalapenos",
+   "Brioche Bun",
+   "Wheat Bun",
+   "Gluten-Free Bun",
+   "Lettuce Wrap",
+   "Double Patty"
+  ]
+ },
+ {
+  "id": "g_catch",
+  "name": "Fish Prep",
+  "mods": [
+   "Grilled",
+   "Blackened",
+   "Broiled",
+   "Pan-Seared",
+   "Lemon Pepper",
+   "Lemon Butter Sauce",
+   "Caper Butter"
+  ]
+ },
+ {
+  "id": "g_cheese",
+  "name": "Cheese",
+  "mods": [
+   "American",
+   "Cheddar",
+   "Swiss",
+   "Pepper Jack",
+   "Provolone",
+   "Mozzarella",
+   "Feta",
+   "Blue Cheese Crumbles",
+   "Parmesan",
+   "Dairy-Free Cheese"
+  ]
+ },
+ {
+  "id": "g_chxbowl",
+  "name": "Chicken Bowls",
+  "mods": [
+   "White Rice",
+   "Brown Rice",
+   "Fried Rice",
+   "Lo Mein Noodles",
+   "Stir-Fry Vegetables",
+   "Orange Sauce",
+   "Green Onions",
+   "Sesame Seeds"
+  ]
+ },
+ {
+  "id": "g_cereal",
+  "name": "Cold Cereals",
+  "mods": [
+   "Cheerios",
+   "Honey Nut Cheerios",
+   "Corn Flakes",
+   "Raisin Bran",
+   "Rice Krispies",
+   "Frosted Flakes",
+   "Special K",
+   "Granola",
+   "Sliced Banana",
+   "Cereal with 2% Milk",
+   "Cereal with Whole Milk",
+   "Cereal with Almond Milk"
+  ]
+ },
+ {
+  "id": "g_cond",
+  "name": "Condiments",
+  "mods": [
+   "Ketchup",
+   "Mustard",
+   "Mayonnaise",
+   "BBQ Sauce",
+   "Tartar Sauce",
+   "Cocktail Sauce",
+   "Hot Sauce",
+   "Salsa",
+   "Sour Cream",
+   "Maple Syrup",
+   "Sugar-Free Syrup",
+   "Honey",
+   "Grape Jelly",
+   "Strawberry Jam",
+   "Butter",
+   "Margarine",
+   "Cream Cheese",
+   "Peanut Butter",
+   "Lemon Wedges",
+   "Cream",
+   "Sugar",
+   "Splenda",
+   "Sweet'N Low"
+  ]
+ },
+ {
+  "id": "g_cookie",
+  "name": "Cookie",
+  "mods": [
+   "Chocolate Chip",
+   "Oatmeal Raisin",
+   "Peanut Butter Cookie",
+   "Sugar Cookie",
+   "Snickerdoodle",
+   "Sugar-Free Cookie"
+  ]
+ },
+ {
+  "id": "g_delimeat",
+  "name": "Deli Meat",
+  "mods": [
+   "Turkey",
+   "Ham",
+   "Roast Beef",
+   "Pastrami",
+   "Chicken Salad",
+   "Tuna Salad",
+   "Egg Salad",
+   "Hummus & Veggies"
+  ]
+ },
+ {
+  "id": "g_delibread",
+  "name": "Sandwich Bread",
+  "mods": [
+   "White",
+   "Wheat",
+   "Rye",
+   "Sourdough",
+   "Multigrain",
+   "Gluten-Free Bread",
+   "Croissant"
+  ]
+ },
+ {
+  "id": "g_deli",
+  "name": "Deli Extras",
+  "mods": [
+   "Cucumber",
+   "Sprouts",
+   "Toasted",
+   "Cut in Half",
+   "Cut in Quarters"
+  ]
+ },
+ {
+  "id": "g_dress",
+  "name": "Dressing",
+  "mods": [
+   "Ranch",
+   "Blue Cheese",
+   "Thousand Island",
+   "Italian",
+   "Fat-Free Italian",
+   "Balsamic Vinaigrette",
+   "Raspberry Vinaigrette",
+   "Caesar",
+   "Honey Mustard",
+   "Chipotle Ranch",
+   "BBQ Ranch",
+   "Oil & Vinegar"
+  ]
+ },
+ {
+  "id": "g_eggs",
+  "name": "Eggs",
+  "mods": [
+   "Scrambled",
+   "Soft Scrambled",
+   "Over Easy",
+   "Over Medium",
+   "Over Hard",
+   "Sunny Side Up",
+   "Poached",
+   "Hard Boiled",
+   "Egg Whites",
+   "Egg Beaters"
+  ]
+ },
+ {
+  "id": "g_hotdog",
+  "name": "Hot Dog",
+  "mods": [
+   "All-Beef Frank",
+   "Turkey Frank",
+   "Chili",
+   "Sauerkraut",
+   "Relish",
+   "Diced Onions",
+   "Toasted Bun"
+  ]
+ },
+ {
+  "id": "g_icecream",
+  "name": "Ice Cream",
+  "mods": [
+   "Vanilla",
+   "Chocolate",
+   "Strawberry",
+   "Butter Pecan",
+   "Rainbow Sherbet",
+   "Fat-Free (FF)",
+   "NSA (No Sugar Added)",
+   "Chocolate Syrup",
+   "Caramel",
+   "Whipped Cream"
+  ]
+ },
+ {
+  "id": "g_temp",
+  "name": "Meat Temp",
+  "mods": [
+   "Rare",
+   "Medium Rare",
+   "Medium",
+   "Medium Well",
+   "Well Done"
+  ]
+ },
+ {
+  "id": "g_omelet",
+  "name": "Omelet Toppings",
+  "mods": [
+   "Diced Ham",
+   "Crumbled Bacon",
+   "Crumbled Sausage",
+   "Diced Turkey",
+   "Onions",
+   "Green Peppers",
+   "Mushrooms",
+   "Tomatoes",
+   "Spinach",
+   "Jalapenos",
+   "Avocado",
+   "Salsa"
+  ]
+ },
+ {
+  "id": "g_pizzacrust",
+  "name": "Pizza Crust",
+  "mods": [
+   "Regular Crust",
+   "Thin Crust",
+   "Gluten-Free Crust"
+  ]
+ },
+ {
+  "id": "g_pizzasauce",
+  "name": "Pizza Sauce",
+  "mods": [
+   "Marinara Base",
+   "White Garlic Base",
+   "BBQ Base"
+  ]
+ },
+ {
+  "id": "g_pizza",
+  "name": "Pizza Toppings",
+  "mods": [
+   "Pepperoni",
+   "Italian Sausage",
+   "Canadian Bacon",
+   "Mushrooms",
+   "Black Olives",
+   "Green Peppers",
+   "Onions",
+   "Pineapple",
+   "Spinach",
+   "Fresh Basil"
+  ]
+ },
+ {
+  "id": "g_potato",
+  "name": "Potato",
+  "mods": [
+   "Butter",
+   "Sour Cream",
+   "Chives",
+   "Bacon Bits",
+   "Shredded Cheddar",
+   "Broccoli & Cheese",
+   "Cinnamon Butter",
+   "Brown Sugar",
+   "Mini Marshmallows"
+  ]
+ },
+ {
+  "id": "g_prep",
+  "name": "Prepared",
+  "mods": [
+   "Cut Up",
+   "Chopped",
+   "Ground",
+   "Pureed",
+   "Soft Cooked",
+   "Crispy",
+   "Salt-Free",
+   "Low Sodium",
+   "Sauce on the Side",
+   "Gravy on the Side",
+   "Dry, Without Sauce",
+   "Plain",
+   "Extra Hot",
+   "Warm, Not Hot",
+   "Room Temperature",
+   "Chilled"
+  ]
+ },
+ {
+  "id": "g_pork",
+  "name": "Pulled Pork",
+  "mods": [
+   "BBQ Pork",
+   "Carolina Vinegar Sauce",
+   "Slaw on Top",
+   "Crispy Onions",
+   "Pickle Chips"
+  ]
+ },
+ {
+  "id": "g_qty",
+  "name": "Quantities",
+  "mods": [
+   "Half Portion",
+   "Small Portion",
+   "Large Portion",
+   "Double",
+   "Cup",
+   "Bowl",
+   "1 Each",
+   "2 Each",
+   "3 Each"
+  ]
+ },
+ {
+  "id": "g_saladbase",
+  "name": "Salad Greens",
+  "mods": [
+   "Romaine",
+   "Spring Mix",
+   "Iceberg",
+   "Baby Spinach"
+  ]
+ },
+ {
+  "id": "g_salad",
+  "name": "Salad",
+  "mods": [
+   "Cherry Tomatoes",
+   "Cucumbers",
+   "Shredded Carrots",
+   "Red Onion",
+   "Croutons",
+   "Hard-Boiled Egg",
+   "Sunflower Seeds",
+   "Dried Cranberries",
+   "Black Beans",
+   "Corn",
+   "Tortilla Strips"
+  ]
+ },
+ {
+  "id": "g_sides",
+  "name": "Sides",
+  "mods": [
+   "French Fries",
+   "Sweet Potato Fries",
+   "Onion Rings",
+   "Baked Potato",
+   "Coleslaw",
+   "Fresh Fruit",
+   "Cottage Cheese",
+   "Garden Salad",
+   "Steamed Broccoli",
+   "Peas & Carrots",
+   "Cup of Soup"
+  ]
+ },
+ {
+  "id": "g_wine",
+  "name": "Wines",
+  "mods": [
+   "Cabernet Sauvignon",
+   "Merlot",
+   "Pinot Noir",
+   "Chardonnay",
+   "Pinot Grigio",
+   "Sauvignon Blanc",
+   "White Zinfandel",
+   "Moscato"
+  ]
+ }
+]

@@ -1,0 +1,93 @@
+.head {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.photo {
+  flex-shrink: 0;
+  border-radius: var(--r-2xl);
+}
+.avatar {
+  border-radius: var(--r-2xl) !important;
+  box-shadow: 0 6px 16px -10px rgba(20, 35, 48, 0.6);
+}
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+.nameRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.name {
+  flex: 1 1 0;
+  width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.name:hover {
+  color: var(--ocean);
+}
+.till {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--s400);
+}
+.pref {
+  padding: 6px 10px 7px;
+  border-radius: var(--r-md);
+  background: #eef4e8;
+  box-shadow: inset 0 0 0 1px rgba(79, 106, 56, 0.18);
+}
+.prefLabel {
+  margin-bottom: 2px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #4f6a38;
+}
+.prefText {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.small {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 10px;
+}
+.smallText {
+  flex: 1;
+  min-width: 0;
+}
+.smallName {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.smallSub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--s400);
+}

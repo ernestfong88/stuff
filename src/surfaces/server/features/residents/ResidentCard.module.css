@@ -1,0 +1,47 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 66px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  padding: 11px 13px;
+  text-align: left;
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.06);
+  transition: box-shadow var(--fast) var(--ease);
+}
+.card:hover {
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.16);
+}
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 650;
+}
+.meta {
+  font-size: 12.5px;
+  color: var(--s400);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pills {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.chev {
+  color: var(--s200);
+  flex-shrink: 0;
+}

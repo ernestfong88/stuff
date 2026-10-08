@@ -1,0 +1,44 @@
+[
+ {
+  "id": "bc1",
+  "scope": "Valencia Terrace",
+  "message": "Countdown for the Breaded Flounder will not lock out items. If number is below 5, please check with kitchen first.",
+  "startDt": {
+   "$d": -86400009
+  },
+  "endDt": {
+   "$d": 259199991
+  },
+  "createdOn": {
+   "$d": -86400009
+  }
+ },
+ {
+  "id": "bc2",
+  "scope": "Valencia Terrace",
+  "message": "Residents can only order a max of 3 carry-out entrees after 3pm.",
+  "startDt": {
+   "$d": -172800009
+  },
+  "endDt": {
+   "$d": 431999991
+  },
+  "createdOn": {
+   "$d": -172800009
+  }
+ },
+ {
+  "id": "bc3",
+  "scope": "HO",
+  "message": "New associate meal program launches portfolio-wide Sept 1.",
+  "startDt": {
+   "$d": -259200009
+  },
+  "endDt": {
+   "$d": 1209599991
+  },
+  "createdOn": {
+   "$d": -259200009
+  }
+ }
+]

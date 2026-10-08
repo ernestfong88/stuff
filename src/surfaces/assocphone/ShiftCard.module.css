@@ -1,0 +1,114 @@
+.card {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-1);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.day {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.when {
+  font-size: 12.5px;
+  color: var(--s500);
+}
+
+.break {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--clay-600);
+}
+
+.planned {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-top: 8px;
+}
+.item {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  color: var(--s700);
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+.change,
+.cancel {
+  flex: 1;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  font-weight: 800;
+}
+.change {
+  background: var(--ocean-100);
+  color: var(--ocean);
+}
+.change:hover {
+  background: #cddfec;
+}
+.cancel {
+  color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.cancel:hover {
+  background: var(--danger-bg);
+}
+.locked {
+  width: 100%;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--s500);
+}
+.texted {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  font-size: 12px;
+  color: var(--clay-600);
+}
+
+.plan {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 10px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 800;
+  background: var(--ocean-100);
+  color: var(--ocean);
+}
+.plan:hover {
+  background: #cddfec;
+}
+
+.closed {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--limestone);
+  color: var(--s500);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}

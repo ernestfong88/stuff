@@ -1,0 +1,158 @@
+import { describe, expect, it } from 'vitest';
+import { residents } from '../../../../../data';
+import { HISTORY_SERVERS } from '../../../seed/dashboard';
+import { countSentiment, feedbackHistory, matchDish, readComment, sentimentOf, sentimentTrend } from '../model/feedback';
+import { currentDays, dayLabel, period } from '../model/periods';
+import { budgetPct, compsFor, revenuePeriod } from '../model/revenue';
+import {
+  avgTableTime,
+  bestWorstTables,
+  lateTablesByServer,
+  serviceAction,
+  serviceDayAction,
+  serviceWeek,
+  tableTime,
+  timedTables,
+} from '../model/service';
+
+// A Wednesday; the prototype showed these same numbers for this day.
+const TODAY = new Date(2026, 9, 7).getTime();
+const days7 = currentDays(7, TODAY).map((d) => d.a);
+
+describe('periods', () => {
+  it('ends the current period today and steps back whole periods', () => {
+    const p0 = period(0, 7, TODAY);
+    expect(new Date(p0.a).getDate()).toBe(1);
+    expect(new Date(p0.b).getDate()).toBe(8);
+    expect(new Date(period(1, 7, TODAY).a).getDate()).toBe(24);
+  });
+  it('labels weekdays for a week and thins the axis for longer ranges', () => {
+    const d = currentDays(7, TODAY);
+    expect(d.map((x) => dayLabel(x, 7))).toEqual(['Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Today']);
+    const labels = currentDays(28, TODAY).map((x) => dayLabel(x, 28));
+    expect(labels.filter(Boolean)).toEqual(['9/16', '9/23', '9/30', 'Today']);
+  });
+});
+
+describe('steps of service', () => {
+  it('times the same tables for a day every time', () => {
+    expect(timedTables(TODAY, HISTORY_SERVERS)).toEqual(timedTables(TODAY, HISTORY_SERVERS));
+  });
+  it('averages table time per day and over the week', () => {
+    const per = days7.map((d) => avgTableTime(timedTables(d, HISTORY_SERVERS))!.toFixed(1));
+    expect(per).toEqual(['26.8', '24.6', '25.4', '19.2', '20.1', '18.6', '21.8']);
+    expect(avgTableTime(days7.flatMap((d) => timedTables(d, HISTORY_SERVERS)))!.toFixed(1)).toBe('22.3');
+  });
+  it('points the top action at the slowest meal and server', () => {
+    const a = serviceAction(days7.flatMap((d) => timedTables(d, HISTORY_SERVERS)));
+    expect(a?.text).toMatch(/^Coach Ricardo Juarez and the line on dinner entrée pacing\./);
+  });
+  it('groups late tables by server, most late first', () => {
+    const groups = lateTablesByServer(timedTables(TODAY, HISTORY_SERVERS));
+    for (let i = 1; i < groups.length; i++) expect(groups[i - 1].late.length).toBeGreaterThanOrEqual(groups[i].late.length);
+    for (const g of groups) expect(g.late.every((t) => t.app + t.ent > 22)).toBe(true);
+    for (const g of groups) {
+      expect(['appetizer', 'entrée']).toContain(g.cause);
+      expect(g.late.some((t) => t.meal === g.meal)).toBe(true);
+    }
+  });
+  it('names one next step for a day: the server with the most late tables, their slow step, and the page that helps', () => {
+    const day = timedTables(TODAY, HISTORY_SERVERS);
+    const [g] = lateTablesByServer(day);
+    const a = serviceDayAction(day);
+    expect(a.act).toContain(`Talk to ${g.server.split(' ')[0]} about ${g.meal.toLowerCase()}`);
+    expect(a.why).toMatch(new RegExp(`^${g.late.length} of `));
+    // Alerts & Timing is Home Office's, so a slow appetizer links nowhere.
+    expect(a.page).toBe(g.cause === 'entrée' ? 'svcFlow' : null);
+  });
+  it('says there is nothing to fix on a day with every table under the goal', () => {
+    const fast = timedTables(TODAY, HISTORY_SERVERS).map((t) => ({ ...t, app: 5, ent: 12 }));
+    expect(serviceDayAction(fast)).toMatchObject({ tone: 'good', page: null, act: expect.stringMatching(/^Nothing to fix/) });
+    expect(serviceDayAction([]).page).toBeNull();
+  });
+  it('leads the range detail with the action, and the trend under it', () => {
+    const T = days7.flatMap((d) => timedTables(d, HISTORY_SERVERS));
+    const w = serviceWeek(T, 21, [20, 21, 22, 23, 21, 20, 22], 7);
+    expect(w.insight.head).toMatch(/^Review /);
+    expect(w.insight.body).toMatch(/average table time/);
+    expect(['svcFlow', null]).toContain(w.page);
+  });
+});
+
+describe('revenue', () => {
+  it('adds up the week', () => {
+    const p = revenuePeriod(days7);
+    expect(p.made).toBe(1554);
+    expect(p.comp).toBe(57);
+    expect(p.budget).toBe(2350);
+    expect(budgetPct(p.made, p.budget)).toBe(66);
+  });
+  it('splits a day’s comps so they add up to its total', () => {
+    const p = revenuePeriod(days7);
+    for (const d of p.days) {
+      const comps = compsFor(d, HISTORY_SERVERS, ['A', 'B']);
+      expect(comps.reduce((q, c) => q + c.amount, 0)).toBe(d.comp);
+    }
+  });
+  it('never shows 100% of budget while behind', () => {
+    expect(budgetPct(999, 1000)).toBe(99);
+    expect(budgetPct(1000, 1000)).toBe(100);
+  });
+});
+
+describe('feedback', () => {
+  const past = feedbackHistory(residents, TODAY);
+  it('generates the same history every time', () => {
+    expect(feedbackHistory(residents, TODAY)).toEqual(past);
+  });
+  it('reads a complaint over praise in one sentence', () => {
+    expect(sentimentOf('Loved it but it was cold')).toBe('neg');
+    expect(sentimentOf('Loved the peach glazed chicken')).toBe('pos');
+    expect(sentimentOf('Had the soup')).toBe('neu');
+  });
+  it('does not read a dish name as a complaint', () => {
+    const c = readComment({
+      id: 'x',
+      at: 0,
+      dish: 'Slow Roasted Prime Rib',
+      text: 'Loved the Slow Roasted Prime Rib.',
+      sent: 'pos',
+      who: '',
+      src: 'Voice note',
+    });
+    expect(c.themes).toEqual([]);
+    expect(c.pos).toBe(true);
+  });
+  it('links a comment to the dish it names, preferring what was on the check', () => {
+    expect(matchDish('The cheeseburger soup was too salty', [], ['Cheeseburger Soup', 'Classic Terrace Burger'])).toBe('Cheeseburger Soup');
+    expect(matchDish('Her chicken came out cold', ['Peach Glazed Chicken Breast'], ['Chicken Marsala'])).toBe('Peach Glazed Chicken Breast');
+    expect(matchDish('Nice evening', [], ['Chicken Marsala'])).toBeNull();
+  });
+  it('compares net sentiment with the period before', () => {
+    expect(sentimentTrend({ pos: 8, neu: 1, neg: 1, n: 10 }, { pos: 5, neu: 1, neg: 4, n: 10 })).toBe('up');
+    expect(sentimentTrend({ pos: 5, neu: 1, neg: 4, n: 10 }, { pos: 5, neu: 1, neg: 4, n: 10 })).toBe('flat');
+    expect(sentimentTrend(countSentiment([]), { pos: 1, neu: 0, neg: 0, n: 1 })).toBe('none');
+  });
+});
+
+describe('best and worst tables', () => {
+  const day = timedTables(new Date(2026, 9, 7).getTime(), HISTORY_SERVERS);
+
+  it('lists the slowest visits first and the fastest first, never the same visit twice', () => {
+    const { worst, best } = bestWorstTables(day);
+    const times = day.map(tableTime).sort((a, b) => a - b);
+    expect(worst.map((x) => x.minutes)).toEqual(times.slice(-3).reverse());
+    expect(best.map((x) => x.minutes)).toEqual(times.slice(0, 3));
+    expect(worst[0].server).toBeTruthy();
+  });
+
+  it('averages each table over a range, and splits a short list without overlap', () => {
+    const { worst, best } = bestWorstTables(day, { byTable: true });
+    expect(worst.every((x) => (x.visits ?? 0) >= 1)).toBe(true);
+    expect(worst.at(-1)!.minutes).toBeGreaterThanOrEqual(best.at(-1)!.minutes);
+    const two = bestWorstTables(day.slice(0, 2));
+    expect(two.worst).toHaveLength(1);
+    expect(two.best).toHaveLength(1);
+    expect(bestWorstTables([])).toEqual({ worst: [], best: [] });
+  });
+});

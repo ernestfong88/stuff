@@ -1,0 +1,67 @@
+.rail,
+.start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  transition: transform var(--fast) var(--ease);
+  touch-action: manipulation;
+}
+.rail:active,
+.start:active {
+  transform: scale(0.96);
+}
+.rail {
+  background: var(--surface);
+  color: var(--ocean);
+  box-shadow:
+    0 10px 26px -10px rgba(20, 35, 48, 0.45),
+    inset 0 0 0 2px var(--ocean);
+}
+.start {
+  background: var(--ocean);
+  color: #fff;
+  box-shadow:
+    0 10px 26px -8px rgba(20, 87, 133, 0.75),
+    0 2px 6px rgba(20, 35, 48, 0.2);
+}
+.start:hover {
+  background: var(--ocean-700);
+}
+.label {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+}
+@container tablet (max-width: 760px) {
+  .rail,
+  .start {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+  }
+}
+/* Upright, the rail is a bar along the bottom: icon and label side by side, New check last and widest. */
+@container tablet (orientation: portrait) {
+  .rail,
+  .start {
+    flex-direction: row;
+    gap: 8px;
+    width: auto;
+    height: 52px;
+    padding: 0 18px 0 14px;
+    border-radius: 16px;
+  }
+  .start {
+    padding: 0 24px 0 18px;
+  }
+  .label {
+    font-size: 13px;
+  }
+}

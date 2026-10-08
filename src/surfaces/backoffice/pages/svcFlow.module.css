@@ -1,0 +1,65 @@
+/* A setting that is set per venue: the label row, then one short line per venue. */
+.perVenue {
+  border-top: 1px solid var(--hair);
+  padding-bottom: 10px;
+}
+.perVenue > :first-child {
+  border-top: none;
+  padding-bottom: 6px;
+}
+.venue {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 40px;
+  padding-left: 14px;
+  margin-left: 2px;
+  border-left: 2px solid var(--hair);
+}
+.venueName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--s700);
+}
+.venueControl {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+/* Coursing key: option names in bold, one line. */
+.key {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 12px 16px 14px;
+  border-top: 1px solid var(--hair);
+  font-size: 13px;
+}
+.keyRow {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 12px;
+}
+.keyRow dt {
+  font-weight: 650;
+  color: var(--s700);
+}
+.keyRow dd {
+  margin: 0;
+  color: var(--s500);
+}
+@media (max-width: 560px) {
+  .keyRow {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+.problem {
+  margin: 8px 16px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--danger);
+}

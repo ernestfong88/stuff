@@ -1,0 +1,136 @@
+.progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px 6px 6px;
+  border-radius: var(--r-pill);
+  background: var(--sunken);
+  color: var(--s700);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pill:hover {
+  background: var(--limestone);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.num {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 700;
+}
+.pillDone .num {
+  background: var(--ocean-100);
+  color: var(--ocean);
+}
+.pillOn {
+  background: var(--ocean);
+  color: #fff;
+}
+.pillOn:hover {
+  background: var(--ocean-700);
+}
+.pillOn .num {
+  color: var(--ocean);
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.what {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--s500);
+}
+.issues {
+  margin: -4px 0 12px;
+  padding: 8px 12px 8px 28px;
+  border-radius: var(--r-md);
+  background: var(--warning-bg);
+  color: var(--warning);
+  font-size: 13px;
+  font-weight: 600;
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.offers {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.review {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 14px;
+}
+/* A desktop screen: each venue and Every venue side by side, three across. */
+@media (min-width: 1500px) {
+  .review {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+.card {
+  padding: 14px 16px 8px;
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-1);
+  background: var(--surface);
+}
+.cardTitle {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.line {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+  border-top: 1px solid var(--hair);
+  font-size: 13.5px;
+  color: var(--s700);
+}
+.line:first-child {
+  border-top: 0;
+}
+.line > span {
+  flex: 1;
+}
+.edit {
+  padding: 2px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ocean);
+}
+.edit:hover {
+  text-decoration: underline;
+}
+
+/* Sections here have no title, so their first row needs no rule above it. */
+.body section > div:first-child {
+  border-top: 0;
+  padding-top: 0;
+}

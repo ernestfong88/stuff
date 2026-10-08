@@ -1,0 +1,34 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--k) * 18);
+}
+.meal {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: calc(var(--k) * 26) calc(var(--k) * 32);
+  border-radius: calc(var(--k) * 28);
+  text-align: left;
+}
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--k) * 6);
+}
+.name {
+  font-size: calc(var(--k) * 44);
+  font-weight: 800;
+}
+.range,
+.last {
+  font-size: calc(var(--k) * 27);
+  font-weight: 500;
+  opacity: 0.85;
+}
+.last {
+  font-weight: 700;
+  opacity: 0.9;
+}
+.none {
+  font-size: calc(var(--k) * 32);
+}

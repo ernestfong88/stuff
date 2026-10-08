@@ -1,0 +1,94 @@
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  color: var(--s500);
+}
+.dots:hover,
+.dotsOpen {
+  background: #e4e9ee;
+}
+.item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.item:hover {
+  background: var(--paper);
+}
+.remake {
+  color: var(--danger);
+}
+.split {
+  border-top: 1px solid var(--hair);
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
+}
+.sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--s400);
+}
+.fb {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 6px 6px 10px;
+  border-bottom: 1px solid var(--hair);
+  margin-bottom: 4px;
+}
+.fbTitle {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.fbRow {
+  display: flex;
+  gap: 6px;
+}
+.verdict {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  color: var(--s700);
+  font-size: 13px;
+  font-weight: 700;
+}
+.pos {
+  background: #2f6b33;
+  color: #fff;
+}
+.neg {
+  background: #9a3b2e;
+  color: #fff;
+}
+.input {
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--hair-2);
+  font-size: 13px;
+}
+.save {
+  min-height: 40px;
+  border-radius: var(--r-md);
+  background: var(--ocean);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}

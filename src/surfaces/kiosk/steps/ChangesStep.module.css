@@ -1,0 +1,53 @@
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--k) * 18);
+  margin-bottom: calc(var(--k) * 20);
+}
+.topBtn {
+  flex: 1 1 calc(var(--k) * 280);
+  min-height: calc(var(--k) * 86);
+}
+.chip {
+  min-height: calc(var(--k) * 78);
+  padding: calc(var(--k) * 8) calc(var(--k) * 14);
+  font-size: calc(var(--k) * 26);
+}
+.elseCaption {
+  margin-top: calc(var(--k) * 22);
+}
+.noteRow {
+  display: flex;
+  align-items: stretch;
+  gap: calc(var(--k) * 14);
+}
+.note {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  padding: calc(var(--k) * 16) calc(var(--k) * 20);
+  border: none;
+  border-radius: calc(var(--k) * 22);
+  background: #fff;
+  box-shadow: inset 0 0 0 calc(var(--k) * 3) var(--kk-soft);
+  font-size: calc(var(--k) * 30);
+  line-height: 1.3;
+  color: var(--kk-ink);
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.note:focus-visible,
+.noteListening {
+  box-shadow: inset 0 0 0 calc(var(--k) * 3) var(--skies);
+}
+.mic {
+  gap: calc(var(--k) * 4);
+  min-width: calc(var(--k) * 150);
+  padding: calc(var(--k) * 8) calc(var(--k) * 14);
+  font-size: calc(var(--k) * 24);
+}
+.micIcon {
+  width: calc(var(--k) * 40);
+  height: calc(var(--k) * 40);
+}

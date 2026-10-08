@@ -1,0 +1,58 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 4px;
+  width: 360px;
+}
+.head {
+  padding: 2px 2px 0;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.opt {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 9px 10px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+}
+.optRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.optText {
+  flex: 1;
+  min-width: 0;
+}
+.optTitle {
+  font-size: 13px;
+  font-weight: 700;
+}
+.optSub {
+  font-size: 11.5px;
+  color: var(--s500);
+}
+.days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.day {
+  height: 26px;
+  padding: 0 8px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--s500);
+}
+.dayOn {
+  background: var(--ink);
+  color: #fff;
+}

@@ -1,0 +1,13 @@
+.name {
+  font-weight: 650;
+  color: var(--ink);
+}
+.levelName {
+  font-weight: 500;
+  color: var(--s500);
+}
+.foot {
+  padding: 4px 0 14px;
+  font-size: 12px;
+  color: var(--s500);
+}

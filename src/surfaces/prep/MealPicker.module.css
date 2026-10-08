@@ -1,0 +1,36 @@
+.picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.today:not(.on) {
+  color: var(--k-amber);
+}
+
+.meal {
+  min-height: 42px;
+  padding: 0 12px;
+  white-space: nowrap;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--k-soft);
+}
+.meal:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.on,
+.on:hover {
+  background: var(--k-ink);
+  color: var(--night);
+}

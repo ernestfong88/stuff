@@ -1,0 +1,40 @@
+.backdrop {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  background: var(--paper);
+}
+
+.phone {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.bar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px 0;
+}
+
+/* On a tablet or desktop, frame the column like a phone. */
+@media (min-width: 600px) {
+  .backdrop {
+    align-items: center;
+    padding: 24px;
+    background: var(--sunken);
+  }
+  .phone {
+    height: min(100%, 900px);
+    border-radius: 28px;
+    box-shadow: var(--shadow-3);
+  }
+}

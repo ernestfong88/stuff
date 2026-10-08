@@ -1,0 +1,47 @@
+.lede {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--s500);
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0 4px;
+}
+.alt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border-radius: 13px;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.12);
+}
+.alt:hover {
+  background: var(--paper);
+}
+.altTitle {
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.altNames {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  color: var(--s500);
+}
+.altMins {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--s400);
+}

@@ -1,0 +1,69 @@
+.stack {
+  position: fixed;
+  left: 50%;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 700;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+  width: min(560px, calc(100% - 32px));
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--r-xl);
+  background: var(--ink);
+  color: #fff;
+  box-shadow: var(--shadow-3);
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: auto;
+  animation: k-slide-up var(--med) var(--ease);
+}
+.icon {
+  flex-shrink: 0;
+  color: var(--skies);
+}
+.success .icon {
+  color: #a9c08b;
+}
+.warning .icon {
+  color: var(--gold);
+}
+.danger .icon {
+  color: #f0a39a;
+}
+.msg {
+  flex: 1;
+  min-width: 0;
+}
+.action {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.action:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* CSS Modules scope animation names, so keyframes are declared in the module that uses them. */
+@keyframes k-slide-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}

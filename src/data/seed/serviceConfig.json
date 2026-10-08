@@ -1,0 +1,56 @@
+{
+ "t": {
+  "passLate": 5,
+  "floorCook": 20,
+  "closeLate": 30,
+  "seatLate": 0,
+  "eatLate": 0,
+  "checkInWake": 2,
+  "cookLate": 10,
+  "expoPass": 5,
+  "fireLate": 5
+ },
+ "ciMin": {},
+ "gap": {
+  "send": [
+   6,
+   8
+  ],
+  "ready": [
+   15,
+   18
+  ],
+  "run": [
+   2.5,
+   4
+  ],
+  "checkin": [
+   10,
+   0
+  ]
+ },
+ "met": {
+  "margin": 8,
+  "need": 3,
+  "noneBehind": true,
+  "tableShorter": false,
+  "off": {},
+  "avg": {}
+ },
+ "texts": {},
+ "mobile": {},
+ "greet": {},
+ "am": {
+  "weeks": {}
+ },
+ "win": {
+  "cut": 45,
+  "pack": 5,
+  "types": {},
+  "grid": {}
+ },
+ "pud": {
+  "track": {}
+ },
+ "csub": {}
+}

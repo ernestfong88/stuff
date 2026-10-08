@@ -1,0 +1,44 @@
+.plan {
+  /* Tiles size their text from the plan's height (cqh), so every table reads the same at 1024 and 1920. */
+  container-type: size;
+  position: relative;
+  flex: 1;
+  border-radius: var(--r-2xl);
+  background: linear-gradient(135deg, #eef1f4 0%, #dce3e8 100%);
+  box-shadow: var(--ring);
+  overflow: hidden;
+}
+.grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(20, 35, 48, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 35, 48, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.band {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.06);
+}
+.bandLabel {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--s400);
+  font-weight: 700;
+}
+.compact .bandLabel {
+  top: 4px;
+  left: 8px;
+  font-size: 9px;
+}
+.wall {
+  border-radius: var(--r-xs);
+  background: var(--s400);
+  opacity: 0.55;
+}

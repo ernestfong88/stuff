@@ -1,0 +1,118 @@
+.panel {
+  min-width: 0;
+}
+.search {
+  width: 100%;
+  margin-bottom: 10px;
+}
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 8px;
+  scroll-margin-top: 8px;
+}
+.tab {
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: var(--r-xl);
+  white-space: nowrap;
+  background: var(--surface);
+  color: var(--s700);
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.12);
+}
+.tab:hover {
+  background: #f7f9fb;
+}
+.tabOn,
+.tabOn:hover {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 3px 10px -4px rgba(27, 38, 48, 0.6);
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.pill {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+  background: var(--limestone);
+  color: var(--s700);
+  font-size: 13.5px;
+  font-weight: 800;
+}
+.pillOn {
+  background: var(--ocean);
+  color: #fff;
+  box-shadow: 0 3px 10px -4px rgba(20, 87, 133, 0.6);
+}
+.grid {
+  display: grid;
+  container-type: inline-size;
+  grid-template-columns: repeat(auto-fill, minmax(max(150px, calc((100% - 30px) / 4)), 1fr));
+  gap: 9px 10px;
+}
+.head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 2px -1px;
+  line-height: 1.2;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--s500);
+}
+.headSpecial {
+  color: var(--clay-600);
+}
+.headPlain {
+  margin-top: 8px;
+  color: var(--s400);
+}
+.swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+}
+.count {
+  font-weight: 700;
+  color: var(--s400);
+}
+.sideNote {
+  grid-column: 1 / -1;
+  margin: 0 2px 8px;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: #f0f3f6;
+  color: var(--s700);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.empty {
+  grid-column: 1 / -1;
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--s400);
+}
+.assocNote {
+  margin: 0 0 8px;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  background: var(--clay-100);
+  font-size: 13px;
+  color: var(--clay-600);
+}
+.assocNote b {
+  color: var(--ink);
+}

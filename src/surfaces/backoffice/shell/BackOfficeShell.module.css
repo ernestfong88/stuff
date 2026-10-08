@@ -1,0 +1,109 @@
+/*
+ * The back office fills the viewport with position: fixed rather than
+ * 100vh: under the text size zoom (CSS zoom on #root) a 100vh box comes out
+ * shorter than the window and left a blank band at the bottom.
+ */
+.shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.nav {
+  width: 252px;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+}
+.main:focus {
+  outline: none;
+}
+
+.content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 32px 56px;
+}
+/* Pages that are a work surface (BoPage wide, e.g. the menu builder) get more room, with a margin either side. */
+.content:has([data-bo-wide]) {
+  max-width: 1520px;
+  padding-inline: 48px;
+}
+/* Desktop screens: every page gets the room, so two-column settings pages and card grids can spread out. */
+@media (min-width: 1600px) {
+  .content,
+  .content:has([data-bo-wide]) {
+    max-width: 1600px;
+    padding-inline: 48px;
+  }
+}
+
+/*
+ * Tabs on a page: the active tab's underline in the section's accent. The
+ * underline tabs draw it in var(--ocean), so the selected tab borrows the
+ * accent under that name (pills and segmented tabs do not use it).
+ */
+.content [role="tab"][aria-selected="true"] {
+  --ocean: var(--bo-accent);
+}
+
+.scrim {
+  display: none;
+}
+
+/* Narrow windows: the side nav becomes a drawer opened from the top bar. */
+@media (max-width: 1199px) {
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 300;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform var(--med) var(--ease),
+      visibility 0s linear var(--med);
+    box-shadow: var(--shadow-3);
+  }
+  .navOpen {
+    transform: none;
+    visibility: visible;
+    transition: transform var(--med) var(--ease);
+  }
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 299;
+    background: rgba(15, 23, 42, 0.32);
+    animation: k-fade-in var(--fast) var(--ease);
+  }
+  .content,
+  .content:has([data-bo-wide]) {
+    padding: 20px 24px 48px;
+  }
+}
+
+@keyframes k-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav,
+  .navOpen {
+    transition: none;
+  }
+}

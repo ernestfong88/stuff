@@ -1,0 +1,89 @@
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--s500);
+  white-space: nowrap;
+}
+.square {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.red {
+  background: var(--danger);
+}
+.amber {
+  background: var(--clay-600);
+}
+.pills {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.pill {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  font-size: 12.5px;
+  font-weight: 700;
+  background: var(--surface);
+  color: var(--s700);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.pillOn {
+  background: var(--ocean);
+  color: #fff;
+  box-shadow: none;
+}
+.muted {
+  font-size: 12px;
+  color: var(--s400);
+}
+.select {
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hair-2);
+  background: var(--surface);
+  font-size: 13px;
+  min-width: 0;
+  max-width: 100%;
+}
+.checkCols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 12px 20px;
+}
+.checkCol {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+.checkTitle {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  font-size: 13px;
+  color: var(--s700);
+  cursor: pointer;
+}
+.check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--ocean);
+}

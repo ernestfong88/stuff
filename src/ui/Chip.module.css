@@ -1,0 +1,102 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--r-pill);
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+.xs {
+  font-size: 10px;
+  padding: 2px 7px;
+}
+.sm {
+  font-size: 11px;
+  padding: 3px 8px;
+}
+.md {
+  font-size: 12.5px;
+  padding: 5px 11px;
+}
+
+.neutral {
+  background: var(--limestone);
+  color: var(--s500);
+}
+.info {
+  background: var(--ocean-100);
+  color: var(--ocean-700);
+}
+.success {
+  background: var(--flora-100);
+  color: #3e5a2e;
+}
+.warning {
+  background: var(--clay-100);
+  color: #8a5a12;
+}
+.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.plum {
+  background: var(--plum-100);
+  color: var(--plum);
+}
+.gold {
+  background: #f6ebc9;
+  color: #7a5a0e;
+}
+.dark {
+  background: var(--ink);
+  color: #fff;
+}
+.outline {
+  background: transparent;
+  color: var(--s500);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+
+.solid.neutral {
+  background: var(--s500);
+  color: #fff;
+}
+.solid.info {
+  background: var(--ocean);
+  color: #fff;
+}
+.solid.success {
+  background: var(--flora);
+  color: #fff;
+}
+.solid.warning {
+  background: var(--clay);
+  color: #fff;
+}
+.solid.danger {
+  background: var(--danger);
+  color: #fff;
+}
+.solid.plum {
+  background: var(--plum);
+  color: #fff;
+}
+.solid.gold {
+  background: var(--gold);
+  color: #2a1a02;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 0 0 2px var(--surface);
+}

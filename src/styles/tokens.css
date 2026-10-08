@@ -1,0 +1,169 @@
+/* KiscoConnect design tokens. */
+:root {
+  /* Brand */
+  --ocean: #145785;
+  --ocean-700: #0f4368;
+  --ocean-100: #dce8f1;
+  --skies: #5ba0ce;
+  --skies-100: #e4f0f8;
+  --flora: #5d7545;
+  --flora-100: #e5ebdd;
+  --flora-700: #3f5330;
+  --coast: #4d7093;
+  --coast-700: #34506d;
+  --coast-100: #e3eaf2;
+  --moss: #8c996a;
+  --clay: #c38a51;
+  --clay-600: #a8703b;
+  --clay-100: #f6eadb;
+  --clay-700: #7a4e22;
+  --plum: #5b4a93;
+  --plum-100: #f3f0fa;
+  --plum-700: #463878;
+  --gold: #e8c46a;
+  --gold-600: #a88324;
+  --gold-700: #6e5512;
+  --gold-100: #f8efd2;
+  --amber: #f0a030;
+  --amber-600: #c2780f;
+  --amber-700: #8a5208;
+  --amber-100: #fcefd9;
+  --rose: #a8456b;
+  --rose-700: #7e2f4f;
+  --rose-100: #f8e7ee;
+  --sky: #0a7ea4;
+  --sky-700: #075e7b;
+  --sky-100: #dcf0f7;
+  --teal: #2e7d78;
+  --teal-700: #1e5a56;
+  --teal-100: #dcefed;
+  --green: #2f7a3a;
+  --green-100: #e3f1e4;
+
+  /* Neutrals */
+  --paper: #f1f5f9;
+  --surface: #ffffff;
+  --limestone: #eceff3;
+  --sunken: #e9edf1;
+  --ink: #1b2630;
+  --s700: #3a4751;
+  --s500: #5e6b74;
+  --s400: #8a949b;
+  --s200: #c9cfd3;
+  --hair: rgba(15, 23, 42, 0.08);
+  --hair-2: rgba(15, 23, 42, 0.14);
+
+  /* Feedback */
+  --danger: #b23b2e;
+  --danger-bg: #f7e4e1;
+  --warning: #a8703b;
+  --warning-bg: #f6eadb;
+  --success: #2f7a3a;
+  --success-bg: #e3f1e4;
+  --info: #145785;
+  --info-bg: #dce8f1;
+
+  /* Kitchen (dark) screens */
+  --night: #0b1115;
+  --night-2: #161e26;
+  --night-3: #1f2a33;
+  --night-ink: #eaeef2;
+  --night-dim: #8a949b;
+
+  /* Type */
+  --font-sans: 'Geist', -apple-system, system-ui, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Shape */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 12px;
+  --r-xl: 14px;
+  --r-2xl: 18px;
+  --r-pill: 999px;
+
+  /* Depth */
+  --ring: inset 0 0 0 1px var(--hair);
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.04), inset 0 0 0 1px var(--hair);
+  --shadow-2: 0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-3: 0 18px 50px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.08);
+  --focus: 0 0 0 3px rgba(20, 87, 133, 0.35);
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --fast: 120ms;
+  --med: 220ms;
+
+  /* Touch: the dining tablets are used one handed, often while carrying plates. */
+  --tap: 44px;
+
+  /*
+   * Back Office section accent: the colour of the section you are in (see
+   * the map below). --bo-accent marks icons, bars and the active tab (3:1 on
+   * white), --bo-accent-soft tints the active menu item, --bo-accent-ink is
+   * text on those tints (AA). Ocean outside the back office shell.
+   */
+  --bo-accent: var(--ocean);
+  --bo-accent-soft: var(--ocean-100);
+  --bo-accent-ink: var(--ocean-700);
+}
+
+/*
+ * Back Office: one accent colour per side menu section, set by
+ * data-bo-section on the shell (the page you are on) and on each side menu
+ * section. Later phase sections keep their phase colour (Phase 2 plum,
+ * Phase 3 clay).
+ */
+[data-bo-section='today'] {
+  --bo-accent: var(--ocean);
+  --bo-accent-soft: var(--ocean-100);
+  --bo-accent-ink: var(--ocean-700);
+}
+[data-bo-section='menus'] {
+  --bo-accent: var(--amber-600);
+  --bo-accent-soft: var(--amber-100);
+  --bo-accent-ink: var(--amber-700);
+}
+[data-bo-section='venues'] {
+  --bo-accent: var(--flora);
+  --bo-accent-soft: var(--flora-100);
+  --bo-accent-ink: var(--flora-700);
+}
+[data-bo-section='service'] {
+  --bo-accent: var(--sky);
+  --bo-accent-soft: var(--sky-100);
+  --bo-accent-ink: var(--sky-700);
+}
+[data-bo-section='residents'] {
+  --bo-accent: var(--rose);
+  --bo-accent-soft: var(--rose-100);
+  --bo-accent-ink: var(--rose-700);
+}
+[data-bo-section='billing'] {
+  --bo-accent: var(--gold-600);
+  --bo-accent-soft: var(--gold-100);
+  --bo-accent-ink: var(--gold-700);
+}
+[data-bo-section='admin'] {
+  --bo-accent: var(--teal);
+  --bo-accent-soft: var(--teal-100);
+  --bo-accent-ink: var(--teal-700);
+}
+[data-bo-section='ho'] {
+  --bo-accent: var(--s500);
+  --bo-accent-soft: var(--limestone);
+  --bo-accent-ink: var(--ink);
+}
+[data-bo-section='kds'] {
+  --bo-accent: var(--plum);
+  --bo-accent-soft: var(--plum-100);
+  --bo-accent-ink: var(--plum-700);
+}
+[data-bo-section='prodlists'],
+[data-bo-section='kiosk'] {
+  --bo-accent: var(--clay-600);
+  --bo-accent-soft: var(--clay-100);
+  --bo-accent-ink: var(--clay-700);
+}

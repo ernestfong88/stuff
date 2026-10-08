@@ -1,0 +1,13 @@
+[
+ {
+  "id": "df1",
+  "text": "Room delivery",
+  "amt": 3,
+  "isDefault": true
+ },
+ {
+  "id": "df2",
+  "text": "Tray service",
+  "amt": 5
+ }
+]

@@ -1,0 +1,27 @@
+.range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.day {
+  height: 36px;
+  padding: 0 8px;
+  border: none;
+  outline: none;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px #d5dbe1;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+}
+.day:focus-visible {
+  box-shadow:
+    inset 0 0 0 1px var(--ocean),
+    var(--focus);
+}
+.to {
+  font-size: 12.5px;
+  color: var(--s500);
+}

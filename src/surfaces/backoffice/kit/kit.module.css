@@ -1,0 +1,386 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.pageHead {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.pageTitles {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+}
+/* A short line in the section's accent colour above the title (in the page's top margin, so nothing moves). */
+.pageTitles::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 0;
+  width: 32px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--bo-accent);
+}
+.pageTitle {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+.pageSub {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--s500);
+  max-width: 760px;
+}
+.pageActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.embedHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+}
+.embedSub {
+  flex: 1;
+  min-width: 260px;
+  max-width: 760px;
+  font-size: 13.5px;
+  color: var(--s500);
+}
+/*
+ * A section card stays white; its title sits on a light band of the
+ * section colour (--sec-*: the page's accent, or BoSection tone), with a
+ * marker at the card's edge, so a page of settings reads as distinct blocks.
+ */
+.section {
+  --sec-accent: var(--bo-accent);
+  --sec-soft: var(--bo-accent-soft);
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-1);
+  padding: 18px 18px 6px;
+  min-width: 0;
+}
+.secTone_neutral {
+  --sec-accent: var(--s400);
+  --sec-soft: var(--limestone);
+}
+.secTone_ocean {
+  --sec-accent: var(--ocean);
+  --sec-soft: var(--ocean-100);
+}
+.secTone_amber {
+  --sec-accent: var(--amber-600);
+  --sec-soft: var(--amber-100);
+}
+.secTone_flora {
+  --sec-accent: var(--flora);
+  --sec-soft: var(--flora-100);
+}
+.secTone_coast {
+  --sec-accent: var(--coast);
+  --sec-soft: var(--coast-100);
+}
+.secTone_rose {
+  --sec-accent: var(--rose);
+  --sec-soft: var(--rose-100);
+}
+.secTone_gold {
+  --sec-accent: var(--gold-600);
+  --sec-soft: var(--gold-100);
+}
+.secTone_teal {
+  --sec-accent: var(--teal);
+  --sec-soft: var(--teal-100);
+}
+.secTone_plum {
+  --sec-accent: var(--plum);
+  --sec-soft: var(--plum-100);
+}
+.secTone_clay {
+  --sec-accent: var(--clay-600);
+  --sec-soft: var(--clay-100);
+}
+.flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+/*
+ * BoPage columns: a settings page's sections in two columns on a wide window.
+ * Narrower, the body is not a box at all, so the page is one column as before.
+ */
+.columns {
+  display: contents;
+}
+@media (min-width: 1500px) {
+  .columns {
+    display: block;
+    columns: 2 600px;
+    column-gap: 20px;
+  }
+  .columns > * {
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  .columns > :last-child {
+    margin-bottom: 0;
+  }
+  /*
+   * Only sections flow into the columns. A section that only reads well full
+   * width (BoSection span: a wide table) and everything else on the page (its
+   * tabs, callouts, notes) stay full width.
+   */
+  .columns > .span,
+  .columns > :not(section) {
+    column-span: all;
+  }
+}
+.sectionHead {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  /* 1px inside the card, so the card's edge still shows round the band */
+  margin: -17px -17px 8px;
+  padding: 15px 17px 12px;
+  border-radius: calc(var(--r-xl) - 1px) calc(var(--r-xl) - 1px) 0 0;
+  background: color-mix(in srgb, var(--sec-soft) 75%, var(--surface));
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--sec-accent) 16%, transparent);
+}
+/* The marker: a short bar at the card's left edge, beside the title */
+.sectionHead::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 16px;
+  width: 4px;
+  height: 18px;
+  border-radius: 0 4px 4px 0;
+  background: var(--sec-accent);
+}
+/* The band already rules off the first setting */
+.sectionHead + .row {
+  border-top: none;
+}
+.flush .sectionHead {
+  margin: 1px 1px 0;
+}
+.sectionTitles {
+  flex: 1;
+  min-width: 0;
+}
+.sectionTitle {
+  font-size: 15.5px;
+  font-weight: 700;
+}
+.sectionSub {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--s500);
+  line-height: 1.45;
+}
+.sectionActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hair);
+}
+.rowStart {
+  align-items: flex-start;
+}
+.rowText {
+  flex: 1;
+  min-width: 0;
+}
+.rowLabel {
+  font-size: 13.5px;
+  font-weight: 650;
+}
+.rowHint {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--s500);
+  line-height: 1.45;
+}
+.rowControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.flush .tableWrap {
+  box-shadow: none;
+  border-radius: 0;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table th {
+  position: sticky;
+  top: 0;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7580;
+  padding: 10px 12px;
+  background: #f9fafb;
+  border-bottom: 1px solid var(--hair);
+  white-space: nowrap;
+}
+.table td {
+  padding: 11px 12px;
+  color: var(--s700);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  vertical-align: middle;
+}
+.table tr:last-child td {
+  border-bottom: none;
+}
+.dense td {
+  padding: 7px 12px;
+}
+.clickRow {
+  cursor: pointer;
+}
+.clickRow:hover td {
+  background: #f7f9fb;
+}
+.emptyCell {
+  text-align: center;
+  padding: 32px 12px !important;
+  color: var(--s400) !important;
+}
+
+.numberBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.number {
+  height: 32px;
+  padding: 0 8px;
+  border: none;
+  outline: none;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px #d5dbe1;
+  font-size: 13px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+.number::-webkit-outer-spin-button,
+.number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.number:focus {
+  box-shadow:
+    inset 0 0 0 1px var(--ocean),
+    var(--focus);
+}
+.number::placeholder {
+  color: var(--s400);
+}
+.unit {
+  font-size: 12px;
+  color: var(--s500);
+}
+
+.callout {
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  font-size: 13px;
+  line-height: 1.45;
+  border-left: 3px solid;
+}
+.calloutTitle {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.callout_info {
+  background: var(--ocean-100);
+  border-color: var(--ocean);
+  color: var(--ocean-700);
+}
+.callout_warning {
+  background: #fdf6e7;
+  border-color: var(--clay-600);
+  color: #6b4a14;
+}
+.callout_danger {
+  background: #fdf1ef;
+  border-color: var(--danger);
+  color: #7c2a21;
+}
+.callout_success {
+  background: var(--green-100);
+  border-color: var(--green);
+  color: #24512a;
+}
+
+.sortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  border-radius: var(--r-xs);
+}
+.sortOn {
+  color: var(--ink);
+}
+.sortIcon {
+  opacity: 0.45;
+  transition: transform var(--fast);
+}
+.sortOn .sortIcon {
+  opacity: 1;
+}
+.sortDesc {
+  transform: rotate(180deg);
+}
+.tone_muted td {
+  color: var(--s400);
+}
+.tone_danger td {
+  background: #fdf3f1;
+}

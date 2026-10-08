@@ -1,0 +1,146 @@
+.lines {
+  display: flex;
+  flex-direction: column;
+  border-radius: calc(var(--k) * 28);
+  background: #fff;
+  box-shadow: inset 0 0 0 calc(var(--k) * 3) var(--kk-soft);
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.lines li + li {
+  border-top: calc(var(--k) * 2) solid var(--kk-line);
+}
+/* One answer: its name, what was picked, and Change. The whole line is the button. */
+.line {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--k) * 20);
+  min-height: calc(var(--k) * 84);
+  padding: calc(var(--k) * 10) calc(var(--k) * 20) calc(var(--k) * 10) calc(var(--k) * 28);
+  text-align: left;
+  color: var(--kk-ink);
+}
+.line:active {
+  background: var(--kk-pale);
+}
+.line:focus-visible {
+  outline: calc(var(--k) * 5) solid var(--skies);
+  outline-offset: calc(var(--k) * -5);
+}
+.label {
+  width: calc(var(--k) * 170);
+  flex-shrink: 0;
+  font-size: calc(var(--k) * 26);
+  font-weight: 700;
+  color: var(--kk-mute);
+}
+.value {
+  flex: 1;
+  min-width: 0;
+  font-size: calc(var(--k) * 31);
+  font-weight: 800;
+  line-height: 1.25;
+}
+.change {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--k) * 4);
+  flex-shrink: 0;
+  padding: calc(var(--k) * 10) calc(var(--k) * 12) calc(var(--k) * 10) calc(var(--k) * 20);
+  border-radius: calc(var(--k) * 18);
+  background: var(--kk-pale);
+  box-shadow: inset 0 0 0 calc(var(--k) * 2) var(--kk-soft);
+  font-size: calc(var(--k) * 26);
+  font-weight: 800;
+  color: var(--kk-blue);
+}
+.plan {
+  margin-top: calc(var(--k) * 12);
+  padding: calc(var(--k) * 12) calc(var(--k) * 24);
+  border-radius: calc(var(--k) * 22);
+  background: var(--kk-pale);
+  box-shadow: inset 0 0 0 calc(var(--k) * 2) var(--kk-soft);
+  font-size: calc(var(--k) * 28);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--kk-deep);
+}
+.textCopy {
+  width: 100%;
+  margin-top: calc(var(--k) * 12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--k) * 24);
+  min-height: calc(var(--k) * 92);
+  padding: calc(var(--k) * 10) calc(var(--k) * 26);
+  border-radius: calc(var(--k) * 26);
+  background: #fff;
+  box-shadow: inset 0 0 0 calc(var(--k) * 3) var(--kk-soft);
+  text-align: left;
+}
+.textCopy:focus-visible {
+  outline: calc(var(--k) * 5) solid var(--skies);
+  outline-offset: calc(var(--k) * 3);
+}
+.textLabel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: calc(var(--k) * 12);
+}
+.textTitle {
+  font-size: calc(var(--k) * 30);
+  font-weight: 800;
+}
+.textTo {
+  font-size: calc(var(--k) * 24);
+  font-weight: 500;
+  color: var(--kk-mute);
+}
+.state {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--k) * 14);
+  flex-shrink: 0;
+  font-size: calc(var(--k) * 28);
+  font-weight: 800;
+  color: var(--kk-mute);
+}
+.stateOn {
+  color: var(--kk-blue);
+}
+.track {
+  position: relative;
+  width: calc(var(--k) * 96);
+  height: calc(var(--k) * 54);
+  border-radius: calc(var(--k) * 54);
+  background: #8a9aa8;
+  transition: background 0.2s;
+}
+.trackOn {
+  background: var(--kk-blue);
+}
+.knob {
+  position: absolute;
+  top: calc(var(--k) * 5);
+  left: calc(var(--k) * 5);
+  width: calc(var(--k) * 44);
+  height: calc(var(--k) * 44);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  transition: left 0.2s;
+}
+.trackOn .knob {
+  left: calc(var(--k) * 47);
+}
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .knob {
+    transition: none;
+  }
+}

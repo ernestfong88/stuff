@@ -1,0 +1,33 @@
+.nudge {
+  margin-top: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  background: var(--clay-100);
+  box-shadow: inset 4px 0 0 var(--clay);
+}
+.icon {
+  color: var(--clay-600);
+  flex-shrink: 0;
+}
+.body {
+  flex: 1;
+  min-width: 0;
+}
+.title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #7a4f24;
+}
+.text {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--s700);
+  line-height: 1.4;
+}
+.btn {
+  margin-top: 9px;
+  height: 44px;
+}

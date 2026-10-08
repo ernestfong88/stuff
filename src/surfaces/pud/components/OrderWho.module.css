@@ -1,0 +1,38 @@
+.main {
+  flex: 1;
+  min-width: 0;
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.pickup,
+.delivery {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.pickup {
+  color: var(--clay-600);
+}
+.delivery {
+  color: var(--coast);
+}
+.items {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: var(--s500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

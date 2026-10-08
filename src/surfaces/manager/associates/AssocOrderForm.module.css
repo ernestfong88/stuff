@@ -1,0 +1,63 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px;
+  background: #f0f3f6;
+  border-radius: var(--r-lg);
+}
+.who {
+  font-size: 14px;
+  font-weight: 800;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+  align-items: start;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.warn {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--danger);
+}
+.select {
+  height: 40px;
+  padding: 0 10px;
+  border-radius: var(--r-md);
+  border: 1px solid rgba(20, 35, 48, 0.15);
+  background: var(--surface);
+  font-size: 13.5px;
+  min-width: 0;
+  width: 100%;
+}
+.override {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.overrideTitle {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--clay-600);
+}
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.todo {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--s500);
+}

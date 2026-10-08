@@ -1,0 +1,91 @@
+import { ArrowRight, MonitorPlay, Printer } from 'lucide-react';
+import { printerMode, type KitchenMode } from '../../../domain/config';
+import { updateConfig, useConfig } from '../../../store/config';
+import { kdsOn, kdsPhase, usePhaseOn, usePhasePlan } from '../../../store/phases';
+import { cx, toast } from '../../../ui';
+import { BoSection } from '../kit';
+import s from './KitchenModeSetting.module.css';
+
+const CHOICES: Array<{ id: KitchenMode; title: string; icon: typeof Printer; lines: string[] }> = [
+  {
+    id: 'printers',
+    title: 'Printers',
+    icon: Printer,
+    lines: [
+      'Each printer prints the whole ticket or only its items, every course at once.',
+      'No cooking, ready or served statuses on checks or My Tables.',
+      'The Cook and Expo screens are off.',
+    ],
+  },
+  {
+    id: 'kds',
+    title: 'Kitchen screens (KDS)',
+    icon: MonitorPlay,
+    lines: [
+      'Orders go to the Cook and Expo screens, and courses fire in turn.',
+      'Each plate shows Cooking, Ready and Served, on the check and on My Tables.',
+    ],
+  },
+];
+
+/** Printers or kitchen screens: how orders reach the kitchen, for every venue. */
+export function KitchenModeSetting() {
+  const cfg = useConfig();
+  const plan = usePhasePlan();
+  // With the kitchen screens' phase switched off, every kitchen runs on printers.
+  const kdsAllowed = kdsOn(plan, usePhaseOn());
+  const current: KitchenMode = printerMode(cfg) ? 'printers' : 'kds';
+  return (
+    <>
+      <BoSection span title="How orders reach the kitchen" sub="For every venue. Checks already sent keep what they had; new sends follow this.">
+        <div className={s.choices} role="radiogroup" aria-label="How orders reach the kitchen">
+          {CHOICES.map((c) => {
+            const on = c.id === current;
+            const locked = c.id === 'kds' && !kdsAllowed;
+            const Icon = c.icon;
+            return (
+              <button
+                key={c.id}
+                role="radio"
+                aria-checked={on}
+                className={cx(s.choice, on && s.on, locked && s.locked)}
+                disabled={locked}
+                onClick={() => {
+                  if (on || locked) return;
+                  updateConfig({ kitchenMode: c.id });
+                  toast(
+                    c.id === 'printers'
+                      ? 'Printer mode: each printer prints its items and nothing is tracked'
+                      : 'Kitchen screens: orders go to Cook and Expo',
+                    {
+                      tone: 'success',
+                    },
+                  );
+                }}
+              >
+                <span className={s.head}>
+                  <Icon size={18} aria-hidden />
+                  {c.title}
+                  {on && <span className={s.tag}>On</span>}
+                </span>
+                {locked && <span className={s.lockNote}>Not available yet. Kitchen screens are part of Phase {kdsPhase(plan)}.</span>}
+                {c.lines.map((l) => (
+                  <span key={l} className={s.line}>
+                    {l}
+                  </span>
+                ))}
+              </button>
+            );
+          })}
+        </div>
+      </BoSection>
+      {current === 'printers' && (
+        <p className={s.printersLink}>
+          <a href="#/backoffice/printers/routing">
+            Set what each printer prints on the Printers page <ArrowRight size={14} aria-hidden />
+          </a>
+        </p>
+      )}
+    </>
+  );
+}

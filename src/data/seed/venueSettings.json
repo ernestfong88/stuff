@@ -1,0 +1,192 @@
+{
+ "venues": [
+  {
+   "id": "v1",
+   "name": "Sequoia Dining Room",
+   "room": "sequoia",
+   "menuId": "m1",
+   "menuStartDt": {
+    "$d": -1209600000
+   },
+   "active": true,
+   "upcoming": [
+    {
+     "menuId": "m5",
+     "startDt": {
+      "$d": 4665600000
+     }
+    }
+   ],
+   "alcMenuId": "m1:everyday"
+  },
+  {
+   "id": "v2",
+   "name": "Evergreen Dining Room",
+   "room": "sequoia",
+   "menuId": "m1",
+   "menuStartDt": {
+    "$d": -1209600000
+   },
+   "active": true,
+   "upcoming": [
+    {
+     "menuId": "m5",
+     "startDt": {
+      "$d": 4665600000
+     }
+    }
+   ],
+   "alcMenuId": "m1:everyday"
+  },
+  {
+   "id": "v3",
+   "name": "The Bistro",
+   "room": "bistro",
+   "menuId": null,
+   "menuStartDt": null,
+   "active": true,
+   "upcoming": [],
+   "alcMenuId": "m2"
+  },
+  {
+   "id": "v4",
+   "name": "Catering",
+   "room": null,
+   "menuId": null,
+   "menuStartDt": null,
+   "active": true,
+   "upcoming": [],
+   "alcMenuId": null
+  }
+ ],
+ "printers": [
+  {
+   "id": "p1",
+   "name": "Hot Line",
+   "type": "Kitchen",
+   "print": [
+    "Entrées",
+    "Sides"
+   ],
+   "ip": "10.1.20.11",
+   "active": true,
+   "reachable": true
+  },
+  {
+   "id": "p2",
+   "name": "Cold / Pantry",
+   "type": "Kitchen",
+   "print": {
+    "groups": [
+     "Starters",
+     "Desserts"
+    ],
+    "subs": [
+     "Entrées/Entrée Salad"
+    ],
+    "recipes": []
+   },
+   "ip": "10.1.20.12",
+   "active": true,
+   "reachable": true
+  },
+  {
+   "id": "p3",
+   "name": "Expo Receipt",
+   "type": "Receipt",
+   "ip": "10.1.20.13",
+   "active": true,
+   "reachable": false
+  }
+ ],
+ "printerLinks": [
+  {
+   "id": "pr1",
+   "printerId": "p1",
+   "venueId": "v1"
+  },
+  {
+   "id": "pr2",
+   "printerId": "p2",
+   "venueId": "v1"
+  },
+  {
+   "id": "pr3",
+   "printerId": "p3",
+   "venueId": "v1"
+  },
+  {
+   "id": "pr4",
+   "printerId": "p1",
+   "venueId": "v2"
+  },
+  {
+   "id": "pr5",
+   "printerId": "p2",
+   "venueId": "v2"
+  },
+  {
+   "id": "pr6",
+   "printerId": "p1",
+   "venueId": "v3"
+  }
+ ],
+ "terminals": [
+  {
+   "id": "t1",
+   "name": "Front desk terminal",
+   "venueId": "v1",
+   "online": true,
+   "lastSeen": null
+  },
+  {
+   "id": "t2",
+   "name": "Bistro terminal",
+   "venueId": "v3",
+   "online": false,
+   "lastSeen": {
+    "$t": -2100000
+   }
+  }
+ ],
+ "kds": {
+  "sequoia": [
+   {
+    "name": "Hot",
+    "subs": [
+     "Entrees|Plates",
+     "Entrees|Pasta",
+     "Entrees|Sandwiches",
+     "Entrees|Build Your Own",
+     "Starters|Hot Appetizer",
+     "Starters|Soup",
+     "Sides|Vegetable",
+     "Sides|Potato",
+     "Sides|Rice / Grain",
+     "Sides|Pasta",
+     "Sides|Bread",
+     "Sides|Other Hot Side"
+    ]
+   },
+   {
+    "name": "Cold",
+    "subs": [
+     "Entrees|Entrée Salad",
+     "Starters|Salad",
+     "Starters|Cold Appetizer",
+     "Sides|Side Salad",
+     "Sides|Other Cold Side",
+     "Sides|Fruit",
+     "Desserts|Cake / Pie",
+     "Desserts|Cookie / Bar",
+     "Desserts|Ice Cream / Frozen",
+     "Desserts|Pudding / Custard",
+     "Desserts|Fruit",
+     "Desserts|Hot Dessert",
+     "Desserts|Other Dessert"
+    ]
+   }
+  ]
+ },
+ "expo": {}
+}

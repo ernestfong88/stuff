@@ -1,0 +1,107 @@
+.btn {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex-shrink: 0;
+  transition:
+    transform var(--fast) var(--ease),
+    background-color var(--fast) var(--ease);
+}
+.btn:active {
+  transform: scale(0.96);
+}
+.label {
+  font-size: 12px;
+  font-weight: 800;
+}
+.ocean {
+  background: var(--surface);
+  color: var(--ocean);
+  box-shadow:
+    0 10px 26px -12px rgba(20, 35, 48, 0.45),
+    inset 0 0 0 2px var(--ocean);
+}
+.amber {
+  background: #fcefd2;
+  color: #7a4e12;
+  box-shadow:
+    0 10px 26px -10px rgba(148, 98, 26, 0.55),
+    inset 0 0 0 2px #e0a458;
+}
+.quiet {
+  background: var(--surface);
+  color: var(--s500);
+  box-shadow: var(--shadow-1);
+}
+.pulse {
+  animation: rail-ring 2s ease-out infinite;
+}
+.badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--danger);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 2px var(--paper);
+}
+@keyframes rail-ring {
+  0% {
+    box-shadow:
+      0 10px 26px -10px rgba(148, 98, 26, 0.55),
+      inset 0 0 0 2px #e0a458,
+      0 0 0 0 rgba(224, 164, 88, 0.55);
+  }
+  70% {
+    box-shadow:
+      0 10px 26px -10px rgba(148, 98, 26, 0.55),
+      inset 0 0 0 2px #e0a458,
+      0 0 0 14px rgba(224, 164, 88, 0);
+  }
+  100% {
+    box-shadow:
+      0 10px 26px -10px rgba(148, 98, 26, 0.55),
+      inset 0 0 0 2px #e0a458,
+      0 0 0 0 rgba(224, 164, 88, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
+}
+@container tablet (max-width: 760px) {
+  .btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+  }
+}
+/* Upright, the rail is a bar along the bottom: icon and label side by side. */
+@container tablet (orientation: portrait) {
+  .btn {
+    flex-direction: row;
+    gap: 8px;
+    width: auto;
+    height: 52px;
+    padding: 0 18px 0 14px;
+    border-radius: 16px;
+  }
+  .label {
+    font-size: 13px;
+  }
+}

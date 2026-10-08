@@ -1,0 +1,110 @@
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.title > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+/* In the kitchen's dark dialog: the amount reads like the special card's. */
+.make {
+  font-family: var(--font-sans);
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--k-amber);
+  font-variant-numeric: tabular-nums;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+.cap {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--k-amber);
+  margin-bottom: 6px;
+}
+
+.ingredients,
+.method {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ingredient {
+  display: flex;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--k-rule);
+  font-size: 15px;
+  color: var(--k-soft);
+}
+.qty {
+  min-width: 96px;
+  font-weight: 800;
+  color: var(--k-text);
+  font-variant-numeric: tabular-nums;
+}
+.step {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--k-ink);
+}
+.stepNum {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  background: var(--k-ink);
+  color: var(--night);
+}
+
+.desc {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--k-ink);
+  margin-bottom: 14px;
+}
+.cook {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--k-callout);
+}
+.none {
+  font-size: 13px;
+  color: var(--k-dim);
+  margin-top: 16px;
+}
+
+/* Times, garnish, equipment and allergens: one wrapped line above the recipe. */
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--k-soft);
+}
+.allergens {
+  color: var(--k-cancel);
+}
+.more {
+  margin-top: 18px;
+}

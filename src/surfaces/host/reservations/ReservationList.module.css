@@ -1,0 +1,66 @@
+.wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 6px 14px;
+  flex-wrap: wrap;
+}
+.group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 800;
+  background: var(--surface);
+  color: var(--s700);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  border: none;
+}
+.on {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: none;
+}
+.date {
+  padding: 0 10px;
+  outline: none;
+  font-family: inherit;
+}
+.on.date::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+.count {
+  font-size: 11px;
+  opacity: 0.7;
+}
+.new {
+  margin-left: auto;
+}
+.summary {
+  font-size: 12.5px;
+  color: var(--s500);
+}
+.list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 8px;
+}

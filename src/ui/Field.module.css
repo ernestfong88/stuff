@@ -1,0 +1,92 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--s700);
+}
+.hint {
+  font-size: 12px;
+  color: var(--s400);
+}
+.error {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--danger);
+}
+.control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--field-rule, #d5dbe1);
+  transition: box-shadow var(--fast);
+}
+.control:focus-within {
+  box-shadow:
+    inset 0 0 0 1px var(--ocean),
+    var(--focus);
+}
+.large {
+  height: 50px;
+  padding: 0 16px;
+  border-radius: var(--r-lg);
+  font-size: 16px;
+}
+.invalid {
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+.icon {
+  display: inline-flex;
+  color: var(--s400);
+  flex-shrink: 0;
+}
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: inherit;
+}
+.input:focus-visible {
+  box-shadow: none;
+}
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--s400);
+}
+.input::-webkit-search-cancel-button {
+  display: none;
+}
+.clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--limestone);
+  color: var(--s500);
+  flex-shrink: 0;
+}
+.textarea {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 84px;
+  padding: 10px 12px;
+  border: none;
+  outline: none;
+  resize: vertical;
+  line-height: 1.45;
+}

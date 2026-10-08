@@ -1,0 +1,161 @@
+/* Inside the KitchenShell: its dark palette (--k-*, --night*), the same as Cook and Expo. */
+.screen {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--k-rule);
+}
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.title {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--k-text);
+  white-space: nowrap;
+}
+.right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tally,
+.tallyDone {
+  font-size: 15px;
+  font-weight: 900;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--k-text);
+}
+.tally small,
+.tallyDone small {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--night-dim);
+}
+.tallyDone {
+  color: var(--k-done);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 18px 32px;
+  scrollbar-color: #3a434d transparent;
+}
+
+.cap {
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 2px 10px;
+}
+.capSpecials {
+  composes: cap;
+  color: var(--k-amber);
+}
+.capChecklist {
+  composes: cap;
+  color: var(--k-done);
+}
+
+.specials {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.checklistHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 2px 10px;
+}
+.checklistCount {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--k-dim);
+}
+
+.empty {
+  padding: 16px;
+  border-radius: var(--r-lg);
+  background: var(--k-card);
+  box-shadow: inset 0 0 0 1px var(--k-rule);
+  color: var(--k-dim);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.subRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.views {
+  display: flex;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.view {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--k-soft);
+}
+.view:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+/* On, like a pressed kitchen header button (Expo's filters). */
+.viewOn,
+.viewOn:hover {
+  background: var(--k-ink);
+  color: var(--night);
+}
+.viewLate {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  font-size: 11.5px;
+  font-weight: 900;
+  line-height: 20px;
+  text-align: center;
+  background: var(--k-late);
+  color: #fff;
+}

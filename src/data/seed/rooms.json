@@ -1,0 +1,358 @@
+{
+ "sequoia": {
+  "name": "Sequoia / Evergreen",
+  "menuStartDay": 3,
+  "bands": [
+   {
+    "label": "Evergreen",
+    "x": 3,
+    "y": 4,
+    "w": 30,
+    "h": 92
+   },
+   {
+    "label": "Sequoia",
+    "x": 36,
+    "y": 4,
+    "w": 61,
+    "h": 92
+   }
+  ],
+  "tables": [
+   {
+    "id": "t_eg5",
+    "label": "EG 5",
+    "section": "Evergreen",
+    "type": "seat",
+    "x": 6,
+    "y": 14,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_eg6",
+    "label": "EG 6",
+    "section": "Evergreen",
+    "type": "seat",
+    "x": 19,
+    "y": 14,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_eg7",
+    "label": "EG 7",
+    "section": "Evergreen",
+    "type": "seat",
+    "x": 6,
+    "y": 28,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_eg8",
+    "label": "EG 8",
+    "section": "Evergreen",
+    "type": "seat",
+    "x": 19,
+    "y": 28,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_eg11",
+    "label": "EG 11",
+    "section": "Evergreen",
+    "type": "seat",
+    "x": 6,
+    "y": 42,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_eg12",
+    "label": "EG 12",
+    "section": "Evergreen",
+    "type": "seat",
+    "x": 19,
+    "y": 42,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_sq1",
+    "label": "SQ 1",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 39,
+    "y": 9,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_sq2",
+    "label": "SQ 2",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 52,
+    "y": 9,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_sq3",
+    "label": "SQ 3",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 69,
+    "y": 8,
+    "w": 14,
+    "h": 12,
+    "shape": "round"
+   },
+   {
+    "id": "t_sq5",
+    "label": "SQ 5",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 85,
+    "y": 9,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_sq8",
+    "label": "SQ 8",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 39,
+    "y": 24,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_sq9",
+    "label": "SQ 9",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 52,
+    "y": 24,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_sq10",
+    "label": "SQ 10",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 69,
+    "y": 24,
+    "w": 14,
+    "h": 12,
+    "shape": "round"
+   },
+   {
+    "id": "t_sq7",
+    "label": "SQ 7",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 85,
+    "y": 24,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_sq13",
+    "label": "SQ 13",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 39,
+    "y": 40,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_sq14",
+    "label": "SQ 14",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 52,
+    "y": 40,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_sq15",
+    "label": "SQ 15",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 69,
+    "y": 40,
+    "w": 14,
+    "h": 12,
+    "shape": "round"
+   },
+   {
+    "id": "t_sq16",
+    "label": "SQ 16",
+    "section": "Sequoia",
+    "type": "seat",
+    "x": 85,
+    "y": 40,
+    "w": 11,
+    "h": 10
+   },
+   {
+    "id": "t_pu1",
+    "label": "P/U",
+    "type": "pickup",
+    "x": 40,
+    "y": 66,
+    "w": 6,
+    "h": 8
+   },
+   {
+    "id": "t_pu2",
+    "label": "P/U",
+    "type": "pickup",
+    "x": 47,
+    "y": 66,
+    "w": 6,
+    "h": 8
+   },
+   {
+    "id": "t_del1",
+    "label": "Delivery",
+    "type": "delivery",
+    "x": 64,
+    "y": 67,
+    "w": 14,
+    "h": 7
+   },
+   {
+    "id": "t_del2",
+    "label": "Delivery",
+    "type": "delivery",
+    "x": 64,
+    "y": 76,
+    "w": 14,
+    "h": 7
+   },
+   {
+    "id": "t_assoc1",
+    "label": "Associate",
+    "type": "associate",
+    "x": 86,
+    "y": 67,
+    "w": 13,
+    "h": 7
+   }
+  ]
+ },
+ "bistro": {
+  "name": "The Bistro",
+  "menuStartDay": 3,
+  "bands": [
+   {
+    "label": "Bistro",
+    "x": 6,
+    "y": 5,
+    "w": 88,
+    "h": 64
+   }
+  ],
+  "tables": [
+   {
+    "id": "t_b1",
+    "label": "B 1",
+    "section": "Bistro",
+    "type": "seat",
+    "x": 12,
+    "y": 14,
+    "w": 16,
+    "h": 13
+   },
+   {
+    "id": "t_b2",
+    "label": "B 2",
+    "section": "Bistro",
+    "type": "seat",
+    "x": 33,
+    "y": 14,
+    "w": 16,
+    "h": 13
+   },
+   {
+    "id": "t_b5",
+    "label": "B 5",
+    "section": "Bistro",
+    "type": "seat",
+    "x": 56,
+    "y": 14,
+    "w": 16,
+    "h": 13
+   },
+   {
+    "id": "t_b6",
+    "label": "B 6",
+    "section": "Bistro",
+    "type": "seat",
+    "x": 77,
+    "y": 14,
+    "w": 16,
+    "h": 13
+   },
+   {
+    "id": "t_b3",
+    "label": "B 3",
+    "section": "Bistro",
+    "type": "seat",
+    "x": 16,
+    "y": 40,
+    "w": 18,
+    "h": 22,
+    "shape": "round"
+   },
+   {
+    "id": "t_b4",
+    "label": "B 4",
+    "section": "Bistro",
+    "type": "seat",
+    "x": 41,
+    "y": 40,
+    "w": 18,
+    "h": 22,
+    "shape": "round"
+   },
+   {
+    "id": "t_b7",
+    "label": "B 7",
+    "section": "Bistro",
+    "type": "seat",
+    "x": 66,
+    "y": 40,
+    "w": 18,
+    "h": 22,
+    "shape": "round"
+   },
+   {
+    "id": "t_bpu",
+    "label": "P/U",
+    "type": "pickup",
+    "x": 44,
+    "y": 72,
+    "w": 7,
+    "h": 9
+   },
+   {
+    "id": "t_bdel",
+    "label": "Delivery",
+    "type": "delivery",
+    "x": 66,
+    "y": 72,
+    "w": 16,
+    "h": 8
+   }
+  ]
+ }
+}

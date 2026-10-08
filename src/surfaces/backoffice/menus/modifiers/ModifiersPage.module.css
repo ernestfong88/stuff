@@ -1,0 +1,29 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.emptyDetail {
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-1);
+}
+.dialogText {
+  font-size: 13px;
+  color: var(--s500);
+  margin: 0 0 14px;
+}
+.plan {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  display: grid;
+  gap: 4px;
+}
+.planLine {
+  margin: 0;
+  font-size: 13px;
+  color: var(--s700);
+}

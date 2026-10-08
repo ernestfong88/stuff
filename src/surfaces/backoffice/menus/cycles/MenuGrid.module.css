@@ -1,0 +1,393 @@
+.frame {
+  overflow: auto;
+  max-height: calc(100vh - 96px);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.grid {
+  width: 100%;
+  min-width: 940px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+.corner {
+  width: 96px;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  background: #f9fafb;
+  border-bottom: 1px solid var(--hair);
+}
+.dayHead {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 6px;
+  background: #f9fafb;
+  border-bottom: 1px solid var(--hair);
+  font-weight: normal;
+}
+.dayHeadIn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.dateBtn {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 4px 8px;
+  border-radius: var(--r-md);
+  text-align: left;
+}
+.dateBtn:hover {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.today .dateBtn {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--green);
+}
+.dateNum {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.dateWords {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--s700);
+  line-height: 1.15;
+}
+.dateSub {
+  font-size: 9.5px;
+  color: var(--s400);
+}
+.today .dateSub {
+  color: var(--green);
+}
+.dayChev {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--s400);
+}
+.dayHeadIn > * {
+  flex: 1;
+  min-width: 0;
+}
+.datePop {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px;
+}
+.datePopHead {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.dateInput {
+  height: 36px;
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 1px #d5dbe1;
+  font-size: 13px;
+}
+.datePopNote {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--s500);
+  line-height: 1.4;
+}
+.band {
+  padding: 10px 8px 6px;
+  background: var(--paper);
+  border-top: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+}
+.bandIn {
+  position: sticky;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.mealName {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.allWeek {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--s700);
+}
+.allWeek:hover {
+  box-shadow: inset 0 0 0 1px var(--ocean);
+  color: var(--ocean);
+}
+.laneHead {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  padding: 8px 8px;
+  background: var(--surface);
+  text-align: left;
+  vertical-align: top;
+  font-weight: normal;
+  border-top: 1px solid #eef1f4;
+}
+.laneLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--s700);
+}
+.laneSub {
+  display: block;
+  padding-left: 16px;
+  font-size: 10.5px;
+  color: var(--s400);
+}
+.cell {
+  padding: 4px 4px;
+  vertical-align: top;
+  border-top: 1px solid #eef1f4;
+}
+.sideCell {
+  border-top: none;
+  padding-top: 0;
+}
+.todayCol {
+  background: rgba(47, 122, 58, 0.035);
+}
+.hi {
+  background: #eff6ea;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 34px;
+  padding: 6px 16px 6px 7px;
+  border-radius: var(--r-sm);
+  background: var(--plan-bg);
+  box-shadow: inset 0 0 0 1px var(--plan-bd);
+  color: var(--plan-ink);
+}
+.arrow {
+  font-size: 12px;
+  opacity: 0.7;
+}
+.cardName {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: left;
+  color: inherit;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.cardName:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cardX {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-xs);
+  color: inherit;
+  opacity: 0;
+}
+.card:hover .cardX,
+.cardX:focus-visible {
+  opacity: 1;
+}
+.cardX:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+@media (hover: none) {
+  .cardX {
+    opacity: 0.6;
+  }
+}
+.slot {
+  width: 100%;
+  min-height: 34px;
+  padding: 0 8px;
+  border-radius: var(--r-sm);
+  border: 1px dashed var(--s200);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--s400);
+  text-align: left;
+}
+.slot:hover {
+  border-color: var(--ocean);
+  color: var(--ocean);
+  background: var(--skies-100);
+}
+.slotSide {
+  min-height: 26px;
+  border-color: transparent;
+}
+.optHead {
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+}
+.optCell {
+  padding: 2px 6px 10px;
+  text-align: center;
+}
+.options {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--s500);
+}
+.options:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.popHead {
+  padding: 6px 12px 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--s400);
+}
+.laneX {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 2px;
+  border-radius: var(--r-xs);
+  color: var(--s400);
+  opacity: 0.7;
+}
+.laneX:hover {
+  opacity: 1;
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+.laneBack {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--r-pill);
+  border: 1px dashed var(--s200);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--s500);
+}
+.laneBack:hover {
+  border-color: var(--ocean);
+  color: var(--ocean);
+}
+.allWeekSearch {
+  display: inline-block;
+  width: 300px;
+  max-width: 60vw;
+}
+.optRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.mealMore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-pill);
+  color: var(--s500);
+}
+.mealMore:hover,
+.mealMore[aria-expanded='true'] {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* Wide windows: the builder spans the whole page, so the day columns get roomy; give the cards a little more size to match. */
+@media (min-width: 1700px) {
+  .corner {
+    width: 120px;
+  }
+  .laneHead {
+    padding: 10px 12px;
+  }
+  .laneLabel {
+    font-size: 13px;
+  }
+  .laneSub {
+    font-size: 11px;
+  }
+  .cell {
+    padding: 5px 6px;
+  }
+  .stack {
+    gap: 5px;
+  }
+  .card {
+    min-height: 40px;
+    padding: 8px 18px 8px 10px;
+  }
+  .cardName {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .slot {
+    min-height: 40px;
+    padding: 0 10px;
+    font-size: 12.5px;
+  }
+  .slotSide {
+    min-height: 30px;
+  }
+  .dateNum {
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,67 @@
+.name {
+  font-weight: 650;
+  color: var(--ink);
+}
+.cork {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.unit {
+  font-size: 12px;
+  color: var(--s500);
+}
+.block {
+  padding: 12px 0 4px;
+  border-top: 1px solid var(--hair);
+}
+.list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+}
+.who {
+  flex: 1;
+  min-width: 0;
+}
+.whoName {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.whoSub {
+  display: block;
+  font-size: 12px;
+  color: var(--s500);
+}
+.count {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.by {
+  font-size: 12px;
+  color: var(--s500);
+  text-align: right;
+}
+.empty {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--s500);
+}
+.note {
+  padding: 12px 0 14px;
+  font-size: 12px;
+  color: var(--s500);
+}

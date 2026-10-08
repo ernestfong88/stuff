@@ -1,0 +1,5 @@
+.answer {
+  min-height: calc(var(--k) * 200);
+  border-radius: calc(var(--k) * 30);
+  font-size: calc(var(--k) * 44);
+}

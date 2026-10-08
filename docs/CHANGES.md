@@ -1,0 +1,1033 @@
+# What changed: original mockup → edited mockup → app
+
+This page is for the team that knows the original KiscoConnect Dining mockup.
+It lists what is different in this repository and where to find it.
+
+There are three versions:
+
+| | Version | Where it is |
+| --- | --- | --- |
+| **A** | IT's original mockup (one compiled HTML file) | [`reference/KiscoConnect Dining · Original.html`](../reference/) |
+| **B** | The edited mockup, which is A with the culinary team's changes | [`reference/KiscoConnect_Proposed.html`](../reference/KiscoConnect_Proposed.html) |
+| **C** | This app: B rebuilt as source code, with the fixes and features below | `src/` |
+
+There are two sets of changes:
+- **A → B** is a design change. The culinary team edited screens, wording and flows in the mockup.
+- **B → C** is a rebuild. The same product is now real code, with the bugs fixed and new features added.
+
+To check a change, open A or B in a browser next to the app (`npm run dev`).
+
+---
+
+## At a glance
+
+| Area | A → B (edited mockup) | B → C (this app) |
+| --- | --- | --- |
+| Platform | No change; still one compiled file | Vite + React + TypeScript source, tests, a single-file build |
+| Surfaces | The same 12 modes | The same 12 modes, each loaded on demand |
+| Back Office nav | The same 7 sections and 34 pages; two pages renamed | 9 sections: **Productions and Checklists** and **HO Settings** are new, and **Meal Credits** is a new page |
+| Dashboard and P-Mix | Rebuilt with sentiment, steps of service and revenue; P-Mix gets charts | Kept, built on SVG charts |
+| Recipe Book | Favourites, scores, much richer recipe form | Kept; now the source for associate meals and production |
+| Menu Cycle | Quarter menus, à la carte, locking, approval | Kept; one source for venue menu schedules |
+| Production | One day at a time | **Plan a week at a time** |
+| Associate meals | Free-form menu | **Standard menu: a chef special per meal plus recipe-backed standing choices** |
+| Meal credits | Only a guest-credit toggle | **Configurable rules in HO Settings, used at checkout** |
+| Manager | Triage reasons, steps of service metrics, shift sign-off | Kept |
+| Expo | Simpler prompts ("On its way?", "Picked up?") | Kept; chef's "Don't forget" reminders now show on tickets |
+| Data | Stored in the page; lost on reload | Stored in the browser, synced across tabs, resettable |
+
+---
+
+## A → B: the edits made in the mockup
+
+Both files have the same 12 modes and the same 34 Back Office pages. In the
+compiled code, 164 functions were added and 44 changed; none were removed. By area:
+
+### Back Office
+
+**Navigation**
+- Recipes was renamed **Recipe Book**.
+- Menus & Cycles was renamed **Menu Cycle & À la Carte**.
+
+**Culinary Dashboard**
+- New cards: resident meal sentiment, steps of service, and revenue and comps.
+- New callouts: **Top Action** and **Start here**.
+- Details for a date range, day and week modals, and the drivers behind each number.
+
+**P-Mix**
+- Pie charts of specials against à la carte, and a top 10.
+- Previous and next day, the full detail, and **Open the recipe** from a dish.
+
+**Recipe Book**
+- Favourites and score filters: *Loved (4+)*, *Needs attention (under 3)*, *Not on any menu*.
+- *Search the recipe master*.
+- The recipe form gained:
+  - a menu descriptor and a KDS name;
+  - scale to servings;
+  - plating and presentation;
+  - nutrition facts;
+  - variations and chef's notes;
+  - KDS & Recipe Book settings;
+  - AI Autofill;
+  - "Linked to a Kisco recipe · Home Office manages it".
+
+**Menu Cycle & À la Carte**
+- Quarter menus (VT Summer/Winter 2026/2027), à la carte menus and every-day items.
+- *Serving now*.
+- Lock and unlock, request and approval status, archive.
+- A week selector and a plan picker.
+
+**Modifiers**
+- Retire a group.
+- Copy from another community.
+- Pin a recipe.
+
+**Service Flow**
+- "Off, all courses fire together".
+- "Show usual picks".
+- "Comp meals for residents on hospice".
+
+**Billing and comps**
+- Comp items and their approvers.
+
+### Manager tablet
+- **Triage** gives a reason for each item:
+  - Get the drinks out
+  - Greet the table
+  - Check in
+  - Check with the kitchen
+  - Help take the order
+  - Help close the check
+
+  Triage can be viewed by table or by associate.
+- **Metrics**:
+  - On goal / Off goal and Due soon.
+  - Steps of service gaps: seated to order, order to main course, and order to close.
+- **Shift review**: sign off, with *Going well* and *To look at*.
+- **Floor**: the "past threshold" and "tables with 2+ checks" text was removed.
+
+### Expo
+- The associate panel is simpler. The old notes such as "orders locked, cook to count" are gone.
+- The prompts are now **"On its way?"** and **"Picked up?"**. They replace *On its way*, *Fire now* and *Bump course*.
+- "No mobile" and "Not texted" were removed.
+
+### Server tablet
+- Sick waiver: "Another waiver needs a manager PIN".
+- Menu reference: dish photos.
+
+---
+
+## B → C: the rebuild and what came after
+
+### Platform
+
+| Before (A and B) | Now (C) |
+| --- | --- |
+| One minified HTML file of about 100k lines | Source in `src/`, organised by surface, with a shared UI kit, domain logic and stores ([architecture](ARCHITECTURE.md)) |
+| State lived in memory and was lost on reload | Shared stores persist to localStorage and sync live between tabs, so you can open Server and Cook side by side |
+| Real wall clock | A demo clock pinned to 5:45 PM today so the service always looks live (`?clock=18:30`, `?clock=real`) |
+| No tests | 369 unit tests (vitest) and 15 end-to-end flows across surfaces (Playwright) |
+| — | `npm run build` produces a static site; `npm run build:single` produces one HTML file to share |
+| — | Demo tools: *Reset demo data* and *Clear all tickets*, which work across tabs |
+
+### Back Office navigation
+
+Pages from the original sections were regrouped. Page ids are unchanged, so
+old deep links such as `#/backoffice/production` still work.
+
+| Section in A/B | Page | Section in C |
+| --- | --- | --- |
+| Menus & Recipes | Production, Prep Checklist | **Productions and Checklists** (new) |
+| Dining Service | Side Work Tasks, Assign Side Work | **Productions and Checklists** (new) |
+| Dining Service | Alerts & Timing, Shift Metrics | **HO Settings** (new) |
+| — | Meal Credits | **HO Settings** (new page) |
+| — | Release Phases | **HO Settings** (new page) |
+| Billing → Meal Plans | "Residents can use their meal credits for guests" | Moved to **HO Settings → Meal Credits**; Meal Plans links to it |
+
+The final order is:
+1. Today
+2. Menus & Recipes
+3. Productions and Checklists
+4. Venues
+5. Dining Service
+6. Residents
+7. Billing
+8. Associates & PINs
+9. HO Settings
+
+### New features
+
+**Weekly production planning** (Back Office → Production)
+- Week tabs for this week and next, a day strip, and a *week at a glance* table.
+- *Confirm all this week*, and print one day or the whole week with scaled recipe sheets.
+- Counts come from the venue's menu cycle and schedule for the next 14 days.
+
+**Standard associate menu** (Back Office → Associate Meals, Associate Phone, Manager)
+- Every community gets the same menu:
+  - **one chef special per meal period** (lunch and dinner);
+  - the **standing choices**.
+- The special:
+  - is taken from that day's menu cycle;
+  - by default is the cycle's first entrée;
+  - can be changed by the chef, who can pick another entrée special or none and set how many are available.
+- Overnight (NOC) meals get the dinner special.
+- Standing choices: entrée salad, sandwich of the month, soup of the week, and the soup & salad combo.
+  - The list is fixed.
+  - The chef chooses which Recipe Book recipe sits behind each choice.
+- Each menu item links to its recipes and shows their allergens on the phone.
+- The Associate Phone, the Manager tablet and Back Office read one shared menu, so the three always agree. Before, Manager had its own copy.
+
+**Meal Credits** (HO Settings → Meal Credits)
+- How many starters, entrées, sides and desserts one meal credit covers.
+- Whether extra sides are charged à la carte.
+- What happens to items over the limit: use another credit, or charge à la carte.
+- Whether residents may spend credits on guests. This is on by default only at The Fountains.
+- The server's check and the Close & Charge screen use these rules, and the diner card describes them in words.
+
+**Release Phases** (HO Settings → Release Phases)
+- Mark any Back Office page as **Phase 1** or **Phase 2**. Every page starts in Phase 1.
+- In the side menu, Phase 2 pages carry a *Phase 2* tag, and each one opens with a banner saying it is planned for a later release. Search results show the tag too.
+- A switch at the bottom of the side menu shows *All pages* or *Phase 1 only*. Phase 1 only hides the Phase 2 pages, but search still finds them.
+- *Copy as a list* copies the split, section by section, to paste into an email or a ticket.
+- The split is saved in the browser and kept through *Reset demo data*. To make one split the default on every device, set `phase: 2` on those pages in `src/surfaces/backoffice/nav.ts`.
+
+**Venue Settings, easier to use** (Venues → Venue Settings)
+- Before, this was one long page of about 2,500px: a serving-now table, the payment terminals, then a stacked card per venue with its printers and every kitchen screen.
+- Now there is a list of venues on the left and the chosen venue on the right, with four tabs: **Menu**, **Printers & terminals**, **Kitchen screens** and **Name & kitchen**.
+- A **needs attention** list at the top collects every problem across venues: no menu, no start date, a printer that can't be reached, an offline card terminal. Each has a **Fix** link that opens the right venue on the right tab. The list and the tabs show a count of the problems in each venue.
+- **Menu** tab: what the venue serves today and its week in the cycle, *Change menu*, and *Up next*, where you schedule the next menu (by default the coming Monday) or cancel one.
+- **New venue** asks for a name and a kitchen, then opens the new venue's Menu tab.
+- **Name & kitchen**:
+  - The venue's name is now a labelled field. Before, it was an unlabelled heading you could edit by accident.
+  - You can now choose which kitchen a venue cooks in. Before, you couldn't, so a new venue never had a kitchen.
+  - Retiring a venue now asks you to confirm first. Retired venues are listed under *Retired venues*, with **Bring back**.
+- Card terminals are shown with the venue they belong to.
+- Each venue and tab has its own address, for example `#/backoffice/venues/v3/devices`.
+
+**Menu builder, clearer and safer** (Menus & Recipes → Menu Cycle & À la Carte)
+- **Locking now works.** Before, a locked menu could still be edited in the builder. A locked menu now opens read-only, with a banner and **Unlock to make changes**. If the menu was approved, unlocking warns that changes need approving again. Unlocked menus have a **Lock** button.
+- **Menu list**, down from 8 columns to 4: *Menu*, *Dietitian approval*, *Last edited*, and the actions.
+  - *Dietitian approval* reads plainly: **Approved** with who signed and when, **Waiting for the dietitian**, or a **Send for approval** link. Before, there was a "Yes/No" shield button and a separate status column.
+  - Each row has one main button, **Edit**, or **View** when the menu is locked. Print, Lock and Unlock, *Copy into a quarter* and Archive are in the ⋮ menu.
+  - The copy icon that instantly copied a menu into the current quarter, with no confirmation, has been removed.
+- **Cycle builder:**
+  - **Weeks** are a row of buttons with their dates, and *Now* marks the current week. Before, they were a dropdown with arrows.
+  - **Each date has its own menu** with *Copy this day to other days*, *Clear this day*, and *Change the dates shown*. Before, clicking a date quietly moved every date in the cycle.
+  - **Copy a day** now has you tick the days on a calendar, with dates and how many dishes are already there. A one-click option picks *Every Thursday in the cycle*. Before, you had to type day numbers such as "7, 8, 9", which the grid never showed.
+  - **Add more** under each day replaces "Options". It offers *Another entrée*, *Another soup or starter*, *A side on its own*, *Another dessert*, *A drink*, and *Clear lunch on this day*. "+ All week" is now **+ Same dish all week**.
+  - The colour key and a one-line how-to sit above the grid instead of below it.
+  - Days with nothing on them are listed by date, not day number. A brand-new menu shows how to start instead of "28 days have nothing on them".
+  - The duplicate quarter badge next to the quarter picker is gone.
+- **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
+
+### Handoff note for IT
+- New [docs/HANDOFF.md](HANDOFF.md) for the team taking over: how to run it, what's real and what's simulated, where a backend plugs in, how to build and host it, and what's left to build before it can go live. The README links to it.
+
+### Faster first load
+- Kitchen, Expo, the specials TV, Prep, Bar and the associate phone no longer download the Back Office menu model when today's menu is already saved on the device, about 57 KB less each time they open. A new device, or a saved menu from another day, still loads it once to catch up.
+- The production plan, Back Office resident records and an unused bar menu no longer load with every screen, and recipe details are no longer downloaded twice: about 29 KB less on every screen.
+- React now ships in its own file, so it stays cached between releases. Nothing looks different.
+
+### Faster tablets
+- Timers on table cards, kitchen tickets and the floor map update on their own instead of redrawing whole screens every second. Late colours still change within 15 seconds, and the header clock turns over with the minute.
+- Tapping a plate, a table or a button on a check redraws only that ticket or card, not every card on the screen. On an idle My Tables, Cook, Expo or floor map screen, redraws dropped by about 85 to 95 percent.
+- Changes reach the other screens at once and are saved to the device a moment later, once per burst of taps. Nothing is lost when a tab is closed, reloaded or hidden.
+- The order menu's "left" counts, usual orders and table names are worked out once per change, not once per tile.
+- Back Office recipe editing saves when you pause or leave a field, instead of rebuilding the floor menus on every key (typing a sentence went from about 3.4 s of work to 0.2 s). Recipe Book search keeps up with typing, and starring a recipe no longer refreshes the floor menus.
+- Nothing looks different: before and after screenshots match.
+
+### Meal times match everywhere
+- Breakfast runs until 10:30 AM and lunch until 3:00 PM on every screen: the kitchen menu reference, Prep, the 86 list, Steps of Service metrics, reservations, Shift Review and the closing report. Before, some switched to lunch at 10:00 and Steps of Service counted dinner from 4:00.
+
+### Kitchen menu shows your venue
+- The Cook and Expo menu reference shows the tablet's own venue menu, with its name in the title, and opens on the meal being served. Dishes open in the same full-screen view as on the server tablet, with cook notes.
+
+### Fixes
+- Production sheets no longer get cut off when printing from an iPad.
+- Overnight (NOC) pick up times past midnight now count correctly when the server tablet checks how full a range is.
+
+### Code cleanup
+- One shared helper each for dates, clock times, seeded demo numbers and printing, replacing many copies.
+- Unused screens, settings controls and styles are removed (about 400 lines).
+- Resident records and meal-plan billing moved into the shared stores.
+- A test that failed every afternoon (it rounded the time of day) is fixed.
+
+### Server: the menu reference shows the tablet's venue
+- The menu reference (the book button in the server and manager top bars) now shows the menu of the venue the tablet is set to, with its own cycle specials and à la carte, and its name in the title (*Today's menu · The Bistro*). It used to always show the Sequoia dining room menu.
+- It updates live when the menu changes in Back Office, the same as ordering.
+
+### Pick up & delivery orders follow the menu cycle and à la carte
+- A pick up or delivery started on the server tablet (New check → *Not at a table?*, or the server's PU board) or on the PU & Delivery tablet orders from the menu for its venue, its day and its meal: that day's cycle specials and that meal's à la carte items, at the venue's prices. Back Office changes show at once, also on an order already open.
+- **Pick up day and time** on the order: *Today* or *Tomorrow*, then the times for the order's meal. The other meals that day are one tap away (*Dinner times*). A time in another meal moves the order to that meal and its menu; so does the meal switch at the top, which also moves the time to that meal's first open range.
+- Moving the order to another day or meal checks what is already on it. Items the new menu doesn't have are listed, with *Keep them* or *Remove them* (their sides go with them). Nothing is dropped without asking.
+- An order for tomorrow is booked for tomorrow: the kitchen fires it tomorrow, and today's 86 list and portion counts don't apply to it or count it. It shows the day on the order (*Tomorrow · Sequoia / Evergreen*), on the send button, on the PU & Delivery list (*Tomorrow, Lunch 12:15–12:30 PM*), and on Expo's not-fired tickets (*fires tomorrow 11:45 AM*). Cook's All day counts leave it out.
+- A resident's tomorrow order at the lobby kiosk now offers tomorrow's specials too.
+- Breakfast, lunch and dinner start at the same times everywhere: lunch at 10:30 AM, dinner at 3:00 PM. The meal a new order opens on, the meal a pick up time belongs to and the menu reference all agree. Before, pick up times counted 10:30 to 11:00 as breakfast and 3:00 to 4:00 as lunch, and the menu reference switched to lunch at 10:00. Back Office → Pick Up & Delivery offers each meal's ranges within the same hours.
+- A new pick up opened after its meal's last time (lunch at 2 PM) starts on the next meal with a time open.
+
+### Menus: no dietitian approval; VT Fall 2026 unlocked
+- This app has no dietitian sign-off for menus yet, so it is gone from Back Office: the *Dietitian approval* column and *Send for approval* on Menu Cycle & À la Carte, the approval status in the menu cycle and à la carte builders, and the warnings in Venue Settings about serving a menu the dietitian hasn't approved. Unlocking a menu no longer mentions the dietitian.
+- Lock and Unlock work as before. Venue Settings still asks before serving a menu meant for another quarter, and still offers Undo.
+- **VT Fall 2026** (the live menu cycle) now starts unlocked. A browser that saved the menus while it was locked unlocks it once on the next load; if you lock it again yourself, it stays locked. Archived menus stay locked.
+- Recipe Approval (HO Settings) is a separate thing and is unchanged. The *Snacks (dietitian copy)* print option in Menu Export is unchanged too.
+
+### Back Office: Closing Reports
+- New page **Closing Reports** in Back Office → Metrics & Reporting, after Dashboard and P-Mix. Search finds it by words such as *closing*, *end of day*, *sign off* and *comps*.
+- Pick a day (previous and next day buttons, or a date) and a meal: Breakfast, Lunch or Dinner, each with its count of closed checks. Today opens on the meal being served; a past day opens on its last meal with checks.
+- Each shift shows the same numbers as the manager's closing report: total charges (card and apartment), comps, checks closed and covers, ticket times against the last dinner (or lunch, breakfast) and the last 7, and the day's dining feedback.
+- Sign-off: *Signed off by Dana Ruiz at 8:42 PM* in green, or *Not signed off yet* in amber, with how many tables are still open and how many servers have not signed off.
+- **Servers** lists who worked the shift with their checks, covers, charges and comps, and the time each signed off their own shift in Shift Review (or *Not signed off*). Pick up and delivery orders are a row of their own. **Comps** lists each comp with its table, diner, reason, server and amount.
+- **Print** and **Export a copy** (the manager's text format, plus the servers and comps).
+- A day with no closed checks shows a short message instead of empty tables. A small note says sign-offs come from the tablets in this browser.
+- The manager tablet's feedback line can now name another day, so a past day reads *on Tuesday* rather than *today*.
+
+### Back Office: section and page names
+- The **Today** section is now **Metrics & Reporting** (Dashboard and P-Mix).
+- **Modifiers** moved from Menus & Recipes to **POS Settings**, after Messages. The page itself is unchanged, and search still finds it.
+- **Resident Dining Profile** is now **Resident Dining Profiles**, in the menu, the page title and wherever other pages point to it.
+
+### Trivia mode switch
+- Back Office → Resident Dining Profile → Trivia scoreboard has a **Trivia mode** switch at the top, with a line saying what on and off mean. Turning it off or on shows a toast with Undo.
+- Off hides trivia on the server tablets: the Trivia button on table cards and closed checks, and the Trivia scoreboard tab in Shift Review (an open tab falls back to Checks and payments). Scores, the scoreboard and prizes are kept and still show in Back Office.
+- Trivia stays on by default, and copies saved before this change count as on.
+
+### Server: a clock, and when each table ordered
+- The server tablet's top bar shows the time of day, such as *5:45 PM*, in the same format as the kitchen screens. It sits with the right-hand buttons, before the menu reference (or the More menu), in 16px bold figures, and follows a pinned demo clock (`?clock=17:45`).
+- The clock takes part in the header's folding. It stays on screen at every fold; once the side work chip and the text size % have stepped aside it drops the AM/PM (*5:45*). It never pushes the venue, the mode menu or the avatar off screen.
+- Each table on My tables shows when its order went in, under the diner names, as just the time (*5:32 PM*): the first time anything was sent to the kitchen, the same time as on the kitchen ticket. Before anything is sent it shows, in grey, the time the check was opened. The words *Ordered* and *Opened* were dropped; the time is enough.
+- The time is 13px and fits inside the card's existing head, so cards are no taller.
+- Only the server's My tables cards show it; the manager's floor and tables views have their own cards and are unchanged.
+- Checked at 1180×820, 820×1180 and 1024×768 at 100% and 130% text with no sideways scrolling in the header or the board.
+
+### Temperature Log: extra checks
+- On the prep tablet's Temp log, every dish has **Add a check** after its scheduled checks, for an extra reading at any time: a new batch coming out, a re-check after reheating, or a spot check.
+- Tap it, pick a reason (*New batch*, *Re-check*, *Spot check*, *Other*, or skip it), enter the temperature on the number pad and sign with your PIN. A reading out of range asks for the corrective action and an optional recheck, the same as the regular checks.
+- Extra checks are held to the holding target (hot ≥ 135°F, cold ≤ 41°F), not the cooking temperature.
+- Each one shows on the dish as its own cell after the scheduled checks: *Extra · 6:52 PM*, the temperature, who took it and why. A dish can have any number.
+- Extra checks are never due, overdue or missed. They add to *readings taken*, and one out of range counts in *out of range*.
+- Back Office → Temperature Log adds an **Extra checks** column to a meal when any dish has one, listing each with its reason, who and when, and the action taken. The printed log has the same column.
+- The demo shows a re-check after yesterday's dinner reheat and a new batch checked at lunch today. Saved logs from before this change still load.
+
+### Close & charge: easier to read
+- Close & charge on the server tablet is reworked for reading at a glance. Nothing it does or adds up has changed.
+- Every person's card leads with their name in large type and one plain line under it: apartment and meal plan, or who a guest is with. Below that, one coloured status line says where their meal goes, such as *Covered by meal plan* or *Charged to Rose's resident account*, with the meals left. The big amount that used to repeat in that line is gone; each card ends with a clear *Total for Rose* instead.
+- Items are 16px with prices in one right-aligned column. *Meal plan* and *No charge* read in place of a price.
+- *How the meal is counted* is a pair of large buttons, **Meal credit** and **À la carte** (**Guest prices** for a guest paying their own way), next to **Comp…**. The credit count and the meal credit rule sit under it; a guest paying their own way no longer shows a meal credit count. *Another credit* / *À la carte* for an extra dish are the same kind of buttons.
+- *Charge $X to* is two large labelled buttons, **Apartment charge** (with whose account) and **Card** (Square terminal), with a tick on the one chosen.
+- The footer says **Total to charge** (or *Nothing to charge*) in large type, then in plain words where it goes: *Charged to Harold's resident account* for one person, or the split across accounts and cards for a table. The main button is 60px tall with 18px text; *Print table* is a smaller outlined button.
+- The table summary, card payment for the table, the corkage counter (now inside the scrolling area, so it no longer takes room at the top), the guest meal credit offer, the terminal and the delivery fee and the sick and hospice waivers (which look the same on the check screen) all use the same larger type. No text the server reads is under 14px, helper lines are at least 13px, and grey text is darker.
+- The content sits in one centred column up to 880px wide, so names and prices stay close together on a landscape tablet; portrait is a single column. It fits at 130% text size with no sideways scrolling.
+
+### Cook: All day counts plates not fired yet
+- **The All day strip shows two numbers for each dish.** The solid white one is plates on the line now. The amber outlined one ("+1") is plates sent to the kitchen but not fired yet: a later course still waiting, or a pick up booked for later.
+- **What counts:** entrées and anything else the screen makes on its own, but not the sides that go with a plate. Only plates for this screen count, and only plates already sent, so nothing the server is still holding.
+- **The order:** dishes are sorted by the total, so the cook sees what is coming before it fires. A small key under *All day* explains the two colours.
+
+### À la carte: the 20-item / 8-side counter on every list
+- The counter (**Menu items N / 20 · Sides N / 8**) now also shows on a cycle's **Every-day items**, which venues serve as their à la carte menu. Before, it only showed on standalone à la carte menus. It is a little larger.
+- **At** a limit it turns amber, and **over** it turns red. A red warning then says how much to cut, for example "Over the menu standard: reduce the menu by 42 menu items and 22 sides", with the counts it is based on. Changes still save: it is a guide, not a block.
+
+### Manager Metrics: Steps of Service made clear
+- The Metrics tab on the manager tablet now reads top to bottom: one headline, the steps in order, one thing to do, by server, then every table.
+- **One headline:** this meal's average table time (order to entrée) in big green or red against the 22 min goal, with *N of M tables got their food on time* (appetizer within 7 min and entrée within 15; goal 90% of tables) and how it compares with the last 7 of the same meal. The same numbers as before; the separate *Tables that missed a step* card is folded into it.
+- **Step by step:** Greet → drinks, Seated → order, Order → appetizer, Appetizer → entrée and Entrée → check closed, each as a bar on one minutes-after-seated scale, starting where the step before it ends, with the goal as a dashed outline. Green under the goal, amber within a tenth of it, red past it, grey-blue where there is no goal. The step furthest from its goal is shaded and labelled *Slowest step*, and each row says it plainly, for example *6.6 min · goal 7 · 3 late*. Greet → drinks uses the venue's own goal from Pacing & Coursing and says *Not timed at lunch* for meals the venue does not time.
+- **Do this next:** one line in the dashboard's words. An open table near or past a step goal comes first, with who can fix it (*Have a runner take EG 7's appetizer out now.*) and the other late tables as buttons to open; otherwise the server with the biggest share of late tables (*Talk to Marisol about entrée pacing.*); otherwise *Nothing to fix. Keep the pace.* It replaces the *Help now* cards.
+- **By server:** one compact row each, worst first: tables on time, average table time, slowest step against its goal, and the worst table. Tap a server to see only their tables; tap again or *Show every server* to clear.
+- **Every table** is folded away by default: each timed table with its time for every step, late steps in red, steps still running shown as *10:02 so far*. Tap a table to open its check.
+- The seven-day sparklines under each card and the three separate cards are gone. All text is at least 14px, the meal buttons are full-size touch targets, and the page fits portrait and landscape at 130% text size; the rows stack with their own labels when the screen is narrow.
+
+### Production Prep in the kitchen's dark look
+- Production Prep now wears the same dark look as Cook and Expo: the near-black screen, dark cards, white text, and the kitchen's heavy type. The title reads in capitals like *COOK* and *EXPO*.
+- The venue buttons are the kitchen's header buttons. Prep checklist / Cleaning log / Temp log, the days and the meals are dark groups; the one chosen is white, like Expo's filters. Today keeps its amber.
+- The same state colours as the tickets: green for done and in range, amber for due, red for overdue and out of range. *Due today* and *Overdue* chips match Expo's *Fired* and *Late*.
+- Special cards: the amount to make in amber, *Complete* a solid kitchen green, the voice note button amber, the typed note button a dark header button. A prepped special drops to a green line, as a finished plate does on Cook.
+- Every dialog opened from Prep is dark too: the recipe sheet, the PIN pad, the temperature pad and corrective actions, *Add a dish*, and the remove and un-sign confirms.
+- The layout and what everything does are unchanged; only the title grows to the kitchen's size. All text keeps at least 4.5:1 contrast. The shared buttons, text field and PIN pad read a few new colour settings so they can go dark in these dialogs; everywhere else they look as before.
+
+### Coursing: Manual coursing is the default
+*Hold for server* is renamed **Manual coursing**, and it is now the default for every venue and meal: each course waits until the server or expo fires it, with the 15-minute safety net. A venue and meal still set to another option in *Pacing & Coursing* keeps it. Ones never changed, which were *Fire when served* until now, follow the new default.
+
+### HO Settings: Home Office only
+- HO Settings is for Home Office. Alerts & Timing, Shift Metrics, Meal Credits, Recipe Approval and Release Phases show only to someone signed in to Back Office as Home Office. For a community user (the Culinary Director, as before) the section is gone from the side menu, from page search and from the breadcrumb bar, and opening one of its addresses shows a plain "This page is for Home Office" note, with no settings and no way in.
+- View as: Community · Home Office, a demo switch in the screen menu's Demo box and in the Back Office account card at the bottom of the side menu. It is a setting of the device, so *Reset demo data* keeps it, and it starts on Community. As Home Office the account card reads Home Office, Culinary Services, and Recipe Approval decisions are recorded as Home Office.
+- No shortcuts into HO Settings from other screens, for anyone:
+  - Meal Plans: *Open Meal Credits* is now the words *Set by Home Office*.
+  - Dashboard, Needs your attention: *Look into late tickets* no longer links to Shift Metrics; it says *Late after N min, set by Home Office*. *Review N recipes waiting for approval* shows only to Home Office.
+  - Dashboard, Steps of Service detail: the *Shift metrics* button is gone, and *Do this next* links to Pacing & Coursing for a slow entrée and to nothing for a slow appetizer (it used to link to Alerts & Timing).
+  - Phase 2 and Phase 3 pages: the banner no longer links to Release Phases. A page whose phase is off says *Not available yet*, part of Phase N, without the *Switch Phase N on* and *Release Phases* buttons; a screen whose phase is off no longer has *Open Release Phases*. KDS Settings' locked choice says *Not available yet* instead of pointing to Release Phases.
+  - The Phase 2 and Phase 3 switches under the side menu, and in the screen menu's Demo box, show only when viewing as Home Office.
+- The Recipe Book's *Send to Home Office for approval* stays, as before; its status notes never linked to the approval queue.
+
+
+### Server: special diets at a glance
+- **Every resident's allergies and diets show on their card** on the server's Residents page: allergies in red, diets and textures in grey, in the kitchen ticket's own tags with the shorthand spelled out (*GF* reads *Gluten-free*, *NAS* *No salt added*, *Diab* *Diabetic*, *Puree* *Pureed*, *Nectar thick* *Nectar-thick liquids*). Touching a spelled-out tag shows the ticket wording.
+- **A row of counts under the search doubles as the filter:** *Special diets 8* shows only residents with any allergy, diet or texture; *Any allergy 5* shows everyone with an allergy; then one chip per allergy, diet and texture with how many residents have it (allergies first, a hairline between the groups). Tap one or several to see only those residents; *Clear* shows everyone again and says how many are shown. It works together with the name search.
+- The chips are full 44px touch targets and wrap onto a second row when the tablet is upright.
+
+
+### Server, Manager and PU & Delivery: tuned for tablets
+- Checked on iPad 10th generation, iPad Pro 11" and 12.9", the classic iPad and a 10" Android tablet, each way round, at 100% and 130% text size. Before, the header pushed the avatar (and sometimes the mode switch) off the right edge on P/U & delivery, the table map and New check, and almost everywhere at 120–130% text. Now nothing runs off any screen in any view.
+- **The header fits itself:** it starts with every label and folds one step at a time until it fits on one row: chips go short, then the page buttons keep their icons, then the view buttons, then Menu, Residents and Shift Review fold into a **More (…)** menu (which stays highlighted while one of those pages is showing), then the text size control drops its %. The venue, the Server/Manager mode menu and the avatar always show. It works off the space really there, so the A−/A+ text sizes count too; at extreme sizes it wraps to two rows rather than cut anything off. The order screen's header does the same (meal icons, then *Back* keeps its arrow, then *Comp…*).
+- **Upright, the right-hand rail becomes a bar along the bottom** (Full screen, Notices, Voice, New check, each with its label beside the icon), so the board, the map and the lists get the full width and nothing sits over them. Turned sideways it is the column it was.
+- **Order screen upright** (iPad, iPad Pro 11", Android): the diners sit in a band across the top, two cards side by side, and the menu gets the full width below, with four tiles to a row instead of two. The Modify screen still opens over the menu. The 12.9" iPad keeps the side-by-side layout, which has the room.
+- **PU & Delivery upright:** each order wraps to two lines, who and what at full width, then where it stands, when it's due and the action button, so names and items aren't cut short and the button is always in reach. *New pick up* and *New delivery* share their own row.
+- **Manager tabs upright:** the six tabs share the row instead of scrolling *86 list* out of sight.
+- **Touch targets:** header buttons, chips, the mode menu, the avatar and A−/A+ are 44px (A−/A+ and the % are also bigger to read); a table card's open-the-check area, tabs, the meal switch, Triage's *Fine for now* and the order screen's text size and mode controls (26px before) are 44px too. A check's course badges, the ⋯ line menu and Hold/Remove are 40px, with Hold and Remove further apart; Close & charge and Send are further apart. *Mod* on menu tiles is a little bigger.
+- **Safe areas:** the shell, the send bar and the Close & charge footer keep clear of the home indicator. The layouts follow the screen they are in rather than the window, so they also respond to text size.
+
+
+### Dashboard: lighter trend cards
+- **Resident meal sentiment** no longer has the liked / neutral / disliked count pills. The big % positive, the trend, most liked and most complaints stay.
+- **Steps of Service** no longer has "Met the goal on N of N days". The chart's dashed goal line already shows it.
+- **Revenue** shows only the budget and how far ahead or behind it is, e.g. "Budget $2,350 · $756 behind" (behind in red, ahead in green). The "% of budget" figure is gone.
+
+### Recipe Book on a desktop screen
+- Nothing changes below 1500px wide: the list opens a recipe on its own page, as before.
+- **List and recipe side by side from 1500px:** in List view, opening a recipe keeps the list on the left and shows the recipe beside it, so a chef can click down the list without leaving the page. The list is compact (star, name and its approval and status chips, category, score, sold) and stays in view while the recipe scrolls; the open recipe is highlighted. *Close* puts the full list back.
+- The address still names the open recipe, so links work and Back goes to the recipe before, then to the list.
+- **Up and Down** move through the list while it has focus, and the recipe beside it follows.
+- **Filters take less room:** search, category and the finer filters share one row while they fit (one row at 1920px, where it was two).
+- **The recipe uses the width:** on a desktop screen the recipe page is no longer held to 1120px. Plating sits beside Nutrition and diet, and the KDS & Recipe Book settings beside the chef's notes, as Ingredients already sat beside Method. Beside the list, the recipe's buttons go in a row under its name and the numbers (yield, portion, prep, cook, total, calories) stay on one line. Editing works as before; the recipe dialog is unchanged.
+- Cards view is unchanged: the cards stay about 240px wide at every width (6 across on a 1920px or 2560px screen), and opening a card still opens the full recipe page.
+
+### Back Office: a colour for each section
+- **Each side menu section has its own colour**, so you can tell at a glance where you are. The section's icon is in its colour, and the page you are on is highlighted in a light tint of it.
+  - Today: ocean blue
+  - Menus & Recipes: amber
+  - Venues: flora green
+  - POS Settings: sky (a brighter cyan, so it stands out from the page background)
+  - Resident Dining Profile: rose
+  - Billing: gold
+  - Associates & PINs: teal
+  - HO Settings: slate grey
+  - KDS (Phase 2): plum, the Phase 2 colour
+  - Productions and Checklists and Kiosk (Phase 3): clay, the Phase 3 colour
+- **Breadcrumb:** the section's icon sits on a small tile of its colour, and the section name is in it.
+- **Page title:** a short line of the section's colour above it.
+- **Settings cards:** each card's title sits on a light band of the section's colour, with a small marker at the card's left edge, so the groups of settings read as separate blocks. The cards themselves stay white.
+- **Tabs:** the line under the chosen tab is in the section's colour.
+- Text on the tints keeps AA contrast. Layouts, wording and the Dashboard charts are unchanged.
+
+### Back Office uses the width on desktop
+- Nothing changes at 1280px wide and below.
+- **Wider page from 1600px:** every Back Office page is up to 1600px wide (was 1280px, or 1520px for the menu builder), with 48px either side.
+- **Two-column settings pages from about 1600px:** sections sit in two columns, read down the first column and then the second. Wide tables, tabs and notices stay full width. Below that width the page is one column, as before.
+  - Pacing & Coursing (*How orders reach the kitchen*, *Coursing* and *Time to greet* stay full width; *After the entrée* and *Dessert* sit side by side), Alerts & Timing (the five moments), Meal Credits, Messages (*Texts to residents* wording; *Residents without a mobile* and *Sent from this demo* stay full width), Kiosk Settings, Release Phases, Associate Meals (the *Associate menu* week table stays full width), Meal Plans (*Plan types*: the plans table stays full width, then *Default plan by care level* and *Guest meals*), and Pick Up & Delivery's *Delivery fees & sick waivers*.
+  - In Venue Settings, a venue's *Menus* and *Details* sit side by side.
+- **Cards fill the room:** the Dashboard's *Needs your attention* list goes two to a row from 1600px (the three trend cards stay three). The Review step of *Set up Pick Up & Delivery* shows the venues and *Every venue* three across. Venue Settings and the Recipe Book's card view were already a grid that adds columns as the page gets wider (4 venues and 6 recipe cards across at full width).
+- Left as they are: Shift Metrics, KDS Settings and Pick Up & Delivery's *Pick up times* tab, since each has one main section that reads better full width. List and table pages (Recipe Book, Order History, Charge Approval, Resident Dining Profile, Printers, Cleaning Log, Temperature Log, P-Mix) are also unchanged; they just get the wider page.
+
+
+### Recipe Book: import a recipe from a file
+- **Add recipe has two ways in: Type it in · Import a file.** The first screen of *Add a recipe* also offers **Import a file** ("Have it in a Word document, PDF or photo?").
+- **Drop a file or choose one:** Word (.docx), text (.txt, .md), RTF, PDF, or a photo (.jpg, .png, .heic). Files are read in the browser; nothing is uploaded. Older .doc files get a note to save them as .docx.
+- **Word, text, Markdown and RTF are read for real.** The reader finds the title (first line or heading), *Serves / Yield / Makes*, prep and cook times ("Prep 20 min", "Cook: 1 hr 10 min"), and the sections by their headings: Ingredients, Method (Directions, Instructions, Steps), Plating, Garnish, Equipment, Notes. Without headings it goes by how the lines look: amounts are ingredients, numbered lines and sentences are steps.
+- **Ingredient lines are split into amount, unit and name:** 1½, 1 1/2, 0.5 and ranges (2-3 takes 2); tsp, tbsp, cup, oz, fl oz, lb, g, kg, ml, l, qt, pt, each, cloves, pinch and more; "1 (14 oz) can tomatoes" keeps the can size. Lines with no amount ("Salt and pepper, to taste") are kept with no amount.
+- **The category and subcategory are guessed from the name**, and allergens are suggested from the name, description and ingredients, marked *(suggested)* as elsewhere until confirmed.
+- **Check before saving:** the recipe opens in the normal recipe form, filled in, with *Imported from <file> — check before saving*. Lines the reader couldn't place are listed under **Didn't recognise** so nothing is lost; any left there at Save go into Chef's notes. The recipe remembers the file it came from (shown under Sharing).
+- **Photos and PDFs need the AI service.** The demo shows the photo and says so ("Reading photos needs the AI service; this demo fills a sample you can edit"), then fills a sample from the stand-in AI, marked AI drafted for review. It doesn't pretend to read the photo.
+- *Type it in* keeps pasting text for AI to draft, and *Start blank*. The photo/PDF upload moved to *Import a file*.
+- Amounts are kept as written for the recipe's yield (for example 6 servings); prep sheets scale from that.
+
+
+### Menu Export: prices and diet icons
+- **Prices:** a new *Prices* option (Off · Guest · À la carte · Resident) prints each dish's price at the chosen venue, using the venue's own price where Pricing sets one. An add-on sold on top of a dish prints as *+$4.00*; a dish with no price (included in the meal plan, or never priced) prints nothing, never *$0.00*. A note over the footer says which prices are shown.
+- Prices print on the daily menu (after each dish's name, and with the everyday dishes), the à la carte menu on one or two pages (dishes and the sides line), and the order form (at the right of each column with a dotted leader). The week at a glance has no room for them and says so when they are on.
+- **Diet indicators** are now **Off · Words · Icons**. *Words* prints the chips as before. *Icons* prints a small line drawing after each dish: a leaf for Vegetarian, wheat struck through for Gluten-Friendly, a heart for Heart-Healthy, a milk drop struck through for Lactose Intolerant, a salt shaker struck through for No Salt Added, a knife and chopped pieces for Mechanical Altered, a cup for Nectar, a bowl and spoon for Pureed (any other diet gets a ring with its letters). They are inline SVG in the text colour, so they print crisp in black and grey. Each page carries a legend over its footer listing only the icons on that page.
+- Both are included when the page is fitted, so preview and print stay the same. With the default options page counts are unchanged; the 1-page daily menu on Letter stays on 1 page with prices and icons on. The 65-dish à la carte menu needs smaller type on one page with prices, so it shows the existing *2 pages reads better* notice.
+- **Export to Word** carries both: prices after the name (on a right tab with a dotted leader on the order form), and the same icons as images in the file (SVG, with a PNG for Word versions without SVG) with the legend. The Paper, Pages, Prices and Diet indicators choices are remembered on this device.
+
+
+### All printer settings on Printers
+- **Venues › Printers is the one place for printers and card terminals.** The *Printers & terminals* tab is gone from each venue in Venue Settings; its tabs are now Menus & details, Prices, Floor plan and Kitchen routing (cook screens, unchanged).
+- **A venue picker** at the top of Printers: *All venues* or one venue. Picking a venue narrows every tab to it: its printers, what they print, its kitchen's menu items, and its card terminals.
+- **Printers tab:** add, rename and remove printers, change type and IP (same checks as before), add a printer to a venue, and Test. Picking a venue, **Add printer** also offers the community's existing printers. Taking a printer off a venue now asks first and offers **Undo**, as the venue tab did.
+- **New Card terminals tab:** each venue's Square Terminals with Online or Offline, and **Pair a terminal** for each venue, with the same pairing-code check.
+- **Fix links go to Printers.** "Expo Receipt printer can't be reached" on a venue card, or on the venue, opens Printers at that venue with the printer highlighted; an offline terminal opens Card terminals at that venue.
+- The bottom of a venue's Menus & details tab says *Printers and card terminals for this venue are on Printers*, with a link that opens Printers at that venue.
+- Old links to a venue's printers tab open Printers at that venue, and searching for *Card terminals* opens the Card terminals tab.
+
+
+### Recipe Approval
+- **New page: HO Settings › Recipe Approval.** Recipes the communities send to Home Office wait in a queue with tabs **Waiting · Approved · Denied** and their counts. Each row shows the recipe, its category, the community and who sent it when, and their note (or, once decided, who decided and their comment).
+- **Opening a recipe** shows it read-only: description, allergens and diets, portion and times, ingredients, method and equipment, plating and garnish, cook notes, nutrition and chef's notes. A re-submission lists **what changed since the version approved before**, field by field (lines added and taken out, old and new values).
+- **Approve** takes an optional comment; **Deny** needs a reason. Both record who and when, show a toast with **Undo**, and a decided recipe can be **Reopened**.
+- **In the Recipe Book**, a community's own recipe has **Send to Home Office for approval**, with an optional *What changed / why* note. It then shows a status chip on the recipe and in the list: **Pending approval**, **Approved**, **Denied**, or **Edited since approval** when an approved recipe is changed (send it again). A note under the header gives the decision and Home Office's comment; a pending recipe can be **withdrawn**. This replaces the old one-click *Submit to Home Office*.
+- **Dashboard:** *Needs your attention* adds "Review 3 recipes waiting for approval", linking to the queue.
+- The demo seeds 4 waiting recipes (Valencia Terrace's Cheeseburger Soup, and recipes from Cardinal at North Hills, La Posada and The Carnegie, one of them a re-submission), 2 approved and 1 denied with its reason. Saved in `src/store/recipeApprovals.ts` and cleared by Reset demo data.
+
+
+### Charge Approval and Order History: filters
+- **Charge Approval has a filter bar** under the tabs. **Category** chips (All · Meal · Guest meal · Delivery · Alcohol · Added by hand, plus any other item code on file) each show how many charges they hold in the current tab and dates; pick one or several. **Date range** offers Any date, Today, Yesterday, Last 7 days, This month and Custom, which shows From and To days.
+- The filters work with every tab (To review, Ready for billing, Last 60 days). The bar shows *5 of 10 shown · $14.00* with **Clear filters**; the total leaves out voided charges. The tab counts still show the whole queue.
+- **Approve all and Send to billing act only on what is shown.** When a filter is on, the buttons say so: *Approve 5 shown*, *Send 2 shown to billing*. With no filter they read as before (*Approve all 9*).
+- **Order History has the same Date range** next to its associate and charge type filters. A check is dated by when it closed, or when it opened if still open. *Clear filters* resets the dates too.
+- One shared control and helper (`DateRangeFilter`, `kit/dateRange.ts`) so both pages read days the same way, in local time.
+
+
+### Meal Plans: a default for each care level
+- The single *Default* tick on the plan list is replaced by a **Default plan by care level** section: one dropdown per care level on file (IL and AL today; Memory Care or Skilled Nursing appear when residents have them), each with how many residents are at that level. Pick a plan or *No default*; a toast confirms with **Undo**.
+- **It takes effect:** a resident the Back Office has no plan for, whose tablet plan doesn't match a Back Office plan (a new resident), starts on their care level's default. Close & charge, the server and the kiosk also fall back to it for a resident with no plan anywhere. No one already on a plan is moved.
+- Ships with **IL → IL Resident Meal Plan** and **AL → AL 2x Meals a Day** (it matches the tablets' 2 meals a day plan). Every seed resident keeps the plan they had.
+- **Saved copies carry over:** a list saved with the old tick (sometimes on two plans, such as IL Resident Meal Plan and IL Spenddown) takes the ticked plan named for each level, else the shipped default. If a default plan is retired, its level shows *No default* with a note to pick another.
+
+
+### Venue Settings: an overview first
+- **Venue Settings opens on one card per venue** instead of a list on the left and a pile of "needs attention" lines on top. Each card says the venue's name, what kind of place it is (Dining room, Bistro or Catering) and that it is Open.
+- **Serving now** on each card, in plain words, for example *Cycle: VT Fall 2026 · week 3 of 5* and *À la carte: VT Fall 2026 · Every-day items*, or *No menu yet* in red.
+- **Kitchen** on each card says whose kitchen and tablets it uses, for example *Shares Sequoia Dining Room's kitchen & tablets*, or *No kitchen: orders print only*.
+- Anything that needs fixing shows on that venue's card as an amber line (red when nothing can be ordered) with **Fix**, which opens the venue on the right tab. The top of the page counts open venues and things that need attention.
+- **Click a card to open the venue.** Its page has the venue's name, kind, status and kitchen at the top, an **All venues** button back, and its own things to fix.
+- The first tab is now **Menus & details**: **Menus** (Menu cycle, Week 1 started, À la carte) and then **Details** (name, kitchen, and Status with a **Retire** button). Week 1 started shows **This week is week 3 of 5**, which updates as soon as the date changes. Prices, Floor plan, Kitchen routing, and Printers & terminals are the other tabs, as before.
+- Each section says in one line what it controls. Wording such as "cycle day" is gone: a cycle with no week 1 date now reads *today's specials can't be picked*.
+- Retired venues show as their own cards under **Retired**, each with **Bring back**.
+- Nothing else changed: choosing a menu still asks first and offers **Undo**, a week 1 date still moves to that week's Sunday, names are still checked, and the server tablets switch menus straight away. Old links to a venue and its tabs still work.
+
+
+### Resident Dining Profile: one list with filters
+- **Residents is now Resident Dining Profile** in the side menu, the page title, the breadcrumb and page search. Addresses are unchanged, so old links still work.
+- **Allergies & diets is no longer a separate tab.** Its old address, and the *See everyone's allergies and diets* link on a resident's Meal plan & kitchen notes page, open the one list.
+- **Filters above the list**, on one row that wraps on a 1024 screen:
+  - **Care level:** All · IL · AL, plus any other level on file, each with how many residents.
+  - **Diets & allergies:** a dropdown of checkboxes, grouped as Allergies, Diets, and Textures & liquids. Each shows how many residents have it, for example *Shellfish 1* or *Gluten-free 2*. *Any allergy*, *Any diet*, *Any texture* and *Nothing on file* are there too. The list shows anyone with any of the ticked items.
+  - **Meal plan:** each plan in use with its count. *À la carte* covers both the $0 plan and residents with no plan.
+  - Each filter's counts take the other filters into account. For example, with AL picked, *Gluten-free 2* means two AL residents.
+- **Search** finds a name or apartment first. It also matches diet and allergy wording, including the care assessment's own words, for example "mussels".
+- When filtered, the bar shows **Showing 3 of 25 · Clear filters**. The filters (not the search) are remembered on this device.
+- **Allergy warning on the list:** when a resident's kitchen notes mention an allergen that isn't on their allergy list, their row shows a red *Notes: …* flag. The warning on their Meal plan & kitchen notes page is unchanged. Hovering a row's diets shows the care assessment's wording.
+- *Meal plans & kitchen notes* and *Edit stories* are still at the top of the list.
+
+
+### Recipe Book: alcoholic and non-alcoholic drinks
+With **Drinks** picked, the filters add a **Type** choice: Any · Non-alcoholic · Alcoholic. The subcategory list then only offers that type's subcategories:
+- **Non-alcoholic:** Soft Drinks, Juice, Coffee & Tea, Other, which covers the NA wines.
+- **Alcoholic:** Beer, Wine, Cocktails, Spirits.
+
+### Menu builder uses wide screens
+- The cycle builder and the à la carte builder now fill the whole window instead of stopping at the Back Office's 1280px reading width (other pages are unchanged). The seven day columns grow with the screen, and above 1700px the cards, row labels and dates get a little more room and a slightly larger font. Narrow windows still scroll sideways as before.
+- **À la carte:** the sections sit side by side in as many 420px columns as fit, two at a laptop width and up to five on a 2560px screen. A long section carries on at the top of the next column, so every column fills evenly. The Breakfast, Lunch and Dinner labels on a locked menu are now centred in their pills.
+
+- **Margins:** on very wide screens the builder stops at about 1520px and is centered, with a wider margin either side, so it uses more of the screen without running edge to edge.
+
+### Menu Export: fits the page
+- Every printout now sizes itself to its page, for every paper, template and option. Nothing runs onto an extra page, and a short menu doesn't leave a big empty space at the bottom. The fixed zoom for each paper size is gone.
+- The spacing changes first: the gaps between meals, courses and dishes open up on a short menu and close up on a long one. Only after that does the type get bigger (up to 1.25×) or smaller. The footer sits at the bottom of every page.
+- A daily menu with all meals fits on one Letter page. Dish descriptions never print smaller than 8.5 pt. If a menu would need smaller type to fit, it prints on 2 pages, split between meals, and the options bar says "Doesn't fit on one page at a readable size — printing on 2 pages". When meals are picked one page each, every page is fitted.
+- À la carte has a new **Pages: 1 · 2** choice. On 1 page everything fits on one page in two columns. On 2 pages the menu is split by course so the two pages come out about the same length. A long course can carry over ("Entrées, continued"). This device remembers the choice, as it does the paper. If the 1-page version would need very small type, the options bar suggests 2 pages.
+- À la carte also has the **Meals** choice: All meals (Breakfast, then Lunch and Dinner, as before) or any of Breakfast, Lunch and Dinner, only for meals the à la carte menu serves. Each picked meal gets its own section with everything served at that meal, and the header names the meals ("Lunch · À la carte"). Picked meals still follow the 1 or 2 pages setting.
+- The week at a glance and the order form fit their single page. On the week, the rows grow to fill the page.
+- The preview shows the fitted page, so its page count ("· 2 pages") matches what prints. Printing from the menu builder fits the page the same way.
+- **Export to Word** next to Print downloads an editable .docx of the selected printout. It has the same pages, headings, dishes, descriptions, sides, diet indicators and snacks, on the same paper size and orientation, with page breaks between pages. Type sizes come from the page's fit. The file is named after the venue, printout and date, for example "Sequoia Dining Room daily menu 2026-10-08.docx".
+
+
+### Associate Meals: search for the special of the week
+The special of the week is picked by typing instead of scrolling a long dropdown. Matches show as you type: arrow keys move, Enter picks, Escape closes. Once chosen it shows as the dish name with an × to clear it, and tapping the name changes it.
+
+### Production Prep: tap a special for its recipe
+- Tapping a special opens its **Recipe Book** recipe, scaled to the amount to make. It reads the chef's live edits, so a change in the Recipe Book shows on the tablet straight away.
+- **What the sheet shows:** prep and cook times, garnish, equipment, allergens, ingredients, method, plating and cook notes.
+- **Units:** scaled amounts move up to the unit a cook measures in, for example 70 tbsp is 4½ cups, 70 oz is 4 lb 6 oz and 210 fl oz is 6½ qt.
+- **No written recipe yet:** the sheet shows the description, allergens and cook notes, and says to add the recipe in the Recipe Book.
+- The link on each card now just says **Recipe**.
+
+### Temperature Log
+Kitchens can now log food temperatures during meal service. Each reading is signed with the cook's PIN, and a reading out of range is kept with what was done about it.
+
+- **The rules**:
+  - Hot food must reach its cooking temperature when it goes on the line: 165°F for poultry, soups and anything reheated; 155°F for ground meat, ground fish and eggs held hot; 145°F for fish, seafood and whole cuts; 135°F for everything else. After that it must stay at 135°F or above.
+  - Cold food must stay at 41°F or below.
+  - Each meal has two checks: one when the food goes on the line, and one 2 hours into service. Service runs 7:00 to 10:00 AM for breakfast, 11:30 AM to 2:00 PM for lunch and 4:30 to 7:00 PM for dinner.
+- **Which dishes are logged**:
+  - The list for each meal comes from the same menu Production uses: the day's menu cycle items plus the venue's every-day dishes.
+  - Each dish is set as hot or cold from its name and category. Soups, entrées and hot sides are hot. Salads, deli items and desserts such as pudding and trifle are cold. Bread, rolls, cookies and cupcakes are not logged.
+- **Production Prep** has a third tab, **Temp log**, next to Prep checklist and Cleaning log.
+  - It shows today's meal (you can switch to another of today's meals), with Hot hold and Cold hold dishes listed separately. Each check shows its target, for example *≥ 165°F*.
+  - To log a reading, tap a check, enter the temperature on the number pad and sign with your PIN.
+  - A reading out of range turns red. Before you can sign, you pick what was done: *Reheat to 165°F*, *Chill / move to the walk-in*, *Discard* or *Rechecked*. You can also add a recheck temperature.
+  - *Add a dish* adds something that is not on the menu to that meal. You give it a name and choose hot or cold.
+  - The tab and the meal buttons show how many checks are overdue. The header shows how many temperatures have been taken for the meal on screen.
+- **Back Office → Productions and Checklists → Temperature Log** (Phase 3, right after Cleaning Log):
+  - **Log**: pick a kitchen and a day, from today back six days. Each meal is a table of dishes. Each check shows the temperature, who took it and when. Out-of-range readings are red, with the action taken and the recheck. Missed and overdue checks are flagged.
+  - The totals at the top show readings taken, out of range, missed or overdue, and (for today) due now. *Print this day* prints the sheet.
+  - **Targets**: every dish served in the week before and after today, with how it is held. You can change a dish to *Hot hold*, *Cold hold* or *Not logged*. Choosing the menu's own setting again removes the change.
+- The demo starts with a week of readings, all signed earlier than the current time:
+  - A hot dish dropped below 135°F at yesterday's dinner. It was reheated, and the recheck read 168°F.
+  - A cold dish read 45°F at lunch two days ago. It was moved to the walk-in, and the recheck read 38°F.
+  - A cold dish at today's lunch read 44°F and was thrown out.
+  - A few past checks were missed, and one dish at the current meal has not gone on the line yet.
+
+
+### Production Prep: tighter cards, a week of prep days
+- **Prep days:** pick any day up to a week ahead (Today, Tomorrow, then Sat 10/10, Sun 10/11 and so on), then Breakfast, Lunch or Dinner. Before, only today and tomorrow could be picked.
+- **Special cards:** **✓ Complete** (was "Mark prepped") sits on one row with a small microphone button for a voice note and a pencil button to type one. The cards are shorter, so more fit on screen.
+
+### 86 list: what's out first, search to add
+- The *86 list* on the manager tablet opens on what is out or low right now. Each line has **Back on**, and a counted item has a − / + to change how many are left. With nothing marked it says "Nothing is 86'd".
+- An item can be marked **Out** or given a **Count** ("4 left"). A count goes down as servers ring the item in, shows as "4 left" on the server order screen, and the tile becomes Sold out at zero. Out works as before: greyed "86 today" on the server tablets, gone from the kiosk and the specials display. Both come back on at midnight.
+- To add one, type in **86 an item…** (it finds the short tablet names too) or open a category. Categories are folded and show how many of their items are out or low. Today's specials sit above them because they run out most.
+- Tapping an item opens one On / Count / Out control instead of a button on every tile. Each change has a toast with Undo.
+- The long hint under the title and the "Mark 86" label on every tile are gone.
+
+
+### Manager Triage: one list of what to do next
+- *Triage* on the manager tablet is one list, most urgent first, instead of a grid of cards. Each row says what to do with the table in it ("Run starters to EG 7", "Check in with SQ 5", "Close the check at SQ 8"), whose table it is and how many minutes it has waited.
+- Rows past the Alerts & Timing mark are under **Now** with a red edge; rows worth a look are under **Soon** with an amber edge. The thresholds are the same as before.
+- Where My Tables offers a one-tap fix, it is on the row: **Mark served**, **Checked in**, **Drinks out**, **Fire dessert** and **Quick close**. A toast confirms it, with Undo for Mark served and Quick close. Anything that needs the check (taking an order, payment) is done by tapping the row, which opens the check as before. Changing another server's check asks to take it over first, as it does everywhere else.
+- A **Kitchen** group lists tables fired longer ago than the floor mark, and pick ups, deliveries and associate meals that are due and not ready (amber in their booked range, red once it has passed).
+- Tables with nothing to do fold into one **Fine for now (5)** line that opens to show them.
+- **By associate** is one line per server: how many of their tables need help, their worst one with its minutes, the others as red or amber table chips, and their tables and covers.
+- The stage chips, the "Help" boxes, the repeated reason lines and the summary line at the top are gone.
+
+
+### Manager › Associates: easier to read
+- **Lunch / Dinner / Overnight** tabs at the top. The tab for the meal under way opens first.
+- Orders still to hand over are listed by pick up time, for example "7:00 PM · 1 order", with when changes close. Each row shows the associate, what they ordered, a status (Planned, In kitchen, Ready, Picked up) and one button. The button is **Change**, or **Mark picked up** once the meal is ready.
+- Picked up and cancelled orders, and pick up times that have passed with nothing waiting, are folded under one **Earlier and cancelled** line.
+- One line above the list shows the meal's special with how many are left (red when sold out), the special of the week, the soup, the cutoff and where associates pick up.
+- **Order for an associate** is one button. It opens the order form at the next open pick up time. The form has fewer lines: name, pick up time and meal side by side, choices next to them, and the buttons on one row. The rules, limits and cutoff reason are unchanged.
+- The heading counts, the explanation paragraph, the per-time item tallies and the "Planned in the Associate App" line on every row are gone. A row still shows its last logged change, and tapping it opens the full history.
+
+
+### Residents list: meal plan, hospice and diets at a glance
+- *Residents → Profiles* is now a list with columns: Resident (with meals left) · Apt · Level · Meal plan · Hospice · Diets & allergies. Clicking a row still opens the profile.
+- **Meal plan** is a dropdown of the active Meal Plans. A change here is the same as on the resident's own page: it is logged for billing, close & charge counts the new plan straight away, and the toast offers *Undo*.
+- **Hospice** is a switch on each row. It uses the same hospice status as the resident's page, so meal comps at close and delivery fee waivers follow it. Every switch is logged, and *Undo* puts the status back as it was.
+- **Diets & allergies** show as small tags, allergies in red and diets in grey, the first three with "+2" for the rest (hover for all of them).
+- On a narrower screen, the apartment and level move under the name and the tags drop below the row.
+- The *Allergies & diets* button above the list (the same as the tab) and the *ON HOSPICE* tags are gone.
+
+
+### Cleaning Log, separate from the Prep Checklist
+The prep checklist used to hold the kitchen's cleaning too (*Cleaning AM* and *Cleaning PM*). Cleaning now has its own log, so a cook signs off each task with their PIN and the log shows who did it and when.
+
+- **Prep Checklist** is stocking and prep only. A venue whose checklist was already edited in this browser keeps its own list, cleaning groups included, until someone removes them or uses *Reset to the starter list*.
+- **Cleaning tasks** are kept per kitchen (Sequoia, Evergreen, The Bistro):
+  - **Daily** tasks are done at *Opening*, *Mid-day* or *Closing*. The old Cleaning AM and PM items are now daily tasks.
+  - **Weekly** tasks are due on one day of the week (weeks run Sunday to Saturday) and can be signed off any day that week. The starter list adds: delime the dish machine, clean the hood filters, deep-clean the walk-in shelves, clean the ice machine, deep-clean the ovens and scrub the floor drains.
+  - Each task is assigned to a cook from *Associates & PINs* (the line cooks, prep cook and dishwasher) or to *Anyone on shift*.
+- **Production Prep** has two tabs, **Prep checklist** and **Cleaning log**.
+  - The Cleaning log shows today's daily tasks by Opening, Mid-day and Closing, then this week's weekly tasks.
+  - A weekly task due today is highlighted. A task past its time is red, and the tab shows how many are overdue.
+  - Tapping a task opens *Sign off: (task)* and the cook enters their PIN. The log records who signed and when. Someone other than the assignee can sign, and the log shows that too.
+  - *Undo* removes a sign-off after a confirmation.
+- **Back Office → Productions and Checklists → Cleaning Log** (Phase 3, next to Prep Checklist):
+  - **Tasks**: add, edit and remove daily and weekly tasks, set when each is due, and assign a person.
+  - **Log**: one week per page, task by task and day by day. Each day shows who signed off and at what time, or *Missed*, *Overdue* or *Not yet*. You can look back three weeks, and *Print this week* prints the sheet.
+  - The tab shows how many tasks were missed or are overdue this week.
+- The demo starts with four weeks of sign-offs. One weekly task is overdue this week, and none are signed later than the current time.
+
+
+### Table map: no colour key
+The row of status colours (Ready to run, Cooking, Late…) above the table map is gone. Each table still says its status in words, and the server chips stay.
+
+### P-Mix colours match the dashboard
+- The *P-Mix* page now colours by course, the same as the dashboard's P-Mix wheel: starters orange, entrées blue, desserts green, anything else grey. A category's dishes on the ring take its shades, darkest for the best seller, with "Everything else" in light grey.
+- Specials and à la carte are told apart without a colour of their own: specials are the full colour and à la carte the paler shade of the same course, and the two lists are headed with a filled and an outlined dot. The *Special entrées* ring names the top four, like the dashboard.
+- The bars in *Top 10 entrées* and *Every item sold* take each dish's course colour.
+
+
+### Pick Up & Delivery: step-by-step setup
+*Pick Up & Delivery* has a **Set up step by step** button at the top. It walks a new manager through the page one question at a time. The tabs stay as they were for quick edits.
+
+- Six steps: **Order types**, **Ranges offered**, **How many per range**, **Timing**, **Fees & waivers** and **Review**. The header shows where you are ("Step 3 of 6 · How many per range"), with Back, Next and Finish. Any step can be opened from the header.
+- Each step has a title, one short line saying what it is for, and the same controls as the page. Changes save as they are made, to the same settings, so Back, closing and Finish never lose anything. Reset to defaults is unchanged.
+- **Order types** adds which venues offer resident pick up, associate pick up and delivery. Turning one off at a venue removes its ranges there. Turning it back on brings back the usual meal hours, with Undo.
+- **Fees & waivers** has the fee per venue, sick fee waivers, and waiving hospice residents' delivery fees (the same switch as on *Pacing & Coursing*).
+- **Review** sums up each venue in plain words, for example "Resident pick up and delivery: lunch 11:00 AM – 1:30 PM, every 15 min", "4 per range", "Delivery $3.00, pick up free". There is also a card for what every venue shares (timing and waivers). Each line has Edit to go back to its step.
+- A step that looks unfinished gets a small amber dot in the header. Its problems are listed under the step line. For example: orders close sooner than the kitchen fires, a type books ranges but no venue offers one, a per-type limit above the total, or sick waivers on with a limit of 0.
+
+
+### Associate Meals: no count stats
+The row of counts at the top of *Associate Meals* (planned this week, picked up, cancelled, days a special sold out) is gone. The page opens straight on the menu.
+
+### Menu Export: by meal, paper size, date or week
+
+- The options sit in one bar above the preview: venue, menu, date or week, meals, paper and template. The preview follows every choice.
+- The daily menu prints for any date, picked from a calendar. It prints the cycle day that venue serves on that date, worked out the same way as the floor.
+- The weekly menu, à la carte menu and order form print for a week picked from a list (Sun 10/4 – Sat 10/10), four weeks back to eight ahead.
+- The daily menu can print all meals on one page, or only the meals picked (Breakfast, Lunch, Dinner, and Snacks when the menu has them), one page each.
+- Every printout can go on Letter, Legal, Half letter, Tabloid or A4. The menu shrinks to fit a half sheet and grows for a tabloid. This device remembers the last paper for each printout.
+
+
+### KDS Settings: dropdowns and checkboxes
+*KDS Settings* is calmer to read. The settings and what they do are unchanged.
+
+- **Screens in this kitchen** and **Expo screen** are dropdowns instead of rows of buttons.
+- Screens are edited one at a time: pick the screen from a dropdown, then rename it and tick what it shows. Before, every screen's full list was shown side by side.
+- What a screen shows is a checkbox list in four columns (Starters, Entrées, Sides, Desserts) instead of rows of pill buttons.
+- The hint lines next to each setting and the paragraph at the bottom are gone. The note listing anything not ticked on any screen stays.
+
+### Coursing options in plain POS wording
+The coursing choices on *Pacing & Coursing* are renamed. They work the same as before.
+
+| Before | Now | What it does |
+| --- | --- | --- |
+| Fire all | **All at once** | Every course but dessert fires when the order is sent |
+| Fire on drop | **Fire when served** | The next course fires once the one before is served |
+| Auto-fire +5 / +8 | **Timed 5 min / Timed 8 min** | The next course fires 5 or 8 min after the one before |
+| Manual fire | **Manual coursing** (the default) | Each course waits until the server or expo fires it |
+
+The 15-minute backup is now called the **safety net**. Under the venue table, a key lists each option with one line on what it does.
+
+### Steps of Service drill-down: what to do next, first
+Both Steps of Service drill-downs now open with a **Do this next** box.
+
+**Clicking a day's bar:**
+- The box names who to talk to, about which meal and which step, with one line on why. For example: "Talk to Maria about dinner entrée pacing. 8 of Maria's 13 tables went over 22 min, mostly waiting on the entrée."
+- A *Then* line names who to see next.
+- A button opens the setting that helps: *Pacing & Coursing* when the entrée is slow, *Alerts & Timing* when the appetizer is.
+- A day with nothing over the goal says *Nothing to fix*.
+- The five stat boxes are now three: average table time, tables over goal, and the slowest step.
+- *Who to follow up with* is one line per server (how many tables were over, mostly which step, the worst table). *Show tables* lists them.
+
+**Detail:** it opens with the action, the trend under it and the same settings button. The long paragraph that repeated *What is driving it* is gone.
+
+### Steps of Service: slowest and fastest tables
+The Steps of Service drill-downs now show the 3 slowest and the 3 fastest tables side by side.
+
+- **One day:** each timed table, with its server, meal and time.
+- **Detail (7 or more days):** each table's average over the period, with how many times it was timed. Tables timed only once are left out when there are enough others, so one bad night doesn't decide it.
+
+### A way back to My tables
+The PU & Delivery screen now has a **← My tables** button.
+
+- **On the server tablet:** the button shows next to the view button whenever P/U & delivery or the table map is showing, and the chips beside it go short to make room.
+- **On the PU & Delivery screen** (opened from the screen menu): the button opens the server's My tables.
+
+### Pre-ship audit fixes
+All 6 blockers and the majors from the audit are fixed. See [`AUDIT.md`](AUDIT.md) for the full list, including the known gaps.
+
+**Menus and venues**
+- Each venue's menu, *Week 1 started* and à la carte choice now drive what that room orders from, everywhere. Bistro prices reach checks.
+
+**Food safety and residents**
+- Allergy and diet warnings read free text.
+- Recipes without allergens get suggested ones.
+- Kitchen notes show on Cook and Expo tickets.
+- All 25 residents are in Dining Plans.
+- Every associate with a PIN can sign in.
+- The Back Office meal plan always decides what a resident's meals count as. A new *AL 2x Meals a Day* plan matches the tablets' 2-a-day plan.
+
+**Floor plan**
+- Floor plan edits reach every screen.
+- A resident can't be seated at two tables.
+- Reserved tables are marked.
+- Empty checks can be voided.
+
+**Orders, kitchen and printing**
+- Held entrées hold their sides.
+- Close & charge asks about unsent items.
+- Printers print on every path, not only the server's Send.
+- Expo and PU & Delivery share one hand-off.
+
+**Billing and settings**
+- Comped checks void their waiting charge.
+- There is one delivery fee per venue.
+- Check-timeline colours show in Order History.
+- Printer, terminal and venue-name inputs are checked.
+- Risky actions ask first and offer Undo.
+
+### Less text in Back Office; Dining Service is now POS Settings
+- **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
+- **Dining Service is now POS Settings** in the Back Office menu.
+- **Service Flow is now Pacing & Coursing** (POS Settings). Searching "service flow" still finds it.
+- **Menu weeks run Sunday to Saturday.** A cycle's week 1 always starts on a Sunday, in the builder, Venue Settings ("Week 1 started" snaps to the Sunday), production, printed menus and the floor. Builder columns without dates show their weekday. The demo cycle is turned so today keeps the specials the floor shows.
+- **Every-day items as an à la carte choice.** Each cycle menu's every-day list (for example "VT Fall 2026 · Every-day items") can be picked as a venue's à la carte menu, and Sequoia and Evergreen use it by default. The menus list shows where each one is served.
+- **Printers page** (Venues → Printers), with three tabs:
+  - **Printers:** add, rename, remove and test printers, and set their type, IP and venues.
+  - **What each printer prints:** the routing rules, moved here from Service Flow.
+  - **By menu item:** every menu item, where it prints now and why, with a *Send to* choice per item ("Automatic" or specific printers). It can be filtered to items that print nowhere.
+- **Service Flow, easier to read.** Short headings (Coursing, After the entrée, Dessert, Time to greet, Taking the order, Short names, Pick up, Comps), labels that say what happens when a setting is on, at most one short hint line, and per-venue numbers in one aligned column.
+- **Venue menus are two choices.** A venue's Menu tab is now *Menu cycle*, with a *Week 1 started* date, and *À la carte menu*. Each is a dropdown with a "None" option, and the "Up next" scheduling is gone. The Bistro's à la carte menu moved to its à la carte choice. A venue needs at least one of the two.
+- **Default release phases.** Out of the box, before anyone changes Release Phases:
+  - **Phase 1:** Server, Manager, PU & Delivery and Back Office screens, and every Back Office page not listed below.
+  - **Phase 2:** Host, Bar, Cook, Expo and Associate Phone screens, and KDS Settings.
+  - **Phase 3:** Production Prep, Resident Kiosk and Specials Display screens, plus Menu Export, Production, Prep Checklist, Side Work Tasks, Assign Side Work and Kiosk Settings.
+- **Associate special of the week.** On Associate Meals, a *Special of the week* picker sets one dish for the chosen week. It's on the associate menu every day of that week, after the chef's special, on the server tablet, the Associate Phone and the manager's associate order form.
+- **Associate soup is always the soup of the day.** The associate soup is no longer picked by hand. It follows the dining room's soup of the day for that meal, and the Soup & Salad Combo uses it too. With no soup that day, both are left off. Associate Meals shows "Soup: always the soup of the day (today: …)".
+- **Status icons on the order screen.** Each line shows its state as a small coloured icon instead of a word: a blue dot for new, a send arrow for sent, a red flame for cooking (the same icon as the Cook and Expo screens), a green tick for ready and a grey tick for served. Held lines show a pause icon and the minutes held. Drinks show a glass that changes colour, and the ones to fetch are outlined buttons. Each icon still has its name as a tooltip and for screen readers.
+- **Alcohol count per resident.** On the check, a resident who has had alcohol this meal shows a small wine chip, such as "2 this dinner". It counts wine, beer, spirits and cocktails on every check that meal, open or closed. NA wines and beers don't count, and neither do a guest's drinks. It starts again at the next meal.
+- **Order from the table map.** On the server tablet's *Table map* view, free tables read "+ New check"; tapping one opens a check there and goes straight to the order. Occupied tables still open their check.
+- **Pick up & delivery by what to do next.** The queue is grouped as *Hand off now*, *Take out for delivery*, *On the way*, *In the kitchen*, *Not sent yet* and *Later* (collapsed). Late orders go to the top of their group with a red "Late · 3m" tag, replacing the time-window list, the NOW line and the count pills.
+- **Snacks is its own row.** In the cycle builder, Snacks shows a single *Snack* row instead of the soup, entrée, sides and dessert rows. Any recipe can be a snack, and a cookie stays under Snack instead of moving to Dessert. *Add more* offers *Another snack*.
+- **Alerts & Timing by the moments of a meal.** One card per moment, in service order: Waiting to order, Cooking, Plates up, Eating and Ready to close, with a step strip at the top. Each card has a row per screen the alert shows on: *My Tables & manager floor*, *Cook & Expo screens* and *Check timeline*. Each row reads as a sentence, such as "Turns red after 5 min", and a blank box means off. With printers, the kitchen rows say *Not used with printers*. The settings and Reset are unchanged.
+- **Shift Metrics in one sentence.** The rule reads "A shift is great when [3] of 7 measures beat the last 7 shifts by at least [8]% and none falls behind", with the numbers editable in place.
+  - **Measures:** a simple list of each one's name, whether higher or lower is better, its last-7 average and a *Counts* switch.
+  - **Your own goal:** sits behind *Use my own goal*.
+  - **Table time:** its "shorter is better" switch sits in its own row.
+- **My Tables without lane hints.** "in the kitchen", "plates are up at the pass", "check in, then dessert" and the other hints under the lane names are gone.
+- **Easier floor plan editor** (Venue Settings → Floor plan).
+  - **Reshape on the plan:** drag the handles around the selected table or wall. A size tag shows while you drag, and the Width / Height steppers are gone.
+  - **Copy:** *Duplicate*, or Ctrl/⌘ D, C and V. A copy lands beside the original with the next free table name.
+  - **Several at once:** Shift-click to pick several, then move, copy or remove them together, line them up (left, centre, right, top, middle, bottom) or *Space across / down*.
+  - **Turn:** swaps width and height.
+  - **Undo and Redo:** buttons plus Ctrl/⌘ Z and Shift Z, covering every change until you save. Delete removes, Esc deselects and Ctrl/⌘ A picks everything.
+  - **Bigger plan:** inside Venue Settings the plan uses the full width and the controls sit under it.
+- **Copy or swap a meal.** Each day's meal in the cycle builder has a ⋯ next to *Add more* with *Copy this lunch to…*, *Swap with…* and *Clear this lunch*.
+  - **Any meal to any meal:** pick the target meal (Breakfast, Lunch or Dinner) and the day or days, so Monday lunch can go onto Wednesday dinner, or swap with Monday dinner.
+  - **Copy:** replaces what's there or adds to it, and warns before replacing.
+  - **What comes along:** sides stay with their entrée and keep their choices. Both copy and swap have Undo.
+  - **Day header:** the whole-day Copy and Swap are gone, leaving *Clear this day* and *Change the dates shown*.
+  - **Locked menus:** the active menu is signed by the dietitian, so these only show once it's unlocked.
+- **Dashboard card titles stand out.** *Resident meal sentiment*, *Steps of Service*, *Revenue*, *P-Mix* and *Resident feedback* are larger and darker instead of small grey capitals.
+- **Simpler pick up ranges.** *Ranges offered* (Pick Up & Delivery) shows one order type at a time, and each meal is one line: on or off, the times in words ("7:30 – 9:30 AM · 8 ranges"), and From / Until. *Fine-tune* opens that meal's quarter hours for gaps, *Back to meal hours* resets an order type, and every change has Undo. The NOC shift sits under Associate pick up.
+- **P-Mix wheel.** The dashboard's P-Mix card is a small wheel of today's plates by category (Starters, Entrées, Desserts), with the total in the middle and the Breakfast / Lunch / Dinner filter above. Tap a category to see its top dishes and their share; *All categories* goes back.
+- **Real-time clock.** The app runs on the device's real time instead of a demo clock pinned to 5:45 PM. To show a particular service, open the app with `?clock=18:15` (every tab follows it that day); `?clock=real` goes back.
+- **Coursing in kitchen terms.** The coursing options are now *Fire all*, *Fire on drop* (the default), *Auto-fire +5*, *Auto-fire +8* and *Manual fire*. A one-line key sits under Coursing on Service Flow, and the check's pacing log uses the same words. How each option works is unchanged.
+- **Menu builder without repeated hints.** Instruction paragraphs, lines that restate a title or tab, per-row hints and duplicate tooltips are gone from the menus list, cycle builder, à la carte builder and their dialogs. The same goes for the Recipe Book, Modifiers, Menu Export and Pricing pages. Warnings, empty states and the menu-standard tooltip stay.
+- **Calmer dashboard.**
+  - *Needs your attention* is one line per item: the action and a link to where it's handled. Tap the header to collapse it.
+  - *P-Mix · served today* opens with one line and the share bar.
+  - *Resident feedback* opens with just the highlight.
+  - Each has *Show details* for the rest, and the dashboard remembers what you opened or collapsed.
+
+### Menu builder: copy or swap days, à la carte item counter; phase switches in the demo box
+- **Copy or swap a day** (since replaced by copy or swap a meal, above). Each day's menu in the cycle builder has *Copy this day to…* and *Swap with…*.
+  - **Copy:** pick all meals or one meal, then whether to replace what's on the target days or add to it, then one or more days from the week grid.
+  - **Warning:** when dishes will be replaced, the dialog says which days and how many dishes.
+  - **Swap:** two days trade places across every meal, sides included.
+  - **Undo:** both show a toast with Undo.
+  - **What's kept:** sides stay linked to their entrée, and side choices come with them. Any Day and locked menus are never touched.
+- **À la carte item counter.** À la carte menus show "Menu items N / 20 · Sides N / 8" next to Lock. It turns amber at a limit and red over it, with a warning that doesn't block saving.
+  - **What counts:** beverages and upcharges (add-ons) don't count, and sides count toward the 20.
+  - **Changing the limits:** they are in `MENU_STANDARDS` (`menus/model/alcStandards.ts`).
+- **Phase switches in the demo box.** The Demo box at the top of the screen menu now has the Phase 2 and Phase 3 switches too.
+
+### Printers by category or recipe, drinks split, P-Mix by meal
+- **Printers by group, category or recipe.** In *Only some items* mode, each printer can take:
+  - whole groups;
+  - Recipe Book categories (Soup, Sandwiches, Entrée Salad, Wine and so on);
+  - single recipes (the burger to the grill).
+
+  To add a category or recipe, type in *Add a category or recipe* under the printer. The most specific setting wins: a recipe or category picked for one printer prints there instead of at the printer that takes its whole group. Whole-ticket printers still print everything. The demo sends entrée salads to Cold / Pantry.
+- **Drinks split into Beverages and Alcohol.** Wine, beer, spirits and cocktails are Alcohol, and every other drink is a Beverage, so the bar printer can take alcohol only. A printer saved with the old Drinks group takes both.
+- **P-Mix today by meal.** The dashboard's P-Mix card has an All · Breakfast · Lunch · Dinner filter with a plate count for each meal. A meal with nothing served yet can't be picked.
+
+### Phases switched on or off for the whole system
+- **Side work follows its phase.** The side work chip on My tables and the side work reminder at sign-off only show while the phase of *Side Work Tasks* / *Assign Side Work* is switched on.
+- **Phase 2 and Phase 3 switches.** They are at the bottom of the Back Office side menu and on *Release Phases* (HO Settings). Phase 1 is always on. Turning Phase 2 off also turns Phase 3 off, and turning Phase 3 on also turns Phase 2 on. The switches are saved and survive a demo reset. They replace the old *All pages / Phase 1 only* view.
+- **What a phase that is off does everywhere:**
+  - its screens leave the screen menu, and opening one shows "part of Phase N" with a link to Release Phases;
+  - its Back Office pages leave the side menu and search, and opening one shows "Phase N is switched off" with a button to switch it on;
+  - while the kitchen screens' phase (Cook, Phase 2 by default) is off, every kitchen runs on printers and the *Kitchen screens* choice is locked.
+
+### Printer routing, Kiosk section, simpler pick up & delivery, P-Mix today
+- **What each printer prints.** In printer mode, each kitchen printer prints either the whole ticket or only some groups: Drinks, Starters, Entrées, Sides or Desserts. The demo sets the Hot Line to entrées and sides, Cold / Pantry to starters and desserts, and the Expo Receipt to the whole ticket. The setting is under *How orders reach the kitchen*. A warning shows when a kitchen has a group no printer prints.
+- **Send names the printers.** After Send, the check says where the tickets printed, for example "Printed at Hot Line (2 items) · Expo Receipt (whole ticket)". It warns when a printer can't be reached.
+- **Kiosk** has its own Back Office section (*Kiosk Settings*). It was a page under Dining Service.
+- **Billing Setup is now Meal Plans.** Its first tab is *Plan types*.
+- **Venue name on tablets.** The coloured venue chip now shows the venue's name ("Sequoia", or "Sequoia / Evergreen" on wide screens) instead of a two-letter code.
+- **Pick up & delivery, simplified.** The seven count tiles are replaced by pills for late, ready and out for delivery orders, shown only when the count is above zero. Each row now shows who, pick up or the apartment, the items, one status, one time and one button. The icons, avatars, progress bars and status sub-lines are gone (details show on hover), and Completed today is one summary line.
+- **Dashboard P-Mix today.** The specials made and ordered card is replaced by a small P-Mix of what was served today. It shows the top dishes with their count and share, an *Everything else* row and a link to the full P-Mix.
+
+### Printers or kitchen screens, My Tables pick up & delivery, associate menu lock
+- **Printers or kitchen screens (KDS).** A new setting, *How orders reach the kitchen*, is at the top of *KDS Settings* and on the *Courses* tab of *Service Flow*. The demo still starts on Kitchen screens.
+- **Printer mode** sends the whole ticket when the server taps Send: every course goes at once and nothing is held or fired later. There are no kitchen statuses:
+  - order lines just say *Sent*;
+  - My Tables shows one *Open checks* lane, oldest first, with no cooking, ready or late colours. The only actions are Trivia and closing the check;
+  - the Manager floor reads "Sent X min ago, check still open";
+  - Cook and Expo say the venue uses printers.
+- **My tables button swaps views.** The *My tables* button shows one of three views and opens a small menu to swap between them: *My tables* (your table board), *P/U & delivery* (the same queue as the PU & Delivery screen, with New pick up and New delivery) and *Table map* (every table in its status colour with a timer, as the Manager sees it). The tablet remembers the view, even after a reload or a demo reset. Tapping the button from another screen goes back to the view it was left on.
+- **Associate meals locked to the associate menu.** When an associate meal is ordered on the tablet, only today's chef's special and the standing choices from *Associate Menu* can be picked. There is no search, no tabs and no price. Recipes on the associate menu that are not on the tablet menu (such as *Turkey Club*) are added so they can be ordered and reach the kitchen.
+
+### Steps of Service: average table time first
+
+- **Back Office dashboard, Steps of Service card:**
+  - Average table time (order to entrée) is now the big number, green under the goal and red over it.
+  - A small chip beside it shows the trend, for example *▼ 1.2 min faster vs the 7 days before*.
+  - Before, the card led with a large "Faster" or "Slower" heading.
+- **Manager tablet, Metrics:**
+  - A new top panel shows this meal's average table time large, with a small trend chip against the last seven of the same meal.
+  - The missed-step, order → appetizer and appetizer → entrée cards follow below it.
+
+### Phase 3, typing recipes into the menu builder, and removable rows
+
+- **Phase 3.** Release Phases now offers Phase 1, 2 or 3 for every screen and Back Office page.
+  - Phase 3 items are brown and listed after Phase 2 (purple), in the screen menu and the side menu.
+  - A section takes its earliest page's phase, so an all-Phase 3 section drops to the very bottom under a *Phase 3* heading.
+  - Phase 3 pages get a brown banner. *Phase 1 only* hides Phase 2 and Phase 3. *Copy as a list* lists all three.
+- **Type a recipe straight into the menu builder.** Clicking a **+** slot turns it into a search box in place, instead of opening a pop-up. Matching recipes from the Recipe Book appear as you type.
+  - Arrow keys and Enter, or a click, place the dish. Escape puts the slot back.
+  - A dish that isn't in the Recipe Book yet can be drafted with *Create "…" with AI Assist*.
+  - The same box is used for **+ Same dish all week**, each day's **Add more**, and each section's **Add** button in the à la carte builder. In the à la carte builder, the box stays open for the next dish.
+- **Remove a default row from a meal.** Soup or starter, Entrée and Dessert always showed an empty row on every meal. An empty one now has an **×** by its name that takes it off that meal for this menu, for example no soup at breakfast. A **+ Soup or starter row** button next to the meal name brings it back. A row with dishes in it can't be removed.
+
+### New check: pick up, delivery or an associate meal from the table map
+
+- When a server starts a new check, the table map now has **Not at a table?** buttons above it: **Pick up**, **Delivery** and **Associate meal**. Each opens a new order on the server's own name, straight on the order screen.
+- **Associate meal** opens the Add diner panel on the associate list. The first associate added names the order, and it shows as *Associate Meal* on the pick up screen and the kitchen screens.
+- Leaving one of these with nothing ordered removes the empty order, the same as on the PU & Delivery screen.
+
+### Kitchen screens: no undo pop-ups, a clock, and time in
+
+- **Cook and Expo no longer show an Undo message after a bump.** A cleared ticket stays cleared. If one goes by mistake, bring it back with **RECALL** (or the M key on the bump bar).
+- **Cook** has the same clock in its header as Expo.
+- **Table tickets show when the order first went in**, for example *5:30 PM*, on its own line under the table number on Cook and Expo. Pick up and delivery tickets keep their pick up window instead.
+- **Reset demo data** and **Clear all tickets** moved from the tablets' account menu to the top of the screen menu (top right), so they are on every screen, including the kitchen screens, kiosk and Back Office. Each one still asks first.
+
+### Phasing: printers first, KDS later
+
+- **KDS has its own section.** The kitchen screens and the expo screen setting moved out of Venue Settings into **KDS → KDS Settings**, with one tab per kitchen. Venue Settings keeps what a printers-only kitchen needs. Its *Kitchen routing* tab still decides what goes to the kitchen at all, whether that ends up on a printer or a screen.
+- **The screens can be phased too.** HO Settings → Release Phases now lists every screen in the top-right screen menu as well as every Back Office page. **Cook** and **Expo** (the kitchen displays) and **KDS Settings** start in Phase 2; everything else starts in Phase 1.
+- **Phase 2 looks different and comes last:**
+  - Phase 2 items are purple and always listed after the Phase 1 items.
+  - In the screen menu, Phase 2 screens sit under a *Phase 2* divider.
+  - In the Back Office side menu, Phase 2 pages come after the Phase 1 pages of their section. A section that is all Phase 2 moves below every Phase 1 section, under a *Phase 2* divider.
+  - A Phase 2 page has a purple banner at the top.
+- **Phase 1 only** (the switch at the bottom of the side menu) now also hides Phase 2 screens from the screen menu. *Copy as a list* includes the screens.
+
+### Back Office: fewer pages, from Venues down
+
+From Venues down, the Back Office menu had 22 pages. Related settings sat far apart: delivery fees were under Billing while pick up times were under Dining Service, and a venue's prices, floor plan and kitchen routing were three separate pages. Pages that belong together are now tabs of one page. The menu from Venues down is 14 pages, 10 of them outside HO Settings:
+
+| Menu | Page | Its tabs | Was |
+| --- | --- | --- | --- |
+| Venues | **Venue Settings** | per venue: Menu · Prices · Floor plan · Kitchen (screens and what skips the cook line) · Printers & terminals · Details | Venue Settings, Pricing, Floor Plans, Kitchen Routing |
+| Dining Service | Service Flow | (unchanged) | |
+| | **Pick Up & Delivery** | Pick up times · Delivery fees & sick waivers | Pick Up Windows, most of Delivery Options |
+| | **Messages** | Texts to residents · Broadcasts to staff | Text Messages, Broadcasts |
+| | **Kiosk** | (unchanged) | Featured on Kiosk |
+| Residents | **Residents** | Profiles · Allergies & diets · Trivia scoreboard | Resident Profiles, Allergies & Diets, Trivia Scoreboard |
+| Billing | Charge Approval, Order History | (unchanged) | |
+| | **Meal Plans** (was Billing Setup) | Meal plans · Meal counts · Corkage | Meal Plans, Meal Counts, corkage from Delivery Options |
+| Associates & PINs, HO Settings | | (unchanged) | |
+
+- **Old links still work.** Bookmarks and links inside the app open the tab the page became; for example `#/backoffice/pricing` opens the first venue's Prices tab. Search still finds the old names: typing "pricing" or "floor plan" goes to the right tab.
+- **Each tab has its own address**, for example `#/backoffice/svcWin/fees`.
+- **In Venue Settings**, the venue is already chosen, so the old venue and kitchen pickers are gone from Prices, Floor plan and Kitchen. When two venues share a room, the floor plan says so.
+- **One title per page.** A tab drops the old page's title and keeps its one-line description and buttons.
+
+### Usability pass on every other screen
+
+Each screen was checked at tablet and desktop sizes, or phone size for the Associate Phone. Bugs (things that didn't work) were fixed first, then confusing controls and layout. The general rules applied everywhere:
+- **Mistakes can be undone:** destructive or one-tap actions have a confirm or an **Undo**.
+- **Each row has one main action**, with the rest in a ⋮ menu.
+- **Status is plain text**, and labels are written in words.
+
+**Bugs fixed**
+- **Server tablet:**
+  - A guest's dishes were flagged with the host resident's allergies.
+  - The ⋯ menu on a diner closed as soon as it opened.
+  - Removing a diner deleted items that had already been sent, with no confirm.
+  - Quick close had no undo.
+  - Card splits (50/50, 60/40, 70/30) could be a cent off.
+  - Corkage was silently dropped when seat 1 was empty. It now shows a warning.
+- **Cook / Expo:**
+  - Recall listed tickets that couldn't be brought back.
+  - The M key did nothing on Expo.
+  - **Production Prep:** a stray tap unticked a finished prep item and lost who did it.
+- **Host:** walk-in visitors couldn't be seated.
+- **Manager:** an associate meal could be saved with no meal.
+- **Bar:** mis-taps had no undo.
+- **PU & Delivery:**
+  - Every stage moved in one tap with no undo.
+  - Backing out of a new order left an empty order behind.
+- **Associate Phone:** a meal could be cancelled after the kitchen had started it.
+- **Back Office:**
+  - *Charge Approval:* approved charges could never be sent to billing.
+  - *Pricing:* clearing a price box snapped back, so "5" became "85".
+  - *Floor Plans:* two tables could share a name, or have none.
+  - *Text Messages:* the preview filled details the real text can't, such as {apt}.
+  - *Resident Profiles:* switching resident dropped unsaved story edits.
+  - *Dining Plans:* the list showed out-of-date care levels and allergies.
+  - *Modifiers:* "Copy from another community" copied nothing.
+  - *Recipe Book:* recipes could be added from the Global Library twice.
+  - *Dashboard:* the "Schedule a menu" link went to the wrong page.
+  - *Assign Side Work:* Clear had no undo.
+
+**Bigger changes by screen**
+- **Server tablet:**
+  - A banner when you're looking at another server's tables.
+  - A confirm before starting a second check at another server's table.
+  - Close & Charge's payment panel no longer pushes the page into a long scroll.
+  - Shift review says what is blocking sign-off.
+- **Cook:**
+  - An **All day** strip of what this screen still has to make.
+- **Expo:**
+  - One Fire button per ticket.
+  - Refire and print are in a labelled ⋮ menu.
+  - Ready tickets are grouped.
+  - The prompt stays after a text is sent.
+  - Associate meals show the person's name.
+- **Production Prep:** done items need a separate Undo to untick, and progress counts include the specials.
+- **Manager:**
+  - The *Shift review* tab is now *Closing report*, so it no longer shares a name with the server's screen.
+  - Open tables blocking sign-off can be tapped.
+  - The 86 list has Undo.
+  - The associate meal form says what is missing.
+- **Host:**
+  - Reservations keep Seat now and Edit on the row; no-show and cancel are in a ⋮ menu.
+  - The held-table colours have a key.
+- **PU & Delivery:** New pick up and New delivery buttons, and a "not sent yet" tile.
+- **Resident Kiosk:**
+  - The review lists one answer per line, and tapping a line edits it.
+  - "Is this you?" has a "No, that's not me" button.
+  - Text is larger on landscape tablets.
+- **Specials Display:** each dish stays 8 seconds, with larger descriptions.
+- **Associate Phone:**
+  - Planned meals can be changed, not just cancelled.
+  - The Plan button stays on screen with a summary.
+- **Back Office:**
+  - *Charge Approval:* Approve, Bring back and Send to billing, with plain statuses and item names.
+  - *Text Messages* and *Service Flow:* split into tabs, and every Reset asks first.
+  - *Kitchen Routing:* a *Whole menu* view, and moving an item has Undo.
+  - *Floor Plans:* unsaved-changes status and Undo.
+  - *Menu Export:* print tomorrow's menu or next week's.
+  - *Modifiers:* copying from another community shows what will be added.
+  - *Associate Meals:* plain week status, and pick up times shown as spans.
+  - *Retired rows* on the billing lists can be brought back.
+
+**Found but not fixed yet** (each needs a change to shared logic, so it was left for a decision)
+- **Settings saved but never used:** *Meal Plans*, *Meal Counts*, the *Delivery Options* fee list and *Shift Metrics* are stored but not read by the floor. Each page now carries a warning saying so.
+- **Seat 1 charges:** corkage and the delivery fee are tied to seat 1, so they are lost if that resident leaves early or is comped.
+- **Floor Plans:** unsaved changes are lost when you move to another Back Office page. Only closing the browser tab is caught.
+- **Undo only on the screen you used:** Cook's and Expo's recall lists only see bumps made in their own browser tab.
+
+### Wiring fixed (settings that did nothing in the mockup)
+- **Guest meal credit**: the toggle was saved in Back Office, but the floor never read it. The checkout now reads it.
+- **Apartment charges**: charges put on an apartment from the floor never reached *Charge Approval*. They now do, and Charge Approval looks up the resident's name.
+- **Venue menu schedules**: the menu pages, the dashboard and the live menu each read their own copy of the seed schedules. They now all read Venue Settings, and a menu built in Menu Cycle can be scheduled there.
+- **Expo per kitchen**: servers now see whether a kitchen runs Expo, as set in Venue Settings.
+- **Chef's "Don't forget" reminders** from the Recipe Book now reach the server's table card and the Expo ticket.
+- **PIN resets** made in Associates & PINs now work at sign-in.
+- **Reset demo data** now clears every store, not just orders. Device settings such as text size are kept.
+- **Associate meals**: menu items were renamed to match their Recipe Book recipes, for example *Reuben Sandwich*, *Turkey Club* and *Cheeseburger Soup*.
+- **Back Office residents** now match the residents on the tablets (names and apartments).
+
+### UI fixes
+- The kit's animations never played (sheets, toasts, pulses). They now do.
+- Text fields showed a double focus ring. Fixed.
+- Touch targets are now at least 40px. This includes the host and associate buttons and the table card, which is now a real button.
+- Layouts were checked at 1024, 1280 and 1920 wide, with no horizontal scroll and no console errors on any surface or Back Office page.
+
+### End to end, verified
+- A check goes from server → cook → expo → close → Back Office *Order History* and *Charge Approval*.
+- An 86 from the Manager tablet appears on the Specials Display.
+- Reset and clear work across open tabs.
+
+---
+
+## Still simulated
+
+These look real in the demo but need a backend before going live:
+
+- **Storage.** All data is in the browser. It syncs between tabs on one device, not between devices. Replace the persistence in `src/store` and the seed data in `src/data` with the KiscoConnect API.
+- **Sign-in.** PINs are checked in the browser against demo associates.
+- **Texts and broadcasts** go to an outbox in the app and are never sent.
+- **Payments and charges** are recorded, not posted to billing.
+- **AI Autofill and AI menu review** return canned results.
+- **Sales history, sentiment and P-Mix** come from seed data.
+- **Production counts** use a repeatable formula, not real forecasts.
+
+## Where to look in the code
+
+| If you're looking for... | Look in |
+| --- | --- |
+| A screen for one device | `src/surfaces/<mode>/` |
+| A Back Office page | `src/surfaces/backoffice/pages/<id>.tsx`, registered in `backoffice/nav.ts` |
+| Business rules (courses, routing, billing, meal credits, associate menu) | `src/domain/` |
+| Shared state and settings | `src/store/` (`config.ts` for dining rules, `serviceConfig.ts` for alerts and display) |
+| Seed data from the mockup | `src/data/seed/` |
+| Tests | `__tests__` folders beside the code; `e2e/` for cross-surface flows |
+
+For the full history, see the git log on this branch. Each commit is one change.

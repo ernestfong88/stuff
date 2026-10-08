@@ -1,0 +1,74 @@
+import { useMemo } from 'react';
+import { CircleCheck, DollarSign, Send } from 'lucide-react';
+import { closeIsNext } from '../../../domain/courses';
+import { hasUnsent, heldCount } from '../../../domain/orders';
+import { clockLabel, dayBefore, pickupDue, pickupFireAt, pickupLeadMinutes } from '../../../domain/pickup';
+import type { Order } from '../../../domain/types';
+import { now } from '../../../lib/clock';
+import { useConfig } from '../../../store/config';
+import { useDiningDevice, useDiningHistory, useDiningOrders } from '../../../store/dining';
+import { cx } from '../../../ui';
+import { MicButton } from '../features';
+import { sendableLines, sendLabel, sentMessage } from './checkLines';
+import { rangeLabel } from './queue/pickupWindows';
+import s from './SendBar.module.css';
+
+/** The check's footer: Close & charge, and Send (which says what it will do). */
+export function SendBar({
+  order: o,
+  justSent,
+  printNote,
+  onSend,
+  onClose,
+}: {
+  order: Order;
+  justSent: boolean;
+  /** Printer mode: where the tickets printed. */
+  printNote?: string;
+  onSend: () => void;
+  onClose: () => void;
+}) {
+  const cfg = useConfig();
+  const orders = useDiningOrders();
+  const history = useDiningHistory();
+  const { kitchenMode } = useDiningDevice();
+  const unsent = hasUnsent(o);
+  const held = heldCount(o);
+  const noDiners = o.diners.length === 0;
+  const closeFirst = !unsent && !noDiners && closeIsNext(o, cfg);
+  // Worked out again only when the checks change, not on every redraw.
+  const lead = useMemo(() => (unsent ? pickupLeadMinutes([...orders, ...history], cfg) : 0), [unsent, orders, history, cfg]);
+
+  if (justSent) {
+    return (
+      <footer className={s.bar}>
+        <div className={s.sent} role="status">
+          <CircleCheck size={18} aria-hidden /> {kitchenMode === 'printers' && printNote ? printNote : sentMessage(o, now(), cfg)}
+        </div>
+      </footer>
+    );
+  }
+
+  const label = (() => {
+    if (!unsent) return held ? `${held} held. Release to send` : 'Nothing new to send';
+    const fireAt = pickupFireAt(o, lead);
+    if (fireAt && fireAt > now())
+      return `Schedule for ${dayBefore(pickupDue(o))}${rangeLabel(o.readyAt)} · kitchen fires ${dayBefore(fireAt)}at ${clockLabel(fireAt)}`;
+    if (o.queueType) return 'Send to kitchen · ASAP, whole order fires now';
+    return sendLabel(o, sendableLines(o), held, cfg);
+  })();
+
+  return (
+    <footer className={s.bar}>
+      <button className={cx(s.close, closeFirst && s.closeFirst)} disabled={noDiners} onClick={onClose}>
+        <DollarSign size={15} aria-hidden /> Close &amp; charge
+      </button>
+      <button className={cx(s.send, unsent && s.sendOn)} disabled={!unsent} onClick={onSend}>
+        <Send size={16} aria-hidden /> <span className={s.sendLabel}>{label}</span>
+      </button>
+      <span className={s.voice}>
+        <MicButton order={o} />
+      </span>
+    </footer>
+  );
+}

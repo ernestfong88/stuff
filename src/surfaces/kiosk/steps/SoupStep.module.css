@@ -1,0 +1,25 @@
+.soup {
+  gap: calc(var(--k) * 8);
+  min-height: calc(var(--k) * 180);
+  padding: calc(var(--k) * 28) calc(var(--k) * 22);
+  border-radius: calc(var(--k) * 28);
+  font-size: calc(var(--k) * 36);
+}
+.icon {
+  width: calc(var(--k) * 56);
+  height: calc(var(--k) * 56);
+}
+.kind {
+  font-size: calc(var(--k) * 26);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--kk-blue);
+}
+[aria-pressed='true'] .kind {
+  color: #fff;
+}
+.name {
+  font-size: calc(var(--k) * 34);
+  font-weight: 800;
+}

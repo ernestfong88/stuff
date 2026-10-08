@@ -1,0 +1,96 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 280px;
+}
+.box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+  color: var(--s500);
+}
+.box:focus-within {
+  box-shadow: inset 0 0 0 2px var(--focus);
+}
+.input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+}
+.list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-2, 0 8px 24px rgba(20, 35, 48, 0.16));
+}
+.hit,
+.hitOn {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.hit:hover,
+.hitOn {
+  background: var(--limestone);
+}
+.sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--s500);
+}
+.none {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--s500);
+}
+.chosen {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.chosenName {
+  padding: 0 4px 0 12px;
+  height: 100%;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 100%;
+  color: var(--s500);
+}
+.clear:hover {
+  color: var(--danger);
+}

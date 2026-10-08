@@ -1,0 +1,51 @@
+.box {
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--ink);
+  text-align: left;
+}
+.headHint {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--s400);
+}
+.chev {
+  color: var(--s400);
+  transition: transform var(--fast);
+}
+.chevOpen {
+  transform: rotate(180deg);
+}
+.list {
+  margin: 0;
+  padding: 0 16px 8px;
+  list-style: none;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  border-top: 1px solid var(--hair);
+}
+.text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  color: var(--s700);
+}
+.detail {
+  color: var(--s400);
+}

@@ -1,0 +1,95 @@
+.board {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 16px 24px;
+}
+
+.lane_seat {
+  --lane: #8a949b;
+}
+.lane_order {
+  --lane: #4d7093;
+}
+.lane_cook {
+  --lane: #c9a227;
+}
+.lane_run {
+  --lane: #3f7d3f;
+}
+.lane_eat {
+  --lane: #2f8c8c;
+}
+.lane_check {
+  --lane: #1f6fb8;
+}
+
+.lane {
+  flex-shrink: 0;
+  padding: 8px 10px 10px;
+  border-radius: var(--r-2xl);
+  background: rgba(20, 35, 48, 0.03);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.06);
+}
+.loud {
+  background: rgba(63, 125, 63, 0.09);
+  box-shadow: inset 0 0 0 2px rgba(63, 125, 63, 0.5);
+}
+.laneHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px 8px;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.loud .laneHead {
+  color: #2f6b33;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--lane);
+}
+.loud .dot {
+  animation: k-blink 1.2s ease-in-out infinite;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(262px, 1fr));
+  gap: 8px;
+}
+
+/* Looking at another server's tables. */
+.others {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 8px 8px 8px 14px;
+  border-radius: var(--r-md);
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.othersText {
+  flex: 1;
+  font-size: 14px;
+  color: var(--ink);
+}
+.othersBack {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: var(--surface);
+  font-weight: 700;
+  font-size: 14px;
+}
+.lane_plain .dot {
+  background: var(--s400);
+}

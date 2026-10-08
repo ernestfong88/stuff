@@ -1,0 +1,163 @@
+/**
+ * Small editors for service settings, used by the Back Office pages that set
+ * how the floor screens behave (Alerts & Timing, Pacing & Coursing, Shift
+ * Metrics). Each writes straight to the shared settings, so the dining
+ * screens change while the page is still open.
+ */
+import { useState } from 'react';
+import { setSetting, useSetting } from '../../../store/serviceConfig';
+import { cx } from '../../../ui';
+import { NumberBox } from '.';
+import s from './SettingControls.module.css';
+
+interface NumberProps {
+  /** Settings path, e.g. "t.passLate" or "gap.send.0". */
+  path: string;
+  label: string;
+  unit?: string;
+  min?: number;
+  /** Highest value the box takes; typing more holds at it. */
+  max?: number;
+  step?: number;
+  /** A blank box means the setting is off (stored as 0). */
+  off?: boolean;
+  width?: number;
+  /** Shown while the box is blank and the setting has no value. */
+  placeholder?: string;
+  /** Store the typed number differently (e.g. percent to a fraction). */
+  toStored?: (v: number) => number;
+  fromStored?: (v: number) => number;
+  /** Clearing the box removes the setting instead of turning it off. */
+  clearRemoves?: boolean;
+}
+
+/**
+ * __KBONum: a number setting. While typing, the box keeps what was typed
+ * (even a blank or a half number); the setting only changes to valid values.
+ */
+export function SettingNumber({
+  path,
+  label,
+  unit = 'min',
+  min = 0,
+  max,
+  step = 1,
+  off,
+  width = 72,
+  placeholder,
+  toStored,
+  fromStored,
+  clearRemoves,
+}: NumberProps) {
+  const stored = useSetting<number | string | null | undefined>(path);
+  const [draft, setDraft] = useState<number | null | undefined>(undefined);
+  const value = stored == null || stored === '' ? null : Number(stored);
+  const shown = draft !== undefined ? draft : off && !value ? null : value == null ? null : fromStored ? fromStored(value) : value;
+  return (
+    <NumberBox
+      value={shown}
+      unit={unit}
+      min={min}
+      max={max}
+      step={step}
+      width={width}
+      placeholder={placeholder ?? (off ? 'Off' : '')}
+      aria-label={label}
+      onChange={(v) => {
+        setDraft(v);
+        if (v == null) {
+          if (clearRemoves) setSetting(path, undefined);
+          else if (off) setSetting(path, 0);
+        } else if (v >= min && (max == null || v <= max)) setSetting(path, toStored ? toStored(v) : v);
+      }}
+      onBlur={() => setDraft(undefined)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') e.currentTarget.blur();
+      }}
+    />
+  );
+}
+
+/** Coloured square with a word: "Red after", "Amber over". */
+export function Swatch({ tone, children }: { tone: 'red' | 'amber'; children: string }) {
+  return (
+    <span className={s.swatch}>
+      <span className={cx(s.square, s[tone])} />
+      {children}
+    </span>
+  );
+}
+
+/** Pill buttons to pick several (e.g. the meals a setting applies to). */
+export function PickMany<T extends string>({ options, value, onChange, label }: { options: T[]; value: T[]; onChange: (v: T[]) => void; label: string }) {
+  return (
+    <div className={s.pills} role="group" aria-label={label}>
+      {options.map((o) => {
+        const on = value.includes(o);
+        return (
+          <button key={o} className={cx(s.pill, on && s.pillOn)} aria-pressed={on} onClick={() => onChange(on ? value.filter((x) => x !== o) : [...value, o])}>
+            {o}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Quiet text in a table cell ("Not scored"). */
+export function Muted({ children }: { children: string }) {
+  return <span className={s.muted}>{children}</span>;
+}
+
+/** A plain select that matches the back office inputs. */
+export function SettingSelect<T extends string>({ value, options, onChange, label }: { value: T; options: ReadonlyArray<{ id: T; label: string }>; onChange: (v: T) => void; label: string }) {
+  return (
+    <select
+      className={s.select}
+      aria-label={label}
+      value={value}
+      onChange={(e) => {
+        const picked = options.find((o) => o.id === e.target.value);
+        if (picked) onChange(picked.id);
+      }}
+    >
+      {options.map((o) => (
+        <option key={o.id} value={o.id}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+/** Checkboxes to pick several, in titled columns ("Starters: ☐ Soup ☐ Salad"). */
+export function CheckList<T extends string>({
+  groups,
+  value,
+  onChange,
+  label,
+}: {
+  groups: ReadonlyArray<{ title: string; options: ReadonlyArray<{ id: T; label: string }> }>;
+  value: readonly T[];
+  onChange: (v: T[]) => void;
+  label: string;
+}) {
+  return (
+    <div className={s.checkCols} role="group" aria-label={label}>
+      {groups.map((g) => (
+        <fieldset key={g.title} className={s.checkCol}>
+          <legend className={s.checkTitle}>{g.title}</legend>
+          {g.options.map((o) => {
+            const on = value.includes(o.id);
+            return (
+              <label key={o.id} className={s.check}>
+                <input type="checkbox" checked={on} onChange={() => onChange(on ? value.filter((x) => x !== o.id) : [...value, o.id])} />
+                {o.label}
+              </label>
+            );
+          })}
+        </fieldset>
+      ))}
+    </div>
+  );
+}

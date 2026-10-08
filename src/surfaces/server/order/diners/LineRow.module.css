@@ -1,0 +1,122 @@
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(20, 35, 48, 0.06);
+}
+.child {
+  padding: 6px 0 6px 28px;
+  border-top: none;
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--r-sm);
+}
+.editable {
+  cursor: pointer;
+}
+.editable:hover .name {
+  color: var(--ocean);
+}
+.editable:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+.top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+.text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.indent {
+  width: 30px;
+  flex-shrink: 0;
+}
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.pencil {
+  color: var(--s400);
+}
+.mods {
+  padding-left: 52px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--s400);
+}
+.child .mods {
+  padding-left: 38px;
+}
+.modsQueue {
+  padding-left: 16px;
+}
+.note {
+  display: block;
+  font-style: italic;
+  color: var(--clay-600);
+}
+.allergy {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--clay-600);
+}
+.price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-top: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--s500);
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.priceTagged {
+  font-weight: 800;
+  color: var(--clay-600);
+}
+.priceTag {
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.unsent {
+  display: flex;
+  /* Hold and Remove sit apart, so a thumb meant for one never takes the other. */
+  gap: 8px;
+  padding-top: 2px;
+}
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--limestone);
+  color: var(--s500);
+}
+.holdOn {
+  background: var(--clay-100);
+  color: var(--clay-600);
+}
+.remove {
+  background: #f7e4e1;
+  color: var(--danger);
+}

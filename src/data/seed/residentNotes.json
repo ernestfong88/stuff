@@ -1,0 +1,200 @@
+[
+ {
+  "id": "n18",
+  "kind": "fb",
+  "rid": "r6",
+  "text": "Really enjoyed the orange chicken bowl at lunch.",
+  "by": "AA",
+  "table": "SQ 7",
+  "at": {
+   "$t": -12600000
+  }
+ },
+ {
+  "id": "n17",
+  "kind": "fb",
+  "rid": "r8",
+  "text": "Her chicken came out a little cold.",
+  "by": "RJ",
+  "table": "SQ 9",
+  "at": {
+   "$t": -2460000
+  }
+ },
+ {
+  "id": "n16",
+  "kind": "fb",
+  "rid": "r7",
+  "text": "Wishes there was a lighter vegetarian special at dinner.",
+  "by": "RJ",
+  "table": "EG 8",
+  "at": {
+   "$t": -3120000
+  }
+ },
+ {
+  "id": "n15",
+  "kind": "fb",
+  "rid": "r10",
+  "text": "The soup was salty again; she only ate half.",
+  "by": "MG",
+  "table": "SQ 15",
+  "at": {
+   "$t": -3480000
+  }
+ },
+ {
+  "id": "n14",
+  "kind": "fb",
+  "rid": "r9",
+  "text": "Said the stuffed shells were the best thing on the menu this month.",
+  "by": "MG",
+  "table": "SQ 15",
+  "at": {
+   "$t": -3960000
+  }
+ },
+ {
+  "id": "n13",
+  "kind": "fb",
+  "rid": "r4",
+  "text": "The flounder was dry around the edges.",
+  "by": "MG",
+  "table": "SQ 10",
+  "at": {
+   "$t": -5880000
+  }
+ },
+ {
+  "id": "n12",
+  "kind": "fb",
+  "rid": "r2",
+  "text": "Loved the peach glazed chicken, so tender. Asked for extra glaze next time.",
+  "by": "AA",
+  "table": "SQ 12",
+  "at": {
+   "$t": -2280000
+  }
+ },
+ {
+  "id": "n11",
+  "kind": "fb",
+  "rid": "r5",
+  "text": "The cheeseburger soup was too salty for him.",
+  "by": "AA",
+  "table": "SQ 7",
+  "at": {
+   "$t": -5280000
+  }
+ },
+ {
+  "id": "n10",
+  "kind": "obs",
+  "rid": "r8",
+  "text": "Asked for a lighter fork; the heavy ones are hard for her.",
+  "by": "RJ",
+  "table": "SQ 9",
+  "at": {
+   "$t": -2700000
+  }
+ },
+ {
+  "id": "n9",
+  "kind": "know",
+  "rid": "r7",
+  "text": "Going to his grandson's game again this Friday.",
+  "by": "RJ",
+  "table": "EG 8",
+  "at": {
+   "$t": -4800000
+  }
+ },
+ {
+  "id": "n8",
+  "kind": "obs",
+  "rid": "r1b",
+  "text": "Squinted at the specials board, so the server read it to her.",
+  "by": "MG",
+  "table": "SQ 10",
+  "at": {
+   "$t": -1800000
+  }
+ },
+ {
+  "id": "n7",
+  "kind": "know",
+  "rid": "r10",
+  "text": "Hosting bridge in her apartment on Tuesday.",
+  "by": "MG",
+  "table": "SQ 15",
+  "at": {
+   "$t": -3600000
+  }
+ },
+ {
+  "id": "n6",
+  "kind": "know",
+  "rid": "r9",
+  "text": "Teaching the tai chi group a new routine.",
+  "by": "MG",
+  "table": "SQ 15",
+  "at": {
+   "$t": -4200000
+  }
+ },
+ {
+  "id": "n5",
+  "kind": "obs",
+  "rid": "r4",
+  "text": "Left most of her lunch; said she was not very hungry.",
+  "by": "MG",
+  "table": "SQ 10",
+  "at": {
+   "$t": -6000000
+  }
+ },
+ {
+  "id": "n4",
+  "kind": "know",
+  "rid": "r3",
+  "text": "His daughter just moved back to town.",
+  "by": "MG",
+  "table": "SQ 10",
+  "at": {
+   "$t": -6600000
+  }
+ },
+ {
+  "id": "n3",
+  "kind": "know",
+  "rid": "r2",
+  "text": "Starting a Monday watercolor class with Joan.",
+  "by": "AA",
+  "table": "SQ 12",
+  "at": {
+   "$t": -2400000
+  }
+ },
+ {
+  "id": "n2",
+  "kind": "obs",
+  "rid": "r5",
+  "text": "Asked for his soup in a mug so it is easier to hold.",
+  "by": "AA",
+  "table": "SQ 7",
+  "at": {
+   "$t": -5400000
+  }
+ },
+ {
+  "id": "n1",
+  "kind": "know",
+  "rid": "r6",
+  "text": "Her son is visiting from Denver this weekend.",
+  "by": "AA",
+  "table": "SQ 7",
+  "at": {
+   "$t": -5700000
+  }
+ }
+]

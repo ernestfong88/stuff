@@ -1,0 +1,240 @@
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 16px 24px;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 2px 0 12px;
+}
+.calm {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3f7d3f;
+}
+.red {
+  color: var(--danger);
+}
+.amber {
+  color: var(--clay-600);
+}
+.green {
+  color: #3f7d3f;
+}
+
+/* Now / Soon / Kitchen */
+.group,
+.fine,
+.servers {
+  max-width: 960px;
+}
+.group {
+  margin-bottom: 16px;
+}
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 2px 6px;
+}
+.count {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 10px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.lateEdge {
+  box-shadow:
+    inset 4px 0 0 var(--danger),
+    inset 0 0 0 1px var(--hair);
+}
+.watchEdge {
+  box-shadow:
+    inset 4px 0 0 var(--clay-600),
+    inset 0 0 0 1px var(--hair);
+}
+.goodEdge {
+  box-shadow:
+    inset 4px 0 0 #3f7d3f,
+    inset 0 0 0 1px var(--hair);
+}
+.main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 56px;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 4px 8px 18px;
+  text-align: left;
+  border-radius: var(--r-lg);
+}
+.main:active {
+  background: var(--limestone);
+}
+.what {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.label {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.also {
+  font-size: 12px;
+  color: var(--s400);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.who {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--s500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mins {
+  font-size: 14px;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.acts {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  min-width: 120px;
+  justify-content: flex-end;
+}
+
+/* Fine for now */
+.fine {
+  margin-top: 4px;
+}
+.fineToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 2px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--s500);
+}
+.chev {
+  transition: transform var(--fast) var(--ease);
+}
+.chevOpen {
+  transform: rotate(180deg);
+}
+.fineList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.chipWho {
+  font-weight: 600;
+  color: var(--s400);
+}
+.chipLate {
+  color: var(--danger);
+  background: var(--danger-bg);
+  box-shadow: none;
+}
+.chipWatch {
+  color: var(--clay-600);
+  background: var(--clay-100);
+  box-shadow: none;
+}
+
+/* By associate */
+.servers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.server {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-height: 56px;
+  padding: 8px 14px 8px 18px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.serverName {
+  font-size: 16px;
+  font-weight: 800;
+  min-width: 90px;
+}
+.need {
+  font-size: 13px;
+  font-weight: 800;
+  min-width: 96px;
+}
+.worst {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: var(--r-md);
+  background: #f4f6f8;
+  text-align: left;
+}
+.worst:active {
+  background: var(--limestone);
+}
+.worstLabel {
+  font-size: 14px;
+  font-weight: 800;
+}
+.load {
+  margin-left: auto;
+  font-size: 12.5px;
+  color: var(--s500);
+  white-space: nowrap;
+}

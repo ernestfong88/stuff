@@ -1,0 +1,142 @@
+{
+ "b_omelet": [
+  "g_omelet",
+  "g_cheese"
+ ],
+ "l_omelet": [
+  "g_omelet",
+  "g_cheese"
+ ],
+ "d_omelet": [
+  "g_omelet",
+  "g_cheese"
+ ],
+ "b_eggs": [
+  "g_eggs"
+ ],
+ "b_cereal": [
+  "g_cereal"
+ ],
+ "b_hamsteak": [
+  "g_eggs"
+ ],
+ "b_loaded": [
+  "g_eggs"
+ ],
+ "l_deli": [
+  "g_delibread",
+  "g_delimeat",
+  "g_cheese",
+  "g_deli"
+ ],
+ "d_deli": [
+  "g_delibread",
+  "g_delimeat",
+  "g_cheese",
+  "g_deli"
+ ],
+ "l_pizza": [
+  "g_pizzacrust",
+  "g_pizzasauce",
+  "g_pizza",
+  "g_cheese"
+ ],
+ "d_pizza": [
+  "g_pizzacrust",
+  "g_pizzasauce",
+  "g_pizza",
+  "g_cheese"
+ ],
+ "l_byosalad": [
+  "g_saladbase",
+  "g_salad",
+  "g_dress"
+ ],
+ "d_byosalad": [
+  "g_saladbase",
+  "g_salad",
+  "g_dress"
+ ],
+ "l_catch": [
+  "g_catch"
+ ],
+ "d_catch": [
+  "g_catch"
+ ],
+ "l_burger": [
+  "g_temp",
+  "g_burger",
+  "g_cheese"
+ ],
+ "d_burger": [
+  "g_temp",
+  "g_burger",
+  "g_cheese"
+ ],
+ "l_orange": [
+  "g_chxbowl"
+ ],
+ "d_orange": [
+  "g_chxbowl"
+ ],
+ "l_salmonburger": [
+  "g_burger"
+ ],
+ "d_salmonburger": [
+  "g_burger"
+ ],
+ "l_swsalad": [
+  "g_dress"
+ ],
+ "d_swsalad": [
+  "g_dress"
+ ],
+ "l_bbqsalad": [
+  "g_dress"
+ ],
+ "b_bagel": [
+  "g_bread"
+ ],
+ "b_pastry": [
+  "g_bkpastry"
+ ],
+ "l_bakedpot": [
+  "g_potato"
+ ],
+ "d_bakedpot": [
+  "g_potato"
+ ],
+ "l_yam": [
+  "g_potato"
+ ],
+ "d_yam": [
+  "g_potato"
+ ],
+ "l_sidesalad": [
+  "g_dress"
+ ],
+ "d_sidesalad": [
+  "g_dress"
+ ],
+ "b_toast": [
+  "g_bread"
+ ],
+ "l_toast": [
+  "g_bread"
+ ],
+ "d_toast": [
+  "g_bread"
+ ],
+ "l_icecream": [
+  "g_icecream"
+ ],
+ "d_icecream": [
+  "g_icecream"
+ ],
+ "l_housewine": [
+  "g_wine"
+ ],
+ "d_housewine": [
+  "g_wine"
+ ]
+}

@@ -1,0 +1,17 @@
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: var(--r-lg);
+  font-size: 13px;
+  font-weight: 800;
+  background: var(--ocean-100);
+  color: var(--ocean-700);
+  flex-shrink: 0;
+}
+.played {
+  background: var(--green-100);
+  color: #2f6b33;
+}

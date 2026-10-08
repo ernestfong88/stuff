@@ -1,0 +1,235 @@
+.wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px 14px;
+}
+.legends {
+  display: flex;
+  align-items: center;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 2px;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: inherit;
+  text-align: center;
+}
+.round {
+  border-radius: 50%;
+}
+.free {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1.5px rgba(20, 35, 48, 0.15);
+}
+.label {
+  font-size: clamp(12px, 2.4cqh, 17px);
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.free .label {
+  color: var(--s700);
+}
+.freeWord {
+  font-size: clamp(9.5px, 1.8cqh, 12.5px);
+  font-weight: 700;
+  color: var(--s400);
+}
+.one {
+  color: #fff;
+  animation: pop var(--med) var(--ease);
+}
+.one.idle {
+  background: var(--surface);
+  color: var(--s700);
+  box-shadow: inset 0 0 0 1.5px rgba(138, 148, 155, 0.55);
+}
+.one.cook {
+  color: #2a2204;
+}
+.server {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: clamp(10px, 1.9cqh, 13.5px);
+  font-weight: 800;
+  opacity: 0.92;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.srvDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.85);
+}
+.word {
+  font-size: clamp(9.5px, 1.8cqh, 13px);
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.timer {
+  font-size: clamp(13px, 2.6cqh, 19px);
+  font-weight: 900;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.blip {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+}
+.round .blip {
+  top: 18%;
+  right: 22%;
+}
+.blink {
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+/* Colours: the floor palette (see floor/StageChip.module.css). */
+.run {
+  background: #3f7d3f;
+  box-shadow: 0 4px 14px -4px rgba(63, 125, 63, 0.6);
+}
+.cook {
+  background: #c9a227;
+  box-shadow: 0 4px 14px -4px rgba(201, 162, 39, 0.6);
+}
+.late {
+  background: var(--danger);
+  box-shadow: 0 4px 14px -4px rgba(178, 59, 46, 0.6);
+}
+.check {
+  background: #1f6fb8;
+  box-shadow: 0 4px 14px -4px rgba(31, 111, 184, 0.6);
+}
+.eat {
+  background: #2f8c8c;
+  box-shadow: 0 4px 14px -4px rgba(47, 140, 140, 0.6);
+}
+.idle {
+  background: var(--s400);
+}
+
+/* Several checks on one table */
+.shared {
+  justify-content: flex-start;
+  align-items: stretch;
+  background: var(--surface);
+  padding: 0;
+}
+.ring_run {
+  box-shadow: inset 0 0 0 2.5px #3f7d3f;
+}
+.ring_cook {
+  box-shadow: inset 0 0 0 2.5px #c9a227;
+}
+.ring_late {
+  box-shadow: inset 0 0 0 2.5px var(--danger);
+}
+.ring_check {
+  box-shadow: inset 0 0 0 2.5px #1f6fb8;
+}
+.ring_eat {
+  box-shadow: inset 0 0 0 2.5px #2f8c8c;
+}
+.ring_idle {
+  box-shadow: inset 0 0 0 2.5px var(--s400);
+}
+.sharedHead {
+  font-size: clamp(10.5px, 1.9cqh, 13.5px);
+  font-weight: 900;
+  padding: 4px 2px 2px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.split {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 2px;
+  padding: 0 3px 3px;
+}
+.part {
+  flex: 1;
+  min-width: 0;
+  border-radius: 7px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 2px;
+  line-height: 1.05;
+  overflow: hidden;
+  box-shadow: none;
+}
+.part.cook {
+  color: #2a2204;
+}
+.partTag {
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.partTimer {
+  font-size: 11.5px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+@keyframes pop {
+  from {
+    transform: scale(0.92);
+    opacity: 0.4;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blink,
+  .one {
+    animation: none;
+  }
+}
+.startable {
+  cursor: pointer;
+}
+.startable:hover {
+  box-shadow: inset 0 0 0 2px var(--ocean);
+}
+.startable .freeWord {
+  color: var(--ocean);
+  font-weight: 700;
+}
+/* Held by the host for a reservation: still tappable, outlined like the host floor. */
+.free.held {
+  box-shadow: inset 0 0 0 2px #a86a00;
+}
+.held .freeWord,
+.heldWord {
+  font-size: clamp(9.5px, 1.8cqh, 12.5px);
+  font-weight: 700;
+  color: #8a5700;
+  white-space: nowrap;
+}

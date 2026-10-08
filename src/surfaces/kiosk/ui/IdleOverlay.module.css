@@ -1,0 +1,43 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--k) * 30);
+  background: rgba(16, 38, 58, 0.55);
+}
+.card {
+  max-width: calc(var(--k) * 720);
+  padding: calc(var(--k) * 46) calc(var(--k) * 52);
+  border-radius: calc(var(--k) * 34);
+  background: #fff;
+  text-align: center;
+  animation: pop var(--med) var(--ease);
+}
+.title {
+  font-family: var(--font-serif);
+  font-size: calc(var(--k) * 54);
+  font-weight: 600;
+}
+.left {
+  margin: calc(var(--k) * 14) 0 calc(var(--k) * 28);
+  font-size: calc(var(--k) * 30);
+  color: var(--kk-mute);
+}
+.stay {
+  min-height: calc(var(--k) * 110);
+  font-size: calc(var(--k) * 38);
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}

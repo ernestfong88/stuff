@@ -1,0 +1,96 @@
+.page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 16px 0;
+}
+.search {
+  flex-shrink: 0;
+}
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 16px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr));
+  gap: 8px;
+}
+
+/* Special diets at a glance: counts that double as the filter. Wraps upright; never scrolls sideways out of sight. */
+.diets {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  max-height: 160px;
+}
+.diet {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 750;
+  transition:
+    background-color var(--fast) var(--ease),
+    color var(--fast) var(--ease);
+}
+.n {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 12.5px;
+  font-weight: 900;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.special {
+  background: var(--surface);
+  color: var(--ocean-700);
+  box-shadow: inset 0 0 0 1.5px var(--ocean);
+}
+.special.on {
+  background: var(--ocean);
+  color: #fff;
+}
+.allergy {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.allergy.on {
+  background: var(--danger);
+  color: #fff;
+}
+.plain {
+  background: var(--limestone);
+  color: var(--s700);
+  box-shadow: inset 0 0 0 1px rgba(20, 35, 48, 0.08);
+}
+.plain.on {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: none;
+}
+.on .n {
+  background: rgba(255, 255, 255, 0.22);
+}
+.clear {
+  color: var(--s500);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.sep {
+  width: 1px;
+  height: 26px;
+  margin: 0 3px;
+  background: var(--hair-2);
+}

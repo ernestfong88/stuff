@@ -1,0 +1,347 @@
+.head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 2px 12px;
+}
+.capToday {
+  flex: 1 1 260px;
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--k-done);
+}
+.meals {
+  max-width: 100%;
+}
+.addBtn {
+  flex-shrink: 0;
+}
+
+.group {
+  background: var(--k-card);
+  border-radius: var(--r-xl);
+  padding: 10px 10px 12px;
+  box-shadow: inset 0 0 0 1px var(--k-rule);
+  margin-bottom: 14px;
+}
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 2px 4px 8px;
+}
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 900;
+  align-self: center;
+}
+.hot {
+  color: var(--k-callout);
+}
+.cold {
+  color: var(--k-togo);
+}
+.rule {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--k-dim);
+}
+
+.items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(560px, 100%), 1fr));
+  gap: 6px;
+}
+.dish {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 8px 8px 8px 12px;
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 0 0 1px var(--k-rule);
+}
+.text {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.label {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--k-text);
+}
+.meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--k-dim);
+}
+.cells {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 1fr));
+  gap: 6px;
+  flex: 0 1 360px;
+}
+@media (max-width: 560px) {
+  .cells {
+    flex-basis: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 64px;
+  padding: 7px 10px;
+  text-align: left;
+  border-radius: var(--r-md);
+  background: var(--k-card-2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+.tap:hover {
+  background: var(--k-head);
+}
+.cellHead {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--k-soft);
+}
+.target {
+  color: var(--k-dim);
+  text-transform: none;
+}
+/* Kitchen states: green in range, red out or overdue, amber due. */
+.cellOk {
+  background: rgba(63, 125, 63, 0.42);
+  box-shadow: none;
+}
+.cellOut {
+  background: rgba(178, 59, 46, 0.38);
+  box-shadow: inset 0 0 0 1.5px var(--k-late);
+}
+.cellDue {
+  background: rgba(240, 160, 48, 0.14);
+  box-shadow: inset 0 0 0 1.5px rgba(240, 160, 48, 0.6);
+}
+.cellLate {
+  background: rgba(178, 59, 46, 0.38);
+  box-shadow: inset 0 0 0 1.5px var(--k-late);
+}
+.cellMissed {
+  opacity: 0.75;
+}
+.temp {
+  font-size: 18px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--k-done);
+}
+.cellOut .temp {
+  color: var(--k-cancel);
+}
+.stamp {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--k-soft);
+}
+.fix {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--k-cancel);
+}
+
+.pill {
+  margin-top: 4px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--k-soft);
+}
+/* The same chips as Expo's Fired and Late. */
+.pillDue {
+  background: var(--k-amber);
+  color: var(--k-amber-ink);
+}
+.pillLate {
+  background: var(--k-late);
+  color: #fff;
+}
+.pillMissed {
+  color: var(--k-cancel);
+}
+
+.empty {
+  padding: 16px;
+  border-radius: var(--r-lg);
+  background: var(--k-card);
+  box-shadow: inset 0 0 0 1px var(--k-rule);
+  color: var(--k-dim);
+  font-size: 14px;
+}
+
+/* ── Entering a reading (in the kitchen's dark dialog) ── */
+.readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 0 2px;
+  font-size: 44px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--k-text);
+}
+.readout small {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--k-dim);
+}
+.readoutSmall {
+  font-size: 30px;
+  padding-top: 2px;
+}
+.readoutOk {
+  color: var(--k-done);
+}
+.readoutOut {
+  color: var(--k-cancel);
+}
+.hint {
+  min-height: 18px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--k-cancel);
+}
+.keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+.key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  border-radius: var(--r-xl);
+  background: var(--pad-key);
+  color: var(--k-text);
+  font-size: 22px;
+  font-weight: 700;
+}
+.key:active {
+  background: var(--pad-key-down);
+}
+.next {
+  margin-top: 12px;
+}
+.cancel {
+  margin-top: 8px;
+}
+
+.outNote {
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: rgba(178, 59, 46, 0.38);
+  color: #ffd9d3;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 4px;
+}
+.action {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  font-size: 14px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--k-ink);
+}
+.actionOn {
+  background: var(--k-ink);
+  color: var(--night);
+}
+.recheckHead {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--k-dim);
+}
+.optional {
+  font-weight: 700;
+  text-transform: none;
+  color: var(--night-dim);
+}
+.summary {
+  margin-bottom: 4px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 900;
+}
+.summaryOk {
+  color: var(--k-done);
+}
+.summaryOut {
+  color: var(--k-cancel);
+}
+
+/* ── Extra checks ── */
+.addCheck {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 10px;
+  min-height: 44px;
+  background: transparent;
+  box-shadow: none;
+  border: 1.5px dashed rgba(255, 255, 255, 0.28);
+}
+.addLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--k-ink);
+}
+.addSub {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--k-dim);
+}
+.reasonNote {
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--k-soft);
+}

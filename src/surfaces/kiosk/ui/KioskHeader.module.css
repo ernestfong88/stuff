@@ -1,0 +1,72 @@
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--k) * 28);
+  /* Room on the right for the staff corner. */
+  padding: calc(var(--k) * 14) max(calc(var(--k) * 36), 80px) calc(var(--k) * 14) calc(var(--k) * 36);
+  background: #fff;
+  box-shadow: 0 2px 0 var(--kk-line);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--k) * 14);
+  flex-shrink: 0;
+}
+.logo {
+  width: calc(var(--k) * 56);
+  height: calc(var(--k) * 56);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--kk-blue);
+  color: #fff;
+}
+.names {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+.community {
+  font-family: var(--font-serif);
+  font-size: calc(var(--k) * 32);
+  font-weight: 600;
+  color: var(--kk-deep);
+}
+.dining {
+  margin-top: calc(var(--k) * 4);
+  font-size: calc(var(--k) * 17);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--kk-mute);
+}
+.progress {
+  flex: 1;
+  min-width: calc(var(--k) * 160);
+}
+.count {
+  margin-bottom: calc(var(--k) * 8);
+  text-align: right;
+  font-size: calc(var(--k) * 22);
+  font-weight: 700;
+  color: var(--kk-mute);
+}
+.track {
+  height: calc(var(--k) * 16);
+  border-radius: calc(var(--k) * 16);
+  background: var(--kk-soft);
+  overflow: hidden;
+}
+.bar {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--kk-blue);
+  transition: width 0.3s var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}
