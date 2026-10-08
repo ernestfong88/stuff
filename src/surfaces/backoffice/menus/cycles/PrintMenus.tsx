@@ -6,7 +6,9 @@ import type { BoMenu } from '../../../../store/menuEdits';
 import { Button, Popover, cx } from '../../../../ui';
 import { placementSides, useBo } from '../data';
 import { monthDay, type CycleAnchor } from '../../../../domain/menuCycle';
-import { menuHtml, printContext, printWeek, weekDays, type PrintKind } from '../model/menuPrint';
+import { menuDoc } from '../model/menuDoc';
+import { printContext, printWeek, weekDays, type PrintKind } from '../model/menuPrint';
+import { fitMenu } from '../ui/fitFrame';
 import { printHtml } from '../ui/printFrame';
 import s from './PrintMenus.module.css';
 
@@ -20,7 +22,8 @@ export function PrintMenus({ menu, week, anchor }: { menu: BoMenu; week: number;
   const days = C.len > 0 ? weekDays(C, w) : [];
   const dd = day && days.includes(day) ? day : days.includes(C.today) ? C.today : days[0];
   const go = (kind: PrintKind, close: () => void) => {
-    printHtml(menuHtml(kind, C, { week: w, day: dd }));
+    // Fitted to the page as Menu Export fits it; a daily menu too long for one page goes onto two.
+    fitMenu(menuDoc(kind, C, { week: w, day: dd }), C.options, kind === 'daily' ? 'auto' : 'none').then((f) => printHtml(f.html));
     close();
   };
   const option = (kind: PrintKind, title: string, sub: string, close: () => void, extra?: React.ReactNode) => (

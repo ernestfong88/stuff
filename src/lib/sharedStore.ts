@@ -54,6 +54,7 @@ const DEVICE_KEYS = new Set([
   'kisco_sw_venue',
   'kisco_server_mine_mode',
   'kisco_menu_paper',
+  'kisco_menu_pages',
   'kisco-dining-leader',
 ]);
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { BoModGroup } from '../../../../store/menuEdits';
 import { exportWeeks, weekLabel } from '../export/exportDays';
-import { paperCss, paperOf, weekRowHeight } from '../model/menuPrint';
+import { paperCss, paperOf, printArea } from '../model/menuPrint';
 import { OTHER_COMMUNITY_MODS, planCopy } from '../modifiers/copyGroups';
 
 describe('copy modifiers from another community', () => {
@@ -13,10 +13,14 @@ describe('copy modifiers from another community', () => {
   const id = () => `new${++n}`;
 
   it('adds missing groups and only the choices an existing group lacks', () => {
-    const plan = planCopy(ours, [
-      { name: 'dressing', mods: [{ n: 'RANCH' }, { n: 'Greek' }] },
-      { name: 'Toast', mods: [{ n: 'Rye' }] },
-    ], id);
+    const plan = planCopy(
+      ours,
+      [
+        { name: 'dressing', mods: [{ n: 'RANCH' }, { n: 'Greek' }] },
+        { name: 'Toast', mods: [{ n: 'Rye' }] },
+      ],
+      id,
+    );
     expect(plan.added).toEqual(['Toast']);
     expect(plan.extended).toEqual([{ name: 'Dressing', choices: ['Greek'] }]);
     const dressing = plan.groups.find((g) => g.id === 'g_dress')!;
@@ -48,16 +52,14 @@ describe('menu export weeks and paper', () => {
     expect(weeks[0]).toEqual(new Date(2026, 8, 6));
     expect(weekLabel(weeks[4])).toBe('Sun 10/4 – Sat 10/10');
   });
-  it('sizes the page for the paper and scales a half sheet down', () => {
+  it('sizes the page for the paper, one sheet per page', () => {
     expect(paperCss(paperOf('half'))).toContain('@page{size:5.5in 8.5in;margin:0.35in}');
     expect(paperCss(paperOf('letter'), true)).toContain('@page{size:11in 8.5in;margin:0.5in}');
     expect(paperCss(paperOf('a4'))).toContain('size:8.27in 11.69in');
-    expect(paperCss(paperOf('half'))).toContain('zoom:0.72');
+    // No fixed zoom per paper any more: each page is fitted (printFit).
+    expect(paperCss(paperOf('half'))).not.toContain('zoom');
+    expect(paperCss(paperOf('letter'))).toContain('.sheet{width:7.5in');
+    expect(printArea(paperOf('letter'), true)).toEqual({ w: 10, h: 7.5 });
     expect(paperOf('nope').id).toBe('letter');
-  });
-  it('fits the week at a glance rows to the page', () => {
-    expect(weekRowHeight(paperOf('letter'), 3)).toBeCloseTo(1.57, 2);
-    expect(weekRowHeight(paperOf('letter'), 2)).toBeCloseTo(2.35, 2);
-    expect(weekRowHeight(paperOf('half'), 3)).toBeLessThan(weekRowHeight(paperOf('letter'), 3));
   });
 });

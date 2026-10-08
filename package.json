@@ -14,6 +14,7 @@
     "build:single": "tsc -b && vite build --config vite.single.config.ts"
   },
   "dependencies": {
+    "docx": "^9.7.2",
     "lucide-react": "^1.52.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

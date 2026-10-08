@@ -220,6 +220,17 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Menu Export: fits the page
+- Every printout now sizes itself to its page, for every paper, template and option. Nothing runs onto an extra page, and a short menu doesn't leave a big empty space at the bottom. The fixed zoom for each paper size is gone.
+- The spacing changes first: the gaps between meals, courses and dishes open up on a short menu and close up on a long one. Only after that does the type get bigger (up to 1.25×) or smaller. The footer sits at the bottom of every page.
+- A daily menu with all meals fits on one Letter page. Dish descriptions never print smaller than 8.5 pt. If a menu would need smaller type to fit, it prints on 2 pages, split between meals, and the options bar says "Doesn't fit on one page at a readable size — printing on 2 pages". When meals are picked one page each, every page is fitted.
+- À la carte has a new **Pages: 1 · 2** choice. On 1 page everything fits on one page in two columns. On 2 pages the menu is split by course so the two pages come out about the same length. A long course can carry over ("Entrées, continued"). This device remembers the choice, as it does the paper. If the 1-page version would need very small type, the options bar suggests 2 pages.
+- À la carte also has the **Meals** choice: All meals (Breakfast, then Lunch and Dinner, as before) or any of Breakfast, Lunch and Dinner, only for meals the à la carte menu serves. Each picked meal gets its own section with everything served at that meal, and the header names the meals ("Lunch · À la carte"). Picked meals still follow the 1 or 2 pages setting.
+- The week at a glance and the order form fit their single page. On the week, the rows grow to fill the page.
+- The preview shows the fitted page, so its page count ("· 2 pages") matches what prints. Printing from the menu builder fits the page the same way.
+- **Export to Word** next to Print downloads an editable .docx of the selected printout. It has the same pages, headings, dishes, descriptions, sides, diet indicators and snacks, on the same paper size and orientation, with page breaks between pages. Type sizes come from the page's fit. The file is named after the venue, printout and date, for example "Sequoia Dining Room daily menu 2026-10-08.docx".
+
+
 ### Associate Meals: search for the special of the week
 The special of the week is picked by typing instead of scrolling a long dropdown. Matches show as you type: arrow keys move, Enter picks, Escape closes. Once chosen it shows as the dish name with an × to clear it, and tapping the name changes it.
 

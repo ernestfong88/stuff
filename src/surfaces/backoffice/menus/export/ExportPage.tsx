@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Printer } from 'lucide-react';
+import { FileText, Printer } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import { useSetting } from '../../../../store/serviceConfig';
 import { Button, Chip, EmptyState, Tabs, cx, toast } from '../../../../ui';
 import { BoPage } from '../../kit';
 import { placementSides, useBo } from '../data';
 import { dayStart, isoDay, parseIsoDay, venuesAt, weekStart } from '../../../../domain/menuCycle';
+import { alaCarteMeals, menuDoc } from '../model/menuDoc';
+import { menuWordDoc, wordFileName } from '../model/menuDocx';
 import {
-  menuHtml,
+  docHtml,
   PAPERS,
   paperOf,
   printContext,
@@ -19,10 +21,12 @@ import {
   type TemplateId,
 } from '../model/menuPrint';
 import { Field, Input, Select } from '../ui/controls';
+import { fitMenu, useFittedMenu, type SplitMode } from '../ui/fitFrame';
 import { PagePreview } from '../ui/PagePreview';
 import { printHtml } from '../ui/printFrame';
+import { downloadWord } from '../ui/wordExport';
 import { exportWeeks, weekLabel } from './exportDays';
-import { setPaper, usePaper } from './paperStore';
+import { setAlaCartePages, setPaper, useAlaCartePages, usePaper } from './paperStore';
 import s from './ExportPage.module.css';
 
 const KINDS: Array<{ id: PrintKind; label: string; name: string }> = [
@@ -31,6 +35,9 @@ const KINDS: Array<{ id: PrintKind; label: string; name: string }> = [
   { id: 'alacarte', label: 'À la carte', name: 'À la carte menu' },
   { id: 'order', label: 'Order form', name: 'Pick up order form' },
 ];
+
+/** What a Word file is called after: "Sequoia daily menu 2026-10-08.docx". */
+const FILE_WHAT: Record<PrintKind, string> = { daily: 'daily menu', week: 'week at a glance', alacarte: 'a la carte menu', order: 'order form' };
 
 /** À la carte menus fit one page up to this many dishes. */
 const ALA_CARTE_LIMIT = 20;
@@ -52,9 +59,11 @@ export function ExportPage() {
   // The date the daily menu prints, and the Sunday of the week the others print.
   const [date, setDate] = useState(() => isoDay(dayStart(at)));
   const [week, setWeek] = useState(() => isoDay(weekStart(at)));
-  // Meals printed a page each; empty prints every meal on one page.
+  // Daily: meals printed a page each; à la carte: meals printed a section each. Empty prints every meal.
   const [meals, setMeals] = useState<string[]>([]);
   const paperId = usePaper(kind);
+  const alcPages = useAlaCartePages();
+  const alc = kind === 'alacarte';
   const paper = paperOf(paperId);
   const venue = venues.find((v) => v.id === venueId) ?? venues[0];
   const daily = kind === 'daily';
@@ -70,10 +79,15 @@ export function ExportPage() {
       ),
     [bo, venue, template, diet, snacks, winGrid, paperId, printAt],
   );
-  const mealOptions = useMemo(() => printMeals(ctx), [ctx]);
-  const picked = useMemo(() => (daily ? meals.filter((m) => mealOptions.includes(m)) : []), [daily, meals, mealOptions]);
-  const pick = useMemo(() => ({ meals: picked, weekOf: daily ? null : new Date(printAt) }), [picked, daily, printAt]);
-  const html = useMemo(() => menuHtml(kind, ctx, pick), [kind, ctx, pick]);
+  const mealOptions = useMemo(() => (daily ? printMeals(ctx) : alc ? alaCarteMeals(ctx) : []), [ctx, daily, alc]);
+  const picked = useMemo(() => meals.filter((m) => mealOptions.includes(m)), [meals, mealOptions]);
+  const pick = useMemo(() => ({ meals: picked, weekOf: daily ? null : new Date(printAt), pages: alcPages }), [picked, daily, printAt, alcPages]);
+  const doc = useMemo(() => menuDoc(kind, ctx, pick), [kind, ctx, pick]);
+  // A daily menu with every meal goes onto two pages only when one page would be too small to read.
+  const split: SplitMode = daily && !picked.length ? 'auto' : alc && alcPages === 2 ? 'two' : 'none';
+  const { fitted, current } = useFittedMenu(doc, ctx.options, split);
+  const html = useMemo(() => fitted?.html ?? docHtml(doc, ctx.options), [fitted, doc, ctx.options]);
+  const pages = (fitted ?? { doc }).doc.sheets.length;
   // The dishes the printout lists, so the count matches what prints.
   const count = useMemo(() => printedRecipes(kind, ctx, pick).size, [kind, ctx, pick]);
 
@@ -88,22 +102,37 @@ export function ExportPage() {
   const kindName = KINDS.find((k) => k.id === kind)!.name;
   const landscape = kind === 'week';
   const toggleMeal = (m: string) => setMeals(picked.includes(m) ? picked.filter((x) => x !== m) : [...picked, m]);
-  const print = () => {
-    printHtml(html);
-    const when = daily
-      ? new Date(printAt).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) +
-        (picked.length ? ', ' + picked.join(', ') : '')
-      : weekLabel(new Date(printAt));
-    toast(`${kindName} for ${when} sent to the printer · ${paper.name}`, { tone: 'success' });
-  };
+  // The fitted menu as previewed; measured now if the preview has not caught up yet.
+  const ready = () => (fitted && current ? Promise.resolve(fitted) : fitMenu(doc, ctx.options, split));
+  const when = daily
+    ? new Date(printAt).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) +
+      (picked.length ? ', ' + picked.join(', ') : '')
+    : weekLabel(new Date(printAt)) + (picked.length ? ', ' + picked.join(', ') : '');
+  const print = () =>
+    ready().then((f) => {
+      printHtml(f.html);
+      toast(`${kindName} for ${when} sent to the printer · ${paper.name}`, { tone: 'success' });
+    });
+  const exportWord = () =>
+    ready()
+      .then((f) => {
+        const file = wordFileName(venue.name, FILE_WHAT[kind], daily ? date : week);
+        return downloadWord(menuWordDoc(f.doc, paper, f.fits, template), file).then(() => toast(`${file} downloaded`, { tone: 'success' }));
+      })
+      .catch(() => toast('Could not make the Word file. Try again.', { tone: 'danger' }));
 
   return (
     <BoPage
       title="Menu Export"
       actions={
-        <Button variant="primary" icon={<Printer size={16} />} onClick={print}>
-          Print
-        </Button>
+        <>
+          <Button variant="secondary" icon={<FileText size={16} />} onClick={exportWord}>
+            Export to Word
+          </Button>
+          <Button variant="primary" icon={<Printer size={16} />} onClick={print}>
+            Print
+          </Button>
+        </>
       }
     >
       <section className={s.bar} aria-label="Print options">
@@ -134,11 +163,11 @@ export function ExportPage() {
             />
           </Field>
         )}
-        {daily && (
+        {(daily || alc) && (
           <Field label="Meals">
             <div className={s.picks} role="group" aria-label="Meals">
               <button className={cx(s.pick, !picked.length && s.pickOn)} aria-pressed={!picked.length} onClick={() => setMeals([])}>
-                All on one page
+                {daily ? 'All on one page' : 'All meals'}
               </button>
               {mealOptions.map((m) => (
                 <button
@@ -151,6 +180,21 @@ export function ExportPage() {
                 </button>
               ))}
             </div>
+          </Field>
+        )}
+        {alc && (
+          <Field label="Pages">
+            <Tabs
+              variant="segmented"
+              size="sm"
+              value={String(alcPages) as '1' | '2'}
+              onChange={(v) => setAlaCartePages(v === '2' ? 2 : 1)}
+              options={[
+                { id: '1', label: '1' },
+                { id: '2', label: '2' },
+              ]}
+              aria-label="Pages"
+            />
           </Field>
         )}
         <Field label="Paper">
@@ -179,13 +223,23 @@ export function ExportPage() {
             Snacks (dietitian copy)
           </label>
         </div>
+        {fitted?.overflowed && current && (
+          <p className={s.notice} role="status">
+            Doesn't fit on one page at a readable size — printing on 2 pages
+          </p>
+        )}
+        {alc && alcPages === 1 && current && fitted?.fits.some((f) => !f.readable) && (
+          <p className={s.notice} role="status">
+            One page needs very small type for this menu — 2 pages reads better
+          </p>
+        )}
       </section>
 
       <section className={s.preview} aria-label="Preview">
         <div className={s.previewHead}>
           <span className={s.label}>
             Preview · {count} {count === 1 ? 'item' : 'items'}
-            {daily && picked.length > 1 ? ` · ${picked.length} pages` : ''}
+            {pages > 1 ? ` · ${pages} pages` : ''}
           </span>
           {kind === 'alacarte' && (
             <Chip tone={count > ALA_CARTE_LIMIT ? 'danger' : 'success'}>
