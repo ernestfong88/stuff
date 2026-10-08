@@ -45,7 +45,7 @@ describe('steps of service', () => {
     const o = check([diner({ items: [{ id: 'l1', itemId: 'd_cbsoup', mods: {}, note: '', sent: true, kitchenState: 'cooking', firedAt: fired, course: 1 }] })], { sentAt: fired });
     const [r] = atRisk([o]);
     expect(r).toMatchObject({ step: 'Appetizer', goal: 7 });
-    expect(r.why).toEqual({ text: 'Still cooking, fired 9 min ago', who: 'Kitchen' });
+    expect(r.why).toEqual({ text: 'Still cooking, fired 9 min ago', who: 'Kitchen', kind: 'cook' });
   });
 
   it('picks the meal most open tables are on', () => {

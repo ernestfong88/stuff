@@ -37,6 +37,8 @@ export interface SosReason {
   text: string;
   /** Who can fix it. */
   who: string;
+  /** What is holding it up: plates waiting to run, still cooking, or not fired. */
+  kind: 'run' | 'cook' | 'fire';
 }
 
 export interface SosTable {
@@ -72,9 +74,9 @@ export function shiftMeal(open: Order[]): MealName {
 }
 
 function reasonFor(c: CourseSummary, at: number): SosReason {
-  if (c.ready) return { text: `Ready at the pass ${Math.max(1, Math.round((at - c.ready) / MINUTE))} min, not run`, who: 'Expo or a runner' };
-  if (c.fired) return { text: `Still cooking, fired ${Math.max(1, Math.round((at - c.fired) / MINUTE))} min ago`, who: 'Kitchen' };
-  return { text: 'Not fired yet', who: 'Server' };
+  if (c.ready) return { text: `Ready at the pass ${Math.max(1, Math.round((at - c.ready) / MINUTE))} min, not run`, who: 'Expo or a runner', kind: 'run' };
+  if (c.fired) return { text: `Still cooking, fired ${Math.max(1, Math.round((at - c.fired) / MINUTE))} min ago`, who: 'Kitchen', kind: 'cook' };
+  return { text: 'Not fired yet', who: 'Server', kind: 'fire' };
 }
 
 /** __kSosLive: a check's two steps, measured or still running. Null until the order is sent. */

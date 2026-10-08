@@ -220,6 +220,16 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Manager Metrics: Steps of Service made clear
+- The Metrics tab on the manager tablet now reads top to bottom: one headline, the steps in order, one thing to do, by server, then every table.
+- **One headline:** this meal's average table time (order to entrée) in big green or red against the 22 min goal, with *N of M tables got their food on time* (appetizer within 7 min and entrée within 15; goal 90% of tables) and how it compares with the last 7 of the same meal. The same numbers as before; the separate *Tables that missed a step* card is folded into it.
+- **Step by step:** Greet → drinks, Seated → order, Order → appetizer, Appetizer → entrée and Entrée → check closed, each as a bar on one minutes-after-seated scale, starting where the step before it ends, with the goal as a dashed outline. Green under the goal, amber within a tenth of it, red past it, grey-blue where there is no goal. The step furthest from its goal is shaded and labelled *Slowest step*, and each row says it plainly, for example *6.6 min · goal 7 · 3 late*. Greet → drinks uses the venue's own goal from Pacing & Coursing and says *Not timed at lunch* for meals the venue does not time.
+- **Do this next:** one line in the dashboard's words. An open table near or past a step goal comes first, with who can fix it (*Have a runner take EG 7's appetizer out now.*) and the other late tables as buttons to open; otherwise the server with the biggest share of late tables (*Talk to Marisol about entrée pacing.*); otherwise *Nothing to fix. Keep the pace.* It replaces the *Help now* cards.
+- **By server:** one compact row each, worst first: tables on time, average table time, slowest step against its goal, and the worst table. Tap a server to see only their tables; tap again or *Show every server* to clear.
+- **Every table** is folded away by default: each timed table with its time for every step, late steps in red, steps still running shown as *10:02 so far*. Tap a table to open its check.
+- The seven-day sparklines under each card and the three separate cards are gone. All text is at least 14px, the meal buttons are full-size touch targets, and the page fits portrait and landscape at 130% text size; the rows stack with their own labels when the screen is narrow.
+
+
 ### Production Prep in the kitchen's dark look
 - Production Prep now wears the same dark look as Cook and Expo: the near-black screen, dark cards, white text, and the kitchen's heavy type. The title reads in capitals like *COOK* and *EXPO*.
 - The venue buttons are the kitchen's header buttons. Prep checklist / Cleaning log / Temp log, the days and the meals are dark groups; the one chosen is white, like Expo's filters. Today keeps its amber.
