@@ -8,7 +8,11 @@ test('86 from the manager tablet reaches the specials display', async ({ context
   await expect.poll(() => bodyText(display)).toContain('Peach Glazed Chicken Breast');
 
   await manager.bringToFront();
-  await manager.locator('div, button').filter({ hasText: /^Peach Chicken/ }).getByRole('button', { name: 'Mark 86' }).first().click();
+  await manager
+    .getByRole('button', { name: /^Peach Chicken/ })
+    .first()
+    .click();
+  await manager.getByRole('tab', { name: 'Out' }).click();
 
   await display.bringToFront();
   // The display rotates every few seconds; the 86'd special never comes back.

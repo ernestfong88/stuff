@@ -8,6 +8,7 @@ import type { Diner, MenuItem, ModSelection, Order, Resident } from '../../../..
 import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
 import { useAssocMenuSettings } from '../../../../store/assocMenu';
+import { fewerLeft, limitLeft, ordersToday, use86 } from '../../../../store/eightySix';
 import { isoDate } from '../../../../domain/pickup';
 import { cx, SearchField } from '../../../../ui';
 import { sideParentFor } from '../checkLines';
@@ -85,6 +86,10 @@ export function MenuPanel({
     if (diner.items.some((l) => !l.cancelled && sec.items.some((i) => i.id === l.itemId))) return null;
     return assocSectionLeft(sec, dining.assocOrders, [...dining.orders, ...dining.history], isoDate(0));
   };
+  // A count the manager set on the 86 list caps the menu's own limit.
+  const marks = use86();
+  const todays = ordersToday(dining.orders, dining.history);
+  const left = (id: string) => fewerLeft(availableCount(id, dining.orders), limitLeft(marks, id, todays));
 
   const add = (item: MenuItem, mods: ModSelection, note: string) => {
     dining.addItem(o.id, diner.id, item.id, mods, note, sideParentFor(item.id, diner));
@@ -142,7 +147,7 @@ export function MenuPanel({
                   price={0}
                   special={sec.special}
                   allergic={hasFoodConflict(it, person)}
-                  left={assocLeft(sec) ?? availableCount(it.id, dining.orders)}
+                  left={assocLeft(sec) ?? left(it.id)}
                   onAdd={() => tap(it)}
                   onModify={() => setModItem(it)}
                 />
@@ -167,7 +172,7 @@ export function MenuPanel({
                   price={isResident ? it.residentPrice : it.guestPrice}
                   special={it.day > 0 || !!it.special}
                   allergic={hasFoodConflict(it, person)}
-                  left={availableCount(it.id, dining.orders)}
+                  left={left(it.id)}
                   tint={sec.tint}
                   onAdd={() => tap(it)}
                   onModify={() => setModItem(it)}

@@ -1,78 +1,167 @@
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { getItem } from '../../../data';
 import { serverItemName } from '../../../domain/menu';
-import type { MealName } from '../../../domain/types';
+import { availableCount } from '../../../domain/orders';
+import type { MealName, MenuItem } from '../../../domain/types';
 import { today } from '../../../lib/clock';
 import { useConfig } from '../../../store/config';
-import { is86, itemsOut, set86, use86 } from '../../../store/eightySix';
-import { EmptyState, PageTitle, SearchField, Tabs, cx, toast } from '../../../ui';
+import { useDining } from '../../../store/dining';
+import { is86, itemsMarked, limitLeft, ordersToday, restore86, set86, setLeft, use86 } from '../../../store/eightySix';
+import { Button, Chip, EmptyState, Eyebrow, PageTitle, SearchField, Stepper, Tabs, cx, toast } from '../../../ui';
 import { MEALS } from '../../../domain/metrics/stepsOfService';
-import { mealByHour, menuForToday } from './menuToday';
+import { markedIn, mealByHour, menuForToday, searchToday, specialsOf } from './menuToday';
 import s from './EightySixView.module.css';
 
-/** __KMgr86: mark what the kitchen is out of; it comes back on its own at midnight. */
+type Status = 'on' | 'count' | 'out';
+/** A count starts here when the menu has no limit of its own. */
+const FIRST_COUNT = 5;
+
+/**
+ * __KMgr86: what the kitchen is out of or low on, first; below it, search or
+ * open a category to 86 something. Marks come back on their own at midnight.
+ */
 export function EightySixView() {
   const marks = use86();
   const cfg = useConfig();
+  const { orders, history } = useDining();
+  const todays = ordersToday(orders, history);
   const [meal, setMeal] = useState<MealName>(() => mealByHour(today().getHours()));
   const [q, setQ] = useState('');
-  const out = itemsOut(marks)
+  const [openCat, setOpenCat] = useState<string | null>(null);
+  const [picked, setPicked] = useState<string | null>(null);
+  const short = (it: MenuItem) => serverItemName(it.name, cfg);
+  const left = (id: string) => limitLeft(marks, id, todays);
+  const status = (id: string): Status => (is86(marks, id) ? 'out' : left(id) != null ? 'count' : 'on');
+
+  const marked = itemsMarked(marks)
     .map((id) => getItem(id))
     .filter((it): it is NonNullable<typeof it> => !!it);
-  const cats = menuForToday(meal, q);
-  const short = (name: string) => serverItemName(name, cfg);
-  /** Every tablet sees the change at once, so each tap says what it did and can be undone. */
-  const mark = (id: string, name: string, out: boolean) => {
-    set86(id, out);
-    toast(out ? `${short(name)} is 86 on every tablet` : `${short(name)} is back on the menu`, {
-      tone: out ? undefined : 'success',
-      action: { label: 'Undo', onClick: () => set86(id, !out) },
-    });
+  const cats = menuForToday(meal, '');
+  const specials = specialsOf(cats);
+  const hits = searchToday(meal, q, short);
+
+  /** Every tablet sees the change at once, so each change says what it did and can be undone. */
+  const choose = (it: MenuItem, next: Status) => {
+    const before = marks[it.id];
+    const name = short(it);
+    const first = availableCount(it.id, orders) ?? FIRST_COUNT;
+    if (next === 'count') setLeft(it.id, first, todays);
+    else set86(it.id, next === 'out');
+    const msg = next === 'out' ? `${name} is 86 on every tablet` : next === 'on' ? `${name} is back on` : `${name}: ${first} left`;
+    toast(msg, { tone: next === 'on' ? 'success' : undefined, action: { label: 'Undo', onClick: () => restore86(it.id, before) } });
+  };
+  /** A stepper tap changes the count quietly; the number on screen is the feedback. */
+  const recount = (it: MenuItem, n: number) => setLeft(it.id, n, todays);
+
+  const tag = (id: string) => {
+    const st = status(id);
+    if (st === 'out') return <Chip tone="danger">Out</Chip>;
+    if (st === 'count') return <Chip tone={left(id) ? 'warning' : 'danger'}>{left(id) ? `${left(id)} left` : 'Sold out'}</Chip>;
+    return null;
+  };
+
+  /** A menu item to pick: tap it for one On / Count / Out control. */
+  const row = (it: MenuItem) => {
+    const open = picked === it.id;
+    const st = status(it.id);
+    return (
+      <div key={it.id} className={cx(s.item, open && s.itemOpen, st === 'out' && s.itemOut)}>
+        <button className={s.itemHead} onClick={() => setPicked(open ? null : it.id)} aria-expanded={open}>
+          <span className={s.itemName}>{short(it)}</span>
+          {tag(it.id)}
+        </button>
+        {open && (
+          <div className={s.itemControl}>
+            <Tabs<Status>
+              variant="segmented"
+              size="sm"
+              aria-label={`${short(it)} on the menu`}
+              value={st}
+              onChange={(v) => v !== st && choose(it, v)}
+              options={[
+                { id: 'on', label: 'On' },
+                { id: 'count', label: 'Count' },
+                { id: 'out', label: 'Out' },
+              ]}
+            />
+            {st === 'count' && <Stepper size="sm" value={left(it.id) ?? 0} max={199} onChange={(n) => recount(it, n)} />}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
     <div className={s.scroll}>
-      <PageTitle sub="Mark what the kitchen is out of. It greys out on every tablet right away and comes back on its own at midnight.">86 list</PageTitle>
+      <PageTitle sub="Everything comes back on at midnight.">86 list</PageTitle>
 
-      <section className={s.outBox} aria-live="polite">
-        <div className={cx(s.outTitle, out.length > 0 && s.outTitleOn)}>{out.length ? `Out today · ${out.length}` : 'Nothing is 86 today'}</div>
-        {out.length > 0 && (
-          <div className={s.outList}>
-            {out.map((it) => (
-              <button key={it.id} className={s.outChip} onClick={() => mark(it.id, it.name, false)} aria-label={`Put ${short(it.name)} back on the menu`}>
-                {short(it.name)}
-                <span className={s.backOn}>Back on</span>
-              </button>
+      <section className={s.now} aria-live="polite" aria-label="Out or low now">
+        {marked.length ? (
+          <>
+            <Eyebrow className={s.nowTitle}>Out or low · {marked.length}</Eyebrow>
+            {marked.map((it) => (
+              <div key={it.id} className={s.nowRow}>
+                <span className={s.nowName}>{short(it)}</span>
+                {tag(it.id)}
+                <span className={s.grow} />
+                {status(it.id) === 'count' && <Stepper size="sm" value={left(it.id) ?? 0} max={199} onChange={(n) => recount(it, n)} />}
+                <Button size="sm" variant="soft" onClick={() => choose(it, 'on')} aria-label={`Put ${short(it)} back on`}>
+                  Back on
+                </Button>
+              </div>
             ))}
-          </div>
+          </>
+        ) : (
+          <div className={s.nothing}>Nothing is 86&rsquo;d</div>
         )}
       </section>
 
-      <div className={s.filters}>
-        <Tabs<MealName> variant="pills" size="md" value={meal} onChange={setMeal} aria-label="Meal" options={MEALS.map((m) => ({ id: m, label: m }))} />
-        <span className={s.grow} />
-        <SearchField value={q} onChange={setQ} placeholder="Search the menu" className={s.search} />
+      <div className={s.addBar}>
+        <SearchField value={q} onChange={setQ} placeholder="86 an item…" className={s.search} large />
+        <Tabs<MealName>
+          variant="segmented"
+          size="md"
+          value={meal}
+          onChange={setMeal}
+          aria-label="Meal"
+          options={MEALS.map((m) => ({ id: m, label: m }))}
+        />
       </div>
 
-      {cats.length ? (
-        cats.map(([cat, items]) => (
-          <section key={cat} className={s.cat}>
-            <h3 className={s.catTitle}>{cat}</h3>
-            <div className={s.grid}>
-              {items.map((it) => {
-                const on = is86(marks, it.id);
-                return (
-                  <button key={it.id} className={cx(s.item, on && s.itemOut)} onClick={() => mark(it.id, it.name, !on)} aria-pressed={on}>
-                    <span className={s.itemName}>{short(it.name)}</span>
-                    <span className={s.mark}>{on ? 'Put back on' : 'Mark 86'}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        ))
+      {q.trim() ? (
+        hits.length ? (
+          <div className={s.list}>{hits.map(row)}</div>
+        ) : (
+          <EmptyState compact title={`Nothing on the ${meal.toLowerCase()} menu matches.`} />
+        )
       ) : (
-        <EmptyState compact title={`Nothing on the ${meal.toLowerCase()} menu matches.`} />
+        <>
+          {specials.length > 0 && (
+            <section className={s.block}>
+              <Eyebrow className={s.blockTitle}>Today&rsquo;s specials</Eyebrow>
+              <div className={s.list}>{specials.map(row)}</div>
+            </section>
+          )}
+          <div className={s.cats}>
+            {cats.map(([cat, items]) => {
+              const open = openCat === cat;
+              const n = markedIn(items, (id) => status(id) !== 'on');
+              return (
+                <section key={cat} className={s.cat}>
+                  <button className={s.catHead} onClick={() => setOpenCat(open ? null : cat)} aria-expanded={open}>
+                    <span className={s.catName}>{cat}</span>
+                    <span className={s.catCount}>{items.length}</span>
+                    {n > 0 && <Chip tone="danger">{n} out or low</Chip>}
+                    <span className={s.grow} />
+                    <ChevronDown size={18} className={cx(s.chev, open && s.chevOpen)} aria-hidden />
+                  </button>
+                  {open && <div className={cx(s.list, s.catList)}>{items.map(row)}</div>}
+                </section>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

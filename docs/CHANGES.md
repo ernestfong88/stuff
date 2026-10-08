@@ -220,6 +220,14 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### 86 list: what's out first, search to add
+- The *86 list* on the manager tablet opens on what is out or low right now. Each line has **Back on**, and a counted item has a − / + to change how many are left. With nothing marked it says "Nothing is 86'd".
+- An item can be marked **Out** or given a **Count** ("4 left"). A count goes down as servers ring the item in, shows as "4 left" on the server order screen, and the tile becomes Sold out at zero. Out works as before: greyed "86 today" on the server tablets, gone from the kiosk and the specials display. Both come back on at midnight.
+- To add one, type in **86 an item…** (it finds the short tablet names too) or open a category. Categories are folded and show how many of their items are out or low. Today's specials sit above them because they run out most.
+- Tapping an item opens one On / Count / Out control instead of a button on every tile. Each change has a toast with Undo.
+- The long hint under the title and the "Mark 86" label on every tile are gone.
+
+
 ### Manager Triage: one list of what to do next
 - *Triage* on the manager tablet is one list, most urgent first, instead of a grid of cards. Each row says what to do with the table in it ("Run starters to EG 7", "Check in with SQ 5", "Close the check at SQ 8"), whose table it is and how many minutes it has waited.
 - Rows past the Alerts & Timing mark are under **Now** with a red edge; rows worth a look are under **Soon** with an amber edge. The thresholds are the same as before.

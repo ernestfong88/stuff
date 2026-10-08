@@ -4,112 +4,146 @@
   overflow-y: auto;
   padding: 4px 16px 24px;
 }
-.outBox {
-  background: var(--surface);
-  border-radius: var(--r-xl);
-  padding: 12px 14px;
-  margin: 14px 0;
-  box-shadow: var(--ring);
-}
-.outTitle {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--s400);
-}
-.outTitleOn {
-  color: var(--danger);
-  margin-bottom: 8px;
-}
-.outList {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.outChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 12px;
-  border-radius: var(--r-md);
-  font-size: 13.5px;
-  font-weight: 800;
-  background: #f6dfdb;
-  color: #8e2f24;
-}
-.backOn {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--s500);
-}
-.filters {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
 .grow {
   flex: 1;
 }
-.search {
-  width: 260px;
-  max-width: 100%;
+
+/* What is out or low right now. */
+.now {
+  max-width: 900px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  padding: 6px 14px;
+  margin: 14px 0 22px;
+  box-shadow: var(--ring);
 }
-.cat {
-  margin-bottom: 14px;
+.nowTitle {
+  color: var(--danger);
+  padding: 8px 0 4px;
 }
-.catTitle {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--s400);
-  margin: 0 2px 6px;
-}
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
-  gap: 8px;
-}
-.item {
+.nowRow {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 44px;
-  padding: 8px 12px;
-  border-radius: var(--r-lg);
+  min-height: 52px;
+  border-top: 1px solid var(--hair);
+}
+.nowTitle + .nowRow {
+  border-top: 0;
+}
+.nowName {
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nothing {
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--s400);
+}
+
+/* Adding: search, specials, categories. */
+.addBar {
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.search {
+  flex: 1;
+  min-width: 220px;
+}
+.block {
+  max-width: 900px;
+  margin-bottom: 14px;
+}
+.blockTitle {
+  margin: 0 2px 6px;
+}
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 6px;
+  align-items: start;
+}
+.cats {
+  max-width: 900px;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--ring);
+  overflow: hidden;
+}
+.cat + .cat {
+  border-top: 1px solid var(--hair);
+}
+.catHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
   text-align: left;
+}
+.catName {
+  font-size: 15px;
+  font-weight: 800;
+}
+.catCount {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--s400);
+}
+.chev {
+  color: var(--s400);
+  transition: transform var(--fast) var(--ease);
+}
+.chevOpen {
+  transform: rotate(180deg);
+}
+.catList {
+  padding: 0 10px 12px;
+}
+
+/* One menu item; tapped, it opens its On / Count / Out control. */
+.item {
+  border-radius: var(--r-lg);
   background: var(--surface);
   box-shadow: var(--ring);
+}
+.itemOpen {
+  grid-column: 1 / -1;
+  box-shadow: inset 0 0 0 1.5px var(--s400);
+}
+.itemHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  padding: 6px 12px;
+  text-align: left;
 }
 .itemName {
   flex: 1;
   min-width: 0;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 700;
 }
-.mark {
-  flex-shrink: 0;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  padding: 4px 9px;
-  border-radius: var(--r-pill);
-  background: var(--limestone);
-  color: var(--s500);
-}
-.itemOut {
-  background: #f6dfdb;
-  box-shadow: inset 0 0 0 1.5px var(--danger);
-}
 .itemOut .itemName {
-  color: #8e2f24;
+  color: var(--s400);
   text-decoration: line-through;
 }
-.itemOut .mark {
-  background: var(--danger);
-  color: #fff;
+.itemControl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 12px 10px;
 }
