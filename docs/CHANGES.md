@@ -220,6 +220,9 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Associate Meals: search for the special of the week
+The special of the week is picked by typing instead of scrolling a long dropdown. Matches show as you type: arrow keys move, Enter picks, Escape closes. Once chosen it shows as the dish name with an × to clear it, and tapping the name changes it.
+
 ### Production Prep: tap a special for its recipe
 - Tapping a special opens its **Recipe Book** recipe, scaled to the amount to make. It reads the chef's live edits, so a change in the Recipe Book shows on the tablet straight away.
 - **What the sheet shows:** prep and cook times, garnish, equipment, allergens, ingredients, method, plating and cook notes.

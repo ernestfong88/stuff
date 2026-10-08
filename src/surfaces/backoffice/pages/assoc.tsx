@@ -31,6 +31,7 @@ import { recipesIn } from '../../../store/recipes';
 import { BoPage, BoRow, BoSection, NumberBox } from '../kit';
 import type { BoPageProps } from '../nav';
 import { spansText } from './assocRanges';
+import { RecipeSearchBox } from './RecipeSearchBox';
 import s from './assoc.module.css';
 
 /** What each week state means for associates, in plain words. */
@@ -243,25 +244,14 @@ function WeekSpecialPicker({ monday, settings }: { monday: string; settings: Ass
     <div className={s.weekSpecial}>
       <span className={s.weekSpecialLabel}>Special of the week</span>
       <div className={s.special}>
-        <select
-          className={s.select}
-          aria-label={`Associate special of the week, ${weekLabel(monday)}`}
-          value={r?.id ?? ''}
-          onChange={(e) => setWeekSpecial(monday, e.target.value || undefined)}
-        >
-          <option value="">No special of the week</option>
-          {r && !options.some((o) => o.id === r.id) && <option value={r.id}>{r.name}</option>}
-          {options.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.name}
-            </option>
-          ))}
-        </select>
-        <span className={s.hint}>
-          {r
-            ? `On the associate menu every day, ${weekLabel(monday)}, after the chef's special.`
-            : 'Pick a Recipe Book entrée to offer associates all week.'}
-        </span>
+        <RecipeSearchBox
+          value={r}
+          options={options}
+          onChange={(id) => setWeekSpecial(monday, id)}
+          label={`Associate special of the week, ${weekLabel(monday)}`}
+          placeholder="Search entrées…"
+        />
+        {r && <span className={s.hint}>On the associate menu every day, {weekLabel(monday)}.</span>}
       </div>
     </div>
   );
