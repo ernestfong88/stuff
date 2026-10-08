@@ -6,15 +6,15 @@
  * Times come from the demo clock (now()); ids are passed in by the caller
  * so a reducer always gives the same result for the same input.
  */
-import { getItem } from '../data';
+import { DINING_ROOM, getItem, priceRoom } from '../data';
 import { now } from '../lib/clock';
 import { DEFAULT_CONFIG, printerMode, type DiningConfig } from './config';
-import { courseDue, runsLine, type RunUndo } from './courses';
+import { courseDue, firesAtSend, runsLine, type RunUndo } from './courses';
 import type { DiningState } from './diningState';
 import { defaultSides, isDrink, isSide, itemCourse } from './menu';
 import { addCheck, stampReady } from './orders';
 import { pickupFireAt } from './pickup';
-import { drinkStartState, firedState, foodRoute, isDrinkLine, queueFiredState } from './routing';
+import { drinkStartState, foodRoute, isDrinkLine, lineFiredState } from './routing';
 import type {
   Diner,
   FireMode,
@@ -187,7 +187,12 @@ export interface NewLine {
  */
 export function addItem(s: DiningState, orderId: string, dinerId: string, line: NewLine): DiningState {
   const it = getItem(line.itemId);
+  // Outside the dining room, lines remember the room so they ring up at that venue's prices.
+  const order = s.orders.find((x) => x.id === orderId);
+  const room = order ? priceRoom(order) : DINING_ROOM;
+  const at = room !== DINING_ROOM ? { room } : {};
   const sides: OrderLine[] = (it ? defaultSides(it.id) : []).map((itemId, k) => ({
+    ...at,
     id: line.sideIds[k],
     itemId,
     mods: {},
@@ -198,6 +203,7 @@ export function addItem(s: DiningState, orderId: string, dinerId: string, line: 
     parentId: line.id,
   }));
   const main: OrderLine = {
+    ...at,
     id: line.id,
     itemId: line.itemId,
     mods: line.mods,
@@ -207,7 +213,12 @@ export function addItem(s: DiningState, orderId: string, dinerId: string, line: 
     kitchenState: null,
     dfs: it?.entree ? sides.map((x) => x.itemId) : undefined,
   };
-  return updateDiner(s, orderId, dinerId, (d) => ({ ...d, items: [...d.items, main, ...sides] }));
+  return updateDiner(s, orderId, dinerId, (d) => {
+    // Added under a plate that is on hold: it waits with the plate.
+    const held = heldWithParent(main, d.items);
+    const added = held ? { ...main, hold: true, holdAt: now() } : main;
+    return { ...d, items: [...d.items, added, ...sides] };
+  });
 }
 
 export function removeItem(s: DiningState, orderId: string, dinerId: string, lineId: string): DiningState {
@@ -225,10 +236,26 @@ export function updateItem(
   return updateLine(s, orderId, dinerId, lineId, (i) => ({ ...i, mods, note }));
 }
 
-/** Hold an unsent line back from the next send, or release it. */
+/**
+ * Hold an unsent line back from the next send, or release it. A plate's
+ * unsent sides go with it, so a held entrée never fires its sides alone.
+ */
 export function toggleHold(s: DiningState, orderId: string, dinerId: string, lineId: string): DiningState {
-  return updateLine(s, orderId, dinerId, lineId, (i) => ({ ...i, hold: !i.hold, holdAt: i.hold ? null : now() }));
+  return updateDiner(s, orderId, dinerId, (d) => {
+    const line = d.items.find((i) => i.id === lineId);
+    if (!line) return d;
+    const hold = !line.hold;
+    const holdAt = hold ? now() : null;
+    return {
+      ...d,
+      items: d.items.map((i) => (i.id === lineId || (i.parentId === lineId && !i.sent) ? { ...i, hold, holdAt } : i)),
+    };
+  });
 }
+
+/** The line's plate is held: a side rung in under a held entrée waits with it. */
+export const heldWithParent = (line: OrderLine, items: readonly OrderLine[]): boolean =>
+  !!line.parentId && items.some((p) => p.id === line.parentId && !p.sent && !!p.hold);
 
 /** Move a line to another course before it is sent. */
 export function setLineCourse(s: DiningState, orderId: string, dinerId: string, lineId: string, course: number): DiningState {
@@ -332,6 +359,7 @@ export function sendOrder(s: DiningState, orderId: string, ctx: ActionContext = 
     const printers = printerMode(cfg);
     const earlierCourseOut = (course: number) =>
       !printers &&
+      !firesAtSend(o, course, cfg) &&
       all.some((x) => {
         if (isDrinkLine(x, o) || (x.course || x.courseOverride || itemCourse(x.itemId)) >= course || x.comped || x.hold)
           return false;
@@ -344,13 +372,13 @@ export function sendOrder(s: DiningState, orderId: string, ctx: ActionContext = 
       diners: o.diners.map((d) => ({
         ...d,
         items: d.items.map((i): OrderLine => {
-          if (i.sent || i.hold) return i;
+          if (i.sent || i.hold || heldWithParent(i, d.items)) return i;
           if (!o.queueType && isDrink(i.itemId)) {
             return { ...i, sent: true, drink: true, course: undefined, kitchenState: drinkStartState(i.itemId, o.room, cfg), firedAt: t };
           }
           const course = i.courseOverride || itemCourse(i.itemId);
           if (o.queueType) {
-            return { ...i, sent: true, course: 1, kitchenState: later ? 'scheduled' : queueFiredState(i.itemId, o.room, cfg), firedAt: t };
+            return { ...i, sent: true, course: 1, kitchenState: later ? 'scheduled' : lineFiredState(i, d.items, o, cfg), firedAt: t };
           }
           const neverSeen = foodRoute(i.itemId, o.room, cfg) === 'none';
           if (later) return { ...i, sent: true, course, kitchenState: neverSeen ? 'cleared' : 'scheduled', firedAt: t };
@@ -358,7 +386,7 @@ export function sendOrder(s: DiningState, orderId: string, ctx: ActionContext = 
             ? 'cleared'
             : earlierCourseOut(course)
               ? 'scheduled'
-              : firedState(i.itemId, o.room, cfg);
+              : lineFiredState(i, d.items, o, cfg);
           return { ...i, sent: true, course, kitchenState, firedAt: t };
         }),
       })),
@@ -387,13 +415,9 @@ export function sendCourse(s: DiningState, orderId: string, categories: string[]
 export function fireCourseNow(s: DiningState, orderId: string, course: number, ctx: ActionContext = DEFAULT_CONTEXT): DiningState {
   const t = now();
   return updateOrder(s, orderId, (o) => ({
-    ...mapLines(o, (i) =>
+    ...mapLines(o, (i, d) =>
       i.sent && i.kitchenState === 'scheduled' && (o.queueType || (i.course || 2) === course)
-        ? {
-            ...i,
-            kitchenState: o.queueType ? queueFiredState(i.itemId, o.room, ctx.cfg) : firedState(i.itemId, o.room, ctx.cfg),
-            firedAt: t,
-          }
+        ? { ...i, kitchenState: lineFiredState(i, d.items, o, ctx.cfg), firedAt: t }
         : i,
     ),
     fireAtTs: o.queueType ? undefined : o.fireAtTs,
@@ -423,10 +447,8 @@ export function pacingTick(orders: Order[], cfg: DiningConfig = DEFAULT_CONFIG):
       if (t < o.fireAtTs) return o;
       changed = true;
       return {
-        ...mapLines(o, (i) =>
-          i.sent && i.kitchenState === 'scheduled'
-            ? { ...i, kitchenState: o.queueType ? queueFiredState(i.itemId, o.room, cfg) : firedState(i.itemId, o.room, cfg), firedAt: t }
-            : i,
+        ...mapLines(o, (i, d) =>
+          i.sent && i.kitchenState === 'scheduled' ? { ...i, kitchenState: lineFiredState(i, d.items, o, cfg), firedAt: t } : i,
         ),
         fireAtTs: undefined,
       };
@@ -437,9 +459,9 @@ export function pacingTick(orders: Order[], cfg: DiningConfig = DEFAULT_CONFIG):
     const sinceFired = t - Math.max(...prev.map((i) => i.firedAt || 0), o.openedAt);
     if (!courseDue(o, course, prev, allRun, sinceFired, cfg)) return o;
     changed = true;
-    return mapLines(o, (i) =>
+    return mapLines(o, (i, d) =>
       i.sent && i.kitchenState === 'scheduled' && (i.course || 2) === course
-        ? { ...i, kitchenState: firedState(i.itemId, o.room, cfg), firedAt: t }
+        ? { ...i, kitchenState: lineFiredState(i, d.items, o, cfg), firedAt: t }
         : i,
     );
   });

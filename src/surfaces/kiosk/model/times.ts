@@ -7,7 +7,9 @@
 import type { MealName, QueueType } from '../../../domain/types';
 import { MEALS } from '../../../domain/pickupService/meals';
 import {
+  MEAL_WINDOWS,
   mealWindows,
+  rangeLabel,
   windowCutoff,
   windowRoom,
   windowTypeOn,
@@ -23,10 +25,20 @@ export const KIOSK_ROOM = 'sequoia';
 /** How many times the short list shows before "Other times". */
 export const NEXT_TIMES = 4;
 
-/** Pick up and delivery, as Back Office has them switched on. */
-export function kioskTypes(w: WindowSettings): QueueType[] {
-  return (['pickup', 'delivery'] as const).filter((t) => windowTypeOn(w, t));
+/**
+ * Pick up and delivery. Turning a type's ranges off in Back Office doesn't
+ * take it away: the kiosk then takes it as soon as it is ready, the way the
+ * server tablet does.
+ */
+export function kioskTypes(_w: WindowSettings): QueueType[] {
+  return ['pickup', 'delivery'];
 }
+
+/** st.win for an order taken "as soon as it is ready" (the type books no ranges). */
+export const ASAP_WIN = -1;
+
+/** "5:00 to 5:15 PM", or "as soon as it is ready". */
+export const winLabel = (win: number | null): string => (win === ASAP_WIN ? 'as soon as it is ready' : win != null ? rangeLabel(win) : '');
 
 export interface KioskMeal {
   meal: MealName;
@@ -34,6 +46,8 @@ export interface KioskMeal {
   date: string;
   tomorrow: boolean;
   windows: WindowSlot[];
+  /** No ranges for this type: the order is made as soon as it is ready. */
+  asap?: boolean;
 }
 
 /**
@@ -43,6 +57,11 @@ export interface KioskMeal {
  */
 export function kioskMeals(w: WindowSettings, type: QueueType, nowMinute: number, today: string, tomorrow: string): KioskMeal[] {
   const cut = windowCutoff(w);
+  // Ranges off: the meal being served now (or the next one today), as soon as it is ready.
+  if (!windowTypeOn(w, type)) {
+    const meal = MEALS.find((m) => MEAL_WINDOWS[m][1] > nowMinute + cut);
+    return meal ? [{ meal, date: today, tomorrow: false, windows: [], asap: true }] : [];
+  }
   const make = (date: string, isTomorrow: boolean) =>
     MEALS.map((meal) => ({
       meal,

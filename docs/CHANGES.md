@@ -220,6 +220,38 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Pre-ship audit fixes
+All 6 blockers and the majors from the audit are fixed. See [`AUDIT.md`](AUDIT.md) for the full list, including the known gaps.
+
+**Menus and venues**
+- Each venue's menu, *Week 1 started* and à la carte choice now drive what that room orders from, everywhere. Bistro prices reach checks.
+
+**Food safety and residents**
+- Allergy and diet warnings read free text.
+- Recipes without allergens get suggested ones.
+- Kitchen notes show on Cook and Expo tickets.
+- All 25 residents are in Dining Plans.
+- Every associate with a PIN can sign in.
+
+**Floor plan**
+- Floor plan edits reach every screen.
+- A resident can't be seated at two tables.
+- Reserved tables are marked.
+- Empty checks can be voided.
+
+**Orders, kitchen and printing**
+- Held entrées hold their sides.
+- Close & charge asks about unsent items.
+- Printers print on every path, not only the server's Send.
+- Expo and PU & Delivery share one hand-off.
+
+**Billing and settings**
+- Comped checks void their waiting charge.
+- There is one delivery fee per venue.
+- Check-timeline colours show in Order History.
+- Printer, terminal and venue-name inputs are checked.
+- Risky actions ask first and offer Undo.
+
 ### Less text in Back Office; Dining Service is now POS Settings
 - **No preamble under page titles.** The explanatory line under each Back Office page title is gone (Venue Settings, Service Flow, Order History and the rest), because the title says what the page is. The resident detail line (apartment, level, spouse) stays, because it's data.
 - **Dining Service is now POS Settings** in the Back Office menu.

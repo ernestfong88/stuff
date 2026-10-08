@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Plus, UserPlus } from 'lucide-react';
 import { residents } from '../../data';
 import { namesOf } from '../../domain/orders';
+import type { SeatedAt } from '../../domain/seating';
 import { serverColor, serverName, type ServerOnFloor } from '../../domain/servers';
 import type { Order } from '../../domain/types';
 import { MINUTE, minutesSince } from '../../lib/clock';
@@ -29,6 +30,8 @@ interface Props {
   /** A booking this table is kept for (a walk-in can still sit here). */
   heldFor: Reservation | null;
   onSeatHeld: (r: Reservation) => void;
+  /** Where a resident is already seated, if they are. */
+  seatedAt: (residentId: string) => SeatedAt | null;
   at: number;
   name: (o: Order) => string;
   labelOf: (id: string) => string | undefined;
@@ -136,19 +139,23 @@ export function SeatPanel(p: Props) {
       />
       {typed ? (
         <div className={s.hits}>
-          {hits.map((r, i) => (
-            <button key={r.id} className={s.hit} onClick={() => add(r.id, r.name)} title={i === 0 ? 'Enter adds this resident' : undefined}>
-              <Avatar person={r} size={32} />
-              <span className={s.hitText}>
-                <span className={s.hitName}>{r.name}</span>
-                <span className={s.hitApt}>
-                  Apt {r.apt}
-                  {r.level ? ` · ${r.level}` : ''}
+          {hits.map((r, i) => {
+            const at = p.seatedAt(r.id);
+            return (
+              <button key={r.id} className={s.hit} onClick={() => add(r.id, r.name)} title={i === 0 ? 'Enter adds this resident' : undefined}>
+                <Avatar person={r} size={32} />
+                <span className={s.hitText}>
+                  <span className={s.hitName}>{r.name}</span>
+                  <span className={s.hitApt}>
+                    Apt {r.apt}
+                    {r.level ? ` · ${r.level}` : ''}
+                    {at && <span className={s.seatedAt}> · At {at.table} with {at.server}</span>}
+                  </span>
                 </span>
-              </span>
-              <Plus size={16} strokeWidth={2.5} className={s.hitPlus} />
-            </button>
-          ))}
+                <Plus size={16} strokeWidth={2.5} className={s.hitPlus} />
+              </button>
+            );
+          })}
           <button className={cx(s.hit, s.guestHit)} onClick={() => addGuest(typed)} title={hits.length ? undefined : 'Enter adds this guest'}>
             <UserPlus size={16} strokeWidth={2.2} />
             <span className={s.hitText}>
@@ -166,18 +173,22 @@ export function SeatPanel(p: Props) {
 
       {p.seats.length > 0 && (
         <ol className={s.seats}>
-          {p.seats.map((x, i) => (
-            <li key={i} className={s.seat}>
-              <span className={s.seatNo}>S{i + 1}</span>
-              <span className={s.seatName}>
-                {x.name}
-                {x.guest && x.name !== 'Guest' ? ` (${x.guest.rel && x.guest.rel !== 'Guest' ? x.guest.rel : 'guest'})` : ''}
-              </span>
-              <Button variant="ghost" onClick={() => p.onSeats(p.seats.filter((_, j) => j !== i))}>
-                Remove
-              </Button>
-            </li>
-          ))}
+          {p.seats.map((x, i) => {
+            const at = x.residentId && !x.guest ? p.seatedAt(x.residentId) : null;
+            return (
+              <li key={i} className={s.seat}>
+                <span className={s.seatNo}>S{i + 1}</span>
+                <span className={s.seatName}>
+                  {x.name}
+                  {x.guest && x.name !== 'Guest' ? ` (${x.guest.rel && x.guest.rel !== 'Guest' ? x.guest.rel : 'guest'})` : ''}
+                  {at && <span className={s.seatedAt}>Already at {at.table} with {at.server}</span>}
+                </span>
+                <Button variant="ghost" onClick={() => p.onSeats(p.seats.filter((_, j) => j !== i))}>
+                  Remove
+                </Button>
+              </li>
+            );
+          })}
         </ol>
       )}
 

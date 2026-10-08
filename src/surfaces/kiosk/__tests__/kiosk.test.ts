@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getItem, getResident, residents } from '../../../data';
 import { dinerBilling } from '../../../domain/billing';
-import { backWithin, countedSteps, INITIAL_STATE, nextStep, type KioskState } from '../model/flow';
+import { backWithin, countedSteps, INITIAL_STATE, nextStep, skips, type KioskState } from '../model/flow';
 import { dishLongName, drinkGroup, drinkName, kioskMenu, shortList, versionMods, dishVersions, changeChips, modsFromWords } from '../../../domain/kioskMenu';
 import { buildKioskOrder, kioskNote, kioskTextBody, mainDishName, planSentence, reviewWhen, sideIds } from '../model/order';
 import { aptLetters, findResidents } from '../model/residents';
-import { kioskMeals, kioskTypes, nextTimes, timeChoices } from '../model/times';
+import { ASAP_WIN, kioskMeals, kioskTypes, nextTimes, timeChoices } from '../model/times';
 import { mainWithSides, reviewLines } from '../model/review';
 import { kioskUnitFor } from '../ui/unit';
 
@@ -121,7 +121,13 @@ describe('times', () => {
       ['Lunch', true],
       ['Dinner', true],
     ]);
-    expect(kioskTypes({ types: { delivery: { on: false } } })).toEqual(['pickup']);
+    // Ranges off keeps the type: it is made as soon as it is ready, like on the server tablet.
+    const off = { types: { delivery: { on: false } } };
+    expect(kioskTypes(off)).toEqual(['pickup', 'delivery']);
+    expect(kioskMeals(off, 'delivery', minute(17, 45), '2026-10-07', '2026-10-08')).toEqual([
+      { meal: 'Dinner', date: '2026-10-07', tomorrow: false, windows: [], asap: true },
+    ]);
+    expect(kioskMeals(off, 'delivery', minute(22, 0), '2026-10-07', '2026-10-08')).toEqual([]);
   });
 
   it('shows the next four open times and keeps the one already picked', () => {
@@ -181,6 +187,10 @@ describe('the order', () => {
     expect(mainDishName(answers)).toBe('Veggie Pizza');
     expect(mainWithSides(answers)).toBe('Veggie Pizza, no side');
     expect(reviewWhen(answers, '2026-10-07')).toBe('Dinner today, 6:30 to 6:45 PM, pick up at the Sequoia Dining basket.');
+    // No ranges for the type: as soon as it is ready, and the order says ASAP.
+    expect(reviewWhen({ ...answers, win: ASAP_WIN }, '2026-10-07')).toBe('Dinner today, as soon as it is ready, pick up at the Sequoia Dining basket.');
+    expect(buildKioskOrder({ ...answers, win: ASAP_WIN }, ctx).readyAt).toBe('ASAP');
+    expect(skips('time', { ...answers, win: ASAP_WIN }, null)).toBe(true);
     const o = buildKioskOrder(answers, ctx);
     const bill = dinerBilling(o.diners[0], o);
     expect(planSentence(eleanor, bill)).toBe("Included in your meal plan. You'll have 7 meals left.");

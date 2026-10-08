@@ -15,6 +15,8 @@ export function SignOffCard({
   who,
   whoName,
   openTables,
+  emptyChecks = 0,
+  onVoidEmpty,
   signedAt,
   onSign,
   onExport,
@@ -22,6 +24,9 @@ export function SignOffCard({
   who: string;
   whoName: string;
   openTables: number;
+  /** Open checks with nobody on them (a table tapped by mistake). */
+  emptyChecks?: number;
+  onVoidEmpty?: () => void;
   signedAt?: number;
   onSign: () => void;
   onExport: () => void;
@@ -58,6 +63,16 @@ export function SignOffCard({
           {openTables > 0 && (
             <p className={s.open} role="status">
               {openTables} table{openTables === 1 ? ' is' : 's are'} still open. Close {openTables === 1 ? 'it' : 'them'} and sign off unlocks.
+              {emptyChecks > 0 && onVoidEmpty && (
+                <>
+                  {' '}
+                  {emptyChecks === openTables ? (emptyChecks === 1 ? 'It has' : 'They have') : `${emptyChecks} of them ${emptyChecks === 1 ? 'has' : 'have'}`}{' '}
+                  nobody on {emptyChecks === 1 ? 'it' : 'them'}.{' '}
+                  <Button size="sm" variant="ghost" onClick={onVoidEmpty}>
+                    Void {emptyChecks === 1 ? 'empty check' : `${emptyChecks} empty checks`}
+                  </Button>
+                </>
+              )}
             </p>
           )}
           {signing && (

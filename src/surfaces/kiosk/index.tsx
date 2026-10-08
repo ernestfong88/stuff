@@ -12,7 +12,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { ChevronLeft } from 'lucide-react';
-import { COMMUNITY_NAME } from '../../data';
+import { COMMUNITY_NAME, useMenuVersion } from '../../data';
 import { dinerBilling } from '../../domain/billing';
 import { isoDate } from '../../domain/pickup';
 import { hospiceOnOrder, sickWaiversUsed } from '../../domain/waivers';
@@ -34,7 +34,7 @@ import { countedSteps } from './model/flow';
 import { kioskMenu, drinkName } from '../../domain/kioskMenu';
 import { buildKioskOrder, kioskTextBody } from './model/order';
 import { saveKioskPref } from './model/prefs';
-import { KIOSK_ROOM, kioskMeals, timeChoices } from './model/times';
+import { ASAP_WIN, KIOSK_ROOM, kioskMeals, timeChoices } from './model/times';
 import { ChangesStep } from './steps/ChangesStep';
 import { DessertStep } from './steps/DessertStep';
 import { DoneStep } from './steps/DoneStep';
@@ -91,7 +91,9 @@ export default function ResidentKiosk() {
   const unit = useMeasuredUnit(frame);
   const at = useNow(1000);
 
-  const menuFor = useCallback((meal: MealName) => kioskMenu(meal, (id) => is86(marks, id)), [marks]);
+  // A new function when Back Office changes the menu, so a special taken off leaves the kiosk at once.
+  const menuVersion = useMenuVersion();
+  const menuFor = useCallback((meal: MealName) => kioskMenu(meal, (id) => is86(marks, id)), [marks, menuVersion]);
   const flow = useKioskFlow(menuFor);
   const { s: st, menu } = flow;
 
@@ -135,7 +137,7 @@ export default function ResidentKiosk() {
 
   const place = () => {
     if (!st.type || st.win == null || !st.date || !st.resident) return;
-    if (windowRoom(win, bookings, st.type, KIOSK_ROOM, st.win, st.date).full) {
+    if (st.win !== ASAP_WIN && windowRoom(win, bookings, st.type, KIOSK_ROOM, st.win, st.date).full) {
       flow.go('time', { edit: true, win: null, filled: true });
       return;
     }

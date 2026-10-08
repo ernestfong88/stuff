@@ -2,14 +2,17 @@
  * Lines on the check: how they are listed, what they cost on the meal
  * credit, and what the Send button says.
  */
-import { getItem } from '../../../data';
+import { getItem, lineItem } from '../../../data';
 import { linePrice } from '../../../domain/billing';
-import { DEFAULT_CONFIG, mealCreditRules, type DiningConfig, type MealCreditRules } from '../../../domain/config';
+import { DEFAULT_CONFIG, mealCreditRules, printerMode, type DiningConfig, type MealCreditRules } from '../../../domain/config';
+import { firesAtSend } from '../../../domain/courses';
 import { isDrink, isSide, itemCourse } from '../../../domain/menu';
 import { lineCourse } from '../../../domain/orders';
 import { drinkRoute } from '../../../domain/routing';
 import type { Diner, Order, OrderLine } from '../../../domain/types';
 import { ordinal } from '../../../lib/format';
+import { now } from '../../../lib/clock';
+import { clockLabel } from '../../../domain/pickup';
 import { getConfig } from '../../../store/config';
 
 /**
@@ -64,7 +67,7 @@ export function isExtraSide(diner: Diner, line: OrderLine, rules: MealCreditRule
 
 /** __kAlaOf */
 export function alaCartePrice(line: Pick<OrderLine, 'itemId'>): number {
-  const it = getItem(line.itemId);
+  const it = lineItem(line);
   return it?.alaPrice ?? it?.guestPrice ?? 0;
 }
 
@@ -86,6 +89,29 @@ export function sendableLines(o: Order): OrderLine[] {
   return o.diners.flatMap((d) => d.items.filter((i) => !i.sent && !i.hold && !i.comped));
 }
 
+const sendCourse = (i: OrderLine) => i.course || i.courseOverride || itemCourse(i.itemId);
+
+/**
+ * What the courses in a send do, the way sendOrder treats them: a course
+ * fires now unless an earlier course is still out (on the check unsent, in
+ * the kitchen or at the pass), and with Fire all only dessert waits.
+ * "C1 fires now, C2 waits", "C2 waits for C1".
+ */
+export function courseSendText(o: Order, food: OrderLine[], cfg: DiningConfig = DEFAULT_CONFIG): string {
+  const plates = (i: OrderLine) => !isDrink(i.itemId) && !isSide(i.itemId) && !i.comped && !i.cancelled;
+  const out = [...o.diners.flatMap((d) => d.items), ...food]
+    .filter((i) => plates(i) && (i.sent ? i.kitchenState !== 'cleared' : !i.hold))
+    .map(sendCourse);
+  const courses = [...new Set(food.filter(plates).map(sendCourse))].sort((a, b) => a - b);
+  if (!courses.length) return 'sides fire now';
+  const fires = (c: number) => firesAtSend(o, c, cfg) || !out.some((x) => x < c);
+  const now = courses.filter(fires);
+  const wait = courses.filter((c) => !fires(c));
+  const list = (cs: number[]) => 'C' + cs.join(', C');
+  if (!now.length) return `${list(wait)} ${wait.length === 1 ? 'waits' : 'wait'} for C${Math.min(...out)}`;
+  return `${list(now)} ${now.length === 1 ? 'fires' : 'fire'} now` + (wait.length ? `, ${list(wait)} ${wait.length === 1 ? 'waits' : 'wait'}` : '');
+}
+
 /** __kSendLabel: "Send · drinks now, C1 fires now (2 held)". */
 export function sendLabel(o: Order, lines: OrderLine[], held: number, cfg: DiningConfig = DEFAULT_CONFIG): string {
   const drinks = lines.filter((i) => isDrink(i.itemId));
@@ -93,14 +119,18 @@ export function sendLabel(o: Order, lines: OrderLine[], held: number, cfg: Dinin
   const bar = drinks.filter((i) => drinkRoute(i.itemId, o.room, cfg) === 'bar').length;
   const pour = drinks.length - bar;
   const drinkText = [pour && `${pour} for you to get`, bar && `${bar} to the bar`].filter(Boolean).join(', ');
-  const course = food.length ? Math.min(...food.map((i) => i.courseOverride || itemCourse(i.itemId))) : null;
   const heldText = held ? ` (${held} held)` : '';
   if (!food.length) return `Send drinks · ${drinkText}${heldText}`;
-  return drinks.length ? `Send · drinks now, C${course} fires now${heldText}` : `Send to kitchen · C${course} fires now${heldText}`;
+  // Printers print the whole ticket at once; nothing waits for a course.
+  const foodText = printerMode(cfg) ? 'ticket prints now' : courseSendText(o, food, cfg);
+  return drinks.length ? `Send · drinks now, ${foodText}${heldText}` : `Send to kitchen · ${foodText}${heldText}`;
 }
 
 /** __kSentMsg: what the last send did, for the confirmation strip. */
-export function sentMessage(o: Order): string {
+export function sentMessage(o: Order, at: number = now(), cfg: DiningConfig = DEFAULT_CONFIG): string {
+  // A pick up or delivery booked ahead waits for its fire time.
+  if (o.queueType && o.fireAtTs && o.fireAtTs > at)
+    return `Scheduled · the kitchen ${printerMode(cfg) ? 'gets the ticket' : 'fires it'} at ${clockLabel(o.fireAtTs)}`;
   const lines = o.diners.flatMap((d) => d.items.filter((i) => i.sent && !i.cancelled));
   const latest = Math.max(0, ...lines.map((i) => i.firedAt || 0));
   const last = lines.filter((i) => (i.firedAt || 0) >= latest - 3000);
@@ -115,4 +145,39 @@ export function sentMessage(o: Order): string {
     .join(', ');
   if (!drinks.length) return 'Sent to kitchen';
   return drinks.length === last.length ? `Drinks rung in · ${text}` : `Sent to kitchen · ${text}`;
+}
+
+// ─── Closing with work still out ─────────────────────────────────────────
+
+export interface CloseCheck {
+  /** Lines never sent (held ones too), with their diner. */
+  unsent: Array<{ dinerId: string; line: OrderLine }>;
+  /** How many items that is, a side rung in with its plate counting with the plate. */
+  unsentItems: number;
+  /** Plates the kitchen still has (held for a course, cooking or at the pass); 0 in printer mode, which tracks nothing. */
+  inKitchen: number;
+}
+
+/**
+ * What closing the check now would drop: items nobody sent, and plates the
+ * kitchen is still working on (closing takes them off the kitchen screens).
+ */
+export function closeCheck(o: Order, cfg: DiningConfig = DEFAULT_CONFIG): CloseCheck {
+  const unsent = o.diners.flatMap((d) => d.items.filter((i) => !i.sent && !i.cancelled).map((line) => ({ dinerId: d.id, line })));
+  const ids = new Set(unsent.map((u) => u.line.id));
+  const unsentItems = unsent.filter((u) => !(u.line.parentId && ids.has(u.line.parentId))).length;
+  const inKitchen = printerMode(cfg)
+    ? 0
+    : o.diners
+        .flatMap((d) => d.items)
+        .filter(
+          (i) =>
+            i.sent &&
+            !i.drink &&
+            !i.cancelled &&
+            !i.comped &&
+            !isSide(i.itemId) &&
+            (i.kitchenState === 'scheduled' || i.kitchenState === 'cooking' || i.kitchenState === 'ready'),
+        ).length;
+  return { unsent, unsentItems, inKitchen };
 }

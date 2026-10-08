@@ -4,9 +4,9 @@ import type { Recipe } from '../../../../store/menuEdits';
 import { EmptyState, SearchField, Tabs, Toggle, toast } from '../../../../ui';
 import { BoCallout, BoPage } from '../../kit';
 import { updateBo, useBo } from '../data';
-import { CATEGORIES, dishLong } from '../model/categories';
+import { categoryLabel, CATEGORIES, dishLong } from '../model/categories';
 import { venuesAt } from '../../../../domain/menuCycle';
-import { DINING_VENUE_ID } from '../model/liveOverlay';
+import { roomVenue } from '../../../../store/venueMenu';
 import { menuPrices, orphanPrices, priceRow, recipesOnMenu, setPrice, type PriceField } from '../model/pricing';
 import { Select, TableFrame, tableClass } from '../ui/controls';
 import { PriceCell } from './PriceCell';
@@ -41,6 +41,8 @@ export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) 
     )
     .sort((a, b) => CATEGORIES.indexOf(a.cat) - CATEGORIES.indexOf(b.cat) || a.name.localeCompare(b.name));
   const orphans = venue ? orphanPrices(bo.prices, venue.id, onMenu) : [];
+  // The venue whose prices the kitchen's tablets ring up (Sequoia for the Sequoia / Evergreen room).
+  const tabletVenue = venue?.room ? roomVenue(venue.room, bo.venues) : null;
 
   if (!venue) {
     return (
@@ -81,7 +83,7 @@ export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) 
           value={cat}
           onChange={setCat}
           placeholder="All categories"
-          options={CATEGORIES.map((c) => ({ value: c, label: c }))}
+          options={CATEGORIES.map((c) => ({ value: c, label: categoryLabel(c) }))}
           aria-label="Category"
           emphasize
         />
@@ -103,9 +105,10 @@ export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) 
         </BoCallout>
       )}
 
-      {venue.id !== DINING_VENUE_ID && venue.menuId === venues.find((v) => v.id === DINING_VENUE_ID)?.menuId && (
+      {tabletVenue && tabletVenue.id !== venue.id && (
         <BoCallout tone="info">
-          The dining room tablets ring up {venues.find((v) => v.id === DINING_VENUE_ID)?.name} prices. Prices here print on {venue.name}&apos;s menus.
+          {venue.name} shares its kitchen&apos;s tablets with {tabletVenue.name}, so they ring up {tabletVenue.name} prices. Prices here print on{' '}
+          {venue.name}&apos;s menus.
         </BoCallout>
       )}
 
@@ -129,7 +132,7 @@ export function PricingPage({ venueId: fixedVenue }: { venueId?: string } = {}) 
                 <tr key={r.id}>
                   <td>
                     <div className={s.name}>{dishLong(r.name)}</div>
-                    <div className={s.cat}>{r.cat}</div>
+                    <div className={s.cat}>{categoryLabel(r.cat)}</div>
                   </td>
                   {FIELDS.map(([k, l]) => {
                     return (

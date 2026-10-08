@@ -6,13 +6,13 @@
  *     the dinner line makes them). The chef picks which entrée special and
  *     how many associates can have it, first come, first served;
  *   - the associate special of the week: one Recipe Book recipe the chef
- *     sets per week (weeks start Monday), on every day of that week;
+ *     sets per week (weeks run Sunday to Saturday, like the menu cycle), on every day of that week;
  *   - the standing choices, always on, each a Recipe Book recipe the chef
  *     can swap (this month's sandwich ...). The soup isn't picked by hand:
  *     it is always the dining room's soup of the day, from the menu cycle.
  *
  * A week is a Draft until the chef schedules it, Scheduled until its
- * Monday, then Active. Associates plan only on scheduled or active weeks, up
+ * Sunday, then Active. Associates plan only on scheduled or active weeks, up
  * to the end of next week, with associate-only choices and no notes.
  *
  * This module is pure; src/store/assocMenu.ts assembles a day's menu from
@@ -145,9 +145,9 @@ export function soupOfTheDay(
   return cycleItems.find((x) => x.category === 'Starters' && x.recipeId && subOf(x.recipeId) === 'Soup')?.recipeId ?? null;
 }
 
-/** The associate special of the week a date falls in (weeks keyed by their Monday), or null. */
+/** The associate special of the week a date falls in (weeks keyed by their Sunday), or null. */
 export function weekSpecialFor(date: string, weekly: Record<string, string | null | undefined> | undefined): string | null {
-  return weekly?.[mondayOf(date)] || null;
+  return weekly?.[weekStartOf(date)] || null;
 }
 
 // ─── Dates and weeks ─────────────────────────────────────────────────────
@@ -159,27 +159,27 @@ export function addDays(date: string, k: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-/** The Monday of the week a date falls in. */
-export function mondayOf(date: string): string {
+/** The Sunday of the week a date falls in: associate weeks run Sunday to Saturday, like the menu cycle's. */
+export function weekStartOf(date: string): string {
   const d = new Date(date + 'T00:00:00Z');
-  return addDays(date, -((d.getUTCDay() + 6) % 7));
+  return addDays(date, -d.getUTCDay());
 }
 
 /** A week's schedule: Back Office's call over the default (this week scheduled, later weeks drafts). */
-export function menuWeek(monday: string, todayIso: string, edits: Record<string, Partial<MenuWeek>> | undefined): MenuWeek {
-  const sched = edits?.[monday]?.sched;
-  return { sched: sched ?? monday === mondayOf(todayIso) };
+export function menuWeek(start: string, todayIso: string, edits: Record<string, Partial<MenuWeek>> | undefined): MenuWeek {
+  const sched = edits?.[start]?.sched;
+  return { sched: sched ?? start === weekStartOf(todayIso) };
 }
 
-export function weekState(week: MenuWeek, monday: string, todayIso: string): WeekState {
+export function weekState(week: MenuWeek, start: string, todayIso: string): WeekState {
   if (!week.sched) return 'draft';
-  return todayIso >= monday ? 'active' : 'scheduled';
+  return todayIso >= start ? 'active' : 'scheduled';
 }
 
 export function closedReason(date: string, todayIso: string, edits: Record<string, Partial<MenuWeek>> | undefined): ClosedReason | null {
   if (date < todayIso) return 'past';
-  if (date > addDays(mondayOf(todayIso), 13)) return 'late';
-  return menuWeek(mondayOf(date), todayIso, edits).sched ? null : 'draft';
+  if (date > addDays(weekStartOf(todayIso), 13)) return 'late';
+  return menuWeek(weekStartOf(date), todayIso, edits).sched ? null : 'draft';
 }
 
 export const CLOSED_TEXT: Record<ClosedReason, string> = {

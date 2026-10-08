@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ShoppingBag, Truck } from 'lucide-react';
-import { COMMUNITY_NAME, venueFees } from '../../../data';
+import { COMMUNITY_NAME } from '../../../data';
+import { venueFee } from '../../../domain/billing';
 import { hospiceWaivesFee, sickConfig, sickPeriodEnd, sickWaiversUsed } from '../../../domain/waivers';
 import type { QueueType } from '../../../domain/types';
 import { formatMoney } from '../../../lib/format';
@@ -21,7 +22,7 @@ export function TypeStep({ flow }: { flow: KioskFlow }) {
   const { orders, history } = useDining();
   const r = flow.s.resident;
   const hospice = !!r && hospiceWaivesFee(r.id, cfg);
-  const fee = hospice ? 0 : (venueFees[KIOSK_ROOM]?.delivery ?? 0);
+  const fee = hospice ? 0 : venueFee(KIOSK_ROOM, cfg).delivery;
   const sick = sickConfig(COMMUNITY_NAME, cfg);
   const used = r ? sickWaiversUsed(r.id, [...orders, ...history], undefined, cfg) : 0;
   const sickFull = used >= sick.allow;

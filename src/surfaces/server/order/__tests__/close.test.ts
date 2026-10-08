@@ -128,6 +128,42 @@ describe('close math', () => {
   });
 });
 
+describe('hospice delivery fee', () => {
+  // r7 is on hospice in the seed; the meal comp and the fee waiver are separate switches.
+  const delivery = () => {
+    const d = diner([line('d_peach')], { refId: 'r7' });
+    return { d, o: order([d], { tableId: undefined, queueType: 'delivery', room: 'sequoia' }) };
+  };
+
+  it('comps meal and fee when both hospice switches are on', () => {
+    const { d, o } = delivery();
+    const r = row(d, inputs(o));
+    expect(r.charge).toMatchObject({ comped: true, outOfPlan: 0 });
+    expect(chargeDrop(r, 'apt', 'Hospice', () => '')).toMatch(/^comp:Hospice/);
+  });
+
+  it('charges the delivery fee when its waiver is off, with the meal still comped', () => {
+    const { d, o } = delivery();
+    const cfg = { ...DEFAULT_CONFIG, flow: { freeDeliveryComp: false } };
+    const r = row(d, inputs(o, { cfg }));
+    expect(r.charge).toMatchObject({ comped: false, hospiceMeal: true, outOfPlan: 3, needsDrop: true });
+    expect(closeView(r, o, { mode: 'count', noCharge: null, how: 'apt', tablePay: 'each' })).toMatchObject({
+      k: 'charge',
+      amt: 3,
+      sub: 'Hospice · the meal is comped, the delivery fee still charges',
+    });
+    expect(chargeDrop(r, 'apt', 'Hospice', () => '')).toBe('apt:3');
+    // A manager fee comp still takes it off.
+    expect(row(d, inputs(o, { cfg, feeComped: true })).charge).toMatchObject({ comped: true, outOfPlan: 0 });
+  });
+
+  it('follows the venue fee set in Back Office', () => {
+    const { d, o } = delivery();
+    const cfg = { ...DEFAULT_CONFIG, flow: { freeDeliveryComp: false }, fees: { sequoia: { delivery: 4.5 } } };
+    expect(row(d, inputs(o, { cfg })).charge.outOfPlan).toBe(4.5);
+  });
+});
+
 describe('pick up windows', () => {
   it('labels 15 minute ranges', () => {
     expect(rangeLabel('5:00 PM')).toBe('5:00 to 5:15 PM');

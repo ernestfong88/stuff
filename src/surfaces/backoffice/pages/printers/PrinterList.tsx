@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Printer as PrinterIcon, Send, Trash2, X } from 'lucide-react';
 import { uid } from '../../../../lib/id';
+import { printerIpProblem } from '../../../../domain/deviceChecks';
 import { printRoute } from '../../../../domain/printing';
 import {
   linkPrinter,
@@ -96,7 +97,11 @@ function PrinterRow({ printer: p, settings, onRemove }: { printer: Printer; sett
             value={p.ip}
             label={`IP of ${p.name}`}
             placeholder="IP address"
-            onSave={(v) => patchPrinter(p.id, { ip: v.trim() })}
+            onSave={(v) => {
+              const problem = printerIpProblem(v, settings.printers, p.id);
+              if (problem) return toast(problem, { tone: 'danger' });
+              patchPrinter(p.id, { ip: v.trim() });
+            }}
           />
         </div>
         <div className={s.venues} role="group" aria-label={`Venues that use ${p.name}`}>

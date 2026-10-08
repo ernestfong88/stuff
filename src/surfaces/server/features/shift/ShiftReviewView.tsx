@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CircleHelp, Sparkles } from 'lucide-react';
 import { getResident, getStaff } from '../../../../data';
+import { isEmptyCheck } from '../../../../domain/seating';
 import { serverName } from '../../../../domain/servers';
 import { startOfToday, today } from '../../../../lib/clock';
 import { formatDayLong } from '../../../../lib/format';
@@ -9,7 +10,7 @@ import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
 import { useNotes } from '../../../../store/notes';
 import { sideWorkDate } from '../../../../store/sideWork';
-import { Chip, Tabs, useNow } from '../../../../ui';
+import { Chip, Tabs, toast, useNow } from '../../../../ui';
 import { mealAt } from '../menu/menuSections';
 import { printHtml } from '../shared/print';
 import { useMyInitials } from '../shared/useShiftServers';
@@ -32,7 +33,7 @@ export function ShiftReviewView({ server, onOpenCheck }: { server?: string; onOp
   const me = useMyInitials();
   const who = server ?? me;
   const whoName = getStaff(who)?.name ?? serverName(who);
-  const { orders, history } = useDining();
+  const { orders, history, closeOrder } = useDining();
   const cfg = useConfig();
   const notes = useNotes();
   const feedback = useTodaysFeedback();
@@ -53,6 +54,12 @@ export function ShiftReviewView({ server, onOpenCheck }: { server?: string; onOp
   const totals = shiftTotals(rows);
   const checkIns = checkInCount([...orders, ...history.filter((o) => (o.closedAt ?? 0) >= startOfToday())], who);
   const open = orders.filter((o) => o.server === who && !o.queueType).length;
+  // Tables tapped by mistake: nobody on the check, so they can go without closing.
+  const empty = orders.filter((o) => o.server === who && isEmptyCheck(o));
+  const voidEmpty = () => {
+    for (const o of empty) closeOrder(o.id);
+    toast(`Voided ${empty.length === 1 ? 'the empty check' : `${empty.length} empty checks`}.`);
+  };
   const meal = mealAt(today().getHours()).toLowerCase();
   const myNotes = notes.filter((n) => n.by === who);
 
@@ -113,6 +120,8 @@ export function ShiftReviewView({ server, onOpenCheck }: { server?: string; onOp
               who={who}
               whoName={whoName}
               openTables={open}
+              emptyChecks={empty.length}
+              onVoidEmpty={voidEmpty}
               signedAt={signedAt}
               onSign={() => signOff(who, day, t)}
               onExport={exportCopy}

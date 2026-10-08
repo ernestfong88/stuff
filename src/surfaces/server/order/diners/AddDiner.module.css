@@ -117,6 +117,10 @@
 .plus {
   color: var(--ocean);
 }
+.seatedAt {
+  color: var(--warning);
+  font-weight: 600;
+}
 .none {
   margin: 0;
   padding: 10px;

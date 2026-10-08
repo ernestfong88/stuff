@@ -9,6 +9,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { now } from '../../lib/clock';
+import { useMenuVersion } from '../../data';
 import { useRoute } from '../../shell/router';
 import { is86, use86 } from '../../store/eightySix';
 import { useNow } from '../../ui';
@@ -34,7 +35,9 @@ export default function SpecialsDisplay() {
   const marks = use86();
 
   const meal = pin ?? clockMeal;
-  const slides = useMemo(() => displaySlides(meal, (id) => is86(marks, id)), [meal, marks]);
+  // Re-run when Back Office changes the menu (a special removed or added shows without a reload).
+  const menuVersion = useMenuVersion();
+  const slides = useMemo(() => displaySlides(meal, (id) => is86(marks, id)), [meal, marks, menuVersion]);
   const key = slides.map((x) => x.item.id).join();
   const entreeCount = slides.filter((x) => x.kind === 'entree').length;
 

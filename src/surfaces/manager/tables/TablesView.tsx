@@ -1,13 +1,16 @@
 import type { CSSProperties } from 'react';
 import { serverColor, serverName, serversOnFloor } from '../../../domain/servers';
 import type { Order } from '../../../domain/types';
+import { now } from '../../../lib/clock';
 import { formatElapsed } from '../../../lib/format';
 import { useShared } from '../../../lib/sharedStore';
 import { useVenue } from '../../../shell/session';
 import { useConfig } from '../../../store/config';
 import { useDining } from '../../../store/dining';
 import { serviceConfig } from '../../../store/serviceConfig';
-import { cx, useNow } from '../../../ui';
+import { cx, useConfirm, useNow } from '../../../ui';
+import { heldConfirm, heldWord, useHeldFor } from '../../server/newcheck/heldTable';
+import type { Reservation } from '../../host/reservations/model';
 import { FloorPlan } from '../floor/FloorPlan';
 import { FLOOR_KEYS, floorState } from '../floor/floorState';
 import { checksAt, inPlan, useRoomPlan, useTableName, type PlanItem } from '../../../store/floorLayout';
@@ -29,6 +32,16 @@ export function TablesView({
   const plan = useRoomPlan(venue);
   const { orders } = useDining();
   const live = orders.filter((o) => !o.queueType && inPlan(o, plan));
+  const heldAt = useHeldFor(venue);
+  const [confirm, confirmDialog] = useConfirm();
+  // A table the host is holding for a reservation: say so before starting a check there.
+  const start = onStart
+    ? async (table: PlanItem) => {
+        const held = heldAt(table.id);
+        if (held && !(await confirm(heldConfirm(table.label, held, now())))) return;
+        onStart(table);
+      }
+    : undefined;
 
   return (
     <div className={s.wrap}>
@@ -47,9 +60,12 @@ export function TablesView({
         <FloorPlan
           plan={plan}
           minHeight={520}
-          tile={(t, box) => <Tile key={t.id} table={t} box={box} checks={checksAt(live, t.id)} onOpen={onOpen} onStart={onStart} />}
+          tile={(t, box) => (
+            <Tile key={t.id} table={t} box={box} checks={checksAt(live, t.id)} held={heldAt(t.id)} onOpen={onOpen} onStart={start} />
+          )}
         />
       </div>
+      {confirmDialog}
     </div>
   );
 }
@@ -58,12 +74,15 @@ function Tile({
   table,
   box,
   checks,
+  held,
   onOpen,
   onStart,
 }: {
   table: PlanItem;
   box: CSSProperties;
   checks: Order[];
+  /** The reservation the host is holding this free table for. */
+  held: Reservation | null;
   onOpen: (o: Order) => void;
   onStart?: (table: PlanItem) => void;
 }) {
@@ -77,19 +96,20 @@ function Tile({
     if (onStart)
       return (
         <button
-          className={cx(s.tile, s.free, s.startable, round && s.round)}
+          className={cx(s.tile, s.free, s.startable, held && s.held, round && s.round)}
           style={box}
           onClick={() => onStart(table)}
-          aria-label={`${table.label}, free. Start a check here`}
+          aria-label={`${table.label}, ${held ? heldWord(held) : 'free'}. Start a check here`}
         >
           <span className={s.label}>{table.label}</span>
+          {held && <span className={s.heldWord}>{heldWord(held)}</span>}
           <span className={s.freeWord}>+ New check</span>
         </button>
       );
     return (
-      <div className={cx(s.tile, s.free, round && s.round)} style={box}>
+      <div className={cx(s.tile, s.free, held && s.held, round && s.round)} style={box}>
         <span className={s.label}>{table.label}</span>
-        <span className={s.freeWord}>Free</span>
+        <span className={s.freeWord}>{held ? heldWord(held) : 'Free'}</span>
       </div>
     );
   }

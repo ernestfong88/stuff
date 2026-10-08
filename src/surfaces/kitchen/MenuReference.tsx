@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getItem, meals, menu } from '../../data';
+import { avoidLabel, inferAllergens } from '../../domain/allergens';
 import { defaultSides, isDrink } from '../../domain/menu';
 import type { MealName, MenuItem } from '../../domain/types';
 import { today } from '../../lib/clock';
@@ -166,13 +167,20 @@ function DishView({ item, out, onClose }: { item: MenuItem; out: boolean; onClos
               ))}
             </div>
           )}
-          <Fact label="Allergens" text={item.allergens.length ? item.allergens.join(', ') : 'None listed'} tone={item.allergens.length ? 'red' : undefined} />
+          <Fact label="Allergens" text={allergenText(item)} tone={allergenText(item) !== 'None listed' ? 'red' : undefined} />
           <div className={s.closeHint}>Tap anywhere to close</div>
         </div>
       </div>
     </div>,
     document.getElementById('root') ?? document.body,
   );
+}
+
+/** The recorded allergens, else what the dish's words suggest ("May contain …"), else none. */
+function allergenText(item: MenuItem): string {
+  if (item.allergens.length) return item.allergens.join(', ');
+  const maybe = inferAllergens(item).map(avoidLabel);
+  return maybe.length ? `May contain ${maybe.join(', ')} (suggested)` : 'None listed';
 }
 
 function Fact({ label, text, tone, quiet }: { label: string; text: string; tone?: 'gold' | 'red'; quiet?: boolean }) {

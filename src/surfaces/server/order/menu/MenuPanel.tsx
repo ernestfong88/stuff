@@ -2,6 +2,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { Star } from 'lucide-react';
 import { getItem } from '../../../../data';
 import { flag } from '../../../../domain/config';
+import { hasFoodConflict } from '../../../../domain/allergens';
 import { availableCount, findLine } from '../../../../domain/orders';
 import type { Diner, MenuItem, ModSelection, Order, Resident } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
@@ -11,7 +12,7 @@ import { isoDate } from '../../../../domain/pickup';
 import { cx, SearchField } from '../../../../ui';
 import { sideParentFor } from '../checkLines';
 import { allergyPerson } from '../diners/allergyPerson';
-import { assocSections, todaysAssocMenu } from './assocMenu';
+import { assocSectionLeft, assocSections, todaysAssocMenu, type AssocSection } from './assocMenu';
 import { DinerHead } from './DinerHead';
 import s from './MenuPanel.module.css';
 import {
@@ -19,7 +20,7 @@ import {
   effectiveDrinkGroup,
   menuSections,
   menuTabs,
-  TODAY_MENU_DAY,
+  orderMenuRoom,
   type DrinkGroup,
   type MenuSection,
   type MenuTab,
@@ -71,13 +72,19 @@ export function MenuPanel({
   const tabsRef = useRef<HTMLDivElement>(null);
   // A guest's diner points at the host, whose allergies are not the guest's.
   const person = allergyPerson(diner);
-  const tabs = menuTabs(o.meal);
-  const sections = menuSections(o.meal, tab, { drinkGroup, room: o.room, search, cfg });
+  const room = orderMenuRoom(o);
+  const tabs = menuTabs(o.meal, room);
+  const sections = menuSections(o.meal, tab, { drinkGroup, room, search, cfg });
   const isResident = diner.kind === 'resident' && !diner.isGuest;
   // An associate's meal is locked to the associate menu: the chef's special, the special of the week and the standing choices.
   const assocOnly = !!o.assoc || diner.kind === 'associate';
   useAssocMenuSettings();
   const assoc = assocOnly ? assocSections(todaysAssocMenu(o.meal, isoDate(0)), o.meal) : [];
+  // The special's daily limit counts App meals and meals rung in here; one this diner already has stays theirs.
+  const assocLeft = (sec: AssocSection) => {
+    if (diner.items.some((l) => !l.cancelled && sec.items.some((i) => i.id === l.itemId))) return null;
+    return assocSectionLeft(sec, dining.assocOrders, [...dining.orders, ...dining.history], isoDate(0));
+  };
 
   const add = (item: MenuItem, mods: ModSelection, note: string) => {
     dining.addItem(o.id, diner.id, item.id, mods, note, sideParentFor(item.id, diner));
@@ -134,8 +141,8 @@ export function MenuPanel({
                   item={it}
                   price={0}
                   special={sec.special}
-                  allergic={it.allergens.some((a) => person?.allergies?.includes(a))}
-                  left={availableCount(it.id, dining.orders)}
+                  allergic={hasFoodConflict(it, person)}
+                  left={assocLeft(sec) ?? availableCount(it.id, dining.orders)}
                   onAdd={() => tap(it)}
                   onModify={() => setModItem(it)}
                 />
@@ -158,8 +165,8 @@ export function MenuPanel({
                   key={it.id}
                   item={it}
                   price={isResident ? it.residentPrice : it.guestPrice}
-                  special={it.day === TODAY_MENU_DAY || !!it.special}
-                  allergic={it.allergens.some((a) => person?.allergies?.includes(a))}
+                  special={it.day > 0 || !!it.special}
+                  allergic={hasFoodConflict(it, person)}
                   left={availableCount(it.id, dining.orders)}
                   tint={sec.tint}
                   onAdd={() => tap(it)}

@@ -7,7 +7,7 @@
  * A pick is a modifier option with an action prefix: "Xtra Bacon",
  * "No Onions", or a plain option for Add.
  */
-import { getItem, modGroups, modifierRules, modPrefixes, pinSeq } from '../../../../data';
+import { getItem, modGroups, modifierRules, modPrefixes } from '../../../../data';
 import { flattenMods } from '../../../../domain/menu';
 import type { ModGroup, ModSelection } from '../../../../domain/types';
 
@@ -76,9 +76,19 @@ export function ruleText(groupId: string): string {
   return base + (r.extra > 0 ? ` · ${r.included || 0} included, then $${r.extra.toFixed(2)} each` : '');
 }
 
-/** Groups pinned to an item open first, in the order the kitchen set. */
+/**
+ * Groups pinned to an item open first, in the order the kitchen set. The
+ * pins are Back Office's (Modifiers, Pin a recipe), the same ones the kiosk
+ * and billing read; they ship as the seed pin order.
+ */
 export function pinnedGroupIds(itemId: string): string[] {
-  return pinSeq[itemId] ?? [];
+  return modifierRules.items[itemId] ?? [];
+}
+
+/** What an option adds to the price on the server tablet ("Bacon +$2.00"), or 0. */
+export function optionPrice(groupId: string | null, name: string): number {
+  if (!groupId) return 0;
+  return modifierRules.groups[groupId]?.options.find((o) => o.name === name)?.price ?? 0;
 }
 
 const groupById = new Map(modGroups.map((g) => [g.id, g]));

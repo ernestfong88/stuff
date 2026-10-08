@@ -21,10 +21,15 @@ interface ToastItem extends ToastOptions {
 const toasts = createSharedStore<ToastItem[]>([]);
 let nextId = 1;
 
-/** Show a short message at the bottom of the screen. Returns a dismiss function. */
+/**
+ * Show a short message at the bottom of the screen. Returns a dismiss
+ * function. A toast with an action (Undo) replaces any older one with an
+ * action: only the latest change can be undone from a toast, so a stale
+ * Undo is never offered and the toasts don't stack over the screen.
+ */
 export function toast(message: string, opts: ToastOptions = {}): () => void {
   const id = nextId++;
-  toasts.set((list) => [...list.slice(-2), { id, message, ...opts }]);
+  toasts.set((list) => [...list.filter((t) => !(opts.action && t.action)).slice(-2), { id, message, ...opts }]);
   return () => dismiss(id);
 }
 

@@ -3,6 +3,7 @@ import { DEFAULT_CONFIG } from '../../../../domain/config';
 import { T0, diner, freezeClock, line, order } from '../../../../domain/__tests__/helpers';
 import { cardActions, type CardContext } from '../cardActions';
 import { stageSince, tableStage } from '../../../../domain/tableStage';
+import { tableStage as managerStage } from '../../../manager/floor/stage';
 
 const MIN = 60_000;
 
@@ -52,10 +53,17 @@ describe('tableStage', () => {
     expect(tableStage(o, { ...DEFAULT_CONFIG, flow: { checkIn: false } }).key).toBe('check');
   });
 
-  it('remembers when a ready course without a stamp was first seen', () => {
-    const o = order([diner([line('d_cbsoup', { sent: true, kitchenState: 'ready', course: 1 })])]);
-    const first = stageSince(o, tableStage(o, DEFAULT_CONFIG, T0));
-    expect(stageSince(o, tableStage(o, DEFAULT_CONFIG, T0 + 3 * MIN))).toBe(first);
+  it('times a ready course without a stamp from when its plates came up, the same on every render', () => {
+    const o = order([diner([line('d_cbsoup', { sent: true, kitchenState: 'ready', course: 1, readyAtMs: T0 - 10 * MIN })])]);
+    expect(stageSince(o, tableStage(o, DEFAULT_CONFIG, T0))).toBe(T0 - 10 * MIN);
+    expect(stageSince(o, tableStage(o, DEFAULT_CONFIG, T0 + 3 * MIN))).toBe(T0 - 10 * MIN);
+    expect(stageSince({ ...o, readyStampAt: T0 - 2 * MIN }, tableStage({ ...o, readyStampAt: T0 - 2 * MIN }))).toBe(T0 - 2 * MIN);
+  });
+
+  it('agrees with the manager floor on when a seeded ready course came up', () => {
+    const o = order([diner([line('d_cbsoup', { sent: true, kitchenState: 'ready', course: 1, firedAt: T0 - 20 * MIN })])], { openedAt: T0 - 30 * MIN });
+    expect(tableStage(o).since).toBe(managerStage(o).since);
+    expect(tableStage(o).since).toBeLessThan(T0 - 10 * MIN);
   });
 });
 

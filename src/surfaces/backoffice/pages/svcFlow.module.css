@@ -40,3 +40,9 @@
   font-weight: 650;
   color: var(--s700);
 }
+.problem {
+  margin: 8px 16px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--danger);
+}

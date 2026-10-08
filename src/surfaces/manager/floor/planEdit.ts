@@ -10,10 +10,11 @@ export const SNAP = 0.5;
 
 export const snap = (v: number) => Math.round(v / SNAP) * SNAP;
 
-/** Keep an item fully on the plan. */
+/** Keep an item fully on the plan, and a table big enough to read and tap. */
 export function clampItem(it: PlanItem): PlanItem {
-  const w = Math.min(100, Math.max(2, it.w));
-  const h = Math.min(100, Math.max(2, it.h));
+  const min = minSize(it);
+  const w = Math.min(100, Math.max(min, it.w));
+  const h = Math.min(100, Math.max(min, it.h));
   return { ...it, w, h, x: Math.min(100 - w, Math.max(0, snap(it.x))), y: Math.min(100 - h, Math.max(0, snap(it.y))) };
 }
 
@@ -81,25 +82,32 @@ export function newItem(kind: NewKind, items: PlanItem[], bands: FloorBand[], id
 /** A resize handle: which edges it moves (n, s, e, w, or a corner). */
 export type Handle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
-/** Smallest table or wall, in percent of the plan. */
+/** Smallest wall, in percent of the plan. */
 export const MIN_SIZE = 2;
+
+/** Smallest table, in percent of the plan: its name still fits, and a finger can hit it. */
+export const MIN_SEAT = 6;
+
+/** The smallest an item can be made, either way. */
+export const minSize = (it: Pick<PlanItem, 'type'>) => (it.type === 'seat' ? MIN_SEAT : MIN_SIZE);
 
 /**
  * Drag a handle by a delta in percent: the opposite edge stays put, sizes
- * snap, and the item stays on the plan and at least MIN_SIZE across.
+ * snap, and the item stays on the plan and at least minSize across.
  */
 export function resizeItem(it: PlanItem, handle: Handle, dx: number, dy: number): PlanItem {
+  const MIN = minSize(it);
   let { x, y, w, h } = it;
   const right = x + w;
   const bottom = y + h;
-  if (handle.includes('e')) w = Math.min(100 - x, Math.max(MIN_SIZE, snap(w + dx)));
-  if (handle.includes('s')) h = Math.min(100 - y, Math.max(MIN_SIZE, snap(h + dy)));
+  if (handle.includes('e')) w = Math.min(100 - x, Math.max(MIN, snap(w + dx)));
+  if (handle.includes('s')) h = Math.min(100 - y, Math.max(MIN, snap(h + dy)));
   if (handle.includes('w')) {
-    x = Math.max(0, Math.min(right - MIN_SIZE, snap(x + dx)));
+    x = Math.max(0, Math.min(right - MIN, snap(x + dx)));
     w = right - x;
   }
   if (handle.includes('n')) {
-    y = Math.max(0, Math.min(bottom - MIN_SIZE, snap(y + dy)));
+    y = Math.max(0, Math.min(bottom - MIN, snap(y + dy)));
     h = bottom - y;
   }
   return { ...it, x, y, w, h };
@@ -128,12 +136,15 @@ export function copyItems(all: PlanItem[], picked: PlanItem[], newId: () => stri
   const dx = at ? at.x - left : besideRight ? right - left + 1 : 0;
   const dy = at ? at.y - top : besideRight ? 0 : bottom - top + 1;
   const named = [...all];
-  return picked.map((t) => {
+  const copies = picked.map((t) => {
     const copy = clampItem({ ...t, id: newId(), x: t.x + dx, y: t.y + dy });
     if (copy.type === 'seat') copy.label = nextTableLabel(named, t.label.replace(/\s*\d+$/, '') || 'T');
     named.push(copy);
     return copy;
   });
+  // One copy that would land on a neighbour goes to the first free spot instead.
+  if (!at && copies.length === 1 && all.some((x) => overlaps(copies[0], x))) return [{ ...copies[0], ...freeSpot(all, copies[0].w, copies[0].h) }];
+  return copies;
 }
 
 export type Align = 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom';

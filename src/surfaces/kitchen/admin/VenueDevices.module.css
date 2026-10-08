@@ -36,3 +36,18 @@
   font-size: 13.5px;
   color: var(--s500);
 }
+.pairNote {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  color: var(--s500);
+}
+.pairForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pairActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

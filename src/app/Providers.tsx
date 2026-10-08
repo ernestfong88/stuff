@@ -50,6 +50,28 @@ function AssocItems() {
   return null;
 }
 
+/**
+ * Keeps the floor's menu on each venue's menu cycle with nobody editing in
+ * Back Office: today's cycle day (and so the specials) follows each venue's
+ * "Week 1 started" and changes when the day rolls over. The menu model loads
+ * on its own, after the screen.
+ */
+function LiveMenu() {
+  useEffect(() => {
+    if (import.meta.env.MODE === 'test') return;
+    let stop: (() => void) | undefined;
+    let gone = false;
+    void import('../surfaces/backoffice/menus/data').then((m) => {
+      if (!gone) stop = m.keepLiveMenu();
+    });
+    return () => {
+      gone = true;
+      stop?.();
+    };
+  }, []);
+  return null;
+}
+
 /** App-wide providers. */
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -57,6 +79,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <SessionBridge />
       <DemoTools />
       <AssocItems />
+      <LiveMenu />
       {children}
     </DiningProvider>
   );

@@ -10,8 +10,18 @@ import { assocNext, assocState, dishTitle, NOC_CLOSE, shortSpan, type AssocStage
 import s from './ExpoTicketCard.module.css';
 import { TICKET_STATE_LABEL } from './expoTickets';
 
-/** Associates: today's associate meals, one card each, in window order. */
-export function ExpoAssociates({ tickets, now, onUpdate }: { tickets: AssocTicket[]; now: number; onUpdate: (id: string, patch: AssocStage & Partial<AssocMeal>, text: string) => void }) {
+/** Associates: today's associate meals, one card each, in window order. Meals never fired for a past window are listed as missed. */
+export function ExpoAssociates({
+  tickets,
+  missed = [],
+  now,
+  onUpdate,
+}: {
+  tickets: AssocTicket[];
+  missed?: AssocTicket[];
+  now: number;
+  onUpdate: (id: string, patch: AssocStage & Partial<AssocMeal>, text: string) => void;
+}) {
   return (
     <TicketGrid>
       {tickets.map((t, i) => (
@@ -20,6 +30,11 @@ export function ExpoAssociates({ tickets, now, onUpdate }: { tickets: AssocTicke
         </TicketSlot>
       ))}
       {tickets.length === 0 && <GridMessage title="No associate orders left today." />}
+      {missed.length > 0 && (
+        <GridMessage title={`Missed earlier today: ${missed.length}`}>
+          Never fired, and their pick up time has passed: {missed.map((t) => `${t.meal.associate} (${pickupWindow(t.meal.window)})`).join(', ')}.
+        </GridMessage>
+      )}
     </TicketGrid>
   );
 }
@@ -49,11 +64,11 @@ function AssocTicketCard({ ticket: t, index, now, onUpdate }: { ticket: AssocTic
         <div className={s.headRow}>
           {index < 10 && <span className={s.seq}>{index}</span>}
           <span className={cx(s.label, s.assocName)}>{m.associate}</span>
-          <span className={s.serverPill}>Associate</span>
           <span className={cx(s.clock, s.clockPushed)}>{timer}</span>
         </div>
         <div className={s.headRow}>
           <span className={s.window}>{(t.noc ? 'NOC ' : '') + pickupWindow(m.window)}</span>
+          <span className={s.serverPill}>Associate</span>
           <span className={cx(s.state, s[`state_${state}`], changed && s.statePop)}>{TICKET_STATE_LABEL[state]}</span>
         </div>
       </header>

@@ -64,11 +64,15 @@ export function residentPills(r: Pick<Resident, 'allergies' | 'diet' | 'foodPrep
 }
 
 /**
- * __kDinerPills: tags for a seat. Only assisted living residents get them,
- * and never a guest: a guest is seated against the resident who brought
- * them, and the host's allergies and diet are not the guest's.
+ * __kDinerPills: tags for a seat. Every resident's allergies show (an
+ * independent living resident's peanut allergy matters as much); diet and
+ * texture tags are for assisted living residents. Never a guest: a guest is
+ * seated against the resident who brought them, and the host's allergies and
+ * diet are not the guest's.
  */
 export function dinerPills(d: Diner | null | undefined): Pill[] {
   const r = d && !d.isGuest ? (dinerPerson(d) as Resident | undefined) : undefined;
-  return r && r.level === 'AL' ? residentPills(r) : [];
+  if (!r) return [];
+  const pills = residentPills(r);
+  return r.level === 'AL' ? pills : pills.filter((p) => p.kind === 'allergy');
 }

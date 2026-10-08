@@ -1,4 +1,5 @@
 import { ArrowLeft, Info } from 'lucide-react';
+import { allergenKeysIn, avoidLabel, personAvoids } from '../../../../domain/allergens';
 import { now } from '../../../../lib/clock';
 import { formatTime } from '../../../../lib/format';
 import { navigate } from '../../../../shell/router';
@@ -24,14 +25,22 @@ export function ResidentDetail({ resident: r, onBack, goto }: { resident: BoResi
   const allergies = dining?.allergies ?? r.allergies;
   const diet = [...(dining?.diet ?? r.diet), ...(dining?.foodPrep ? [`Food prep: ${dining.foodPrep}`] : [])];
   const set = (patch: Partial<BoResident>) => updateResidentRecord(r.id, patch);
+  // A note like "NO peanut products — severe" that the allergy list doesn't carry.
+  const onFile = new Set(personAvoids({ allergies, diet: dining?.diet ?? r.diet }).map((a) => a.key));
+  const unlisted = allergenKeysIn(r.kitchenNotes).filter((k) => !onFile.has(k));
   // The dining tablets read preferences from the shared store, so a change here shows at the table.
   const prefText = dining ? residentPref({ [r.id]: r.prefs, ...prefs }, r.id) : r.prefs;
   const setPref = (text: string) => (dining ? updateResidentPref(r.id, text) : set({ prefs: text }));
 
   const changePlan = (planId: string) => {
     const to = plans.find((p) => p.id === planId);
+    const before: Partial<BoResident> = { planId: r.planId, planLog: r.planLog };
     set({ planId, planLog: [{ at: now(), by: BACK_OFFICE_USER.name, from: plan?.text ?? 'No plan', to: to?.text ?? planId }, ...(r.planLog ?? [])].slice(0, 10) });
-    toast(`Plan changed to ${to?.text}. The change is recorded for billing.`, { tone: 'success' });
+    const undo = () => {
+      set(before);
+      toast(`${r.name.split(' ')[0]}'s plan is back to ${plan?.text ?? 'no plan'}.`);
+    };
+    toast(`Plan changed to ${to?.text}. The change is recorded for billing.`, { tone: 'success', action: { label: 'Undo', onClick: undo } });
   };
 
   return (
@@ -120,6 +129,13 @@ export function ResidentDetail({ resident: r, onBack, goto }: { resident: BoResi
             <div className={s.form}>
               <TextArea label="Dining preferences" hint="Servers see this at the table." rows={2} value={prefText} onChange={(e) => setPref(e.target.value)} />
               <TextArea label="Kitchen notes" hint="The cook line sees this on every ticket." rows={2} value={r.kitchenNotes} onChange={(e) => set({ kitchenNotes: e.target.value })} />
+              {unlisted.length > 0 && (
+                <BoCallout tone="danger">
+                  The kitchen notes mention {unlisted.map((k) => avoidLabel(k).toLowerCase()).join(', ')}, which{' '}
+                  {unlisted.length > 1 ? 'are' : 'is'} not on {r.name.split(' ')[0]}'s allergy list. Allergy warnings on the tablets only use
+                  that list, so ask nursing to add it to the care assessment.
+                </BoCallout>
+              )}
             </div>
           </BoSection>
           {dining ? (

@@ -6,10 +6,12 @@
 import { MINUTE } from '../../../lib/clock';
 import {
   clockLabel,
+  clockMinutes,
   dayOffset,
   parseClockTime,
   pickupDue,
   pickupLateMinutes,
+  pickupApt,
   pickupStage,
   pickupWho,
   spanLabel,
@@ -238,7 +240,8 @@ export function handOffMessage(kind: QueueActionKind, o: Order, finished = false
   if (kind === 'packed') return finished ? `${who} is set out and done.` : `${who} is set out.`;
   if (kind === 'onMyWay') return `${who} is on the way.`;
   if (kind === 'pickedUp') return `${who} is picked up.`;
-  return `${who} is delivered.`;
+  const apt = pickupApt(o);
+  return apt ? `${who} reached Apt ${apt}.` : `${who} was handed over.`;
 }
 
 /**
@@ -282,7 +285,7 @@ export interface CompletedSummary {
 }
 
 export function completedSummary(list: Order[]): CompletedSummary {
-  const onTime = list.filter((o) => pickupLateMinutes(o) <= 1).length;
+  const onTime = list.filter((o) => pickupLateMinutes(o) <= 0).length;
   return {
     count: list.length,
     onTimePercent: list.length ? Math.round((onTime / list.length) * 100) : null,
@@ -304,14 +307,14 @@ export function completedView(o: Order): CompletedView {
   const due = parseClockTime(o.readyAt);
   const lateBy = pickupLateMinutes(o);
   const pickup = o.queueType === 'pickup';
-  const after = due ? Math.round((at - due) / MINUTE) : 0;
+  const after = due ? clockMinutes(due, at) : 0;
   const parts = [`Booked ${rangeOf(o.readyAt)}`];
   if (o.readyStampAt) parts.push(`ready ${clockLabel(o.readyStampAt)}`);
   if (pickup && !o.setOut && after > 5) parts.push(`collected ${after}m after`);
   parts.push(pickup ? `${o.setOut ? 'set out' : 'picked up'} ${clockLabel(at)}` : `delivered ${clockLabel(at)}`);
   return {
-    headline: `${pickup ? 'Ready' : 'Delivered'} ${lateBy > 1 ? `${lateBy}m late` : 'on time'}`,
-    late: lateBy > 1,
+    headline: `${pickup ? 'Ready' : 'Delivered'} ${lateBy > 0 ? `${lateBy}m late` : 'on time'}`,
+    late: lateBy > 0,
     detail: parts.join(' · '),
   };
 }

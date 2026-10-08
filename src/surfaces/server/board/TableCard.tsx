@@ -266,10 +266,11 @@ export function TableCard({ order: o, stage, since, covered, onOpen, plain }: Ta
         {dialog === 'drinks' && (
           <DrinksDialog
             order={o}
-            queue={drinkQueue(o)}
+            queue={drinkQueue(o, cfg.barScreen !== false)}
             onClose={() => setDialog(null)}
             onDone={() => {
-              dining.serveDrinks(o.id);
+              const q = drinkQueue(o, cfg.barScreen !== false);
+              dining.serveDrinks(o.id, [...q.pour, ...q.up].map((x) => x.line.id));
               setDialog(null);
             }}
           />

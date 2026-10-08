@@ -66,7 +66,7 @@ export function cycleDayOn(start: number | null | undefined, len: number, at: nu
 }
 
 /** Days in a menu's cycle: its set length, or the last day something is placed on. */
-export function cycleLength(menu: BoMenu | undefined, lastPlacedDay: number): number {
+export function cycleLength(menu: Pick<BoMenu, 'kind' | 'cycleLen'> | undefined, lastPlacedDay: number): number {
   if (!menu || menu.kind === 'alc') return 0;
   return lastPlacedDay > 0 ? Math.max(menu.cycleLen || 0, lastPlacedDay) : menu.cycleLen || 0;
 }
@@ -200,6 +200,16 @@ export function quarterMenuName(q: string, kind: 'cycle' | 'alc', prefix = 'VT')
   const p = parseQuarter(q);
   if (!p) return kind === 'alc' ? 'Untitled à la carte menu' : 'Untitled menu cycle';
   return `${prefix} ${SEASONS[p.q - 1]} ${p.y}${kind === 'alc' ? ' À la Carte' : ''}`;
+}
+
+/** A name no other menu has: the name, else "<name> (draft)", "<name> (draft 2)" ... */
+export function uniqueMenuName(name: string, menus: Array<{ name: string }>): string {
+  const taken = new Set(menus.map((m) => m.name.trim().toLowerCase()));
+  if (!taken.has(name.toLowerCase())) return name;
+  for (let n = 1; ; n++) {
+    const next = `${name} (draft${n > 1 ? ' ' + n : ''})`;
+    if (!taken.has(next.toLowerCase())) return next;
+  }
 }
 
 /** Quarters to offer in pickers: last year to next year, then Year-round. */

@@ -8,8 +8,8 @@
  * Back Office keeps the chef's calls with the other service settings:
  *   am.days[date][Lunch|Dinner]  {recipeId (null: none), cap}
  *   am.std[slotId]               recipe for a standing choice
- *   am.wk[monday]                recipe for the associate special of the week (absent: none)
- *   am.weeks[monday].sched       the week is open to plan
+ *   am.wk[sunday]                recipe for the associate special of the week (absent: none)
+ *   am.weeks[sunday].sched       the week is open to plan
  *   am.venue                     the venue whose cycle and kitchen serve associates
  */
 import { catalog, ensureItems, rooms } from '../data';
@@ -41,7 +41,7 @@ export interface AssocMenuSettings {
   days: Record<string, DayPicks>;
   std: Record<string, string>;
   weeks: Record<string, Partial<MenuWeek>>;
-  /** Associate special of the week, by the week's Monday. */
+  /** Associate special of the week, by the week's Sunday (weeks run Sunday to Saturday). */
   wk: Record<string, string>;
   /** Room key of the venue that serves associates. */
   venue: string;
@@ -266,7 +266,7 @@ export function setStandingRecipe(slotId: string, recipeId: string | undefined):
   setSetting(`am.std.${slotId}`, recipeId);
 }
 
-/** Set the associate special of the week for the week starting this Monday (undefined: none). */
+/** Set the associate special of the week for the week starting this Sunday (undefined: none). */
 export function setWeekSpecial(monday: string, recipeId: string | undefined): void {
   setSetting(`am.wk.${monday}`, recipeId || undefined);
 }

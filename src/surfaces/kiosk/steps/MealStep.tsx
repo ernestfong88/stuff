@@ -1,7 +1,7 @@
 import { useServiceSettings, windowSettings } from '../../../domain/pickupService/settings';
 import { minuteLabel, windowCutoff } from '../../../domain/pickupService/windows';
 import { MEAL_ANSWERS } from '../model/flow';
-import type { KioskMeal } from '../model/times';
+import { ASAP_WIN, type KioskMeal } from '../model/times';
 import { KButton } from '../ui/KButton';
 import { Question } from '../ui/Layout';
 import type { KioskFlow } from '../useKioskFlow';
@@ -12,17 +12,32 @@ export function MealStep({ flow, meals }: { flow: KioskFlow; meals: KioskMeal[] 
   const cut = windowCutoff(windowSettings(useServiceSettings()));
   const pick = (m: KioskMeal) => {
     const changed = flow.s.meal !== m.meal || flow.s.date !== m.date;
-    flow.advance({ meal: m.meal, date: m.date, win: null, ...(changed ? MEAL_ANSWERS : {}) });
+    flow.advance({ meal: m.meal, date: m.date, win: m.asap ? ASAP_WIN : null, ...(changed ? MEAL_ANSWERS : {}) });
   };
   return (
     <div>
       <Question
         title="Which meal?"
-        sub={meals[0]?.tomorrow ? "Today's ordering has closed, so these are for tomorrow." : `Orders close ${cut} minutes before each time.`}
+        sub={
+          meals[0]?.asap
+            ? 'The kitchen starts it as soon as you order.'
+            : meals[0]?.tomorrow
+              ? "Today's ordering has closed, so these are for tomorrow."
+              : `Orders close ${cut} minutes before each time.`
+        }
       />
       {meals.length ? (
         <div className={s.list}>
           {meals.map((m) => {
+            if (m.asap)
+              return (
+                <KButton key={m.meal + m.date} look={flow.s.edit && flow.s.meal === m.meal ? 'selected' : 'secondary'} className={s.meal} onClick={() => pick(m)}>
+                  <span className={s.text}>
+                    <span className={s.name}>{m.meal} today</span>
+                    <span className={s.range}>As soon as it is ready</span>
+                  </span>
+                </KButton>
+              );
             const first = m.windows[0].start;
             const last = m.windows[m.windows.length - 1].start;
             const on = flow.s.edit && flow.s.meal === m.meal && flow.s.date === m.date;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { AssocMeal, Order } from '../../../domain/types';
 import { cancelMeal, lastTexted, pastMeals, planMeal } from '../../../domain/assocMeals/meals';
-import { closedReason, menuWeek, mondayOf } from '../../../domain/assocMeals/menu';
+import { closedReason, menuWeek, weekStartOf } from '../../../domain/assocMeals/menu';
 import { nearestToBreak, upcomingShifts, withinShift } from '../../../domain/assocMeals/shifts';
 import { assocWindows, rangeLabel, windowClosesAt, windowLoad, windowMinutes, windowStartsAt, windowTag } from '../../../domain/assocMeals/windows';
 
@@ -58,20 +58,21 @@ describe('pickup windows', () => {
 describe('associate menu', () => {
   const today = '2026-10-07';
 
-  it('finds the Monday of a week', () => {
-    expect(mondayOf('2026-10-07')).toBe('2026-10-05');
-    expect(mondayOf('2026-10-11')).toBe('2026-10-05');
-    expect(mondayOf('2026-10-12')).toBe('2026-10-12');
+  // Associate weeks now run Sunday to Saturday, like the menu cycle's (they used to start on Monday).
+  it('finds the Sunday a week starts on', () => {
+    expect(weekStartOf('2026-10-07')).toBe('2026-10-04');
+    expect(weekStartOf('2026-10-10')).toBe('2026-10-04');
+    expect(weekStartOf('2026-10-11')).toBe('2026-10-11');
   });
 
   it('opens this week, keeps next week a draft until scheduled, and nothing past it', () => {
     expect(closedReason('2026-10-06', today, {})).toBe('past');
     expect(closedReason('2026-10-09', today, {})).toBeNull();
     expect(closedReason('2026-10-13', today, {})).toBe('draft');
-    expect(closedReason('2026-10-13', today, { '2026-10-12': { sched: true } })).toBeNull();
+    expect(closedReason('2026-10-13', today, { '2026-10-11': { sched: true } })).toBeNull();
     expect(closedReason('2026-10-20', today, {})).toBe('late');
-    expect(menuWeek('2026-10-12', today, {}).sched).toBe(false);
-    expect(menuWeek('2026-10-05', today, {}).sched).toBe(true);
+    expect(menuWeek('2026-10-11', today, {}).sched).toBe(false);
+    expect(menuWeek('2026-10-04', today, {}).sched).toBe(true);
   });
 });
 

@@ -5,7 +5,7 @@
  * the full dish name, and every value is escaped.
  */
 import { COMMUNITY_NAME } from '../../../../data';
-import type { GridEntry, Recipe } from '../../../../store/menuEdits';
+import type { GridEntry, Recipe, VenueSchedule } from '../../../../store/menuEdits';
 import type { BoState } from './types';
 import { dishLong, normCategory } from './categories';
 import { addDays, cycleDayOn, dayStart, menuAnchor, monthDay, venuesAt, type CycleAnchor } from '../../../../domain/menuCycle';
@@ -73,9 +73,9 @@ export interface PrintContext {
   dateOf(day: number): Date;
 }
 
-/** The dining room the venue's tablets belong to (for pick up ranges). */
-export function venueRoom(venueId: string | undefined): string {
-  return venueId === 'v3' ? 'bistro' : 'sequoia';
+/** The dining room the venue's tablets belong to (for pick up ranges): its kitchen in Venue Settings. */
+export function venueRoom(v: Pick<VenueSchedule, 'room'> | undefined): string {
+  return v?.room ?? 'sequoia';
 }
 
 export function printContext(bo: BoState, o: PrintOptions, sidesOf: (menuId: string, day: number, recipeId: string) => string[]): PrintContext {
@@ -94,7 +94,7 @@ export function printContext(bo: BoState, o: PrintOptions, sidesOf: (menuId: str
   const recipes = new Map(bo.recipes.map((r) => [r.id, r]));
   return {
     venueName: v?.name ?? 'Dining Room',
-    room: venueRoom(v?.id),
+    room: venueRoom(v),
     menuId,
     len,
     today,
@@ -210,23 +210,27 @@ function snacksBlock(C: PrintContext, day: number): string {
   );
 }
 
-/** The day's menu by meal. Meals with no specials list the everyday entrées. */
+/** Everyday entrées a meal with no specials lists on the daily menu (at most 12). */
+const everydayEntrees = (C: PrintContext, m: string) => C.at(0, m).filter((x) => x.c === 'Entrees' && !/pureed|molded/i.test(x.r.name)).slice(0, 12);
+
+/**
+ * The day's menu by meal. Meals with no specials list the everyday entrées.
+ * A venue with no cycle (only an à la carte menu) prints that menu in full.
+ */
 export function dailyMenuHtml(C: PrintContext, day: number): string {
   const o = C.options;
   const d = C.dateOf(day);
+  const noCycle = C.len === 0;
+  const lines = (m: string) => C.at(noCycle ? 0 : day, m);
   const block = (m: string): string => {
-    const L = C.at(day, m);
+    const L = lines(m);
     if (!L.length) {
-      const A = C.at(0, m).filter((x) => x.c === 'Entrees' && !/pureed|molded/i.test(x.r.name));
-      return A.length
+      const A = everydayEntrees(C, m);
+      return A.length && !noCycle
         ? '<div class="meal"><h2>' +
             m +
             '</h2><p class="any">' +
-            esc(
-              A.slice(0, 12)
-                .map((x) => dishLong(x.r.name))
-                .join(' · '),
-            ) +
+            esc(A.map((x) => dishLong(x.r.name)).join(' · ')) +
             '</p><p class="note">Served from the à la carte menu every day.</p></div>'
         : '';
     }
@@ -236,21 +240,23 @@ export function dailyMenuHtml(C: PrintContext, day: number): string {
       '</h2>' +
       SECTIONS.map(([c, label]) => {
         const I = L.filter((x) => x.c === c);
-        return I.length ? '<div class="cat">' + label + '</div>' + I.map((x) => dish(x, o, c === 'Entrees' ? C.sides(day, x.r.id) : [])).join('') : '';
+        return I.length ? '<div class="cat">' + label + '</div>' + I.map((x) => dish(x, o, c === 'Entrees' && !noCycle ? C.sides(day, x.r.id) : [])).join('') : '';
       }).join('') +
       '</div>'
     );
   };
-  const cycleMeals = PRINT_MEALS.filter((m) => C.at(day, m).length);
-  const everyday = PRINT_MEALS.filter((m) => !C.at(day, m).length)
+  const cycleMeals = PRINT_MEALS.filter((m) => lines(m).length);
+  const everyday = PRINT_MEALS.filter((m) => !lines(m).length)
     .map(block)
     .join('');
   const cy = cycleMeals.map(block);
+  // Only a menu with specials needs saying the à la carte menu is there too (the everyday blocks already say so).
+  const alsoAlc = !noCycle && cycleMeals.length > 0;
   const body =
     '<style>.meal,h2{text-align:center}.pair{display:flex;gap:30px}.pair>div{flex:1}</style>' +
     everyday +
     (cy.length === 2 ? '<div class="pair"><div>' + cy[0] + '</div><div>' + cy[1] + '</div></div>' : cy.join('')) +
-    '<p class="note" style="text-align:center">The à la carte menu is also available at every meal.</p>' +
+    (alsoAlc ? '<p class="note" style="text-align:center">The à la carte menu is also available at every meal.</p>' : '') +
     snacksBlock(C, day) +
     FOOT;
   return doc('Daily menu ' + monthDay(d), head(C.venueName, d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })) + body, o);
@@ -441,6 +447,30 @@ export function orderFormHtml(C: PrintContext, w: number): string {
 /** The week to print: the one asked for, else the week today falls in. */
 export function printWeek(C: PrintContext, week?: number | null): number {
   return week != null ? week : C.today ? Math.ceil(C.today / 7) - 1 : 0;
+}
+
+/**
+ * The dishes a printout lists, each once: what the preview counts, so the
+ * count matches what prints.
+ */
+export function printedRecipes(kind: PrintKind, C: PrintContext, opts: { week?: number | null; day?: number | null } = {}): Set<string> {
+  const w = printWeek(C, opts.week);
+  const day = opts.day || C.today || w * 7 + 1;
+  const ids = new Set<string>();
+  const add = (L: PrintLine[]) => L.forEach((x) => ids.add(x.r.id));
+  if (kind === 'alacarte') add(alaCarteItems(C).map((e) => e.x));
+  else if (kind === 'week') {
+    for (const d of weekDays(C, w)) for (const m of PRINT_MEALS) add(C.at(d, m).filter((x) => x.c === 'Starters' || x.c === 'Entrees' || x.c === 'Desserts'));
+  } else if (kind === 'order') {
+    for (const d of weekDays(C, w)) for (const m of ['Lunch', 'Dinner']) add(C.at(d, m).filter((x) => x.c !== 'Sides'));
+  } else {
+    const noCycle = C.len === 0;
+    for (const m of PRINT_MEALS) {
+      const L = C.at(noCycle ? 0 : day, m);
+      add(L.length ? L : noCycle ? [] : everydayEntrees(C, m));
+    }
+  }
+  return ids;
 }
 
 export function menuHtml(kind: PrintKind, C: PrintContext, opts: { week?: number | null; day?: number | null } = {}): string {

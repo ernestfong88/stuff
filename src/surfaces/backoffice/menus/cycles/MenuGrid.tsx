@@ -186,7 +186,7 @@ export function MenuGrid({
   };
   const slot = (t: SlotTarget, label: string) =>
     readOnly ? null : sameTarget(typing, t) ? (
-      search(t, `Type a ${label.toLowerCase()}`)
+      search(t, `Type ${/^[aeioué]/i.test(label) ? 'an' : 'a'} ${label.toLowerCase()}`)
     ) : (
       <button className={cx(s.slot, t.with && s.slotSide)} onClick={() => setTyping(t)}>
         + {label}

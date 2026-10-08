@@ -51,15 +51,14 @@
  */
 import seedJson from '../surfaces/prep/seed/production.json';
 import swapJson from '../surfaces/prep/seed/swapCandidates.json';
-import { catalog, SEED_GRID } from '../data';
+import { todayCatalog } from '../data';
 import { isoDate } from '../domain/pickup';
 import type { AssocMeal, Order } from '../domain/types';
 import { MINUTE, now, today } from '../lib/clock';
 import { createSharedStore, useShared } from '../lib/sharedStore';
-import { cycleDayOn, servingAt } from '../domain/menuCycle';
-import { menuEditsStore, type GridEntry } from './menuEdits';
+import { menuEditsStore } from './menuEdits';
 import { recipeInfo } from './recipes';
-import { venueSettingsStore } from './venueSettings';
+import { gridNow, menusNow, settingsVenue, venueServing } from './venueMenu';
 
 // ─── Types ───────────────────────────────────────────────────────────────
 
@@ -71,9 +70,14 @@ export interface ProductionVenue {
   id: string;
   /** Short name for tabs: "Sequoia". */
   name: string;
+  /** The venue's name in Venue Settings (getProductionVenue reads it live). */
   fullName: string;
-  /** "cycle": a rotating menu with daily specials; "fixed": the same menu every day. */
+  /** "cycle": a rotating menu with daily specials; "fixed": the same menu every day (getProductionVenue reads it live). */
   menu: MenuKind;
+  /** The venue in Venue Settings: its schedule, menus and name are looked up by this id, never by name. */
+  venueId: string;
+  /** The always-available dishes it starts from in the seed. */
+  seedMenu: MenuKind;
 }
 
 /** Who did something, and when (ms on the demo clock). */
@@ -275,16 +279,31 @@ const KIND_ORDER: Record<SpecialKind, number> = { entree: 0, soup: 1, dessert: 2
 const WEEKDAY_FACTOR = [0.95, 0.9, 0.95, 1, 1, 1.15, 1.1];
 
 export const PRODUCTION_VENUES: ProductionVenue[] = [
-  { id: 'sequoia', name: 'Sequoia', fullName: 'Sequoia Dining Room', menu: 'cycle' },
-  { id: 'evergreen', name: 'Evergreen', fullName: 'Evergreen Dining Room', menu: 'cycle' },
-  { id: 'bistro', name: 'The Bistro', fullName: 'The Bistro', menu: 'fixed' },
+  { id: 'sequoia', name: 'Sequoia', fullName: 'Sequoia Dining Room', menu: 'cycle', venueId: 'v1', seedMenu: 'cycle' },
+  { id: 'evergreen', name: 'Evergreen', fullName: 'Evergreen Dining Room', menu: 'cycle', venueId: 'v2', seedMenu: 'cycle' },
+  { id: 'bistro', name: 'The Bistro', fullName: 'The Bistro', menu: 'fixed', venueId: 'v3', seedMenu: 'fixed' },
 ];
 
 /** Signs Back Office changes when a page passes no name. */
 export const DEFAULT_DIRECTOR = 'E. Fong';
 
+/** What a production venue's Venue Settings venue serves on a date (its schedule, cycle and cycle day). */
+function servingOn(pv: ProductionVenue, at: number) {
+  const v = settingsVenue(pv.venueId);
+  if (!v) return null;
+  const edits = menuEditsStore.get();
+  return venueServing(v, at, menusNow(edits), gridNow(edits));
+}
+
+/**
+ * A production venue with its name and kind of menu as Venue Settings has
+ * them now: renaming a venue, or giving it a cycle (or none), shows here.
+ */
 export function getProductionVenue(id: string | null | undefined): ProductionVenue {
-  return PRODUCTION_VENUES.find((v) => v.id === id) ?? PRODUCTION_VENUES[0];
+  const pv = PRODUCTION_VENUES.find((v) => v.id === id) ?? PRODUCTION_VENUES[0];
+  const v = settingsVenue(pv.venueId);
+  if (!v) return pv;
+  return { ...pv, fullName: v.name.trim() || pv.fullName, menu: servingOn(pv, now())?.cycleId ? 'cycle' : 'fixed' };
 }
 
 export function recipeFor(name: string): ScaledRecipe | null {
@@ -357,16 +376,44 @@ function patchMap<K extends 'amounts' | 'swaps' | 'prepped' | 'notes' | 'checks'
 
 // ─── Specials ────────────────────────────────────────────────────────────
 
+/** The prep details written for the seeded specials (description, cook notes, sides), by dish name. */
+const SEED_SPECIALS = new Map<string, SpecialSeed>(
+  (seed.menus.cycle.specials ?? []).flatMap((day) => Object.values(day).flat()).map((s) => [s.name, s]),
+);
+const SOUP = /soup|chowder|bisque|chili|gumbo|stew/i;
+
 /**
- * The specials Production Prep makes for a meal, entrées first. Today's are
- * the menu on the tablets; tomorrow's come from the next day of the cycle.
- * A venue with the same menu every day has none.
+ * A day's specials for a meal as Menu Cycle places them at the venue: the
+ * entrées, the soup and the dessert on its cycle day (what the tablets
+ * serve), with the written prep details when there are some.
+ */
+function cycleSpecials(venue: ProductionVenue, dayOffset: number, meal: PrepMeal): SpecialSeed[] {
+  const date = today();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + dayOffset);
+  const rows = cycleRows(venue, date).rows.filter((r) => r.meal === meal);
+  const sides = rows.filter((r) => r.category === 'Sides').map((r) => r.name);
+  return rows.flatMap((r): SpecialSeed[] => {
+    const info = recipeInfo(r.recipeId);
+    const kind: SpecialKind | null =
+      r.category === 'Entrees' ? 'entree' : r.category === 'Desserts' ? 'dessert' : r.category === 'Starters' && (info?.sub === 'Soup' || SOUP.test(r.name)) ? 'soup' : null;
+    if (!kind) return [];
+    const known = SEED_SPECIALS.get(r.name);
+    if (known && known.kind === kind) return [known];
+    return [{ name: r.name, kind, desc: info?.desc ?? '', cook: '', sides: kind === 'entree' ? sides : [] }];
+  });
+}
+
+/**
+ * The specials Production Prep makes for a meal, entrées first: the venue's
+ * menu cycle on that day (today's are the ones on the tablets, tomorrow's the
+ * next cycle day), so a Menu Cycle edit shows here too. A venue with no
+ * cycle (the same menu every day) has none.
  */
 export function specialsFor(state: ProductionState, venueId: string, dayOffset: number, meal: PrepMeal): PrepSpecial[] {
   const venue = getProductionVenue(venueId);
-  const day = seed.menus[venue.menu].specials?.[dayOffset];
-  if (!day) return [];
-  const list = day[meal] ?? [];
+  const list = cycleSpecials(venue, dayOffset, meal);
+  if (!list.length) return [];
   const entrees = list.filter((s) => s.kind === 'entree').length || 1;
   const iso = isoDate(dayOffset);
   return list
@@ -610,6 +657,16 @@ export function setCheck(venueId: string, iso: string, meal: PrepMeal, itemId: s
 /** How far ahead the director can plan: this week and next. */
 export const PLAN_DAYS = 14;
 
+/**
+ * The day offsets of this week (today to Saturday) and next week (Sunday to
+ * Saturday): weeks run Sunday to Saturday, like the menu cycle's.
+ */
+export function productionWeeks(at: number = now()): number[][] {
+  const left = 7 - new Date(at).getDay();
+  const range = (from: number, n: number) => Array.from({ length: n }, (_, i) => from + i).filter((o) => o < PLAN_DAYS);
+  return [range(0, left), range(left, 7)];
+}
+
 function dayOffsetOf(iso: string): number | null {
   for (let o = 0; o < PLAN_DAYS; o++) if (isoDate(o) === iso) return o;
   return null;
@@ -621,30 +678,21 @@ function formatWeekday(date: Date): string {
 
 const MEAL_ORDER: Record<PrepMeal, number> = { Breakfast: 0, Lunch: 1, Dinner: 2 };
 
-/** The menu cycle as Menu Cycle & À la Carte has it: the chef's edits, else the seed. */
-function cycleGrid(): { grid: GridEntry[]; nameOf: (recipeId: string) => string | undefined } {
-  const edits = menuEditsStore.get();
-  return {
-    grid: edits.grid ?? SEED_GRID,
-    nameOf: (id) => recipeInfo(id, edits)?.name,
-  };
-}
+/** A recipe's name as the Recipe Book has it now. */
+const nameOf = (id: string) => recipeInfo(id, menuEditsStore.get())?.name;
 
 /**
  * The cycle items a venue serves on a date, with a recommendation from past
- * runs: the venue's scheduled menu on that date (Venue Settings), its cycle
- * day, and what Menu Cycle places on that day. Two entrées in a meal split
+ * runs: the venue's scheduled menu on that date (Venue Settings, found by
+ * the venue's id), its cycle day (venueServing, as every screen works it
+ * out), and what Menu Cycle places on that day. Two entrées in a meal split
  * the room, so each is recommended at 85%.
  */
 function cycleRows(venue: ProductionVenue, date: Date): { cycleDay: number; rows: ProductionRow[] } {
-  const scheduled = venueSettingsStore.get().venues.find((v) => v.name === venue.fullName);
-  if (!scheduled) return { cycleDay: 0, rows: [] };
-  const { menuId, start } = servingAt(scheduled, date.getTime());
-  const { grid, nameOf } = cycleGrid();
-  const placed = grid.filter((g) => g.menuId === menuId && g.day > 0);
-  const len = placed.reduce((m, g) => Math.max(m, g.day), 0);
-  const cycleDay = len > 1 ? (cycleDayOn(start, len, date.getTime()) ?? 0) : 0;
-  if (!cycleDay) return { cycleDay: 0, rows: [] };
+  const serve = servingOn(venue, date.getTime());
+  if (!serve?.cycleId || !serve.day) return { cycleDay: 0, rows: [] };
+  const cycleDay = serve.day;
+  const placed = gridNow().filter((g) => g.menuId === serve.cycleId && g.day > 0);
   const today = placed.filter((g) => g.day === cycleDay && g.meal !== 'Snacks' && g.cat !== 'Drinks');
   const rows: ProductionRow[] = [];
   for (const g of today) {
@@ -682,7 +730,7 @@ export function productionDay(venueId: string, dayOffset: number): ProductionDay
   date.setHours(0, 0, 0, 0);
   date.setDate(date.getDate() + dayOffset);
   const factor = WEEKDAY_FACTOR[date.getDay()];
-  const anyDay = (seed.menus[venue.menu].production[0]?.rows ?? []).flatMap((r): ProductionRow[] => {
+  const anyDay = (seed.menus[venue.seedMenu].production[0]?.rows ?? []).flatMap((r): ProductionRow[] => {
     if (r.kind !== 'anyDay') return [];
     const avg = (r.weekly / 7) * factor;
     return [
@@ -699,7 +747,7 @@ export function productionDay(venueId: string, dayOffset: number): ProductionDay
       },
     ];
   });
-  const cycle = venue.menu === 'cycle' ? cycleRows(venue, date) : { cycleDay: 0, rows: [] };
+  const cycle = cycleRows(venue, date);
   const rows = [...cycle.rows, ...anyDay].sort(
     (a, b) => MEAL_ORDER[a.meal] - MEAL_ORDER[b.meal] || (a.kind === 'anyDay' ? 1 : 0) - (b.kind === 'anyDay' ? 1 : 0),
   );
@@ -719,7 +767,6 @@ export function cycleEntrees(venueId: string, iso: string, meal: PrepMeal): Arra
 /** Everything a venue's menu cycle places on a date ("YYYY-MM-DD") for a meal, in menu order, with its menu category. */
 export function cycleItems(venueId: string, iso: string, meal: PrepMeal): Array<{ recipeId: string; name: string; category: string }> {
   const venue = getProductionVenue(venueId);
-  if (venue.menu !== 'cycle') return [];
   const [y, m, d] = iso.split('-').map(Number);
   return cycleRows(venue, new Date(y, m - 1, d))
     .rows.filter((r) => r.meal === meal && r.recipeId)
@@ -832,7 +879,9 @@ export function specialsMadeAndOrdered(
   const iso = isoDate(0);
   if (getProductionVenue(venueId).menu === 'fixed') return [];
   const day = productionDay(venueId, 0);
-  return catalog
+  // Today's specials on the tablets in the venue's room.
+  const room = settingsVenue(getProductionVenue(venueId).venueId)?.room;
+  return todayCatalog(room)
     .filter((it) => it.special && PREP_MEALS.includes(it.meal))
     .sort((a, b) => PREP_MEALS.indexOf(a.meal) - PREP_MEALS.indexOf(b.meal))
     .map((it) => {

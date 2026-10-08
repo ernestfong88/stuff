@@ -5,7 +5,7 @@ import type { Order, QueueType } from '../../../../domain/types';
 import { now } from '../../../../lib/clock';
 import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
-import { useSetting } from '../../../../store/serviceConfig';
+import { getSetting, useSetting } from '../../../../store/serviceConfig';
 import { cx } from '../../../../ui';
 import { cutoffMinutes, loadTag, orderDate, rangeLabel, rangesOn, windowLoad, windowsFor, type WindowLoad } from './pickupWindows';
 import s from './PickupTime.module.css';
@@ -17,7 +17,9 @@ export function PickupTime({ order: o }: { order: Order & { queueType: QueueType
   useSetting('win');
   const type = o.queueType;
   const on = rangesOn(type);
-  const cut = cutoffMinutes();
+  // An associate meal closes on the Associate Meals cutoff, as on the manager's list and the Associate App.
+  const assocCut = Number(getSetting('am.cut') ?? NaN);
+  const cut = o.assoc && Number.isFinite(assocCut) ? assocCut : cutoffMinutes();
   const chosen = o.readyAt && o.readyAt !== 'ASAP' ? o.readyAt : null;
   const d = new Date(now());
   const nowMin = d.getHours() * 60 + d.getMinutes();

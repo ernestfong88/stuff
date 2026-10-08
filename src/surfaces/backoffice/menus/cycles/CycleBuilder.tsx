@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, TriangleAlert } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import type { BoMenu, Recipe } from '../../../../store/menuEdits';
-import { Button, EmptyState, cx, toast } from '../../../../ui';
+import { Button, EmptyState, cx, toast, useConfirm } from '../../../../ui';
 import { BoCallout, BoPage } from '../../kit';
 import { cycleLenOf, useBo } from '../data';
-import { addPlacements, removePlacements, restorePlacements, updateMenu } from '../menuActions';
+import { addPlacements, removePlacements, restorePlacements, setCycleLength } from '../menuActions';
 import { addDays, menuAnchor, menuState, monthDay, venuesAt } from '../../../../domain/menuCycle';
 import { emptyDays } from '../model/dayGroup';
 import { RecipeDialog } from '../recipes/RecipeDialog';
@@ -40,6 +40,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
   const [quick, setQuick] = useState<{ r: Recipe; day: number } | null>(null);
   const [full, setFull] = useState<Recipe | null>(null);
   const [highlight, setHighlight] = useState<AiHighlight | null>(null);
+  const [ask, confirmDialog] = useConfirm();
   const w = Math.min(week, Math.max(0, weeks - 1));
   const days = Array.from({ length: 7 }, (_, i) => w * 7 + i + 1).filter((d) => d <= len);
   const empty = emptyDays(bo.grid, m.id, len);
@@ -75,6 +76,28 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
 
   const readOnly = !!m.locked;
 
+  /** A shorter cycle drops the weeks past it: ask first when they have dishes, and offer Undo. */
+  const changeLength = async (next: number) => {
+    const beyond = bo.grid.filter((g) => g.menuId === m.id && g.day > next);
+    if (beyond.length) {
+      const from = Math.floor(next / 7) + 1;
+      const to = Math.ceil(Math.max(...beyond.map((g) => g.day)) / 7);
+      const span = from === to ? `Week ${from} has` : `Weeks ${from} to ${to} have`;
+      const ok = await ask({
+        title: `Shorten to ${next / 7} weeks?`,
+        message: `${span} ${beyond.length} ${beyond.length === 1 ? 'dish' : 'dishes'} on it. A ${next / 7}-week cycle doesn't have ${from === to ? 'that week' : 'those weeks'}, so ${beyond.length === 1 ? 'it comes' : 'they come'} off the menu. You can undo this.`,
+        confirmLabel: `Remove ${from === to ? `week ${from}` : `weeks ${from} to ${to}`}`,
+        tone: 'danger',
+      });
+      if (!ok) return;
+    }
+    const undo = setCycleLength(m.id, next);
+    toast(`${m.name} is a ${next / 7}-week cycle${beyond.length ? ` · ${beyond.length} ${beyond.length === 1 ? 'dish' : 'dishes'} removed` : ''}`, {
+      tone: 'success',
+      action: { label: 'Undo', onClick: undo },
+    });
+  };
+
   return (
     <BoPage
       title={m.name}
@@ -96,7 +119,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
               <Select
                 size="sm"
                 value={String(m.cycleLen || 0)}
-                onChange={(v) => updateMenu(m.id, { cycleLen: +v })}
+                onChange={(v) => void changeLength(+v)}
                 options={[
                   ...(LENGTHS.includes(m.cycleLen)
                     ? []
@@ -109,7 +132,7 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
                       ]),
                   ...LENGTHS.map((x) => ({
                     value: String(x),
-                    label: `${x / 7} weeks`,
+                    label: `${x / 7} ${x === 7 ? 'week' : 'weeks'}`,
                   })),
                 ]}
                 aria-label="Cycle length"
@@ -124,10 +147,11 @@ export function CycleBuilder({ menu: m, onBack }: { menu: BoMenu; onBack: () => 
       </button>
 
       {readOnly && <LockBanner menu={m} />}
+      {confirmDialog}
 
       {!readOnly && len > 0 && empty.length === len && (
         <BoCallout tone="info">
-          This menu is empty. <b>Fill from recipe book</b> fills every empty slot at once, or go back and copy last season&apos;s menu.
+          This menu is empty. <b>Fill from recipe book</b> fills every empty lunch and dinner slot at once, or go back and copy last season&apos;s menu.
         </BoCallout>
       )}
 

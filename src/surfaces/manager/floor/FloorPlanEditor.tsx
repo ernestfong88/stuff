@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { rooms } from '../../../data';
 import { uid } from '../../../lib/id';
-import { useShared } from '../../../lib/sharedStore';
+import { createSharedStore, useShared } from '../../../lib/sharedStore';
 import { Button, Tabs, TextField, toast, useConfirm, cx } from '../../../ui';
 import { planBox } from './FloorPlan';
 import { layoutStore, resetRoomLayout, roomPlan, saveRoomLayout, sectionAt, type PlanItem } from '../../../store/floorLayout';
@@ -39,10 +39,20 @@ import {
   type Handle,
   type NewKind,
 } from './planEdit';
-import { labelProblems } from './planCheck';
+import { labelProblems, overlapPairs, overlapText } from './planCheck';
 import s from './FloorPlanEditor.module.css';
 
 const roomKeys = Object.keys(rooms);
+
+type History = Record<string, { past: PlanItem[][]; future: PlanItem[][] }>;
+
+/**
+ * Unsaved layouts by room, kept outside the editor so switching venue tabs,
+ * leaving the page or reloading never loses them: a draft stays until it is
+ * saved or thrown away. Undo history lives as long as the tablet session.
+ */
+const draftStore = createSharedStore<Record<string, PlanItem[]>>({}, { persistKey: 'kisco_floorplan_draft_v1' });
+const historyStore = createSharedStore<History>({});
 
 function withoutKey<T>(rec: Record<string, T>, key: string): Record<string, T> {
   const next = { ...rec };
@@ -70,9 +80,11 @@ export function FloorPlanEditor({ room: fixedRoom }: { room?: string } = {}) {
   const saved = useShared(layoutStore);
   const [pickedRoom, setRoom] = useState(roomKeys[0]);
   const room = fixedRoom ?? pickedRoom;
-  const [drafts, setDrafts] = useState<Record<string, PlanItem[]>>({});
+  const drafts = useShared(draftStore);
+  const setDrafts = draftStore.set;
   const [picked, setPicked] = useState<string[]>([]);
-  const [history, setHistory] = useState<Record<string, { past: PlanItem[][]; future: PlanItem[][] }>>({});
+  const history = useShared(historyStore);
+  const setHistory = historyStore.set;
   const [confirm, confirmUi] = useConfirm();
   const canvas = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
@@ -86,6 +98,8 @@ export function FloorPlanEditor({ room: fixedRoom }: { room?: string } = {}) {
   const edited = !!saved[room];
   const problems = labelProblems(items);
   const problemCount = Object.keys(problems).length;
+  const overlaps = overlapPairs(items);
+  const overlapping = new Set(overlaps.flatMap(([a, b]) => [a.id, b.id]));
   const unsavedRooms = roomKeys.filter((k) => drafts[k]);
   const hist = history[room] ?? { past: [], future: [] };
 
@@ -231,12 +245,21 @@ export function FloorPlanEditor({ room: fixedRoom }: { room?: string } = {}) {
   }, []);
 
   const clearHistory = () => setHistory((h) => withoutKey(h, room));
-  const save = () => {
+  const save = async () => {
     if (problemCount) return;
+    if (overlaps.length) {
+      const ok = await confirm({
+        title: `${overlaps.length === 1 ? 'Two tables overlap' : `${overlaps.length} tables overlap`} on ${plan.name}`,
+        message: `${overlapText(overlaps)} sit on top of each other, so hosts and servers can't tap them apart. Save anyway?`,
+        confirmLabel: 'Save anyway',
+        cancelLabel: 'Keep editing',
+      });
+      if (!ok) return;
+    }
     saveRoomLayout(room, items);
     setDrafts((d) => withoutKey(d, room));
     clearHistory();
-    toast(`${plan.name} layout saved. The host and manager floors use it now.`, { tone: 'success' });
+    toast(`${plan.name} layout saved. Every floor, ticket and tablet uses it now.`, { tone: 'success' });
   };
   const reset = async () => {
     const ok = await confirm({
@@ -322,9 +345,9 @@ export function FloorPlanEditor({ room: fixedRoom }: { room?: string } = {}) {
           {problemCount
             ? `Fix ${problemCount === 1 ? 'one table name' : `${problemCount} table names`} before saving: each table needs its own name.`
             : dirty
-              ? 'You have changes that are not saved yet.'
+              ? `You have changes that are not saved yet.${overlaps.length ? ` ${overlapText(overlaps)} overlap.` : ''}`
               : edited
-                ? 'Saved. The host and manager floors use this layout.'
+                ? 'Saved. The host, server, manager and kitchen screens use this layout.'
                 : 'This is the original layout.'}
         </span>
         {edited && !dirty && (
@@ -357,6 +380,7 @@ export function FloorPlanEditor({ room: fixedRoom }: { room?: string } = {}) {
                 it.type === 'wall' && s.wall,
                 it.shape === 'round' && s.round,
                 problems[it.id] && s.bad,
+                !problems[it.id] && overlapping.has(it.id) && s.overlap,
                 picked.includes(it.id) && s.selected,
               )}
               style={planBox(it)}

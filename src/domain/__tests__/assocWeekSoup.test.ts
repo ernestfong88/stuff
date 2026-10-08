@@ -2,19 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { soupOfTheDay, weekSpecialFor } from '../assocMeals/menu';
 
 describe('associate special of the week', () => {
-  const weekly = { '2026-10-05': 'r_pasta', '2026-10-12': 'r_tacos' };
+  // Weeks are keyed by their Sunday: they run Sunday to Saturday like the menu cycle (they used to start on Monday).
+  const weekly = { '2026-10-04': 'r_pasta', '2026-10-11': 'r_tacos' };
 
-  it('applies on every day of the week that starts on its Monday', () => {
-    expect(weekSpecialFor('2026-10-05', weekly)).toBe('r_pasta');
+  it('applies on every day of the week that starts on its Sunday', () => {
+    expect(weekSpecialFor('2026-10-04', weekly)).toBe('r_pasta');
     expect(weekSpecialFor('2026-10-07', weekly)).toBe('r_pasta');
-    expect(weekSpecialFor('2026-10-11', weekly)).toBe('r_pasta'); // Sunday
-    expect(weekSpecialFor('2026-10-12', weekly)).toBe('r_tacos');
+    expect(weekSpecialFor('2026-10-10', weekly)).toBe('r_pasta'); // Saturday
+    expect(weekSpecialFor('2026-10-11', weekly)).toBe('r_tacos');
   });
 
   it('is none for a week with no special, and for older settings without any', () => {
     expect(weekSpecialFor('2026-10-19', weekly)).toBeNull();
     expect(weekSpecialFor('2026-10-07', undefined)).toBeNull();
-    expect(weekSpecialFor('2026-10-07', { '2026-10-05': null })).toBeNull();
+    expect(weekSpecialFor('2026-10-07', { '2026-10-04': null })).toBeNull();
   });
 });
 

@@ -4,6 +4,7 @@
  */
 import { getAssociate, getItem, getResident, getTable } from '../data';
 import { now } from '../lib/clock';
+import { foodConflicts, type AvoidSource, type FoodConflict } from './allergens';
 import { DEFAULT_CONFIG, type DiningConfig } from './config';
 import { isDrink, isSide, itemCourse, itemLabel } from './menu';
 import type { Associate, Diner, MealName, ModSelection, Order, OrderLine, QueueType, Resident } from './types';
@@ -36,9 +37,10 @@ export function hasUnsent(o: Order | null | undefined): boolean {
   return !!o?.diners.some((d) => d.items.some((i) => !i.sent && !i.hold));
 }
 
-/** em: unsent lines on hold. */
+/** em: unsent lines on hold (a side held with its plate counts with the plate). */
 export function heldCount(o: Order | null | undefined): number {
-  return o?.diners.reduce((n, d) => n + d.items.filter((i) => !i.sent && i.hold).length, 0) ?? 0;
+  const own = (i: OrderLine, items: OrderLine[]) => !items.some((p) => p.id === i.parentId && !p.sent && p.hold);
+  return o?.diners.reduce((n, d) => n + d.items.filter((i) => !i.sent && i.hold && own(i, d.items)).length, 0) ?? 0;
 }
 
 /** __kFindLine */
@@ -119,11 +121,13 @@ export function stampReady(o: Order): Order {
 
 // ─── Menu against the floor ──────────────────────────────────────────────
 
-/** tm: the item's allergens the person is allergic to. */
-export function allergenConflicts(line: Pick<OrderLine, 'itemId'>, person: { allergies?: string[] } | null | undefined): string[] {
-  const it = getItem(line.itemId);
-  if (!it || !person?.allergies) return [];
-  return it.allergens.filter((a) => person.allergies!.includes(a));
+/**
+ * tm: what in the line's item the person must avoid, from their allergies
+ * and diets (see domain/allergens: free text is matched by meaning, not
+ * spelling).
+ */
+export function allergenConflicts(line: Pick<OrderLine, 'itemId'>, person: AvoidSource | null | undefined): FoodConflict[] {
+  return foodConflicts(getItem(line.itemId), person);
 }
 
 /** nm: how many of a limited item are left, counting every line on the open checks. Null when unlimited. */

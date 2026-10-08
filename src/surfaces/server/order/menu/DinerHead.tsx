@@ -1,7 +1,7 @@
-import { mealPlans } from '../../../../data';
 import { dinerName, dinerPerson } from '../../../../domain/orders';
 import type { Diner, Resident } from '../../../../domain/types';
 import { isOnHospice } from '../../../../domain/waivers';
+import { residentPlan } from '../../../backoffice/kit/residentRecords';
 import { today } from '../../../../lib/clock';
 import { useConfig } from '../../../../store/config';
 import { residentPref, useResidentPrefs } from '../../../../store/residentPrefs';
@@ -16,7 +16,7 @@ import s from './DinerHead.module.css';
  * daily plan tomorrow.
  */
 export function planTill(r: Resident): string | null {
-  const plan = mealPlans[r.plan];
+  const plan = residentPlan(r.id);
   if (!plan || !plan.amt) return null;
   const left = Math.max(0, plan.amt - r.consumed);
   const d = today();

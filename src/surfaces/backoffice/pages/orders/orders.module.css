@@ -215,6 +215,30 @@
   color: var(--s400);
 }
 
+.timing {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.timing li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.gapMins {
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+.gap_amber {
+  color: var(--warning);
+}
+.gap_red {
+  color: var(--danger);
+}
+
 @media (max-width: 1100px) {
   .detail {
     grid-template-columns: 1fr;

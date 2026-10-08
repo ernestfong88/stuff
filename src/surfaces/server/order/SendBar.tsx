@@ -38,7 +38,7 @@ export function SendBar({
     return (
       <footer className={s.bar}>
         <div className={s.sent} role="status">
-          <CircleCheck size={18} aria-hidden /> {kitchenMode === 'printers' ? (printNote ?? 'Tickets printed') : sentMessage(o)}
+          <CircleCheck size={18} aria-hidden /> {kitchenMode === 'printers' && printNote ? printNote : sentMessage(o, now(), cfg)}
         </div>
       </footer>
     );

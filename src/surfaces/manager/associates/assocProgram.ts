@@ -134,11 +134,14 @@ export function windowAt(date: string, w: string): number {
 export function windowCloseAt(date: string, w: string): number {
   const at = windowAt(date, w);
   const nocBy = Number(getSetting('win.nocBy') ?? 1200);
-  return (isNoc(w) ? Math.min(at, windowAt(date, minutesLabel(nocBy))) : at) - CUTOFF_MIN * MINUTE;
+  // Associate Meals settings' cutoff (am.cut), the same one the server tablet and the Associate App use.
+  const cut = Number(getSetting('am.cut') ?? CUTOFF_MIN);
+  return (isNoc(w) ? Math.min(at, windowAt(date, minutesLabel(nocBy))) : at) - (Number.isFinite(cut) ? cut : CUTOFF_MIN) * MINUTE;
 }
 
+/** Still open up to and including the cutoff minute, as on the server tablet and the kiosk (5:45 can still book 6:30). */
 export function windowOpen(date: string, w: string, at: number): boolean {
-  return at < windowCloseAt(date, w);
+  return at <= windowCloseAt(date, w);
 }
 
 // ─── Orders ──────────────────────────────────────────────────────────────

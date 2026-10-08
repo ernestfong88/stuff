@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import type { Recipe, RecipeCategory } from '../../../../store/menuEdits';
 import { Button, Modal, TextArea, cx, toast } from '../../../../ui';
-import { CATEGORIES, guessCategory, normCategory, subcategoryGroups } from '../model/categories';
+import { categoryLabel, CATEGORIES, guessCategory, normCategory, subcategoryGroups } from '../model/categories';
 import { autofill, ingredientsFromAbout } from '../model/recipeDraft';
 import { defaultShort } from '../model/shortNames';
 import { createRecipe, setRecipeShort } from '../recipeActions';
@@ -102,7 +102,7 @@ export function AiRecipeDialog({
             <Select
               value={d.cat}
               onChange={(v) => setD({ ...d, cat: v as RecipeCategory, sub: '' })}
-              options={CATEGORIES.map((c) => ({ value: c, label: c }))}
+              options={CATEGORIES.map((c) => ({ value: c, label: categoryLabel(c) }))}
             />
           </Field>
           {groups.length > 0 && (

@@ -3,14 +3,14 @@
  * it are charged, and where residents can use their credits for guests.
  * The server's Close & charge screen counts every check with these rules.
  */
-import { RotateCcw } from 'lucide-react';
 import { COMMUNITY_NAME } from '../../../data';
 import { DEFAULT_MEAL_CREDIT, guestCreditOn, mealCreditRules, mealCreditText, type MealCreditRules } from '../../../domain/config';
 import { updateConfig, useConfig } from '../../../store/config';
-import { Button, Tabs, Toggle, toast } from '../../../ui';
+import { Tabs, Toggle } from '../../../ui';
 import { BoCallout, BoPage, BoRow, BoSection, NumberBox, useCommunity } from '../kit';
 import type { BoPageProps } from '../nav';
 import { ALL_COMMUNITIES } from '../seed/shell';
+import { ConfirmReset } from './ConfirmReset';
 import s from './credits/credits.module.css';
 
 const PARTS: Array<{ key: 'starters' | 'entrees' | 'sides' | 'desserts'; label: string; hint: string }> = [
@@ -32,22 +32,20 @@ export default function Page({ goto }: BoPageProps) {
     <BoPage
       title="Meal Credits"
       actions={
-        <Button
-          icon={<RotateCcw size={15} />}
+        <ConfirmReset
+          label="Reset to standard"
           disabled={isDefault}
-          onClick={() => {
-            set(DEFAULT_MEAL_CREDIT);
-            toast('Meal credit rules are back to the standard', { tone: 'success' });
-          }}
-        >
-          Reset to standard
-        </Button>
+          title="Put the meal credit back to the standard?"
+          message="One starter, one entrée, two sides and one dessert per credit, extra sides à la carte, and other extras on another credit. Close & charge uses it straight away."
+          done="Meal credit rules are back to the standard"
+          onReset={() => set(DEFAULT_MEAL_CREDIT)}
+        />
       }
     >
       <BoSection title="One meal credit covers" sub="Set a count to 0 to leave that course out of the credit; it is then always charged à la carte.">
         {PARTS.map((p) => (
           <BoRow key={p.key} label={p.label} hint={p.hint}>
-            <NumberBox value={rules[p.key]} min={0} max={9} width={60} unit="per credit" aria-label={`${p.label} per credit`} onChange={(v) => v != null && v >= 0 && set({ [p.key]: Math.floor(v) })} />
+            <NumberBox value={rules[p.key]} min={0} max={9} width={60} unit="per credit" aria-label={`${p.label} per credit`} onChange={(v) => v != null && v >= 0 && v <= 9 && set({ [p.key]: Math.floor(v) })} />
           </BoRow>
         ))}
         <div className={s.preview}>

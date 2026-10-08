@@ -147,13 +147,24 @@ export function printJobs(items: PrintItem[], printers: RoutedPrinter[]): PrintJ
   });
 }
 
-/** "Printed at Hot Line (2 items) · Expo Receipt (whole ticket)", for the confirmation after Send. */
+/**
+ * "Printed at Hot Line (2 items) · Expo Receipt (whole ticket)", for the
+ * confirmation after Send. A printer that can't be reached printed nothing,
+ * so it is named apart: "… · Not printed: Expo Receipt can't be reached".
+ */
 export function printSummary(jobs: PrintJob[]): string {
   if (!jobs.length) return 'Nothing printed: no printer is set to print these items';
-  return (
-    'Printed at ' +
-    jobs.map((j) => `${j.printer.name} (${j.whole ? 'whole ticket' : `${j.items.length} item${j.items.length === 1 ? '' : 's'}`})`).join(' · ')
-  );
+  const ok = jobs.filter((j) => j.printer.reachable);
+  const down = jobs.filter((j) => !j.printer.reachable).map((j) => j.printer.name);
+  const printed = ok.length
+    ? 'Printed at ' + ok.map((j) => `${j.printer.name} (${j.whole ? 'whole ticket' : `${j.items.length} item${j.items.length === 1 ? '' : 's'}`})`).join(' · ')
+    : 'Nothing printed';
+  return down.length ? `${printed} · Not printed: ${down.join(' and ')} can't be reached` : printed;
+}
+
+/** Items no printer takes: they print nowhere, so someone has to tell the kitchen. */
+export function unprintedItems(items: PrintItem[], printers: RoutedPrinter[]): PrintItem[] {
+  return items.filter((it) => printersFor(it, printers).length === 0);
 }
 
 // ─── Item-level rules (Printers page, By menu item) ─────────────────────
@@ -187,4 +198,29 @@ export function setItemPrinters<P extends RoutedPrinter>(printers: P[], recipeId
     const recipes = want ? [...r.recipes, recipeId] : r.recipes.filter((id) => id !== recipeId);
     return { ...p, print: { ...r, recipes } };
   });
+}
+
+// ─── What a change sent to the kitchen ───────────────────────────────────
+
+/** The fields of a line that say whether the kitchen has it. */
+type FiredLine = { id: string; sent: boolean; kitchenState: string | null; cancelled?: boolean };
+
+/** In the kitchen's hands: sent, not waiting for its course or fire time, and not something nobody makes (a fee). */
+const reachedKitchen = (l: FiredLine) => l.sent && !l.cancelled && l.kitchenState != null && l.kitchenState !== 'scheduled' && l.kitchenState !== 'cleared';
+
+/**
+ * Lines a change put in front of the kitchen: on the order now, and before
+ * it either unsent, held for a course or fire time, or not there at all (a
+ * remake). In printer mode each of these prints, whatever sent it: the
+ * server's Send, a released hold, the kiosk, or a scheduled pick up firing.
+ */
+export function newlyFired<L extends FiredLine>(before: { diners: Array<{ items: FiredLine[] }> } | undefined, after: { diners: Array<{ items: L[] }> }): L[] {
+  const was = new Map((before?.diners ?? []).flatMap((d) => d.items.map((l) => [l.id, l] as const)));
+  return after.diners.flatMap((d) =>
+    d.items.filter((l) => {
+      if (!reachedKitchen(l)) return false;
+      const prev = was.get(l.id);
+      return !prev || !prev.sent || prev.kitchenState === 'scheduled';
+    }),
+  );
 }

@@ -3,7 +3,7 @@
   inset: 0;
   z-index: 5;
   overflow-y: auto;
-  padding: 14px 20px 22px;
+  padding: 14px 20px 0;
   background: var(--paper);
 }
 .back {
@@ -241,11 +241,19 @@
   outline: none;
   box-shadow: var(--focus);
 }
+/* Pinned to the bottom of the editor, so Add to order never sits under the send bar. */
 .footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  margin: 0 -20px;
+  padding: 10px 20px 14px;
+  background: var(--paper);
+  box-shadow: 0 -1px 0 var(--hair);
 }
 .status {
   flex: 1;
@@ -275,4 +283,8 @@
 .grow2[aria-disabled='true'] {
   background: #9aaab8;
   cursor: not-allowed;
+}
+.optionPrice {
+  font-weight: 600;
+  opacity: 0.75;
 }

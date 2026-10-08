@@ -16,6 +16,13 @@ import type { Diner, Order, OrderLine } from './types';
 /** Minutes after the prior course is run before any held course fires anyway. */
 export const COURSE_BACKUP_MIN = 15;
 
+/** Dessert's course: it waits for a manual fire or the backup in every mode. */
+export const DESSERT_COURSE = 3;
+
+/** Fire all: every course but dessert fires the moment it is sent. */
+export const firesAtSend = (o: Pick<Order, 'room' | 'meal'>, course: number, cfg: DiningConfig = DEFAULT_CONFIG): boolean =>
+  courseMode(o, cfg) === 'off' && course < DESSERT_COURSE;
+
 /** __kHash: small stable string hash, used to spread made-up seed times. */
 export function hash(str: string): number {
   let h = 0;
@@ -49,12 +56,13 @@ export function courseDue(
   cfg: DiningConfig = DEFAULT_CONFIG,
 ): boolean {
   const mode = courseMode(o, cfg);
-  if (mode === 'off') return true;
   const runAt = prev.length ? Math.max(...prev.map((i) => i.clearedAt || i.firedAt || 0)) : o.openedAt || 0;
   const backup = allRun && now() - runAt >= COURSE_BACKUP_MIN * 60_000;
-  // Dessert always waits for a manual fire or the backup.
-  if (course >= 3) return backup;
+  // Dessert always waits for a manual fire or the backup, even with Fire all.
+  if (course >= DESSERT_COURSE) return backup;
   switch (mode) {
+    case 'off':
+      return true;
     case 'manual':
       return backup;
     case 'timer5':

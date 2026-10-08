@@ -259,3 +259,14 @@
   color: var(--ocean);
   font-weight: 700;
 }
+/* Held by the host for a reservation: still tappable, outlined like the host floor. */
+.free.held {
+  box-shadow: inset 0 0 0 2px #a86a00;
+}
+.held .freeWord,
+.heldWord {
+  font-size: clamp(9.5px, 1.8cqh, 12.5px);
+  font-weight: 700;
+  color: #8a5700;
+  white-space: nowrap;
+}

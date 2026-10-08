@@ -83,13 +83,16 @@ describe('menu', () => {
 describe('diet and allergy pills', () => {
   it('match the prototype for every resident', () => {
     const got = Object.fromEntries(residents.map((r) => [r.id, residentPills(r)]));
-    expect(got).toEqual(prototype.pills);
+    // Joan's severe peanut allergy was only in a kitchen note in the prototype; the seed now lists it.
+    expect(got).toEqual({ ...prototype.pills, r6: [{ kind: 'allergy', text: 'Peanut' }, ...prototype.pills.r6] });
   });
 
-  it('only assisted living residents get pills, never guests', () => {
+  it('assisted living residents get every tag, independent living ones their allergies only, never guests', () => {
     const al = residents.find((r) => r.level === 'AL' && (r.allergies.length || r.diet.length))!;
     const d = { id: 'x', kind: 'resident' as const, refId: al.id, isGuest: false, seat: 1, items: [] };
     expect(dinerPills(d).length).toBeGreaterThan(0);
     expect(dinerPills({ ...d, isGuest: true })).toEqual([]);
+    const il = residents.find((r) => r.level === 'IL' && r.diet.length && !r.allergies.length)!;
+    expect(dinerPills({ ...d, refId: il.id })).toEqual([]);
   });
 });

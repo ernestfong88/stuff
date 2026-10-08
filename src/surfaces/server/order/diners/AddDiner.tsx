@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { associates, residents } from '../../../../data';
+import { moveNote, seatedAt, seatedAtText } from '../../../../domain/seating';
 import type { Contact, Order, Resident } from '../../../../domain/types';
 import { initials } from '../../../../lib/format';
 import { useDining } from '../../../../store/dining';
-import { Avatar, Button, cx, SearchField, TextField } from '../../../../ui';
+import { Avatar, Button, cx, SearchField, TextField, useConfirm } from '../../../../ui';
 import s from './AddDiner.module.css';
 import { GUEST_RELATIONS, saveContact, searchPeople, useContacts } from './guestContacts';
 
@@ -27,7 +28,8 @@ export function AddDiner({
   onClose: () => void;
   onAdded: (dinerId: string) => void;
 }) {
-  const { addDiner, patchOrder } = useDining();
+  const { addDiner, patchOrder, removeDiner, closeOrder, orders } = useDining();
+  const [ask, confirmDialog] = useConfirm();
   // An associate meal starts on the associate list.
   const [kind, setKind] = useState<Kind>(guestHost ? 'guest' : order.assoc ? 'associate' : 'resident');
   const [q, setQ] = useState('');
@@ -41,10 +43,25 @@ export function AddDiner({
     kind === 'associate' ? associates.map((a) => ({ ...a, apt: undefined })) : residents.filter((r) => kind === 'guest' || !seated.includes(r.id));
   const matches = searchPeople<{ id: string; name: string; apt?: string; photo: string; dept?: string }>(pool, q, 8);
 
-  const pick = (id: string) => {
+  /** A resident already seated at another open table: say where, and move them or stop. */
+  const elsewhere = (id: string) => (kind === 'resident' && !order.queueType ? seatedAt(orders, id, order.id) : null);
+  const pick = async (id: string) => {
     if (kind === 'guest') {
       setHost(residents.find((r) => r.id === id) ?? null);
       return;
+    }
+    const at = elsewhere(id);
+    if (at) {
+      const name = residents.find((r) => r.id === id)?.name ?? 'This resident';
+      const ok = await ask({
+        title: seatedAtText(name, at),
+        message: `${moveNote(name, at)} Cancel if they are still sitting there.`,
+        confirmLabel: `Move ${name.split(' ')[0]} here`,
+      });
+      if (!ok) return;
+      removeDiner(at.order.id, at.dinerId);
+      // Nobody left on the old check: it goes, rather than sitting empty on the floor.
+      if (at.order.diners.length === 1) closeOrder(at.order.id);
     }
     const added = addDiner(order.id, kind === 'associate' ? 'associate' : 'resident', id, false);
     // The first associate on an associate meal names the order, as Expo and Pick up show it.
@@ -166,19 +183,26 @@ export function AddDiner({
         </div>
       ) : (
         <>
-          {matches.map((p) => (
-            <button key={p.id} className={s.person} onClick={() => pick(p.id)}>
-              <Avatar person={p} size={38} />
-              <span className={s.personText}>
-                <span className={s.personName}>{p.name}</span>
-                <span className={s.personSub}>{p.apt ? `Apt ${p.apt}` : p.dept}</span>
-              </span>
-              <Plus size={16} strokeWidth={2.5} className={s.plus} aria-hidden />
-            </button>
-          ))}
+          {matches.map((p) => {
+            const at = elsewhere(p.id);
+            return (
+              <button key={p.id} className={s.person} onClick={() => pick(p.id)}>
+                <Avatar person={p} size={38} />
+                <span className={s.personText}>
+                  <span className={s.personName}>{p.name}</span>
+                  <span className={s.personSub}>
+                    {p.apt ? `Apt ${p.apt}` : p.dept}
+                    {at && <span className={s.seatedAt}> · At {at.table} with {at.server}</span>}
+                  </span>
+                </span>
+                <Plus size={16} strokeWidth={2.5} className={s.plus} aria-hidden />
+              </button>
+            );
+          })}
           {matches.length === 0 && <p className={s.none}>No matches.</p>}
         </>
       )}
+      {confirmDialog}
     </div>
   );
 }

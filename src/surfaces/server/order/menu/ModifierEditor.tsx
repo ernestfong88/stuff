@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, ChevronDown, ChevronLeft, X } from 'lucide-react';
+import { conflictSentence, foodConflicts } from '../../../../domain/allergens';
 import type { Diner, MenuItem, ModSelection, Resident } from '../../../../domain/types';
 import { useDining } from '../../../../store/dining';
+import { upcharge } from '../../../../domain/menu';
 import { Button, cx } from '../../../../ui';
 import {
   ACTIONS,
@@ -10,7 +12,9 @@ import {
   hasRule,
   missingRequired,
   modsFromPicks,
+  optionPrice,
   pickedCount,
+  pinnedGroupIds,
   picksFromMods,
   ruleText,
   togglePick,
@@ -84,7 +88,10 @@ export function ModifierEditor({
   const { top, more } = groupsForItem(item.id, usage);
   const missing = missingRequired(item.id, picks);
   const price = diner.kind === 'resident' && !diner.isGuest ? item.residentPrice : item.guestPrice;
-  const conflicts = item.allergens.filter((a) => person?.allergies?.includes(a));
+  // Up-charges on the picks so far (priced options, toppings past the included count), as billing will charge them.
+  const pinned = pinnedGroupIds(item.id);
+  const added = upcharge({ itemId: item.id, mods: modsFromPicks(item.id, picks) });
+  const conflicts = foodConflicts(item, person);
 
   const confirm = () => {
     if (missing && !editing) return;
@@ -98,6 +105,8 @@ export function ModifierEditor({
     <div className={s.options}>
       {[...mods].sort().map((m) => {
         const picked = picks.find((p) => p.name === m);
+        // Priced where billing prices it: the groups pinned to this dish.
+        const extra = pinned.includes(groupId) ? optionPrice(groupId, m) : 0;
         return (
           <button
             key={m}
@@ -111,6 +120,7 @@ export function ModifierEditor({
             onClick={() => setPicks((ps) => togglePick(ps, groupId, m, action))}
           >
             {picked ? picked.label : m}
+            {extra > 0 && <span className={s.optionPrice}> +${extra.toFixed(2)}</span>}
           </button>
         );
       })}
@@ -124,13 +134,17 @@ export function ModifierEditor({
       </button>
       <div className={s.titleRow}>
         <h3 className={s.title}>{item.name}</h3>
-        {price > 0 && <span className={s.price}>${price}</span>}
+        {(price > 0 || added > 0) && (
+          <span className={s.price}>
+            {price > 0 && `$${price}`}
+            {added > 0 && ` + $${added.toFixed(2)} add-ons`}
+          </span>
+        )}
       </div>
       {item.desc && <p className={s.desc}>{item.desc}</p>}
       {conflicts.length > 0 && (
         <div className={s.allergy} role="alert">
-          <AlertTriangle size={14} aria-hidden /> {person?.name.split(' ')[0]} is allergic to {conflicts.join(', ').toLowerCase()}. Confirm
-          before sending.
+          <AlertTriangle size={14} aria-hidden /> {conflictSentence(conflicts, person?.name.split(' ')[0] ?? 'This diner')} Confirm before sending.
         </div>
       )}
       {picks.length > 0 && (

@@ -139,7 +139,9 @@
   "diet": [
    "No Dairy, Avoid Soy (Sensitivity)"
   ],
-  "allergies": [],
+  "allergies": [
+   "Peanuts (severe)"
+  ],
   "fav": "No meat. Loves a good salad.",
   "plan": "monthly30",
   "consumed": 12

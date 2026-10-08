@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { addDays, itemsLeft, missingChoice, modsText, mondayOf } from '../../../domain/assocMeals/menu';
+import { addDays, itemsLeft, missingChoice, modsText, weekStartOf } from '../../../domain/assocMeals/menu';
 import { isoDate } from '../../../domain/pickup';
 import type { AssocMeal } from '../../../domain/types';
 import { recipeInfo } from '../../../store/recipes';
@@ -95,16 +95,16 @@ describe('associate menu', () => {
   });
 
   it('offers the special of the week every day of its week, after the chef special', () => {
-    const monday = mondayOf(today);
-    setWeekSpecial(monday, 'vf_turkeyclub');
-    for (const date of [today, addDays(monday, 6)]) {
+    const sunday = weekStartOf(today);
+    setWeekSpecial(sunday, 'vf_turkeyclub');
+    for (const date of [today, addDays(sunday, 6)]) {
       const menu = assocMenuFor(date, 'Lunch', today, undefined, true)!;
       expect(menu[1]).toMatchObject({ id: 'am_week', name: 'Turkey Club', weekly: true, recipeIds: ['vf_turkeyclub'] });
       expect(menu[0].special).toBe(true);
     }
     expect(assocMenuForDay(today).some((x) => x.weekly)).toBe(true);
-    expect(assocMenuFor(addDays(monday, 7), 'Lunch', today, undefined, true)!.some((x) => x.weekly)).toBe(false);
-    setWeekSpecial(monday, undefined);
+    expect(assocMenuFor(addDays(sunday, 7), 'Lunch', today, undefined, true)!.some((x) => x.weekly)).toBe(false);
+    setWeekSpecial(sunday, undefined);
     expect(assocMenuFor(today, 'Lunch', today)!.some((x) => x.weekly)).toBe(false);
   });
 

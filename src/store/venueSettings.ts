@@ -52,6 +52,8 @@ export interface MenuSummary {
   status: 'active' | 'draft' | 'archived' | string;
   /** Days in the cycle; 0 for a static menu. */
   cycleLen: number;
+  /** The dietitian's sign-off: approved, waiting, or not sent (none). Missing means not tracked. */
+  approval?: 'approved' | 'waiting' | 'none';
 }
 
 export type PrinterType = 'Kitchen' | 'Receipt' | 'Label';
@@ -260,6 +262,11 @@ export function linkPrinter(link: PrinterLink): void {
 
 export function unlinkPrinter(linkId: string): void {
   update((s) => ({ ...s, printerLinks: s.printerLinks.filter((l) => l.id !== linkId) }));
+}
+
+/** Link a newly paired card terminal to a venue. */
+export function addTerminal(terminal: PaymentTerminal): void {
+  update((s) => ({ ...s, terminals: [...s.terminals, terminal] }));
 }
 
 /** Set up a new printer, linked to one venue, to several (one link id each) or to none. */

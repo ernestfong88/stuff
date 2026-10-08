@@ -7,6 +7,7 @@ import { catalog, getItem } from '../data';
 import { isAlcoholFreeName } from '../domain/menu';
 import { PRINT_GROUPS, printGroupOf, subKey, type PrintGroup, type PrintItem } from '../domain/printing';
 import { recipeInfo, recipesIn, type RecipeInfo } from './recipes';
+import { activeMenuRecipes } from './venueMenu';
 
 const BOOK_CATS = ['Drinks', 'Starters', 'Entrees', 'Sides', 'Desserts', 'Snacks'];
 
@@ -49,13 +50,28 @@ export interface PrintOption {
   hint: string;
 }
 
-/** The categories and recipes on the tablet menu that a printer can be set to. */
+/** A Recipe Book recipe as the printers see it, for a dish the tablets don't carry yet. */
+function printItemOfRecipe(r: RecipeInfo): PrintItem {
+  const group = printGroupOf(r.cat, r.sub);
+  return { name: r.name, group, sub: r.sub ? subKey(group, r.sub) : undefined, recipeId: r.id };
+}
+
+/**
+ * The categories and recipes a printer can be set to: everything on the
+ * tablet menu, and every dish the venues' menus place on any day of their
+ * cycles (not only this week's), so next week's soup can be routed now.
+ */
 export function printOptions(): PrintOption[] {
   const names = byName();
   const recipes = new Map<string, PrintItem & { recipeId: string }>();
   for (const it of catalog) {
     const p = printItemFor(it.id, names);
     if (p?.recipeId && !recipes.has(p.recipeId)) recipes.set(p.recipeId, { ...p, recipeId: p.recipeId });
+  }
+  for (const { recipeId } of activeMenuRecipes()) {
+    if (recipes.has(recipeId)) continue;
+    const r = recipeInfo(recipeId);
+    if (r) recipes.set(recipeId, { ...printItemOfRecipe(r), recipeId });
   }
   const subs = new Map<string, { group: PrintGroup; n: number }>();
   for (const r of recipes.values()) if (r.sub) subs.set(r.sub, { group: r.group, n: (subs.get(r.sub)?.n ?? 0) + 1 });
@@ -87,7 +103,7 @@ export interface PrintMenuRow extends PrintItem {
 }
 
 /**
- * Every item on the tablet menu as the printers see it, once each (an item on
+ * Every item on the tablet menu (and every dish on the venues' cycles) as the printers see it, once each (an item on
  * several meals' menus, or two items for one recipe, is one row), in print
  * group order, then Recipe Book category, then name. Items with no recipe
  * can't take an item-level rule; they print by their group.
@@ -99,6 +115,12 @@ export function printMenuItems(): PrintMenuRow[] {
     const p = printItemFor(it.id, names);
     const key = p?.recipeId ?? `item:${it.name.toLowerCase()}`;
     if (p && !rows.has(key)) rows.set(key, { ...p, key });
+  }
+  // Dishes the menu cycles place on other days print too.
+  for (const { recipeId } of activeMenuRecipes()) {
+    if (rows.has(recipeId)) continue;
+    const r = recipeInfo(recipeId);
+    if (r) rows.set(recipeId, { ...printItemOfRecipe(r), key: recipeId });
   }
   const order = (g: PrintGroup) => PRINT_GROUPS.indexOf(g);
   return [...rows.values()].sort(

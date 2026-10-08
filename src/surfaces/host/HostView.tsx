@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { getTable } from '../../data';
+import { moveNote, seatedAt, seatedAtText } from '../../domain/seating';
 import { serversOnFloor, suggestServer } from '../../domain/servers';
 import type { MealName, Order } from '../../domain/types';
 import { now } from '../../lib/clock';
 import { useVenue } from '../../shell/session';
 import { useDining } from '../../store/dining';
-import { Button, cx, toast, useNow } from '../../ui';
+import { Button, cx, toast, useConfirm, useNow } from '../../ui';
 import { FloorPlan } from '../manager/floor/FloorPlan';
 import { checksAt, inPlan, useRoomPlan, useTableName, type PlanItem } from '../../store/floorLayout';
 import { ServerLegend } from '../manager/floor/ServerLegend';
@@ -43,7 +44,8 @@ interface Props {
 export function HostView({ tab, onTab, onOpen }: Props) {
   const [venue] = useVenue();
   const plan = useRoomPlan(venue);
-  const { orders, newCheck, addDiner, patchOrder } = useDining();
+  const { orders, newCheck, addDiner, patchOrder, removeDiner, closeOrder } = useDining();
+  const [ask, confirmDialog] = useConfirm();
   const at = useNow(15_000);
   const name = useTableName();
   const book = useReservations();
@@ -91,8 +93,31 @@ export function HostView({ tab, onTab, onOpen }: Props) {
     }
   };
 
-  const seat = () => {
+  const seat = async () => {
     if (!pick || !seats.length || !server) return;
+    // Someone in the party already at another open table: say where, then move them or stop.
+    const dupes = seats.flatMap((x) => {
+      const at = x.residentId && !x.guest ? seatedAt(live, x.residentId) : null;
+      return at ? [{ name: x.name, at }] : [];
+    });
+    if (dupes.length) {
+      const ok = await ask({
+        title: dupes.length === 1 ? seatedAtText(dupes[0].name, dupes[0].at) : `${dupes.length} of this party are already seated`,
+        message: (
+          <>
+            {dupes.length > 1 && <span>{dupes.map((d) => seatedAtText(d.name, d.at)).join('. ')}. </span>}
+            {dupes.map((d) => moveNote(d.name, d.at)).join(' ')} Cancel if they are still sitting there.
+          </>
+        ),
+        confirmLabel: dupes.length === 1 ? `Move ${dupes[0].name.split(' ')[0]} to ${pick.label}` : `Move them to ${pick.label}`,
+      });
+      if (!ok) return;
+      for (const d of dupes) {
+        removeDiner(d.at.order.id, d.at.dinerId);
+        // Nobody left on the old check: it goes, rather than sitting empty on the floor.
+        if (d.at.order.diners.length === 1) closeOrder(d.at.order.id);
+      }
+    }
     const oid = newCheck(pick.id, venue, mealAtMinutes(nowMinutes()), server);
     patchOrder(oid, { hostSeated: true });
     // A guest added on the floor sits against the first resident in the party.
@@ -158,6 +183,7 @@ export function HostView({ tab, onTab, onOpen }: Props) {
             setSeats([]);
           }}
           heldFor={held}
+          seatedAt={(rid) => seatedAt(live, rid)}
           onSeatHeld={seatReservation}
           at={at}
           name={name}
@@ -239,6 +265,7 @@ export function HostView({ tab, onTab, onOpen }: Props) {
           />
         )}
       </div>
+      {confirmDialog}
       {form && <ReservationForm plan={plan} init={form.r} list={book} day={day} meal={meal} onClose={() => setForm(null)} onSave={save} />}
     </div>
   );

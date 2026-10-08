@@ -96,6 +96,14 @@ export const KDS_DEFAULT_PHASE: Phase = 2;
 export const kdsPhase = (plan: PhasePlan = phasePlanStore.get()): Phase => plan[KDS_PHASE_KEY] ?? KDS_DEFAULT_PHASE;
 export const kdsOn = (plan: PhasePlan = phasePlanStore.get(), on: PhaseSwitches = phaseOnStore.get()) => phaseIsOn(kdsPhase(plan), on);
 
+/** The Expo screen's phase is its own: with it off and Cook on, kitchens run without an expo station. */
+export const expoScreenOn = (plan: PhasePlan = phasePlanStore.get(), on: PhaseSwitches = phaseOnStore.get()) =>
+  phaseIsOn(plan['mode:expo'] ?? KDS_DEFAULT_PHASE, on);
+
+/** The Bar screen (Phase 2 unless moved). With it off, nobody works a bar, so servers pour alcohol too. */
+export const barScreenOn = (plan: PhasePlan = phasePlanStore.get(), on: PhaseSwitches = phaseOnStore.get()) =>
+  phaseIsOn(plan['mode:bar'] ?? 2, on);
+
 /** Phase 1 first, then Phase 2, then Phase 3, each keeping its own order. */
 export function byPhase<T>(items: T[], phaseOf: (item: T) => Phase): T[] {
   return PHASES.flatMap((ph) => items.filter((x) => phaseOf(x) === ph));

@@ -10,6 +10,7 @@
  */
 import { menu } from '../../../../data';
 import { hash } from '../../../../domain/courses';
+import { hasFoodConflict } from '../../../../domain/allergens';
 import { isDrink } from '../../../../domain/menu';
 import type { LearnedFavorite } from '../../../../domain/orders';
 import type { MealName, MenuItem, ModSelection, Resident } from '../../../../domain/types';
@@ -98,8 +99,7 @@ export function usualsFor(r: Resident, meal: MealName, learned: LearnedFavorite[
   if (food.length < 2) {
     const veg = /no meat|vegetarian|vegan/i.test([r.fav, ...(r.diet ?? [])].join(' '));
     const way = (it: MenuItem) => (veg ? dropMeat(usualWay(it, r.id)) : usualWay(it, r.id));
-    const avoid = [...(r.allergies ?? []), ...(r.diet ?? [])].join(' ').toLowerCase();
-    const safe = (it: MenuItem) => !(it.allergens ?? []).some((a) => avoid.includes(String(a).toLowerCase()));
+    const safe = (it: MenuItem) => !hasFoodConflict(it, r);
     const all = ['Specials', 'Entrées']
       .flatMap((k) => g[k] ?? [])
       .filter(

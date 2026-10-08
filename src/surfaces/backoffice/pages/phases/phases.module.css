@@ -6,3 +6,9 @@
   font-size: 12.5px;
   color: var(--s500);
 }
+.locked {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--s500);
+  padding: 0 10px;
+}

@@ -131,7 +131,9 @@ describe('courseDue', () => {
     expect(courseDue(o, 2, prevRun, false, 5 * MIN, withMode('timer5'))).toBe(true);
     expect(courseDue(o, 2, prevRun, false, 5 * MIN, withMode('timer8'))).toBe(false);
     expect(courseDue(o, 2, prevRun, true, 0, withMode('manual'))).toBe(false);
-    expect(courseDue(o, 3, [], false, 0, withMode('off'))).toBe(true);
+    expect(courseDue(o, 2, [], false, 0, withMode('off'))).toBe(true);
+    // Dessert waits even with Fire all.
+    expect(courseDue(o, 3, [], false, 0, withMode('off'))).toBe(false);
   });
 });
 
@@ -148,12 +150,15 @@ describe('pacingTick (dine-in)', () => {
     expect(byId[dessert.id].kitchenState).toBe('scheduled');
   });
 
-  it('fires every course together when coursing is off', () => {
-    const { o } = dinnerCheck();
-    const s = sendOrder(stateOf(o), o.id);
-    const fired = pacingTick(s.orders, withMode('off'))[0];
-    // One course per tick: the lowest held course (2) fires first.
-    expect(lines(fired).filter((i) => i.kitchenState === 'scheduled').map((i) => i.course)).toEqual([3]);
+  it('Fire all fires every course but dessert at send', () => {
+    const { o, entree, dessert } = dinnerCheck();
+    const cfg = withMode('off');
+    const s = sendOrder(stateOf(o), o.id, { ...DEFAULT_CONTEXT, cfg });
+    const byId = Object.fromEntries(lines(s.orders[0]).map((i) => [i.id, i]));
+    expect(byId[entree.id].kitchenState).toBe('cooking');
+    expect(byId[dessert.id].kitchenState).toBe('scheduled');
+    // Dessert stays held on the pacing tick too.
+    expect(pacingTick(s.orders, cfg)).toBe(s.orders);
   });
 });
 

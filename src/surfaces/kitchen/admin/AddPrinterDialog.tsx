@@ -1,5 +1,6 @@
 import { Plus, Printer as PrinterIcon } from 'lucide-react';
 import { useId, useState } from 'react';
+import { printerIpProblem } from '../../../domain/deviceChecks';
 import { uid } from '../../../lib/id';
 import { Button, Chip, Modal, TextField, cx, toast } from '../../../ui';
 import { addPrinter, linkPrinter, type PrinterType, type Venue, type VenueSettings } from '../../../store/venueSettings';
@@ -21,6 +22,9 @@ export function AddPrinterDialog({ settings, venue, onClose }: { settings: Venue
   const linked = new Set(venue ? settings.printerLinks.filter((l) => l.venueId === venue.id).map((l) => l.printerId) : []);
   const existing = venue ? settings.printers.filter((p) => p.active && !linked.has(p.id)) : [];
   const venues = settings.venues.filter((v) => v.active);
+  const ipProblem = printerIpProblem(ip, settings.printers);
+  // Only point out a bad IP once a name is in, so the half-typed default doesn't shout straight away.
+  const showIp = !!name.trim() && !!ipProblem;
   const toggleVenue = (id: string) => setVenueIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
 
   return (
@@ -59,7 +63,7 @@ export function AddPrinterDialog({ settings, venue, onClose }: { settings: Venue
             ))}
           </select>
         </label>
-        <TextField label="IP" value={ip} onChange={(e) => setIp(e.target.value)} inputMode="decimal" />
+        <TextField label="IP" value={ip} onChange={(e) => setIp(e.target.value)} inputMode="decimal" error={showIp ? ipProblem : undefined} />
       </div>
       {!venue && (
         <div className={s.venues}>
@@ -80,7 +84,7 @@ export function AddPrinterDialog({ settings, venue, onClose }: { settings: Venue
         <Button
           variant="primary"
           icon={<Plus size={15} />}
-          disabled={!name.trim()}
+          disabled={!name.trim() || !!ipProblem}
           onClick={() => {
             addPrinter(
               { id: uid('p'), name: name.trim(), type, ip: ip.trim(), active: true, reachable: true },

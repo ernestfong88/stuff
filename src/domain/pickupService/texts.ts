@@ -108,10 +108,10 @@ export function textOn(texts: TextSettings, k: TextKey): boolean {
   return texts[k]?.on !== false;
 }
 
-/** The community's wording for a text, or the standard wording. */
+/** The community's wording for a text, or the standard wording (a blank wording never sends: the standard is used). */
 export function textBody(texts: TextSettings, k: TextKey): string {
   const own = texts[k]?.body;
-  return typeof own === 'string' ? own : definition(k).body;
+  return typeof own === 'string' && own.trim() ? own : definition(k).body;
 }
 
 /** Fill {placeholders}; one with no value stays as written so a mistake shows. */

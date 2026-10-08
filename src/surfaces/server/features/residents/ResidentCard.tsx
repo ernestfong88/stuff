@@ -24,6 +24,7 @@ export function ResidentPills({ resident, size = 'xs' }: { resident: Resident; s
 /** One resident in a list: face, name, apartment, level, meals left and tags. */
 export function ResidentCard({ resident, onOpen, tag }: { resident: Resident; onOpen: () => void; tag?: ReactNode }) {
   const { plan, left } = planStatus(resident);
+  const unit = left === 1 ? (plan.unit ?? 'meals').replace(/s$/, '') : (plan.unit ?? 'meals');
   return (
     <button type="button" className={s.card} onClick={onOpen}>
       <Avatar person={resident} size={44} />
@@ -33,7 +34,7 @@ export function ResidentCard({ resident, onOpen, tag }: { resident: Resident; on
           {tag}
         </span>
         <span className={s.meta}>
-          Apt {resident.apt} · {resident.level} · {left != null ? `${left} ${plan.unit ?? 'meals'} left` : 'à la carte'}
+          Apt {resident.apt} · {resident.level} · {left != null ? `${left} ${unit} left` : 'à la carte'}
         </span>
         <ResidentPills resident={resident} />
       </span>

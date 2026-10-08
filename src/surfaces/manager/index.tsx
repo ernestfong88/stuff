@@ -6,6 +6,9 @@
  */
 import type { Order } from '../../domain/types';
 import { useView } from '../../shell/router';
+import { useMe, useVenue } from '../../shell/session';
+import { useDining } from '../../store/dining';
+import { currentMeal } from '../server/shared/meal';
 import { TabletShell } from '../../shell/TabletShell';
 import { NoticesButton, ResidentsView, ShiftReviewView } from '../server/features';
 import { OrderScreen } from '../server/order';
@@ -26,6 +29,9 @@ export default function ManagerSurface() {
   const [view, setView, rest] = useView<ManagerView>('triage');
   const openId = rest[0] === 'check' ? rest[1] : undefined;
   const open = (o: Order) => setView(view, ['check', o.id]);
+  const me = useMe().initials;
+  const [venue] = useVenue();
+  const { openOrder } = useDining();
 
   if (openId) return <OrderScreen orderId={openId} onClose={() => setView(view)} />;
 
@@ -37,7 +43,14 @@ export default function ManagerSurface() {
     >
       <ManagerTabs value={isTab(view) ? view : null} onChange={setView} />
       {view === 'tables' ? (
-        <TablesView onOpen={open} />
+        <TablesView
+          onOpen={open}
+          onStart={(table) => {
+            // A manager also takes tables: a free table starts their own check, as on the server's map.
+            const id = openOrder(table.id, venue, currentMeal(), me);
+            if (id) setView(view, ['check', id]);
+          }}
+        />
       ) : view === 'metrics' ? (
         <MetricsView onOpen={open} />
       ) : view === 'shift' ? (

@@ -4,7 +4,7 @@ import { useConfig } from '../../../../store/config';
 import type { Recipe } from '../../../../store/menuEdits';
 import { Button, Modal, toast } from '../../../../ui';
 import { placementSides, setPlacementSides, useBo } from '../data';
-import { normCategory } from '../model/categories';
+import { categoryLabel, normCategory } from '../model/categories';
 import { recipeShort } from '../model/shortNames';
 import { tabletIds, tabletIndex, tabletItem } from '../model/tablet';
 import { renameRecipe } from '../recipeActions';
@@ -69,7 +69,7 @@ export function QuickEdit({
     >
       <div className={s.body}>
         <p className={s.info}>
-          {r.cat} · {day ? `Day ${day} of this menu` : 'Any Day on this menu'}
+          {categoryLabel(r.cat)} · {day ? `Day ${day} of this menu` : 'Any Day on this menu'}
           {short !== r.name ? ` · servers see ${short}` : ''}
         </p>
         {cod && (

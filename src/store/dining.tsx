@@ -60,9 +60,12 @@ import { uid } from '../lib/id';
 import { resetPersistedStores, useShared } from '../lib/sharedStore';
 import { getConfig, updateConfig, useConfig } from './config';
 import { resetProduction } from './production';
+import { printChanges, printWarning, type KitchenPrint } from './kitchenPrint';
 import { claimPacingLeadership, createDiningEngine, releasePacingLeadership, type DiningEngine } from './diningEngine';
 import { residentPrefsStore, updateResidentPref, type ResidentPrefs } from './residentPrefs';
 import { sessionStore } from './session';
+import { expoScreenOn, phaseOnStore, phasePlanStore } from './phases';
+import { toast } from '../ui/Toast';
 
 /** How often the course pacing timer looks for held courses that are due. */
 export const PACING_INTERVAL_MS = 5000;
@@ -135,7 +138,8 @@ export interface DiningApi {
   dismissReminder(orderId: string, lineId: string, reminder: string): void;
 
   // ── Sending and pacing ──
-  sendOrder(orderId: string): void;
+  /** Printer mode: what printed where (null in KDS mode, or while a takeover waits). */
+  sendOrder(orderId: string): KitchenPrint | null;
   sendCourse(orderId: string, categories: string[]): void;
   fireCourseNow(orderId: string, course: number): void;
   setOrderPacing(orderId: string, mode: FireMode, timerMin?: number): void;
@@ -203,7 +207,8 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
 
   const [recentBumps, setRecentBumps] = useState<RecentBump[]>([]);
   const [modUsage, setModUsage] = useState<Record<string, Record<string, number>>>({});
-  const [expoActive, setExpoActive] = useState(true);
+  // Expo's own release phase: with it off the cook line clears its own tickets (and servers run the courses).
+  const expoActive = expoScreenOn(useShared(phasePlanStore), useShared(phaseOnStore));
   // How orders reach the kitchen, from the setting (KDS Settings, Pacing & Coursing).
   const kitchenMode = printerMode(useConfig()) ? 'printers' : 'kds_expo';
   const [pendingTakeover, setPendingTakeover] = useState<(PendingTakeover & { go: () => void }) | null>(null);
@@ -215,10 +220,17 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
   useEffect(() => {
     const timer = setInterval(() => {
       if (!claimPacingLeadership(engine.tabId)) return;
+      const before = engine.get().orders;
+      const cfg = getConfig();
       engine.update((s) => {
-        const orders = A.pacingTick(s.orders, getConfig());
+        const orders = A.pacingTick(s.orders, cfg);
         return orders === s.orders ? s : { ...s, orders };
       });
+      // A scheduled pick up or delivery reaching its fire time prints now, in printer mode.
+      for (const p of printChanges(before, engine.get().orders, cfg)) {
+        const warn = printWarning(p);
+        if (warn) toast(warn, { tone: 'danger' });
+      }
     }, PACING_INTERVAL_MS);
     return () => {
       clearInterval(timer);
@@ -243,6 +255,8 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
       stamp?: ReadyStamp;
       /** Device-local follow-up, run with the change (also after a confirmed takeover). */
       after?: () => void;
+      /** The change can put food in front of the kitchen: in printer mode, print it and report here. */
+      printed?: (prints: KitchenPrint[]) => void;
     }
 
     /**
@@ -261,6 +275,7 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
       const o = findAny(orderId);
       const { mode, me } = sessionStore.get();
       const run = (target: Order | undefined) => {
+        const before = engine.get().orders;
         engine.update((s) => {
           if (!target) return reduce(s);
           let what: string;
@@ -271,6 +286,7 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
           }
           return reduce(appendLogEvent(s, target.id, logEvent(action, logAuthor(mode, target), what, opts.course), opts.stamp));
         });
+        if (opts.printed) opts.printed(printChanges(before, engine.get().orders, getConfig()));
         opts.after?.();
       };
       if (o && me && needsTakeover(action, o, me, mode)) {
@@ -292,6 +308,24 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
       appendLogEvent(s, id, logEvent('openOrder', logAuthor(sessionStore.get().mode, { server: server || 'AA' }), 'Opened the check'));
 
     const lineText = (lineId: string) => (o: Order) => lineLabel(o, lineId, getConfig());
+
+    /** Printing from an action nobody waits on: only trouble is worth a toast. */
+    const warnPrints = (prints: KitchenPrint[]) => {
+      for (const p of prints) {
+        const warn = printWarning(p);
+        if (warn) toast(warn, { tone: 'danger' });
+      }
+    };
+
+    /** Expo or the server ran a course: the next one fires at once when it is due, not on the next pacing tick. */
+    const paceNow =
+      (orderId: string) =>
+      (s: DiningState): DiningState => {
+        const o = s.orders.find((x) => x.id === orderId);
+        if (!o) return s;
+        const [next] = A.pacingTick([o], getConfig());
+        return next === o ? s : { ...s, orders: s.orders.map((x) => (x.id === orderId ? next : x)) };
+      };
 
     const setOrders: Setter<Order[]> = (next) =>
       engine.update((s) => ({ ...s, orders: typeof next === 'function' ? next(s.orders) : next }));
@@ -433,18 +467,28 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
         void logged('cancelLine', orderId, (o) => 'Cancelled ' + lineText(lineId)(o), (s) => A.cancelLine(s, orderId, dinerId, lineId)),
       remakeLine: (orderId, dinerId, lineId) => {
         const id = uid('rm');
-        logged('remakeLine', orderId, (o) => 'Remake: ' + lineText(lineId)(o), (s) =>
-          A.remakeLine(s, orderId, dinerId, lineId, id, ctx()),
-        );
+        logged('remakeLine', orderId, (o) => 'Remake: ' + lineText(lineId)(o), (s) => A.remakeLine(s, orderId, dinerId, lineId, id, ctx()), {
+          printed: warnPrints,
+        });
       },
       dismissReminder: (orderId, lineId, reminder) => engine.update((s) => A.dismissReminder(s, orderId, lineId, reminder)),
 
-      sendOrder: (orderId) =>
-        void logged('sendOrder', orderId, (o) => sendText(plateLines(o, false)), (s) => A.sendOrder(s, orderId, ctx())),
+      sendOrder(orderId) {
+        let printed: KitchenPrint | null = null;
+        logged('sendOrder', orderId, (o) => sendText(plateLines(o, false)), (s) => A.sendOrder(s, orderId, ctx()), {
+          printed: (p) => (printed = p[0] ?? null),
+        });
+        return printed;
+      },
       sendCourse: (orderId, categories) =>
-        void logged('sendCourse', orderId, () => 'Sent ' + categories.join(', '), (s) => A.sendCourse(s, orderId, categories)),
+        void logged('sendCourse', orderId, () => 'Sent ' + categories.join(', '), (s) => A.sendCourse(s, orderId, categories), {
+          printed: warnPrints,
+        }),
       fireCourseNow: (orderId, course) =>
-        void logged('fireCourseNow', orderId, () => 'Fired C' + course, (s) => A.fireCourseNow(s, orderId, course, ctx()), { course }),
+        void logged('fireCourseNow', orderId, () => 'Fired C' + course, (s) => A.fireCourseNow(s, orderId, course, ctx()), {
+          course,
+          printed: warnPrints,
+        }),
       setOrderPacing: (orderId, mode, timerMin) =>
         void logged('setOrderPacing', orderId, () => pacingText(mode, timerMin), (s) => A.setOrderPacing(s, orderId, mode, timerMin)),
 
@@ -468,19 +512,26 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
           after: () => setRecentBumps((b) => pushBump(b, orderId, 'ready')),
         }),
       clearCourse: (orderId, course) =>
-        void logged('clearCourse', orderId, () => 'Ran C' + course, (s) => A.clearCourse(s, orderId, course), { course }),
+        void logged('clearCourse', orderId, () => 'Ran C' + course, (s) => paceNow(orderId)(A.clearCourse(s, orderId, course)), {
+          course,
+          printed: warnPrints,
+        }),
       clearOrder: (orderId) =>
         void logged('clearOrder', orderId, () => 'Ran every plate', (s) => A.clearOrder(s, orderId), {
           after: () => setRecentBumps((b) => pushBump(b, orderId, 'cleared')),
         }),
       runCourse: (orderId, course) =>
-        void logged('runCourse', orderId, () => 'Ran C' + course, (s) => A.runCourse(s, orderId, course), { course }),
+        void logged('runCourse', orderId, () => 'Ran C' + course, (s) => paceNow(orderId)(A.runCourse(s, orderId, course)), {
+          course,
+          printed: warnPrints,
+        }),
       markServed(orderId, course) {
         const o = engine.get().orders.find((x) => x.id === orderId);
         if (!o) return;
         const undo = runUndoSnapshot(o, course);
-        logged('runCourse', orderId, () => 'Ran C' + course, (s) => A.runCourse(s, orderId, course), {
+        logged('runCourse', orderId, () => 'Ran C' + course, (s) => paceNow(orderId)(A.runCourse(s, orderId, course)), {
           course,
+          printed: warnPrints,
           after: () => runUndos.current.set(orderId, undo),
         });
       },
@@ -532,7 +583,8 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
       recordModUsage: (itemId, groupId) =>
         setModUsage((u) => ({ ...u, [itemId]: { ...u[itemId], [groupId]: (u[itemId]?.[groupId] ?? 0) + 1 } })),
       updateResidentPref,
-      setExpoActive,
+      // Expo follows its release phase (HO Settings) and each kitchen's KDS setting; nothing to set per device.
+      setExpoActive: () => {},
       setKitchenMode: (mode: string) => updateConfig({ kitchenMode: mode === 'printers' ? 'printers' : 'kds' }),
       cancelTakeover: () => setPendingTakeover(null),
 

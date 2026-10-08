@@ -123,6 +123,8 @@ export const MEAL_ANSWERS: Partial<KioskState> = {
 
 /** Whether a question doesn't apply to these answers. */
 export function skips(step: Question, s: KioskState, menu: KioskMenu | null): boolean {
+  // A type that books no ranges is made as soon as it is ready: no time to pick.
+  if (step === 'time') return s.win === -1;
   if (step === 'ver') return !isBuildYourOwn(getItem(s.entree));
   if (step === 'side') return !s.entree;
   if (step === 'soup') return !menu?.soups.length;

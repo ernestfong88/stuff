@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { UserPlus } from 'lucide-react';
+import { Trash2, UserPlus } from 'lucide-react';
 import { getItem, getTable } from '../../../data';
-import { dinerName, findLine } from '../../../domain/orders';
+import { dinerName, findLine, tableName } from '../../../domain/orders';
+import { isEmptyCheck } from '../../../domain/seating';
 import type { Diner, Order, QueueType, Resident } from '../../../domain/types';
 import { now } from '../../../lib/clock';
 import { printerMode } from '../../../domain/config';
-import { printJobs, printSummary } from '../../../domain/printing';
 import { useConfig } from '../../../store/config';
-import { printItemsFor } from '../../../store/printing';
-import { kitchenPrinters, venueSettingsStore } from '../../../store/venueSettings';
+import { printWarning } from '../../../store/kitchenPrint';
 import { useDining } from '../../../store/dining';
 import { useSession } from '../../../store/session';
+import { useMe } from '../../../shell/session';
 import { cx, toast, useConfirm } from '../../../ui';
 import { ResidentProfileSheet } from '../features';
 import { TakeoverDialog } from '../takeover/TakeoverDialog';
@@ -20,7 +20,7 @@ import { allergyPerson } from './diners/allergyPerson';
 import { DinerCard } from './diners/DinerCard';
 import { SpouseSuggest, spouseToAdd } from './diners/SpouseSuggest';
 import { afterPick } from './menu/afterPick';
-import { menuTabs, type MenuTab } from './menu/menuCatalog';
+import { menuTabs, orderMenuRoom, type MenuTab } from './menu/menuCatalog';
 import { MenuPanel } from './menu/MenuPanel';
 import { ModifierEditor } from './menu/ModifierEditor';
 import { OrderHeader } from './OrderHeader';
@@ -28,6 +28,8 @@ import s from './OrderScreen.module.css';
 import { HospiceWaiver, SickWaiver } from './queue/FeeWaivers';
 import { PickupTime } from './queue/PickupTime';
 import { SendBar } from './SendBar';
+import { closeCheck, type CloseCheck } from './checkLines';
+import { UnsentCloseDialog, type UnsentChoice } from './UnsentCloseDialog';
 
 export interface OrderScreenProps {
   /** The open order (dine-in check or pick up / delivery order). */
@@ -76,7 +78,8 @@ export function OrderScreen({ orderId, onClose, initialCategory }: OrderScreenPr
 function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClose: () => void; initialCategory?: string }) {
   const dining = useDining();
   const cfg = useConfig();
-  const tabs = menuTabs(o.meal);
+  const menuRoom = orderMenuRoom(o);
+  const tabs = menuTabs(o.meal, menuRoom);
   const startTab = (): MenuTab =>
     initialCategory && tabs.includes(initialCategory as MenuTab) ? (initialCategory as MenuTab) : (tabs[0] ?? 'Entrees');
   const [selected, setSelected] = useState<string | null>(o.diners[0]?.id ?? null);
@@ -91,14 +94,17 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
   const [sideWait, setSideWait] = useState<string | null>(null);
   const [profile, setProfile] = useState<string | null>(null);
   const [ask, confirmDialog] = useConfirm();
+  // Close & charge with work still out asks first (items never sent, plates still cooking).
+  const [closeAsk, setCloseAsk] = useState<CloseCheck | null>(null);
+  const me = useMe().initials;
 
   // Switching the check's meal starts its menu on the first tab.
   const meal = useRef(o.meal);
   useEffect(() => {
     if (meal.current === o.meal) return;
     meal.current = o.meal;
-    setTab(menuTabs(o.meal)[0] ?? 'Entrees');
-  }, [o.meal]);
+    setTab(menuTabs(o.meal, menuRoom)[0] ?? 'Entrees');
+  }, [o.meal, menuRoom]);
 
   // Keep a diner selected when the selected one leaves.
   useEffect(() => {
@@ -107,6 +113,25 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
 
   const sentTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(sentTimer.current), []);
+
+  /**
+   * A table tapped by mistake: leaving my check with nobody on it removes it
+   * (like an empty pick up order), so it never sits on the floor or blocks the
+   * shift review. Someone else's empty check is theirs to leave or void.
+   */
+  const leave = () => {
+    const drop = isEmptyCheck(o) && o.server === me;
+    onClose();
+    if (drop) {
+      dining.closeOrder(o.id);
+      toast(`Nobody was added, so the empty check at ${tableName(o)} was removed.`);
+    }
+  };
+  const voidEmpty = () => {
+    onClose();
+    dining.closeOrder(o.id);
+    toast(`Voided the empty check at ${tableName(o)}.`);
+  };
 
   const diner = o.diners.find((d) => d.id === selected) ?? null;
   const table = o.tableId ? getTable(o.tableId) : undefined;
@@ -141,24 +166,38 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
     else if (next.tab) setTab(next.tab);
   };
   const send = () => {
-    if (printerMode(cfg)) {
-      const items = printItemsFor(
-        o.diners
-          .flatMap((d) => d.items)
-          .filter((l) => !l.sent && !l.hold)
-          .map((l) => l.itemId),
-      );
-      const jobs = printJobs(items, kitchenPrinters(venueSettingsStore.get(), o.room).filter((p) => p.active));
-      setPrintNote(printSummary(jobs));
-      const down = jobs.filter((j) => !j.printer.reachable).map((j) => j.printer.name);
-      if (down.length) toast(`${down.join(' and ')} can't be reached. Tell the kitchen what's on the ticket.`, { tone: 'danger' });
-    }
-    dining.sendOrder(o.id);
+    // Printer mode: the store prints whatever the send fires (see store/kitchenPrint).
+    const printed = dining.sendOrder(o.id);
+    if (printed) {
+      setPrintNote(printed.summary);
+      const warn = printWarning(printed);
+      if (warn) toast(warn, { tone: 'danger' });
+    } else if (printerMode(cfg)) setPrintNote(undefined);
     setJustSent(true);
     sentTimer.current = setTimeout(() => {
       setJustSent(false);
       onClose();
     }, SENT_FLASH_MS);
+  };
+
+  const startClose = () => {
+    const c = closeCheck(o, cfg);
+    if (c.unsentItems > 0 || c.inKitchen > 0) setCloseAsk(c);
+    else setClosing({ dinerIds: null });
+  };
+  const chooseClose = (choice: UnsentChoice) => {
+    const c = closeAsk;
+    setCloseAsk(null);
+    if (!c) return;
+    if (choice === 'send') {
+      // Release what is held (a side goes with its plate), then send it all and keep the check open.
+      const held = new Set(c.unsent.filter((u) => u.line.hold).map((u) => u.line.id));
+      for (const u of c.unsent) if (u.line.hold && !(u.line.parentId && held.has(u.line.parentId))) dining.toggleHold(o.id, u.dinerId, u.line.id);
+      send();
+      return;
+    }
+    if (choice === 'remove') for (const u of c.unsent) dining.removeItem(o.id, u.dinerId, u.line.id);
+    setClosing({ dinerIds: null });
   };
 
   if (closing) {
@@ -175,7 +214,7 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
 
   return (
     <div className={s.screen}>
-      <OrderHeader order={o} onBack={onClose} />
+      <OrderHeader order={o} onBack={leave} />
       <div className={s.body}>
         <section className={cx(s.diners, 'scroll')} aria-label="Diners">
           {o.diners.map((d) => (
@@ -231,6 +270,11 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
               <UserPlus size={16} aria-hidden /> Add diner to this check
             </button>
           )}
+          {isEmptyCheck(o) && (
+            <button className={s.voidEmpty} onClick={voidEmpty}>
+              <Trash2 size={15} aria-hidden /> Void empty check
+            </button>
+          )}
           {o.queueType && <PickupTime order={o as Order & { queueType: QueueType }} />}
           {o.queueType === 'delivery' && <HospiceWaiver order={o} />}
           {o.queueType === 'delivery' && <SickWaiver order={o} />}
@@ -271,7 +315,8 @@ function CheckView({ order: o, onClose, initialCategory }: { order: Order; onClo
           )}
         </section>
       </div>
-      <SendBar order={o} justSent={justSent} printNote={printNote} onSend={send} onClose={() => setClosing({ dinerIds: null })} />
+      <SendBar order={o} justSent={justSent} printNote={printNote} onSend={send} onClose={startClose} />
+      {closeAsk && <UnsentCloseDialog check={closeAsk} onChoose={chooseClose} onCancel={() => setCloseAsk(null)} />}
       <ResidentProfileSheet residentId={profile} onClose={() => setProfile(null)} />
       {confirmDialog}
       <TakeoverDialog />

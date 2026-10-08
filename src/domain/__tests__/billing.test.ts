@@ -1,16 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import { seedHistory, seedOrders } from '../../data';
 import { DEFAULT_CONFIG } from '../config';
-import { alaCarteTotal, corkageAmount, dinerBilling, linePrice, queueFee } from '../billing';
+import { alaCarteTotal, corkageAmount, dinerBilling, linePrice, queueFee, venueFee } from '../billing';
 import { upcharge, upchargeLines } from '../menu';
 import { diner, line, order, prototype } from './helpers';
+
+/**
+ * Up-charges on modifier groups without ordering rules now price on every
+ * tablet (Burgers: Gluten-Free Bun +$1.50); the prototype priced none.
+ */
+const UPCHARGED: Record<string, Record<string, unknown>> = { 'o5/s51': { itemsTotal: 1.5 } };
 
 describe('dinerBilling (dd)', () => {
   it('matches the prototype for every seeded open and closed check', () => {
     for (const o of [...seedOrders(), ...seedHistory()]) {
       const expected = (prototype.billing as Record<string, Record<string, unknown>>)[o.id];
       if (!expected) continue;
-      for (const d of o.diners) expect(dinerBilling(d, o), `${o.id}/${d.id}`).toEqual(expected[d.id]);
+      for (const d of o.diners) expect(dinerBilling(d, o), `${o.id}/${d.id}`).toEqual({ ...(expected[d.id] as object), ...UPCHARGED[`${o.id}/${d.id}`] });
     }
   });
 
@@ -62,6 +68,13 @@ describe('dinerBilling (dd)', () => {
     expect(dinerBilling(d, order([d]), { ...DEFAULT_CONFIG, flow: { hospiceAuto: false } }).planType).toBe('Monthly');
   });
 
+  it('a hospice resident still pays a fee whose own waiver is off', () => {
+    const d = diner([line('d_peach')], { refId: 'r7' });
+    const o = order([d], { tableId: undefined, queueType: 'delivery', room: 'sequoia' });
+    expect(dinerBilling(d, o)).toMatchObject({ comped: true, outOfPlan: 0 });
+    expect(dinerBilling(d, o, { ...DEFAULT_CONFIG, flow: { freeDeliveryComp: false } })).toMatchObject({ hospiceMeal: true, outOfPlan: 3, needsDrop: true });
+  });
+
   it('puts the delivery fee and corkage on seat 1 only', () => {
     const seat1 = diner([line('d_peach')], { refId: 'r1', seat: 1 });
     const seat2 = diner([line('d_peach')], { refId: 'r1', seat: 2 });
@@ -73,6 +86,15 @@ describe('dinerBilling (dd)', () => {
 });
 
 describe('fees', () => {
+  it('venueFee reads the Back Office fee per venue, else the standard one', () => {
+    expect(venueFee('sequoia')).toEqual({ delivery: 3, pickup: 0 });
+    const cfg = { ...DEFAULT_CONFIG, fees: { sequoia: { delivery: 5 }, bistro: { pickup: -1 } } };
+    expect(venueFee('sequoia', cfg)).toEqual({ delivery: 5, pickup: 0 });
+    expect(venueFee('bistro', cfg)).toEqual({ delivery: 3, pickup: 2 });
+    const o = order([], { tableId: undefined, queueType: 'delivery', room: 'sequoia' });
+    expect(queueFee(o, cfg)).toEqual({ kind: 'Delivery fee', amt: 5 });
+  });
+
   it('queueFee matches the prototype for every seeded order', () => {
     const got = Object.fromEntries(seedOrders().map((o) => [o.id, queueFee(o)]));
     expect(got).toEqual(prototype.queueFee);

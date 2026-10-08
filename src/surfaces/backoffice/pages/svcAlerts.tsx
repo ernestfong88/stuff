@@ -5,12 +5,15 @@ import { Row } from '../../../ui';
 import { SettingNumber, Swatch } from '../kit/SettingControls';
 import { printerMode } from '../../../domain/config';
 import { useConfig } from '../../../store/config';
+import { useSetting } from '../../../store/serviceConfig';
+import { amberRedProblem } from '../../../domain/checkTimeline';
 import { ConfirmReset } from './ConfirmReset';
 import s from './svcAlerts.module.css';
 
 const FLOOR = 'My Tables & manager floor';
 const KITCHEN = 'Cook & Expo screens';
 const TIMELINE = 'Check timeline';
+const TIMELINE_HINT = 'Colours this moment in the Timing box of a check in Billing › Order History.';
 
 /** The moments of a meal, in service order. */
 const MOMENTS = [
@@ -53,17 +56,30 @@ function TurnsRed({
   );
 }
 
-/** The check timeline gap for this moment: amber, then red (blank skips that colour). */
+/** The check timeline gap for this moment: amber, then red (blank skips that colour). Order History colours each check's timing with it. */
 function Timeline({ k, moment, noRed }: { k: string; moment: string; noRed?: boolean }) {
+  const marks = useSetting<Array<number | null> | undefined>(`gap.${k}`);
+  const problem = noRed ? null : amberRedProblem(marks?.[0], marks?.[1]);
   return (
-    <BoRow label={TIMELINE}>
+    <BoRow
+      label={TIMELINE}
+      hint={
+        problem ? (
+          <span className={s.problem} role="alert">
+            {problem}
+          </span>
+        ) : (
+          TIMELINE_HINT
+        )
+      }
+    >
       <Row gap={10} wrap>
         <Swatch tone="amber">{noRed ? 'Turns amber after' : 'Amber after'}</Swatch>
-        <SettingNumber path={`gap.${k}.0`} label={`${moment}, check timeline, amber after minutes`} step={0.5} off width={64} />
+        <SettingNumber path={`gap.${k}.0`} label={`${moment}, check timeline, amber after minutes`} step={0.5} off width={64} max={240} />
         {!noRed && (
           <>
             <Swatch tone="red">red after</Swatch>
-            <SettingNumber path={`gap.${k}.1`} label={`${moment}, check timeline, red after minutes`} step={0.5} off width={64} />
+            <SettingNumber path={`gap.${k}.1`} label={`${moment}, check timeline, red after minutes`} step={0.5} off width={64} max={240} />
           </>
         )}
       </Row>
@@ -134,7 +150,7 @@ export default function Page(_props: BoPageProps) {
     >
       <Steps />
       <Moment index={0} desc="From when the table is seated until the first order is sent.">
-        <TurnsRed off path="t.seatLate" screen={FLOOR} moment="Waiting to order" />
+        <TurnsRed off path="t.seatLate" screen={FLOOR} moment="Waiting to order" hint="Manager Triage turns red then too (12 min while blank)." />
         <Timeline k="send" moment="Waiting to order" />
       </Moment>
       <Moment index={1} desc="From when a course is fired until its plates are up at the pass.">
@@ -148,7 +164,7 @@ export default function Page(_props: BoPageProps) {
         <Timeline k="run" moment="Plates up" />
       </Moment>
       <Moment index={3} desc="From when a course is run until the check-in or the next course.">
-        <TurnsRed off path="t.eatLate" screen={FLOOR} moment="Eating" />
+        <TurnsRed off path="t.eatLate" screen={FLOOR} moment="Eating" hint="Manager Triage flags the table then too." />
         <Timeline k="checkin" moment="Eating" noRed />
       </Moment>
       <Moment index={4} desc="Everyone is done eating and the check is still open.">

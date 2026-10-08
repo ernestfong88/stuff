@@ -68,25 +68,20 @@ export default function AssociatesPage(_props: BoPageProps) {
       key: 'how',
       header: 'Signs in with',
       sortable: true,
-      render: (a) =>
-        a.win ? (
-          <Chip tone="info" size="xs">
-            Windows · {a.win}
-          </Chip>
-        ) : (
-          <Chip tone="warning" size="xs">
-            PIN
-          </Chip>
-        ),
-    },
-    {
-      key: 'pin',
-      header: 'Culinary App PIN',
+      // Windows logins need no PIN; everyone else signs in with a Culinary App PIN, shown and reset here.
       render: (a) => {
-        if (a.win) return <span className={s.muted}>Not needed</span>;
+        if (a.win)
+          return (
+            <Chip tone="info" size="xs">
+              Windows · {a.win}
+            </Chip>
+          );
         const visible = !!shown[a.id];
         return (
           <span className={s.pin}>
+            <Chip tone="warning" size="xs">
+              PIN
+            </Chip>
             <span className={s.pinValue} aria-label={visible ? undefined : 'PIN hidden'}>
               {visible ? currentPin(a, overrides) : '••••'}
             </span>
@@ -98,22 +93,15 @@ export default function AssociatesPage(_props: BoPageProps) {
                 New PIN
               </Chip>
             )}
+            {/* In the PIN cell, so it stays on screen when large text makes the table tight. */}
+            <Button size="sm" icon={<RefreshCw size={13} />} aria-label={`Reset ${a.name}'s PIN`} onClick={() => void reset(a)}>
+              Reset
+            </Button>
           </span>
         );
       },
     },
-    { key: 'added', header: 'Added from ADP', sortable: true, render: (a) => <span className={a.days <= 30 ? s.recent : undefined}>{addedText(a.days, now())}</span> },
-    {
-      key: 'reset',
-      header: '',
-      align: 'right',
-      render: (a) =>
-        !a.win && (
-          <Button size="sm" icon={<RefreshCw size={13} />} onClick={() => void reset(a)}>
-            Reset PIN
-          </Button>
-        ),
-    },
+    { key: 'added', header: 'Added', sortable: true, render: (a) => <span className={a.days <= 30 ? s.recent : undefined}>{addedText(a.days, now())}</span> },
   ];
 
   return (

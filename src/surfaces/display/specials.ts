@@ -3,7 +3,7 @@
  * its soup, then its dessert special, one at a time. Anything the kitchen
  * has 86'd drops off the screen.
  */
-import { catalog, getItem } from '../../data';
+import { getItem, todayCatalog } from '../../data';
 import { defaultSides } from '../../domain/menu';
 import type { CatalogItem, MealName } from '../../domain/types';
 import { dishLongName, kioskMenu } from '../../domain/kioskMenu';
@@ -33,10 +33,12 @@ export function displaySlides(meal: MealName, isOut: (id: string) => boolean): D
     name: dishLongName(item.name),
     sides: kind === 'entree' ? defaultSides(item.id).map((id) => getItem(id)?.name ?? '').filter(Boolean) : [],
   });
-  const entrees = catalog.filter((it) => it.special && it.entree && once(it)).map((it) => slide(it, 'entree'));
+  // Today's menu only: a special taken off in Menu Cycle, or another day's, never shows.
+  const today = todayCatalog();
+  const entrees = today.filter((it) => it.special && it.entree && once(it)).map((it) => slide(it, 'entree'));
   const soup = kioskMenu(meal, isOut).soups[0];
   const soups = soup && once(soup) ? [slide(soup, 'soup')] : [];
-  const desserts = catalog
+  const desserts = today
     .filter((it) => it.special && it.ctype === 'dessert' && !NOT_ON_SCREEN.has(it.name) && once(it))
     .map((it) => slide(it, 'dessert'));
   return [...entrees, ...soups, ...desserts];

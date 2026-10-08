@@ -17,6 +17,8 @@ interface NumberProps {
   label: string;
   unit?: string;
   min?: number;
+  /** Highest value the box takes; typing more holds at it. */
+  max?: number;
   step?: number;
   /** A blank box means the setting is off (stored as 0). */
   off?: boolean;
@@ -34,7 +36,20 @@ interface NumberProps {
  * __KBONum: a number setting. While typing, the box keeps what was typed
  * (even a blank or a half number); the setting only changes to valid values.
  */
-export function SettingNumber({ path, label, unit = 'min', min = 0, step = 1, off, width = 72, placeholder, toStored, fromStored, clearRemoves }: NumberProps) {
+export function SettingNumber({
+  path,
+  label,
+  unit = 'min',
+  min = 0,
+  max,
+  step = 1,
+  off,
+  width = 72,
+  placeholder,
+  toStored,
+  fromStored,
+  clearRemoves,
+}: NumberProps) {
   const stored = useSetting<number | string | null | undefined>(path);
   const [draft, setDraft] = useState<number | null | undefined>(undefined);
   const value = stored == null || stored === '' ? null : Number(stored);
@@ -44,6 +59,7 @@ export function SettingNumber({ path, label, unit = 'min', min = 0, step = 1, of
       value={shown}
       unit={unit}
       min={min}
+      max={max}
       step={step}
       width={width}
       placeholder={placeholder ?? (off ? 'Off' : '')}
@@ -53,7 +69,7 @@ export function SettingNumber({ path, label, unit = 'min', min = 0, step = 1, of
         if (v == null) {
           if (clearRemoves) setSetting(path, undefined);
           else if (off) setSetting(path, 0);
-        } else if (v >= min) setSetting(path, toStored ? toStored(v) : v);
+        } else if (v >= min && (max == null || v <= max)) setSetting(path, toStored ? toStored(v) : v);
       }}
       onBlur={() => setDraft(undefined)}
       onKeyDown={(e) => {

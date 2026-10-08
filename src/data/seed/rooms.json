@@ -104,7 +104,7 @@
     "label": "SQ 3",
     "section": "Sequoia",
     "type": "seat",
-    "x": 70,
+    "x": 69,
     "y": 8,
     "w": 14,
     "h": 12,
@@ -115,7 +115,7 @@
     "label": "SQ 5",
     "section": "Sequoia",
     "type": "seat",
-    "x": 86,
+    "x": 85,
     "y": 9,
     "w": 11,
     "h": 10
@@ -145,7 +145,7 @@
     "label": "SQ 10",
     "section": "Sequoia",
     "type": "seat",
-    "x": 70,
+    "x": 69,
     "y": 24,
     "w": 14,
     "h": 12,
@@ -156,7 +156,7 @@
     "label": "SQ 7",
     "section": "Sequoia",
     "type": "seat",
-    "x": 86,
+    "x": 85,
     "y": 24,
     "w": 11,
     "h": 10
@@ -186,7 +186,7 @@
     "label": "SQ 15",
     "section": "Sequoia",
     "type": "seat",
-    "x": 70,
+    "x": 69,
     "y": 40,
     "w": 14,
     "h": 12,
@@ -197,7 +197,7 @@
     "label": "SQ 16",
     "section": "Sequoia",
     "type": "seat",
-    "x": 86,
+    "x": 85,
     "y": 40,
     "w": 11,
     "h": 10
@@ -250,7 +250,7 @@
   ]
  },
  "bistro": {
-  "name": "Orange Blossom Bistro",
+  "name": "The Bistro",
   "menuStartDay": 3,
   "bands": [
    {

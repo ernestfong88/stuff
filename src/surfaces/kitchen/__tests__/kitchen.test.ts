@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { order, diner } from '../../../domain/__tests__/helpers';
 import { cycleDay, cycleWeekLabel, menuQuarter, quarterStyle } from '../admin/menuCycle';
 import { routableItems, routingView } from '../admin/routingList';
 import { actionForKey, barKeyName, bumpHit, DEFAULT_BUMP_KEYS, keyName, resolveBumpKeys } from '../bumpKeys';
 import { looseSubcategories, resizeScreens, screensForItem, toggleSubcategory, type KdsScreen } from '../../../domain/kdsScreens';
 import { courseWord, pickupWindow } from '../kitchenTime';
-import { orderTextPlan } from '../orderTexts';
 import { canonicalItemId, entreeTypeOf, kdsKeyOf, recipeItemIds, subcategoryOf, suggestedEntreeType } from '../../../domain/subcategories';
 import seed from '../../../data/seed/venueSettings.json';
 import { DEFAULT_CONFIG } from '../../../domain/config';
@@ -97,16 +95,6 @@ describe('time labels', () => {
     expect(pickupWindow('11:50 AM')).toBe('11:50 AM to 12:05 PM');
     expect(pickupWindow('ASAP')).toBe('ASAP');
     expect(courseWord(3)).toBe('Desserts');
-  });
-});
-
-describe('order texts', () => {
-  it('texts a resident with a mobile, unless the text is off', () => {
-    const o = order([diner([], { refId: 'r1' })], { queueType: 'pickup' });
-    expect(orderTextPlan(o, {}).sent).toBe(true);
-    expect(orderTextPlan(o, { texts: { pickupReady: { on: false } } })).toEqual({ sent: false, why: 'no text' });
-    expect(orderTextPlan({ ...o, diners: [diner([], { refId: 'r4' })] }, {})).toEqual({ sent: false, why: 'no mobile' });
-    expect(orderTextPlan({ ...o, diners: [diner([], { refId: 'r4' })] }, { mobile: { r4: true } }).sent).toBe(true);
   });
 });
 

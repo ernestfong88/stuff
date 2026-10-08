@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
+import { inferAllergens } from '../../../../domain/allergens';
 import { formatDayShort } from '../../../../lib/format';
 import type { Ingredient, Nutrition, RecipeCategory } from '../../../../store/menuEdits';
 import { Button, cx, toast } from '../../../../ui';
 import { updateBo, useBo } from '../data';
-import { ALLERGENS, CATEGORIES, DIETS, PROTEINS, categoryCourse, guessProtein, normCategory, subcategoryGroups, subOf } from '../model/categories';
+import { categoryLabel, ALLERGENS, CATEGORIES, DIETS, PROTEINS, categoryCourse, guessProtein, normCategory, subcategoryGroups, subOf } from '../model/categories';
 import { qtyUnit } from '../model/recipeDraft';
 import { Field, Input, Select } from '../ui/controls';
 import type { RecipeFormProps } from './RecipeForm';
@@ -286,6 +287,8 @@ export function PlatingSection({ r, update, readOnly }: P) {
 
 export function NutritionSection({ r, update, readOnly }: P) {
   const n = r.nutrition ?? {};
+  // No allergens recorded: suggest them from the recipe's words so a chef can confirm.
+  const suggested = (r.allergens ?? []).length ? [] : inferAllergens(r);
   return (
     <RecipeSection
       id="nutrition"
@@ -295,6 +298,17 @@ export function NutritionSection({ r, update, readOnly }: P) {
     >
       <Field label="Allergens" hint="Servers see these on the tablet and the kitchen ticket warns when a resident's allergy matches.">
         <ToggleChips all={ALLERGENS} on={r.allergens ?? []} readOnly={readOnly} onChange={(allergens) => update({ allergens })} tone="warn" />
+        {suggested.length > 0 && (
+          <p className={s.suggested} role="note">
+            <strong>Suggested: {suggested.join(', ')}.</strong> Read from the name, description and ingredients; none are confirmed yet. Until you
+            confirm, servers see “may contain” and allergy warnings use these.{' '}
+            {!readOnly && (
+              <button type="button" className={s.link} onClick={() => update({ allergens: [...suggested] })}>
+                Confirm suggested
+              </button>
+            )}
+          </p>
+        )}
       </Field>
       <Field label="Diet indicators">
         <ToggleChips all={DIETS} on={r.dietFlags ?? []} readOnly={readOnly} onChange={(dietFlags) => update({ dietFlags })} tone="good" />
@@ -344,7 +358,7 @@ export function SettingsSection({ r, update, readOnly, draft }: P) {
             disabled={readOnly}
             value={cat}
             onChange={(v) => update({ cat: v as RecipeCategory, ...(draft ? { sub: undefined } : {}) })}
-            options={CATEGORIES.map((c) => ({ value: c, label: c }))}
+            options={CATEGORIES.map((c) => ({ value: c, label: categoryLabel(c) }))}
             aria-label="Category"
           />
         </Field>

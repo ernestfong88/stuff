@@ -1,8 +1,9 @@
 import { Send, Sparkles } from 'lucide-react';
+import { inferAllergens } from '../../../../domain/allergens';
 import { useConfig } from '../../../../store/config';
 import { Button, Chip, toast } from '../../../../ui';
 import { useBo } from '../data';
-import { normCategory, proteinLabel, proteinOf, subOf } from '../model/categories';
+import { categoryLabel, normCategory, proteinLabel, proteinOf, subOf } from '../model/categories';
 import { choiceWords, minutesText } from '../model/recipeDraft';
 import { defaultShort, sameShortAs } from '../model/shortNames';
 import { now } from '../../../../lib/clock';
@@ -21,8 +22,10 @@ export function RecipeHeader({ r, update, rename, short, onShort, readOnly, glob
   const choice = /^build your own\b/i.test(r.name) ? null : choiceWords(desc);
   const dups = r.name ? sameShortAs({ name: r.name, shortDefault: short || r.shortDefault }, bo.recipes, cfg).filter((n) => n !== r.name) : [];
   const nutrition = r.nutrition ?? {};
+  // No allergens recorded: show what the recipe's words suggest, marked so a chef confirms them.
+  const suggested = (r.allergens ?? []).length ? [] : inferAllergens(r);
   const total = (r.prepMin ?? 0) + (r.cookMin ?? 0);
-  const line = [cat, subOf(r), cat === 'Entrees' ? proteinLabel(proteinOf(r), true) : ''].filter(Boolean).join(' · ');
+  const line = [categoryLabel(cat), subOf(r), cat === 'Entrees' ? proteinLabel(proteinOf(r), true) : ''].filter(Boolean).join(' · ');
 
   const num = (label: string, value: number | undefined, set: (v: number | undefined) => void) => (
     <label className={s.stat}>
@@ -80,11 +83,16 @@ export function RecipeHeader({ r, update, rename, short, onShort, readOnly, glob
                 : 'and pin a modifier group in KDS settings for the options.'}
             </p>
           )}
-          {((r.allergens ?? []).length > 0 || (r.dietFlags ?? []).length > 0) && (
+          {((r.allergens ?? []).length > 0 || suggested.length > 0 || (r.dietFlags ?? []).length > 0) && (
             <div className={s.tags}>
               {(r.allergens ?? []).map((a) => (
                 <Chip key={'a' + a} tone="warning" size="xs">
                   {a}
+                </Chip>
+              ))}
+              {suggested.map((a) => (
+                <Chip key={'s' + a} tone="neutral" size="xs">
+                  {a} (suggested)
                 </Chip>
               ))}
               {(r.dietFlags ?? []).map((d) => (

@@ -42,11 +42,16 @@ export const CATEGORIES: RecipeCategory[] = CATEGORY_DEFS.map((c) => c.id);
 export const CATEGORY_LABEL: Record<RecipeCategory, string> = {
   Drinks: 'Drinks',
   Starters: 'Starters',
-  Entrees: 'Entrees',
+  Entrees: 'Entrées',
   Sides: 'Sides',
   Desserts: 'Desserts',
   Snacks: 'Snacks',
 };
+
+/** A category as people read it ("Entrées"); the stored id stays "Entrees". */
+export function categoryLabel(c: string): string {
+  return CATEGORY_LABEL[c as RecipeCategory] ?? c;
+}
 
 const LEGACY: Record<string, RecipeCategory> = {
   Appetizer: 'Starters',
@@ -216,7 +221,7 @@ export function subColor(c: string, sub: string): [string, string] {
 /** "Entrees · Plates" */
 export function categoryWithSub(r: Pick<Recipe, 'cat' | 'name' | 'sub'>): string {
   const s = subOf(r);
-  return r.cat + (s ? ' · ' + s : '');
+  return categoryLabel(r.cat) + (s ? ' · ' + s : '');
 }
 
 // ─── Proteins ─────────────────────────────────────────────────────────────
@@ -275,6 +280,19 @@ export function proteinBalance(id: string | null | undefined): string {
 
 // ─── Names ────────────────────────────────────────────────────────────────
 
+/**
+ * Breakfast plates and savory dishes whose names say cake or pie (pancakes,
+ * crab cakes, pot pie, oatmeal ...): never desserts, so they never fire or
+ * print as one.
+ */
+const SAVORY_CAKE_PIE =
+  /pancake|flapjack|griddle ?cake|hot ?cake|waffle|french toast|oatmeal|porridge|(crab|fish|salmon|tuna|cod|shrimp|potato|rice|corn|zucchini|veggie|vegetable|quinoa|bean|johnny|hoe) ?cakes?\b|pot ?pie|shepherd'?s pie|cottage pie|(meat|pork|chicken|turkey|beef|steak|tamale|frito|pizza|savory|savoury) pies?\b|quiche/;
+
+/** The name says cake or pie but it is a breakfast or savory dish (Lemon Ricotta Pancakes, Maryland Crab Cakes, Chicken Pot Pie). */
+export function isSavoryCakeOrPie(name: string): boolean {
+  return SAVORY_CAKE_PIE.test(name.toLowerCase());
+}
+
 /** A new dish's likely category from its name. */
 export function guessCategory(name: string): RecipeCategory {
   const s = name.toLowerCase();
@@ -284,7 +302,8 @@ export function guessCategory(name: string): RecipeCategory {
     )
   )
     return 'Drinks';
-  if (/cake|\bpie\b|cookie|brownie|cobbler|pudding|ice cream|sundae|\btart\b|mousse|cheesecake|crisp|brulee|parfait/.test(s)) return 'Desserts';
+  const savory = isSavoryCakeOrPie(s);
+  if (!savory && /cake|\bpies?\b|cookie|brownie|cobbler|pudding|ice cream|sundae|\btart\b|mousse|cheesecake|crisp|brulee|parfait/.test(s)) return 'Desserts';
   if (/fries|\brice\b|mashed|potato|vegetable|broccoli|slaw|\bcorn\b|beans|asparagus|\broll\b|sprouts|pilaf/.test(s)) return 'Sides';
   if (/soup|chowder|bisque|\bdip\b|bruschetta|wings|hummus|crostini|shrimp cocktail/.test(s)) return 'Starters';
   if (/popcorn|trail mix|granola bar|pretzel|\bchips\b|snack/.test(s)) return 'Snacks';

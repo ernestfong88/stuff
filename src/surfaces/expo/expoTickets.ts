@@ -62,8 +62,15 @@ function promiseRank(o: Order, firedAt: number): number {
   return 100_000 + firedAt / MIN;
 }
 
+/**
+ * A pick up or delivery that has been handed on (set out at the counter, or
+ * out the door with the runner) is off the pass, whichever screen did it.
+ */
+export const handedOn = (o: Order) => !!o.queueType && (!!o.notified || !!o.pickedUpAt || !!o.deliveredAt);
+
 export function buildExpoTickets(orders: readonly Order[]): ExpoTicket[] {
   return orders
+    .filter((o) => !handedOn(o))
     .flatMap((o) => {
       const allLines: ExpoLine[] = o.diners.flatMap((d) =>
         d.items
@@ -159,7 +166,7 @@ export type ExpoAction =
   | { kind: 'fire'; course: number }
   | { kind: 'run'; course: number }
   | { kind: 'bump'; course: number }
-  | { kind: 'handOff'; notified: boolean }
+  | { kind: 'handOff' }
   | { kind: 'ready'; lineIds: string[]; course: number }
   | { kind: 'waiting' };
 
@@ -169,7 +176,7 @@ export function expoAction(t: ExpoTicket): ExpoAction {
   if (fire != null) return { kind: 'fire', course: fire };
   const c = currentCourse(t.lines);
   if (c != null && courseIsReady(t.lines)) {
-    if (t.order.queueType) return { kind: 'handOff', notified: !!t.order.notified };
+    if (t.order.queueType) return { kind: 'handOff' };
     return t.lines.some((l) => l.course > c) ? { kind: 'run', course: c } : { kind: 'bump', course: c };
   }
   const cooking = t.lines.filter((l) => l.kitchenState === 'cooking');

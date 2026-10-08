@@ -4,7 +4,7 @@ import type { Recipe } from '../../../../store/menuEdits';
 import { Button, Chip, Modal, SearchField, TextArea, toast } from '../../../../ui';
 import { useBo } from '../data';
 import { GLOBAL_LIBRARY, OTHER_COMMUNITIES } from '../library';
-import { dishLong } from '../model/categories';
+import { categoryLabel, dishLong } from '../model/categories';
 import { parseRecipeText, photoDraft } from '../model/recipeDraft';
 import { createRecipe } from '../recipeActions';
 import s from './AddRecipeDialog.module.css';
@@ -108,7 +108,7 @@ export function AddRecipeDialog({
                 <Hit
                   key={r.id}
                   title={dishLong(r.name)}
-                  sub={r.cat}
+                  sub={categoryLabel(r.cat)}
                   actions={
                     <Button size="sm" onClick={() => onOpen(r)}>
                       Open

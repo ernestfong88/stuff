@@ -5,7 +5,7 @@
  * earlier page moves down the side menu too). Phase 2 and 3 can be switched
  * off for the whole system.
  */
-import { Copy, RotateCcw } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { Button, Tabs, toast } from '../../../ui';
 import { BoCallout, BoPage, BoRow, BoSection, BoStatRow, BoStatTile } from '../kit';
 import { MODES, modePhase, modePhaseKey } from '../../../shell/modes';
@@ -24,6 +24,7 @@ import {
   type Phase,
 } from '../phases';
 import { Toggle } from '../../../ui';
+import { ConfirmReset } from './ConfirmReset';
 import s from './phases/phases.module.css';
 
 const count = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -68,16 +69,14 @@ export default function Page() {
           <Button icon={<Copy size={15} />} onClick={copy}>
             Copy as a list
           </Button>
-          <Button
-            icon={<RotateCcw size={15} />}
+          <ConfirmReset
+            label="Reset"
             disabled={isDefault}
-            onClick={() => {
-              resetPhases();
-              toast('Every page is back to its standard phase', { tone: 'success' });
-            }}
-          >
-            Reset
-          </Button>
+            title="Put every screen and page back in its standard phase?"
+            message="Every screen and Back Office page goes back to the phase it ships in. Whether Phase 2 and 3 are switched on stays as it is."
+            done="Every screen and page is back in its standard phase"
+            onReset={resetPhases}
+          />
         </>
       }
     >
@@ -121,8 +120,12 @@ export default function Page() {
 
       <BoSection title="Screens" sub="The devices in the top-right screen menu: tablets, kitchen screens, the kiosk and the rest.">
         {MODES.map((m) => (
-          <BoRow key={m.id} label={m.label} hint={m.blurb}>
-            {phasePick(m.label, modePhase(m.id, plan), (p) => setPhase(modePhaseKey(m.id), p))}
+          <BoRow key={m.id} label={m.label} hint={m.id === 'backoffice' ? `${m.blurb}. Always Phase 1: phases are switched here.` : m.blurb}>
+            {m.id === 'backoffice' ? (
+              <span className={s.locked}>Phase 1</span>
+            ) : (
+              phasePick(m.label, modePhase(m.id, plan), (p) => setPhase(modePhaseKey(m.id), p))
+            )}
           </BoRow>
         ))}
       </BoSection>

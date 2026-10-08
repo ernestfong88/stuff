@@ -15,6 +15,12 @@ export default function Page(_props: BoPageProps) {
   const off = useSetting<Record<string, boolean | undefined>>('met.off') ?? {};
   const defs = metricDefs(tableShorter);
   const scored = defs.filter((m) => isScored(m) && !off[m.k]).length;
+  const need = Number(useSetting<number | string | null>('met.need')) || 0;
+  const needProblem = !scored
+    ? 'No measure counts, so no shift can be great. Turn Counts on for at least one measure below.'
+    : need > scored
+      ? `Only ${scored} ${scored === 1 ? 'measure counts' : 'measures count'}, so a shift can never reach ${need}. Set it to ${scored} or fewer.`
+      : null;
 
   return (
     <BoPage
@@ -33,11 +39,11 @@ export default function Page(_props: BoPageProps) {
         <p className={s.rule}>
           A shift is great when{' '}
           <span className={s.box}>
-            <SettingNumber path="met.need" label={`Measures that must beat the last 7 shifts, of ${scored}`} unit="" min={1} width={46} />
+            <SettingNumber path="met.need" label={`Measures that must beat the last 7 shifts, of ${scored}`} unit="" min={1} max={Math.max(1, scored)} width={46} />
           </span>{' '}
           of {scored} measures beat the last 7 shifts by at least{' '}
           <span className={s.box}>
-            <SettingNumber path="met.margin" label="Percent better than the last 7 shifts" unit="" min={1} width={46} />
+            <SettingNumber path="met.margin" label="Percent better than the last 7 shifts" unit="" min={1} max={100} width={46} />
           </span>
           %{' '}
           <button
@@ -52,6 +58,11 @@ export default function Page(_props: BoPageProps) {
           </button>
           .
         </p>
+        {needProblem && (
+          <p className={s.problem} role="alert">
+            {needProblem}
+          </p>
+        )}
       </BoSection>
       <BoSection flush title="What is measured" sub="Each measure is compared with its average over the last 7 shifts.">
         <ul className={s.list}>

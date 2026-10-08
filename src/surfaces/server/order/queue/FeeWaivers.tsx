@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
-import { COMMUNITY_NAME, getResident, venueFees } from '../../../../data';
+import { COMMUNITY_NAME, getResident } from '../../../../data';
+import { venueFee } from '../../../../domain/billing';
+import type { DiningConfig } from '../../../../domain/config';
 import { logAuthor } from '../../../../domain/activityLog';
 import type { Order } from '../../../../domain/types';
 import {
@@ -22,7 +24,7 @@ import { cx } from '../../../../ui';
 import { ManagerPinDialog } from '../../shared/ManagerPin';
 import s from './FeeWaivers.module.css';
 
-const deliveryFee = (o: Order) => (venueFees[o.room] ?? venueFees.sequoia).delivery;
+const deliveryFee = (o: Order, cfg: DiningConfig) => venueFee(o.room, cfg).delivery;
 
 /** "2026-10-03" → "Oct 3, 2026" */
 function longDate(iso: string): string {
@@ -50,7 +52,7 @@ export function HospiceWaiver({ order: o }: { order: Order }) {
   if (!rid) return null;
   const first = getResident(rid)?.name.split(' ')[0] ?? 'the resident';
   const h = hospiceStatus(rid, cfg);
-  const fee = deliveryFee(o);
+  const fee = deliveryFee(o, cfg);
   const me = o.source === 'kiosk' ? 'the delivery desk' : logAuthor(mode, o);
 
   if (hospiceWaivesFee(rid, cfg)) {
@@ -131,7 +133,7 @@ export function SickWaiver({
   const shown = used + (tray ? 1 : 0);
   const full = !tray && used >= c.allow;
   const disabled = !tray && !rid;
-  const fee = deliveryFee(o);
+  const fee = deliveryFee(o, cfg);
   const till = sickPeriodEnd();
   const who = logAuthor(mode, o);
   const grant = (mgr: boolean) => rid && patchOrder(o.id, { sickTray: { rid, n: used + 1, by: who, at: now(), ...(mgr ? { mgr: true } : {}) } });

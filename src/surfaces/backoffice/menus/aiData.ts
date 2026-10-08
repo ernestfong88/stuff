@@ -6,6 +6,8 @@
 import type { Recipe } from '../../../store/menuEdits';
 import type { AiOp, PastSeasonItem, Season } from './model/aiReview';
 import aiJson from './seed/aiReview.json';
+import { now } from '../../../lib/clock';
+import { quarterIndexOf, quarterLabel, quarterMenuName } from '../../../domain/menuCycle';
 
 export interface AiSuggestion {
   id: string;
@@ -61,7 +63,15 @@ interface AiFile {
   holidayOnly: string[];
 }
 
-const file = aiJson as unknown as AiFile;
+/**
+ * The review was written for next quarter's menu when it was called "VT
+ * Winter 2026"; the seed names menus after their quarter from today (see
+ * seedMenus in ./data), so it reads with the menu's name as Back Office
+ * shows it ("VT Winter 2027").
+ */
+const AI_WRITTEN_FOR = 'VT Winter 2026';
+const aiMenuName = quarterMenuName(quarterLabel(quarterIndexOf(now()) + 1), 'cycle');
+const file = JSON.parse(JSON.stringify(aiJson).split(AI_WRITTEN_FOR).join(aiMenuName)) as AiFile;
 
 /** The menu the suggestions were written for (the winter draft). */
 export const AI_MENU_ID = 'm5';

@@ -1,4 +1,4 @@
-import { Bell, Check, CheckCircle2, Flame, MoreVertical, Printer, RotateCw, ShoppingBag, Truck } from 'lucide-react';
+import { Check, CheckCircle2, Flame, MoreVertical, Printer, RotateCw, ShoppingBag, Truck } from 'lucide-react';
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import { getItem, getTable } from '../../data';
 import type { DiningConfig } from '../../domain/config';
@@ -7,11 +7,12 @@ import { dinerName, dinerPerson } from '../../domain/orders';
 import { serverName } from '../../domain/servers';
 import { formatElapsed, formatTime } from '../../lib/format';
 import { firstSend } from '../../domain/courses';
+import { pickupDue } from '../../domain/pickup';
 import { itemReminders } from '../../store/menuEdits';
 import { Popover, cx, toast } from '../../ui';
 import { DinerPills } from '../kitchen/DinerPills';
 import { pickupWindow } from '../kitchen/kitchenTime';
-import { orderTextPlan, type TextSettings } from '../kitchen/orderTexts';
+import { textFor, queueTextKey, type TextContext } from '../../domain/pickupService/texts';
 import {
   currentCourse,
   expoAction,
@@ -29,10 +30,15 @@ import s from './ExpoTicketCard.module.css';
 export interface ExpoTicketActions {
   fire: (orderId: string, course: number) => void;
   setLine: (orderId: string, lineId: string, state: 'ready' | 'cooking') => void;
+  /** These plates, and the sides that go with them, are up. */
+  ready: (ticket: ExpoTicket, course: number, lineIds: string[]) => void;
   runCourse: (orderId: string, course: number) => void;
   bump: (orderId: string) => void;
-  notify: (orderId: string) => void;
-  /** Picked up / on its way: the order leaves the pass. */
+  /**
+   * Pick up or delivery handed on, as on PU & Delivery: set out at the
+   * counter (texts the resident), or out the door with the runner (texts
+   * that it's on its way). Either way it leaves the pass.
+   */
   handOff: (ticket: ExpoTicket) => void;
   refire: (orderId: string, dinerId: string, lineId: string) => void;
   print: (ticket: ExpoTicket, label: string) => void;
@@ -44,7 +50,7 @@ export interface ExpoTicketCardProps {
   now: number;
   thresholds: Thresholds;
   cfg: DiningConfig;
-  texts: TextSettings;
+  texts: TextContext;
   selected: boolean;
   /** Line highlighted by the bump bar. */
   selectedLineId: string | null;
@@ -56,6 +62,19 @@ export function expoLabel(t: ExpoTicket): string {
   const o = t.order;
   if (o.queueType) return o.queueType === 'delivery' ? 'DEL' : 'PU';
   return (getTable(o.tableId)?.label ?? 'Order') + (o.checkTag ?? '');
+}
+
+/**
+ * The header timer: how long the ticket has been on the fire, or for an order
+ * booked ahead that hasn't fired yet, when it fires ("fires 7:15 PM"), so a
+ * later booking never reads as hours late.
+ */
+export function ticketClock(t: ExpoTicket, now: number): string {
+  const unfired = t.lines.every((l) => l.kitchenState === 'scheduled');
+  if (unfired && t.order.fireAtTs && t.order.fireAtTs > now) return 'fires ' + formatTime(t.order.fireAtTs);
+  const due = t.order.queueType ? pickupDue(t.order) : 0;
+  if (unfired && due > now) return 'due ' + formatTime(due);
+  return formatElapsed(now - t.firedAt);
 }
 
 const stop = (fn: () => void) => (e: MouseEvent) => {
@@ -115,7 +134,7 @@ export function ExpoTicketCard({ ticket: t, index, now, thresholds, cfg, texts, 
             </span>
           )}
           {allToGo && <span className={s.togo}>TO GO</span>}
-          <span className={cx(s.clock, s.clockPushed)}>{formatElapsed(now - t.firedAt)}</span>
+          <span className={cx(s.clock, s.clockPushed)}>{ticketClock(t, now)}</span>
         </div>
         <div className={s.headRow}>
           {!o.queueType && (
@@ -330,7 +349,7 @@ function RefirePanel({
   );
 }
 
-function Footer({ ticket: t, texts, actions }: { ticket: ExpoTicket; texts: TextSettings; actions: ExpoTicketActions }) {
+function Footer({ ticket: t, texts, actions }: { ticket: ExpoTicket; texts: TextContext; actions: ExpoTicketActions }) {
   const o = t.order;
   const queue = !!o.queueType;
   const [flash, setFlash] = useState(false);
@@ -363,43 +382,35 @@ function Footer({ ticket: t, texts, actions }: { ticket: ExpoTicket; texts: Text
         </button>
       );
     case 'handOff': {
-      const plan = orderTextPlan(o, texts);
+      const plan = textFor(o, queueTextKey(o), texts);
       const firstName = o.assoc && o.assocName ? o.assocName.split(' ')[0] : o.diners[0] ? dinerName(o.diners[0]).split(' ')[0] : 'resident';
-      const handOffLabel = o.queueType === 'delivery' ? 'On its way?' : 'Picked up?';
-      if (a.notified)
-        return (
-          <button className={cx(s.act, s.actGo, s.actStacked, flash && s.actFlash)} onClick={() => actions.handOff(t)}>
-            <span className={s.actMain}>
-              <CheckCircle2 size={17} strokeWidth={2.5} />
-              {handOffLabel}
-            </span>
-            <span className={s.actNote}>{plan.sent ? 'Texted ' + (o.notifiedAt ? formatTime(o.notifiedAt) : '') : plan.why === 'no mobile' ? 'Not texted: no mobile on file' : 'Not texted: texts are off'}</span>
-          </button>
-        );
+      const delivery = o.queueType === 'delivery';
+      const note = plan.sent
+        ? delivery
+          ? `Texts ${firstName} it's on its way`
+          : `Texts ${firstName} to come get it`
+        : plan.why === 'no mobile'
+          ? 'Not texted: no mobile on file'
+          : 'Not texted: texts are off';
       return (
-        <>
-          {plan.sent && (
-            <button
-              className={cx(s.act, s.actNeutral, s.actHalf)}
-              onClick={() => {
-                actions.notify(o.id);
-                setFlash(true);
-              }}
-            >
-              <Bell size={15} strokeWidth={2.5} />
-              Text {firstName}?
-            </button>
-          )}
-          <button className={cx(s.act, s.actGo, plan.sent && s.actHalf, plan.sent && s.actSplit)} onClick={() => actions.handOff(t)}>
-            <CheckCircle2 size={15} strokeWidth={2.5} />
-            {handOffLabel}
-          </button>
-        </>
+        <button
+          className={cx(s.act, s.actGo, s.actStacked, flash && s.actFlash)}
+          onClick={() => {
+            setFlash(true);
+            actions.handOff(t);
+          }}
+        >
+          <span className={s.actMain}>
+            <CheckCircle2 size={17} strokeWidth={2.5} />
+            {delivery ? 'On its way?' : 'Packed and set out?'}
+          </span>
+          <span className={s.actNote}>{note}</span>
+        </button>
       );
     }
     case 'ready':
       return (
-        <button className={cx(s.act, s.actNeutral)} onClick={() => a.lineIds.forEach((id) => actions.setLine(o.id, id, 'ready'))}>
+        <button className={cx(s.act, s.actNeutral)} onClick={() => actions.ready(t, a.course, a.lineIds)}>
           <CheckCircle2 size={17} strokeWidth={2.5} />
           {queue ? 'Order ready?' : `Course ${a.course} ready?`}
         </button>

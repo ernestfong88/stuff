@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { DEFAULT_CONFIG } from '../../../domain/config';
 import { seedOrders } from '../../../data';
 import type { Diner, Order, OrderLine } from '../../../domain/types';
 import { floorState, isLate } from '../floor/floorState';
@@ -99,6 +100,24 @@ describe('triage', () => {
   it('flags a table nobody has greeted after the host seated it', () => {
     const o = order([diner([])], { hostSeated: true, openedAt: T0 - 4 * MIN });
     expect(triageReasons(o, { t, checkInAfter: 2 })[0]).toMatchObject({ text: 'Seated 4 min, no server yet', act: 'Greet the table' });
+  });
+
+  it('follows Alerts & Timing for waiting to order and eating, and Time to greet meals for drinks', () => {
+    // Lunch, so the dinner greet clock stays out of it. Blank: amber from 8, red at 12, as before.
+    const seated = order([diner([])], { openedAt: T0 - 7 * MIN, meal: 'Lunch' });
+    expect(triageReasons(seated, { t, checkInAfter: 2 })).toEqual([]);
+    const six = (k: string) => (k === 'seatLate' ? 6 : t(k));
+    expect(triageReasons(seated, { t: six, checkInAfter: 2 })[0]).toMatchObject({ late: true, text: 'Seated 7 min, nothing ordered' });
+    const served = line('d_peach', { sent: true, kitchenState: 'cleared', firedAt: T0 - 40 * MIN, clearedAt: T0 - 25 * MIN, course: 2 });
+    const eating = order([diner([served])], { log: [{ at: T0 - 25 * MIN, k: 'run', by: 'AA', what: 'Ran', c: 2 }] });
+    const eat20 = (k: string) => (k === 'eatLate' ? 20 : t(k));
+    // A check-in wake-up of 0 never nags, so only the eating mark can flag it.
+    expect(triageReasons(eating, { t, cfg: DEFAULT_CONFIG, checkInAfter: 0 }).some((r) => r.text.startsWith('Eating'))).toBe(false);
+    expect(triageReasons(eating, { t: eat20, cfg: DEFAULT_CONFIG, checkInAfter: 0 })[0]).toMatchObject({ late: true, act: 'Check on the table' });
+    const tea = line('d_icedtea', { sent: true, drink: true, kitchenState: 'pour', firedAt: T0 - 9 * MIN });
+    const thirsty = order([diner([tea])], { openedAt: T0 - 10 * MIN });
+    expect(triageReasons(thirsty, { t }).some((r) => r.text.includes('for drinks'))).toBe(true);
+    expect(triageReasons({ ...thirsty, meal: 'Lunch' }, { t }).some((r) => r.text.includes('for drinks'))).toBe(false);
   });
 
   it('puts the server with the most late tables first', () => {

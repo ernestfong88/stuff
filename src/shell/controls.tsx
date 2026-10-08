@@ -8,7 +8,7 @@ import { enterFullscreen, exitFullscreen, useFullscreen } from './fullscreen';
 import { phaseIsOn, setPhaseOn, usePhaseOn, usePhasePlan, type Phase } from '../store/phases';
 import { getMode, modeOn, modePhase, orderedModes } from './modes';
 import { navigate, useRoute } from './router';
-import { signOut, useMe, useVenue, venueCode, venueColor } from './session';
+import { signOut, useMe, useVenue, useVenueChoices, venueCode, venueColor } from './session';
 import s from './controls.module.css';
 import { setZoom, useZoom } from './zoom';
 
@@ -126,10 +126,11 @@ export function ModeChip({ dark, tall }: { dark?: boolean; tall?: boolean }) {
 /** Coloured venue code (SE, OB ...); tap to switch the dining room this device serves. */
 export function VenueChip() {
   const [venue, setVenue] = useVenue();
+  const choices = useVenueChoices();
   const wide = useViewportWidth() >= 1440;
   const name = rooms[venue]?.name ?? venueCode(venue);
-  // The venue's name, not a two-letter code; narrow headers keep its first word.
-  const label = wide ? name : name.split(/[\s/]/)[0];
+  // The venue's name, not a two-letter code; narrow headers keep its first word ("Bistro" for "The Bistro").
+  const label = wide ? name : name.replace(/^the\s+/i, '').split(/[\s/]/)[0];
   return (
     <Popover
       align="left"
@@ -151,7 +152,7 @@ export function VenueChip() {
       {({ close }) => (
         <>
           <div className={s.menuHead}>Venue</div>
-          {Object.entries(rooms).map(([key, r]) => (
+          {choices.map((key) => (
             <MenuItem
               key={key}
               active={key === venue}
@@ -165,7 +166,7 @@ export function VenueChip() {
                 close();
               }}
             >
-              {r.name}
+              {rooms[key].name}
             </MenuItem>
           ))}
         </>

@@ -12,13 +12,14 @@ import {
   menuEditsStore,
   type BoMenu,
   type BoModGroup,
+  type LiveMenuOverlay,
   type MenuEditsState,
   type ModRuleEdit,
   type Recipe,
   type SideOverrides,
   type VenueSchedule,
 } from '../../../store/menuEdits';
-import { quarterIndexOf, quarterLabel, quarterMenuName, seedShift, shiftDay } from '../../../domain/menuCycle';
+import { isoDay, quarterIndexOf, quarterLabel, quarterMenuName, seedShift, shiftDay } from '../../../domain/menuCycle';
 import { computeLive } from './model/liveOverlay';
 import { tabletIndex } from './model/tablet';
 import type { BoState } from './model/types';
@@ -66,7 +67,7 @@ function seedMenus(at: number): BoMenu[] {
  * schedule; the menu pages only read it.
  */
 function schedulesOf(vs: VenueSettings): VenueSchedule[] {
-  return vs.venues.map((v) => ({ id: v.id, name: v.name, menuId: v.menuId, menuStartDt: v.menuStartDt, alcMenuId: v.alcMenuId ?? null, active: v.active, upcoming: v.upcoming }));
+  return vs.venues.map((v) => ({ id: v.id, name: v.name, room: v.room, menuId: v.menuId, menuStartDt: v.menuStartDt, alcMenuId: v.alcMenuId ?? null, active: v.active, upcoming: v.upcoming }));
 }
 
 function buildSeed(at: number): BoState {
@@ -132,6 +133,51 @@ function subscribeBo(listener: () => void): () => void {
  */
 export function refreshLiveMenu(): void {
   updateBo(() => ({}));
+}
+
+/** What the floor should see now, from the saved edits and Venue Settings. */
+export function liveNow(edits: MenuEditsState = menuEditsStore.get()): LiveMenuOverlay {
+  return computeLive({ state: boStateOf(edits), seed: SEED, idx: tabletIndex(), ruleDefaults: RULE_DEFAULTS, pinSeq, at: now() });
+}
+
+/**
+ * Keep what the floor sees up to date in this tab, with nobody editing in
+ * Back Office: when a venue's menu or "Week 1 started" changes, after a demo
+ * reset, and when the day rolls over (a new cycle day, so new specials, and
+ * a scheduled menu that starts today). Writes only when the result differs,
+ * so every open tab can run it. Returns a function that stops it.
+ */
+export function keepLiveMenu(): () => void {
+  let busy = false;
+  let day = isoDay(new Date(now()));
+  const check = () => {
+    if (busy) return;
+    busy = true;
+    try {
+      const edits = menuEditsStore.get();
+      const live = liveNow(edits);
+      if (JSON.stringify(live) !== JSON.stringify(edits.live)) menuEditsStore.set((p) => ({ ...p, live }));
+    } finally {
+      busy = false;
+    }
+  };
+  check();
+  const offVenues = venueSettingsStore.subscribe(check);
+  // A reset (or a copy saved before the floor followed each venue) has no rooms yet.
+  const offEdits = menuEditsStore.subscribe(() => {
+    if (!menuEditsStore.get().live?.rooms) check();
+  });
+  const timer = setInterval(() => {
+    const d = isoDay(new Date(now()));
+    if (d === day) return;
+    day = d;
+    check();
+  }, 30_000);
+  return () => {
+    offVenues();
+    offEdits();
+    clearInterval(timer);
+  };
 }
 
 /** Change Back Office's menu data; the floor sees the result at once. */

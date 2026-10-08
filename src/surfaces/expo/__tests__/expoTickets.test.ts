@@ -30,8 +30,8 @@ describe('expo tickets', () => {
     expect(expoAction(last)).toEqual({ kind: 'bump', course: 2 });
     const held = buildExpoTickets([order([diner([l('d_cbsoup', 'cleared', 1), l('d_trifle', 'scheduled', 3)])])])[0];
     expect(expoAction(held)).toEqual({ kind: 'fire', course: 3 });
-    const pu = buildExpoTickets([order([diner([l('d_peach', 'ready')])], { queueType: 'pickup', notified: true })])[0];
-    expect(expoAction(pu)).toEqual({ kind: 'handOff', notified: true });
+    const pu = buildExpoTickets([order([diner([l('d_peach', 'ready')])], { queueType: 'pickup' })])[0];
+    expect(expoAction(pu)).toEqual({ kind: 'handOff' });
   });
 
   it('marks late: too long on the fire, at the pass, or held unfired', () => {

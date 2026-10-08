@@ -10,7 +10,7 @@ import { getItem } from '../data';
 import { DAY, MINUTE, now, today } from '../lib/clock';
 import { DEFAULT_CONFIG, type DiningConfig } from './config';
 import { courseSummaries, normalizeOrder } from './courses';
-import { serverItemName } from './menu';
+import { isSide, serverItemName } from './menu';
 import { QUEUE_TYPE_LABELS, dinerName, dinerPerson } from './orders';
 import type { Order } from './types';
 
@@ -123,7 +123,10 @@ export function pickupStage(o: Order, kitchenMode?: string): PickupStage {
   if (!sent.length) return 'draft';
   if (o.notified) return o.queueType === 'delivery' ? 'out' : 'waiting';
   if (sent.every((x) => x.kitchenState === 'scheduled')) return 'scheduled';
-  return kitchenMode === 'printers' || sent.every((x) => x.kitchenState === 'ready' || x.kitchenState === 'cleared')
+  // Ready the way Expo judges it: by the plates (sides go with them), so both screens agree.
+  const plates = sent.filter((x) => !isSide(x.itemId));
+  const judged = plates.length ? plates : sent;
+  return kitchenMode === 'printers' || judged.every((x) => x.kitchenState === 'ready' || x.kitchenState === 'cleared')
     ? 'ready'
     : 'cooking';
 }
@@ -170,15 +173,24 @@ export function spanLabel(ms: number): string {
   return m < 60 ? m + 'm' : Math.floor(m / 60) + 'h' + (m % 60 ? ' ' + (m % 60) + 'm' : '');
 }
 
+/** Every booking is a 15 minute range; readyAt is its start. */
+export const PICKUP_RANGE_MINUTES = 15;
+
+/** Whole minutes from a to b as the clock shows them (4:36:50 to 4:45:00 is 9, the same as 4:36 to 4:45). */
+export const clockMinutes = (from: number, to: number): number => Math.floor(to / MINUTE) - Math.floor(from / MINUTE);
+
 /**
- * __kPudLate: minutes late (negative = early). A pick up is on time when it
- * was ready by the promise; how long the resident takes to come is not the
- * kitchen's. A delivery is on time when it reached the door by the promise.
+ * __kPudLate: minutes late (0 or less = on time). The promise is the booked
+ * range, so anything inside it is on time and lateness counts from its end.
+ * A pick up is on time when it was ready within the range; how long the
+ * resident takes to come is not the kitchen's. A delivery is on time when it
+ * reached the door within the range. Minutes are the clock minutes shown on
+ * screen, so "booked 1:15 to 1:30, delivered 1:40" is 10m late.
  */
 export function pickupLateMinutes(o: Order): number {
-  const due = parseClockTime(o.readyAt);
-  if (!due) return 0;
+  const start = parseClockTime(o.readyAt);
+  if (!start) return 0;
   const at =
     o.queueType === 'pickup' ? o.readyStampAt || o.deliveredAt || o.closedAt : o.deliveredAt || o.closedAt;
-  return Math.round(((at ?? 0) - due) / MINUTE);
+  return clockMinutes(start + PICKUP_RANGE_MINUTES * MINUTE, at ?? 0);
 }

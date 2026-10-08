@@ -63,6 +63,12 @@
 .other {
   box-shadow: inset 0 0 0 3px var(--gold);
 }
+.held {
+  box-shadow: inset 0 0 0 2px #a86a00;
+}
+.held .status {
+  color: #8a5700;
+}
 .label {
   font-size: 14px;
   font-weight: 800;

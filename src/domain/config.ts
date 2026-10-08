@@ -62,6 +62,12 @@ export interface DiningConfig {
   defaultSidesOnLine: boolean;
   /** Corkage per venue; on by default at $10 a bottle. */
   corkage: Record<string, { on?: boolean; amt?: number }>;
+  /**
+   * Delivery and pick up fees per venue, set on Back Office › Delivery fees.
+   * The one source close & charge, the kiosk, Charge Approval and Order
+   * History all read; missing means the venue's standard fee.
+   */
+  fees?: Record<string, { delivery?: number; pickup?: number }>;
   /** Sick-tray waiver allowance per community; on with 3 a month by default. */
   sick: Record<string, { on?: boolean; allow?: number }>;
   /** Hospice status set in Back Office, overriding the seed. */
@@ -81,6 +87,11 @@ export interface DiningConfig {
    * track each plate. Missing means "kds".
    */
   kitchenMode?: KitchenMode;
+  /**
+   * Not saved: false while the Bar screen's release phase is off. Nobody
+   * works a bar then, so alcohol goes to the server to pour everywhere.
+   */
+  barScreen?: boolean;
 }
 
 export type KitchenMode = 'kds' | 'printers';

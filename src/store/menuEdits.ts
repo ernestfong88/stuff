@@ -149,6 +149,8 @@ export interface BoMenu {
 export interface VenueSchedule {
   id: string;
   name: string;
+  /** Kitchen (a key of rooms) the venue cooks in; its tables order from this venue's menu. */
+  room?: string | null;
   menuId: string | null;
   /** Day 1 of the cycle at this venue (ms). */
   menuStartDt: number | null;
@@ -239,6 +241,27 @@ export interface LiveMenuOverlay {
   modGroups?: ModGroup[];
   /** Replaces the seed modifier rules once Back Office edits them. */
   modifierRules?: { groups: Record<string, LiveRuledGroup>; items: Record<string, string[]> };
+  /**
+   * Today's cycle day in the dining room (DINING_ROOM): `items` and `added`
+   * put today's specials on it. 0 when the room serves no cycle; missing in an
+   * overlay saved before the floor followed the venue's cycle.
+   */
+  day?: number;
+  /**
+   * The other rooms (kitchens): each orders from its own venue's menu at its
+   * own prices. A room not listed uses the dining room's menu.
+   */
+  rooms?: Record<string, LiveRoomMenu>;
+}
+
+/** One room's menu as the difference from the tablet menu (recipe edits included). */
+export interface LiveRoomMenu {
+  /** The venue whose menu and prices the room's tablets use. */
+  venueId: string;
+  /** Today's cycle day at that venue; 0 without a cycle. */
+  day: number;
+  items: Record<string, LiveItemPatch>;
+  added: Array<{ meal: MealName; category: string; item: MenuItem }>;
 }
 
 export const EMPTY_OVERLAY: LiveMenuOverlay = { items: {}, added: [], removed: [], reminders: {} };

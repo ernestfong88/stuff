@@ -12,6 +12,11 @@ describe('release phases', () => {
     expect(MODES.filter((m) => modePhase(m.id, {}) === 2).map((m) => m.id)).toEqual(['host', 'bar', 'cook', 'expo', 'assocphone']);
   });
 
+  it('keeps the Back Office screen in Phase 1 whatever a saved plan says', () => {
+    expect(modePhase('backoffice', { [modePhaseKey('backoffice')]: 2 })).toBe(1);
+    expect(modePhase('server', { [modePhaseKey('server')]: 2 })).toBe(2);
+  });
+
   it('moves a page to Phase 2, and pages opened from it follow', () => {
     setPhase('resProfiles', 2);
     expect(phaseOf('resProfiles')).toBe(2);

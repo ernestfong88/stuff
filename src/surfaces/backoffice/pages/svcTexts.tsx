@@ -54,7 +54,13 @@ function TextCard({ def, own }: { def: TextDefinition; own: TextSetting | undefi
   const preview = fillText(body, Object.fromEntries(def.tags.map((k) => [k, SAMPLE[k]])));
   const parts = smsParts(preview);
   const unknown = unknownTags(body, def.tags);
-  const setBody = (v: string) => putText(def.key, own, { body: v === def.body ? undefined : v });
+  // A cleared box stays on screen as typed but isn't saved: an empty text would go out blank.
+  const [blank, setBlank] = useState<string | null>(null);
+  const setBody = (v: string) => {
+    if (!v.trim()) return setBlank(v);
+    setBlank(null);
+    putText(def.key, own, { body: v === def.body ? undefined : v });
+  };
   const addTag = (tag: TextTag) => {
     const el = box.current;
     const next = insertTag(body, tag, el?.selectionStart ?? body.length, el?.selectionEnd ?? body.length);
@@ -85,7 +91,21 @@ function TextCard({ def, own }: { def: TextDefinition; own: TextSetting | undefi
       }
     >
       <div className={s.body}>
-        <TextArea ref={box} value={body} rows={2} disabled={!on} aria-label={`${def.title} wording`} className={s.wording} onChange={(e) => setBody(e.target.value)} />
+        <TextArea
+          ref={box}
+          value={blank ?? body}
+          rows={2}
+          disabled={!on}
+          aria-label={`${def.title} wording`}
+          className={s.wording}
+          onChange={(e) => setBody(e.target.value)}
+          onBlur={() => setBlank(null)}
+        />
+        {blank != null && (
+          <p className={s.warn} role="alert">
+            A text can&apos;t be empty, so the last wording is kept. Type the new wording, or use the standard one.
+          </p>
+        )}
         {on && (
           <>
             <div className={s.tags}>

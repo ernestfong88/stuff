@@ -291,6 +291,14 @@
   font-size: 13.5px;
   font-weight: 600;
 }
+.seatName .seatedAt {
+  display: block;
+  font-size: 11.5px;
+}
+.seatedAt {
+  color: var(--warning);
+  font-weight: 600;
+}
 .seatBtn {
   margin-top: auto;
   flex-shrink: 0;

@@ -5,15 +5,18 @@
  */
 import { useState } from 'react';
 import { rooms } from '../../../data';
+import { printerMode } from '../../../domain/config';
+import { useConfig } from '../../../store/config';
 import { useVenueSettings } from '../../../store/venueSettings';
 import { Tabs } from '../../../ui';
 import { KdsScreensEditor } from '../../kitchen/admin/KdsScreensEditor';
-import { BoPage, BoSection } from '../kit';
+import { BoCallout, BoPage, BoSection } from '../kit';
 import type { BoPageProps } from '../nav';
 import { KitchenModeSetting } from './KitchenModeSetting';
 
 export default function Page(_props: BoPageProps) {
   const settings = useVenueSettings();
+  const printers = printerMode(useConfig());
   const keys = Object.keys(rooms);
   const [room, setRoom] = useState(keys[0]);
   const venues = settings.venues.filter((v) => v.active && v.room === room).map((v) => v.name);
@@ -27,6 +30,11 @@ export default function Page(_props: BoPageProps) {
         title={`${rooms[room].name} kitchen`}
         sub={venues.length ? `Cooks for ${venues.join(' and ')}.` : 'No venue cooks here yet.'}
       >
+        {printers && (
+          <BoCallout tone="info" title="Not used with printers">
+            This kitchen prints its tickets now, so these screens aren&apos;t used. They are kept, and apply once you switch to kitchen screens above.
+          </BoCallout>
+        )}
         <KdsScreensEditor key={room} settings={settings} room={room} ownerName={null} />
       </BoSection>
     </BoPage>

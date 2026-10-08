@@ -6,7 +6,7 @@ import { Button, Chip, EmptyState, Tabs, cx, toast } from '../../../../ui';
 import { BoPage } from '../../kit';
 import { placementSides, useBo } from '../data';
 import { venuesAt } from '../../../../domain/menuCycle';
-import { alaCarteItems, menuHtml, printContext, printWeek, TEMPLATES, weekDays, type PrintKind, type TemplateId } from '../model/menuPrint';
+import { menuHtml, printContext, printedRecipes, printWeek, TEMPLATES, weekDays, type PrintKind, type TemplateId } from '../model/menuPrint';
 import { Field, Select } from '../ui/controls';
 import { PagePreview } from '../ui/PagePreview';
 import { printHtml } from '../ui/printFrame';
@@ -48,12 +48,8 @@ export function ExportPage() {
   const weekOptions = exportWeeks(printWeek(ctx), ctx.len);
   const week = weekPick != null && weekOptions.includes(weekPick) ? weekPick : printWeek(ctx);
   const html = useMemo(() => menuHtml(kind, ctx, { day, week }), [kind, ctx, day, week]);
-  const count = useMemo(() => {
-    if (kind === 'alacarte') return alaCarteItems(ctx).length;
-    const days = kind === 'daily' ? [0, day || 1] : weekDays(ctx, week);
-    const lines = days.flatMap((d) => ctx.at(d)).filter((x) => (kind === 'order' ? x.c !== 'Sides' && x.g.day > 0 : true));
-    return new Set(lines.map((x) => x.r.id)).size;
-  }, [kind, ctx, day, week]);
+  // The dishes the printout lists, so the count matches what prints.
+  const count = useMemo(() => printedRecipes(kind, ctx, { day, week }).size, [kind, ctx, day, week]);
 
   if (!venue) {
     return (

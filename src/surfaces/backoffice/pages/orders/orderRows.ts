@@ -7,6 +7,7 @@ import { dinerBilling } from '../../../../domain/billing';
 import type { DiningConfig } from '../../../../domain/config';
 import { dinerName } from '../../../../domain/orders';
 import type { Diner, Order } from '../../../../domain/types';
+import { apartmentAmount, dropKind } from '../../kit/billing';
 
 /** How a diner's meal was settled at close. */
 export const PAYMENT_LABELS: Record<string, string> = {
@@ -50,9 +51,13 @@ export function feedbackTag(f: unknown): FeedbackTag | null {
   return { text: verdict + sub, tone: /^liked/i.test(verdict) ? 'success' : /^disliked/i.test(verdict) ? 'danger' : 'neutral' };
 }
 
-/** What a closed diner was charged: the amount stored at close, else what billing says is out of plan. */
+/** What a closed diner was charged: the amount in the drop or stored at close, else what billing says is out of plan. Nothing once the check is comped. */
 export function dinerCharge(d: Diner, o: Order, cfg: DiningConfig): number {
-  if (!d.chargeDrop || d.chargeDrop === 'plan' || d.chargeDrop === 'comp') return 0;
+  const kind = dropKind(d.chargeDrop);
+  if (o.comp || kind === 'plan' || kind === 'comp') return 0;
+  if (kind === 'apt') return apartmentAmount(d, o, cfg);
+  const fromDrop = Number(String(d.chargeDrop).split(':')[1]);
+  if (fromDrop > 0) return fromDrop;
   if (typeof d.chargeAmt === 'number') return d.chargeAmt;
   return dinerBilling(d, o, cfg).outOfPlan;
 }
@@ -69,7 +74,7 @@ export function buildRows(open: Order[], closed: Order[], cfg: DiningConfig): Or
       leadName: lead ? dinerName(lead) : 'No one seated',
       names: order.diners.map((d) => dinerName(d)).join(' '),
       charged,
-      apartment: !isOpen && order.diners.some((d) => d.chargeDrop === 'apt'),
+      apartment: !isOpen && !order.comp && order.diners.some((d) => dropKind(d.chargeDrop) === 'apt'),
       feedback: fb,
     };
   };

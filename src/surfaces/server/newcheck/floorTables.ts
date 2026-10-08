@@ -36,6 +36,11 @@ export function pickerTable(table: FloorTable, orders: Order[], me: string): Pic
   };
 }
 
+/** "3 of 4 seats taken", or "5 seated at a table for 4" when the party is bigger than the table. */
+export function seatsText(p: Pick<PickerTable, 'covers' | 'seats'>): string {
+  return p.covers > p.seats ? `${p.covers} seated at a table for ${p.seats}` : `${p.covers} of ${p.seats} seats taken`;
+}
+
 /** My open checks at a table (a new check there asks first). */
 export function myChecksAt(orders: Order[], tableId: string, me: string): Order[] {
   return orders.filter((o) => o.tableId === tableId && !o.queueType && o.server === me);

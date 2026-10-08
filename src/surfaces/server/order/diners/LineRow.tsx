@@ -1,6 +1,7 @@
 import { AlertTriangle, Pause, Pencil, Play, X } from 'lucide-react';
 import { getItem } from '../../../../data';
 import { chosenMods, flattenMods, isDrink, serverItemName } from '../../../../domain/menu';
+import { conflictSentence } from '../../../../domain/allergens';
 import { allergenConflicts, lineCourse } from '../../../../domain/orders';
 import type { Diner, Order, OrderLine, Resident } from '../../../../domain/types';
 import { useConfig } from '../../../../store/config';
@@ -94,7 +95,7 @@ export function LineRow({
         )}
         {conflicts.length > 0 && (
           <div className={s.allergy}>
-            <AlertTriangle size={12} aria-hidden /> Contains {conflicts.join(', ').toLowerCase()}. {person?.name.split(' ')[0]} is allergic
+            <AlertTriangle size={12} aria-hidden /> {conflictSentence(conflicts, person?.name.split(' ')[0] ?? 'This diner')}
           </div>
         )}
       </div>

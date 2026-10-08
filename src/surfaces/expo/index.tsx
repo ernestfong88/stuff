@@ -5,26 +5,26 @@
  */
 import { Keyboard } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
-import { COMMUNITY_NAME } from '../../data';
+import { COMMUNITY_NAME, rooms } from '../../data';
 import { dinerName, tableName } from '../../domain/orders';
 import { isoDate } from '../../domain/pickup';
 import type { AssocMeal } from '../../domain/types';
 import { now } from '../../lib/clock';
 import { formatTime } from '../../lib/format';
 import { useConfig } from '../../store/config';
+import { useQueueHandOff, useTextContext } from '../../store/queueHandOff';
 import { useDining } from '../../store/dining';
-import { getSetting, useSetting } from '../../store/serviceConfig';
+import { getSetting } from '../../store/serviceConfig';
 import { useNow } from '../../ui';
 import { BumpKeysPage } from '../kitchen/BumpKeysPage';
 import { GridMessage, HeaderButton, KitchenHeader, KitchenShell, TicketArea, TicketGrid, TicketSlot } from '../kitchen/KitchenShell';
 import { KitchenUnavailable } from '../kitchen/KitchenUnavailable';
 import { MenuReference } from '../kitchen/MenuReference';
-import type { TextSettings } from '../kitchen/orderTexts';
 import { RecallMenu } from '../kitchen/RecallMenu';
 import { useBumpBar } from '../kitchen/useBumpBar';
 import { useThreshold } from '../kitchen/useThreshold';
-import { kitchenPrinters, useVenueSettings } from '../../store/venueSettings';
-import { assocTickets, plannedToday, type AssocStage } from './assocTickets';
+import { kitchenHasExpo, kitchenPrinters, useVenueSettings } from '../../store/venueSettings';
+import { assocTickets, missedAssocTickets, type AssocStage } from './assocTickets';
 import s from './Expo.module.css';
 import { ExpoAssociates } from './ExpoAssociates';
 import { ExpoTicketCard, type ExpoTicketActions } from './ExpoTicketCard';
@@ -51,10 +51,12 @@ const tracksPickup = (room: string) => getSetting<Record<string, boolean> | unde
 export default function Expo() {
   const { kitchenMode } = useDining();
   const settings = useVenueSettings();
-  if (kitchenMode === 'printers' || kitchenMode === 'kds')
+  // KDS Settings, Expo screen: No for every kitchen means the cook line clears its own tickets.
+  const cookOnly = !Object.keys(rooms).some((room) => kitchenHasExpo(settings, room));
+  if (kitchenMode === 'printers' || cookOnly)
     return (
       <KitchenShell>
-        <KitchenUnavailable surface="Expo" cookOnly={kitchenMode === 'kds'} printers={kitchenPrinters(settings, ASSOC_ROOM)} />
+        <KitchenUnavailable surface="Expo" cookOnly={kitchenMode !== 'printers'} printers={kitchenPrinters(settings, ASSOC_ROOM)} />
       </KitchenShell>
     );
   return <ExpoPass />;
@@ -66,19 +68,22 @@ function ExpoPass() {
   const cfg = useConfig();
   const clock = useNow(1000);
   const thresholds = { cookLate: useThreshold('cookLate'), expoPass: useThreshold('expoPass'), fireLate: useThreshold('fireLate') };
-  const texts: TextSettings = { texts: useSetting('texts'), mobile: useSetting('mobile') };
-  useSetting('pud.track');
+  const texts = useTextContext();
+  const queue = useQueueHandOff();
   const [filter, setFilter] = useState<ExpoFilter>('all');
   const [associates, setAssociates] = useState(false);
   const [keysOpen, setKeysOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const closeKeys = useCallback(() => setKeysOpen(false), []);
 
-  const tickets = useMemo(() => buildExpoTickets(orders), [orders]);
+  const settings = useVenueSettings();
+  // Only kitchens with an expo station (KDS Settings); the others' servers run their own courses.
+  const tickets = useMemo(() => buildExpoTickets(orders.filter((o) => kitchenHasExpo(settings, o.room))), [orders, settings]);
   const lists = filterTickets(tickets, clock);
   const shown = lists[filter];
   const today = isoDate(0);
-  const assoc = assocTickets(assocOrders, today, tracksPickup(ASSOC_ROOM));
+  const assoc = assocTickets(assocOrders, today, tracksPickup(ASSOC_ROOM), clock);
+  const missed = missedAssocTickets(assocOrders, today, tracksPickup(ASSOC_ROOM), clock);
 
   const recalls = recentBumps.flatMap((b) => {
     const order = orders.find((o) => o.id === b.orderId);
@@ -93,20 +98,24 @@ function ExpoPass() {
   /** The last course goes out: the ticket leaves the pass. */
   const bumpOrder = (orderId: string) => dining.clearOrder(orderId);
 
+  /** The same hand-off PU & Delivery does: set out (and texted), or out the door with the runner. */
   const handOff = (t: ExpoTicket) => {
-    dining.clearOrder(t.order.id);
-    if (t.order.queueType === 'pickup' && !tracksPickup(t.order.room)) {
-      dining.patchOrder(t.order.id, { setOut: true });
-      dining.markDelivered(t.order.id);
-    }
+    if (t.order.queueType === 'delivery') queue.leave(t.order);
+    else queue.setOut(t.order);
+  };
+
+  /** Plates up, with the sides that go on them, so PU & Delivery sees the order ready too. */
+  const ready = (t: ExpoTicket, course: number, lineIds: string[]) => {
+    const sides = t.order.diners.flatMap((d) => d.items.filter((i) => i.parentId && lineIds.includes(i.parentId)));
+    dining.markCourseReady(t.order.id, course, [...lineIds, ...sides.map((i) => i.id)]);
   };
 
   const actions: ExpoTicketActions = {
     fire: dining.fireCourseNow,
     setLine: dining.setItemKitchenState,
+    ready,
     runCourse,
     bump: bumpOrder,
-    notify: dining.notifyOrder,
     handOff,
     refire: dining.remakeLine,
     print: (t, label) => printDocument(runnerCopyHtml({ ticket: t, course: printCourse(t), label, printedAt: now(), cfg })),
@@ -208,7 +217,7 @@ function ExpoPass() {
             on={associates}
             aria-pressed={associates}
             outlined
-            count={plannedToday(assocOrders, today)}
+            count={assoc.length}
             countTone="amber"
             className={s.filter}
             onClick={() => setAssociates(true)}
@@ -219,7 +228,7 @@ function ExpoPass() {
       </KitchenHeader>
       <TicketArea label={associates ? 'Associate meals' : 'Tickets'}>
         {associates ? (
-          <ExpoAssociates tickets={assoc} now={clock} onUpdate={updateAssoc} />
+          <ExpoAssociates tickets={assoc} missed={missed} now={clock} onUpdate={updateAssoc} />
         ) : (
           <TicketGrid>
             {shown.map((t, i) => (

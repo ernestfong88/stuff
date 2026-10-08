@@ -14,6 +14,7 @@ export function ConfirmReset({
   sections = [],
   onReset,
   label = 'Reset to defaults',
+  disabled,
 }: {
   /** The question, e.g. "Put every alert back to the default?". */
   title: string;
@@ -24,12 +25,15 @@ export function ConfirmReset({
   sections?: string[];
   onReset?: () => void;
   label?: string;
+  /** Nothing to reset (already the standard). */
+  disabled?: boolean;
 }) {
   const [ask, dialog] = useConfirm();
   return (
     <>
       <Button
         icon={<RotateCcw size={14} />}
+        disabled={disabled}
         onClick={async () => {
           if (!(await ask({ title, message, confirmLabel: label, tone: 'danger' }))) return;
           sections.forEach(resetSettingsSection);

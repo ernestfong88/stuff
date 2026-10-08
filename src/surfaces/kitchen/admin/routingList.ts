@@ -1,9 +1,11 @@
 /**
  * Kitchen Routing's list. Routing follows the recipe, so the list spans
- * every meal rather than whichever one the clock is in, with each recipe
- * once.
+ * every meal rather than whichever one the clock is in, and every day of the
+ * venues' menu cycles rather than today's, with each recipe once.
  */
-import { menu } from '../../../data';
+import { catalog } from '../../../data';
+import { recipeInfo } from '../../../store/recipes';
+import { activeMenuRecipes } from '../../../store/venueMenu';
 import type { DiningConfig } from '../../../domain/config';
 import { isDrink } from '../../../domain/menu';
 import { defaultDrinkRoute, defaultFoodRoute, drinkRoute, foodRoute } from '../../../domain/routing';
@@ -25,24 +27,37 @@ export interface RoutedItem {
 const CATEGORY_ORDER = ['Entrées', 'Specials', 'Starters', 'Sides', 'Desserts', 'Drinks', 'Beverages', 'Alcohol', 'Cocktails'];
 const GROUP_ORDER: MenuGroup[] = ['Drinks', 'Starters', 'Entrees', 'Sides', 'Desserts', 'Snacks'];
 
-/** Every recipe on any meal's menu, once. */
+/** Tablet section for a Recipe Book category. */
+const SECTION_OF: Record<string, string> = { Entrees: 'Entrées', Starters: 'Starters', Sides: 'Sides', Desserts: 'Desserts', Drinks: 'Drinks' };
+
+/**
+ * Every recipe on any meal's menu, once: the tablet menu (every day's dishes),
+ * then the dishes the venues' cycles place on other days, so a chef can route
+ * next week's soup or dessert now.
+ */
 export function routableItems(): RoutedItem[] {
   const seenIds = new Set<string>();
   const byCategory = new Map<string, MenuItem[]>();
-  for (const meal of Object.values(menu))
-    for (const category of CATEGORY_ORDER)
-      for (const item of meal[category] ?? []) {
-        if (seenIds.has(item.id)) continue;
-        seenIds.add(item.id);
-        byCategory.set(category, [...(byCategory.get(category) ?? []), item]);
-      }
+  const add = (category: string, item: MenuItem) => {
+    if (seenIds.has(item.id)) return;
+    seenIds.add(item.id);
+    byCategory.set(category, [...(byCategory.get(category) ?? []), item]);
+  };
+  for (const category of CATEGORY_ORDER) for (const item of catalog) if (item.category === category) add(category, item);
+  const onTablet = new Set(catalog.map((it) => it.name.toLowerCase()));
+  for (const { recipeId, cat } of activeMenuRecipes()) {
+    const r = recipeInfo(recipeId);
+    const category = SECTION_OF[r?.cat ?? cat];
+    if (!r || !category || onTablet.has(r.name.toLowerCase())) continue;
+    add(category, { id: r.id, name: r.name, desc: r.desc ?? '', residentPrice: 0, guestPrice: 0, alaPrice: 0, day: 0, avail: null, mods: [], allergens: [] });
+  }
   const seenRecipes = new Set<string>();
   return CATEGORY_ORDER.flatMap((category) =>
     (byCategory.get(category) ?? []).flatMap((item) => {
       const canon = canonicalItemId(item.id);
       if (seenRecipes.has(canon)) return [];
       seenRecipes.add(canon);
-      return [{ item, category, drink: isDrink(item.id), main: isMainCategory(category) }];
+      return [{ item, category, drink: isDrink(item.id) || menuGroupOf(category) === 'Drinks', main: isMainCategory(category) }];
     }),
   );
 }

@@ -4,7 +4,7 @@
  * dish, and list what they filled so the chef reviews it before publishing.
  */
 import type { Ingredient, Nutrition, Recipe } from '../../../../store/menuEdits';
-import { normCategory } from './categories';
+import { isSavoryCakeOrPie, normCategory } from './categories';
 
 type Kind = 'Beverage' | 'Appetizer' | 'Entree' | 'Side' | 'Dessert';
 
@@ -38,7 +38,7 @@ function starterIngredients(name: string, kind: Kind): Ingredient[] {
       { qty: 0.5, unit: 'cup', name: 'croutons' },
       { qty: 2, unit: 'tbsp', name: 'dressing' },
     ];
-  if (s.includes('cake') || kind === 'Dessert')
+  if ((s.includes('cake') && !isSavoryCakeOrPie(s)) || kind === 'Dessert')
     return [
       { qty: 1, unit: 'slice', name: 'prepared base' },
       { qty: 1, unit: 'tbsp', name: 'garnish' },

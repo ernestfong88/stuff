@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { DEFAULT_CONFIG, type DiningConfig, type HospiceStatus } from '../domain/config';
 import { hospiceStatus, nextHospiceStatus } from '../domain/waivers';
 import { createSharedStore, useShared } from '../lib/sharedStore';
-import { kdsOn, phaseOnStore, phasePlanStore } from './phases';
+import { barScreenOn, kdsOn, phaseOnStore, phasePlanStore, type PhasePlan, type PhaseSwitches } from './phases';
 
 export const configStore = createSharedStore<DiningConfig>(() => structuredClone(DEFAULT_CONFIG), {
   persistKey: 'kisco.dining.config.v1',
@@ -18,21 +18,24 @@ export const configStore = createSharedStore<DiningConfig>(() => structuredClone
  * The settings in force: the saved ones with defaults filled in, and printers
  * whenever the kitchen screens' release phase is switched off.
  */
-function effective(saved: DiningConfig, kds: boolean): DiningConfig {
+function effective(saved: DiningConfig, plan: PhasePlan, on: PhaseSwitches): DiningConfig {
   const cfg = { ...DEFAULT_CONFIG, ...saved };
-  return kds ? cfg : { ...cfg, kitchenMode: 'printers' };
+  // With the Bar screen's phase off nobody works a bar: alcohol goes to the server to pour.
+  const bar = barScreenOn(plan, on) ? cfg : { ...cfg, barScreen: false };
+  return kdsOn(plan, on) ? bar : { ...bar, kitchenMode: 'printers' };
 }
 
 /** The current settings, with defaults filled in for anything a saved copy lacks. */
 export function getConfig(): DiningConfig {
-  return effective(configStore.get(), kdsOn());
+  return effective(configStore.get(), phasePlanStore.get(), phaseOnStore.get());
 }
 
 /** Read the settings in a component. */
 export function useConfig(): DiningConfig {
   const saved = useShared(configStore);
-  const kds = kdsOn(useShared(phasePlanStore), useShared(phaseOnStore));
-  return useMemo(() => effective(saved, kds), [saved, kds]);
+  const plan = useShared(phasePlanStore);
+  const on = useShared(phaseOnStore);
+  return useMemo(() => effective(saved, plan, on), [saved, plan, on]);
 }
 
 /** The kitchen mode as saved, before the release phases have their say. */

@@ -181,7 +181,7 @@ function MenuList() {
                       <StateChip state={st} />
                       <span>
                         {r.everyDay ? 'À la carte' : KIND_LABEL[m.kind]} ·{' '}
-                        {m.kind === 'cycle' && !r.everyDay ? (len > 0 ? `${Math.ceil(len / 7)} weeks` : 'no length set') : `${items(m)} items`}
+                        {m.kind === 'cycle' && !r.everyDay ? (len > 0 ? `${Math.ceil(len / 7)} ${Math.ceil(len / 7) === 1 ? 'week' : 'weeks'}` : 'no length set') : `${items(m)} ${items(m) === 1 ? 'item' : 'items'}`}
                       </span>
                       {m.locked && (
                         <span className={s.lockedTag}>

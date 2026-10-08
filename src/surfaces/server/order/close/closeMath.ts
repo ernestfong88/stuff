@@ -6,12 +6,13 @@
  * reads amber with the account or card it lands on, and a comp reads grey.
  * The demo has no sales tax, so there is no tax line.
  */
-import { getItem, mealPlans } from '../../../../data';
+import { lineItem } from '../../../../data';
 import { alaCarteTotal, dinerBilling, linePrice, type DinerBilling } from '../../../../domain/billing';
 import { DEFAULT_CONFIG, mealCreditRules, type DiningConfig, type MealCreditRules } from '../../../../domain/config';
 import { dinerName, dinerPerson } from '../../../../domain/orders';
 import type { Diner, Order, OrderLine, Resident } from '../../../../domain/types';
 import { isHospiceDiner } from '../../../../domain/waivers';
+import { residentPlan } from '../../../backoffice/kit/residentRecords';
 import { formatMoney } from '../../../../lib/format';
 import { creditKind, isExtraSide, type CreditKind } from '../checkLines';
 
@@ -81,7 +82,7 @@ export function overflowIsAla(
 
 export function defaultPlanMode(d: Diner): PlanMode {
   if (d.kind === 'associate') return 'alacarte';
-  const plan = mealPlans[(dinerPerson(d) as Resident | undefined)?.plan ?? ''];
+  const plan = residentPlan((dinerPerson(d) as Resident | undefined)?.id);
   return !plan || plan.type === 'A la carte' ? 'alacarte' : 'count';
 }
 
@@ -115,15 +116,17 @@ export function closeCharge(d: Diner, x: CloseInputs): CloseCharge {
   const base = dinerBilling(d, { ...x.order, feeComped: x.feeComped || !!x.order.comp }, cfg);
   const mode = x.mode[d.id] ?? defaultPlanMode(d);
   const drop = x.drop[d.id] ?? defaultDrop(d, x.order);
-  const comped = mode === 'comp' || !!NO_CHARGE_DROPS[drop] || !!x.order.comp || isHospiceDiner(d, cfg);
-  if (comped) return { ...base, outOfPlan: 0, needsDrop: false, covered: true, comped: true, hostCredit: false };
+  const comped = mode === 'comp' || !!NO_CHARGE_DROPS[drop] || !!x.order.comp || (isHospiceDiner(d, cfg) && !base.hospiceMeal);
+  if (comped) return { ...base, outOfPlan: 0, needsDrop: false, covered: true, comped: true, hospiceMeal: false, hostCredit: false };
+  // Hospice: the meal is comped, only the fees billing kept (e.g. the delivery fee with its hospice waiver off) charge.
+  if (base.hospiceMeal) return { ...base, comped: false, hostCredit: false };
   if (mode === 'alacarte') {
     const amt = alaCarteTotal(d) + base.delivery;
     return { ...base, outOfPlan: amt, needsDrop: amt > 0, covered: false, comped: false, hostCredit: false };
   }
   const use = creditUse(d, x.overflowChoice, cfg);
   const extra = use
-    ? use.overflow.filter((l) => overflowIsAla(d, l, x.overflowChoice, cfg)).reduce((s, l) => s + (getItem(l.itemId)?.alaPrice ?? 0), 0)
+    ? use.overflow.filter((l) => overflowIsAla(d, l, x.overflowChoice, cfg)).reduce((s, l) => s + (lineItem(l)?.alaPrice ?? 0), 0)
     : 0;
   if (d.isGuest && x.guestOnHost[d.id] && x.guestCreditOn) {
     const amt = (base.delivery || 0) + extra;
@@ -143,7 +146,7 @@ export interface PlanUse {
 }
 
 export function hostPlan(r: Resident | undefined): { left: number } | null {
-  const plan = r && mealPlans[r.plan];
+  const plan = r && residentPlan(r.id);
   return plan && plan.amt && (plan.type === 'Monthly' || plan.type === 'Daily') ? { left: Math.max(0, plan.amt - r.consumed) } : null;
 }
 
@@ -159,7 +162,7 @@ export function planUse(rows: CloseRow[], mode: Record<string, PlanMode>, uses: 
   const by: Record<string, PlanUse> = {};
   for (const r of rows) {
     const h = hostPlan(r.person);
-    if (!h || !r.person || r.charge.comped) continue;
+    if (!h || !r.person || r.charge.comped || r.charge.hospiceMeal) continue;
     const own = !r.diner.isGuest && r.diner.kind !== 'associate' && (mode[r.diner.id] ?? defaultPlanMode(r.diner)) !== 'alacarte' && h.left > 0;
     const guest = r.diner.isGuest && r.charge.hostCredit;
     if (!own && !guest) continue;
@@ -202,7 +205,7 @@ export function closeView(
   const name = first(dinerName(d));
   const host = pe?.name ? first(pe.name) : name;
   const g = c.hostCredit && d.isGuest;
-  const plan = (g || (!d.isGuest && d.kind !== 'associate')) && pe ? mealPlans[pe.plan] : undefined;
+  const plan = (g || (!d.isGuest && d.kind !== 'associate')) && pe ? residentPlan(pe.id) : undefined;
   const counts = !!plan && (plan.type === 'Monthly' || plan.type === 'Daily');
   const left = counts && pe ? Math.max(0, plan!.amt - (pe.consumed || 0)) : 0;
   const use = opts.credits || 1;
@@ -242,17 +245,19 @@ export function closeView(
       how: card ? 'card' : 'apt',
       onPlan,
       title: 'Charged to ' + dest,
-      sub: onPlan
-        ? `${g ? `${host}'s meal plan` : 'Meal plan'} covers the meal · ${meals(after)}${tail} · extras are charged`
-        : opts.mode === 'alacarte'
-          ? 'Everything à la carte, so no meal is used'
-          : d.isGuest
-            ? 'Guest pays à la carte'
-            : d.kind === 'associate'
-              ? 'Associate pays à la carte'
-              : counts
-                ? 'Meal plan used up this cycle, so the meal is charged'
-                : 'No meal plan, pays à la carte',
+      sub: c.hospiceMeal
+        ? 'Hospice · the meal is comped, the delivery fee still charges'
+        : onPlan
+          ? `${g ? `${host}'s meal plan` : 'Meal plan'} covers the meal · ${meals(after)}${tail} · extras are charged`
+          : opts.mode === 'alacarte'
+            ? 'Everything à la carte, so no meal is used'
+            : d.isGuest
+              ? 'Guest pays à la carte'
+              : d.kind === 'associate'
+                ? 'Associate pays à la carte'
+                : counts
+                  ? 'Meal plan used up this cycle, so the meal is charged'
+                  : 'No meal plan, pays à la carte',
     };
   }
   if (onPlan) {

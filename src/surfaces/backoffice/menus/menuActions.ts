@@ -4,7 +4,7 @@ import { uid } from '../../../lib/id';
 import type { BoMenu, GridEntry, MenuKind, SideOverrides } from '../../../store/menuEdits';
 import { BACK_OFFICE_AUTHOR, SEED_SIDES, getBo, updateBo } from './data';
 import { copyDaySides, copyMeal as copyMealGrid, swapMeals as swapMealGrid, type MealSlot } from './model/dayOps';
-import { addDays, dayStart, quarterMenuName, weekStart } from '../../../domain/menuCycle';
+import { addDays, dayStart, quarterMenuName, uniqueMenuName, weekStart } from '../../../domain/menuCycle';
 import type { BoState, BuilderMeal } from './model/types';
 
 /** Change a menu, recording who edited it and when. */
@@ -32,6 +32,26 @@ export function addPlacements(list: Array<Omit<GridEntry, 'id' | 'sort' | 'cat'>
 
 export function removePlacements(pred: (g: GridEntry) => boolean): void {
   updateBo((s) => ({ grid: s.grid.filter((g) => !pred(g)) }));
+}
+
+/**
+ * Set a cycle's length. Days past the new length leave the cycle, with what
+ * was placed on them (a shorter cycle never keeps a week it no longer has).
+ * Returns a function that puts the length and those dishes back (Undo).
+ */
+export function setCycleLength(menuId: string, len: number): () => void {
+  const before = getBo();
+  const was = before.menus.find((m) => m.id === menuId)?.cycleLen ?? 0;
+  const dropped = before.grid.filter((g) => g.menuId === menuId && g.day > len);
+  updateBo((s) => ({
+    menus: s.menus.map((m) => (m.id === menuId ? { ...m, cycleLen: len, editedBy: BACK_OFFICE_AUTHOR, editedAt: now() } : m)),
+    grid: dropped.length ? s.grid.filter((g) => !(g.menuId === menuId && g.day > len)) : s.grid,
+  }));
+  return () =>
+    updateBo((s) => ({
+      menus: s.menus.map((m) => (m.id === menuId ? { ...m, cycleLen: was } : m)),
+      grid: [...s.grid, ...dropped.filter((g) => !s.grid.some((x) => x.id === g.id))],
+    }));
 }
 
 /** Put back placements that were removed (undo). */
@@ -124,7 +144,8 @@ export function cloneMenu(srcId: string, quarter: string, kind: MenuKind): strin
       id,
       kind,
       quarter,
-      name: quarterMenuName(quarter, kind),
+      // Never the live menu's name: a copy into the same quarter reads "VT Fall 2026 (draft)".
+      name: uniqueMenuName(quarterMenuName(quarter, kind), s.menus),
       status: 'draft',
       locked: false,
       signedBy: null,
@@ -153,17 +174,20 @@ export function cloneMenu(srcId: string, quarter: string, kind: MenuKind): strin
 /** A new, empty menu in a quarter; returns its id. */
 export function blankMenu(quarter: string, kind: MenuKind): string {
   const id = uid('m');
-  const m: BoMenu = {
-    id,
-    name: quarterMenuName(quarter, kind),
-    kind,
-    quarter,
-    status: 'draft',
-    cycleLen: kind === 'alc' ? 0 : 28,
-    editedBy: BACK_OFFICE_AUTHOR,
-    editedAt: now(),
-  };
-  updateBo((s) => ({ menus: [m, ...s.menus] }));
+  updateBo((s) => {
+    const m: BoMenu = {
+      id,
+      // Never the name of a menu that exists (the live one, most likely): "VT Fall 2026 (draft)".
+      name: uniqueMenuName(quarterMenuName(quarter, kind), s.menus),
+      kind,
+      quarter,
+      status: 'draft',
+      cycleLen: kind === 'alc' ? 0 : 28,
+      editedBy: BACK_OFFICE_AUTHOR,
+      editedAt: now(),
+    };
+    return { menus: [m, ...s.menus] };
+  });
   return id;
 }
 

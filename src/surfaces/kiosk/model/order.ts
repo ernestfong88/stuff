@@ -10,10 +10,11 @@ import type { Order, OrderLine, Resident } from '../../../domain/types';
 import { formatMoney } from '../../../lib/format';
 import type { TextSettings } from '../../../domain/pickupService/settings';
 import { fillText, textBody } from '../../../domain/pickupService/texts';
-import { minuteLabel, rangeLabel } from '../../../domain/pickupService/windows';
+import { minuteLabel } from '../../../domain/pickupService/windows';
 import type { KioskState } from './flow';
 import { defaultMods, dishLongName, dishVersions, drinkName, modsFromWords, versionMods, type DishVersion } from '../../../domain/kioskMenu';
-import { KIOSK_ROOM } from './times';
+import { ASAP_WIN, KIOSK_ROOM, winLabel } from './times';
+import { residentPlan } from '../../backoffice/kit/residentRecords';
 
 /** "Sequoia" (the venue's first name, as residents say it). */
 export function kioskVenue(): string {
@@ -100,7 +101,7 @@ export function buildKioskOrder(s: KioskState, ctx: KioskOrderContext): Order {
     server: 'Kiosk',
     source: 'kiosk',
     meal: s.meal ?? 'Dinner',
-    readyAt: s.win != null ? minuteLabel(s.win) : undefined,
+    readyAt: s.win === ASAP_WIN ? 'ASAP' : s.win != null ? minuteLabel(s.win) : undefined,
     openedAt: ctx.now,
     ...(s.date && s.date !== ctx.today ? { forDate: s.date } : {}),
     utensils: !!s.utensils,
@@ -116,12 +117,12 @@ export function buildKioskOrder(s: KioskState, ctx: KioskOrderContext): Order {
 export function reviewWhen(s: KioskState, today: string): string {
   const day = s.date === today ? 'today' : 'tomorrow';
   const where = s.type === 'delivery' ? `delivered to Apt ${s.resident?.apt ?? ''}` : `pick up at the ${kioskVenue()} Dining basket`;
-  return `${s.meal} ${day}, ${s.win != null ? rangeLabel(s.win) : ''}, ${where}.`;
+  return `${s.meal} ${day}, ${winLabel(s.win)}, ${where}.`;
 }
 
 /** The meal plan in one plain sentence for the review. */
 export function planSentence(r: Resident | null, bill: DinerBilling): string {
-  const plan = (r && mealPlans[r.plan]) || mealPlans.alacarte;
+  const plan = r ? residentPlan(r.id) : mealPlans.alacarte;
   const counts = plan.type === 'Monthly' || plan.type === 'Daily';
   const left = Math.max(0, plan.amt - (r?.consumed ?? 0) - 1);
   const leftText = counts && bill.covered ? ` You'll have ${left} meal${left === 1 ? '' : 's'} left${plan.type === 'Daily' ? ' today.' : '.'}` : '';
@@ -155,7 +156,7 @@ export function kioskTextBody(s: KioskState, o: Order, resident: Resident, bill:
   if (s.note) lines.push(`Changes: ${s.note}`);
   if (bill.outOfPlan > 0) lines.push(`Extra charge ${formatMoney(bill.outOfPlan)} to your apartment.`);
   const where = s.type === 'delivery' ? `, delivered to Apt ${resident.apt}` : `, pick up at the ${kioskVenue()} Dining basket`;
-  const when = `${s.date === today ? 'today' : 'tomorrow'}, ${s.win != null ? rangeLabel(s.win) : ''}${where}`;
+  const when = `${s.date === today ? 'today' : 'tomorrow'}, ${winLabel(s.win)}${where}`;
   return fillText(textBody(texts, 'kioskCopy'), {
     first: resident.name.split(' ')[0],
     name: resident.name,

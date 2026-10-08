@@ -61,7 +61,8 @@ export function triageReasons(o: Order, opts: TriageOptions = {}): TriageReason[
     const up = times.length ? minutesSince(Math.max(...times)) : m;
     add(up >= t('passLate'), up, `${courseWord(c)} up ${up} min, not run`, `Run the ${courseWord(c).toLowerCase()}`);
   }
-  if (waiting.length) {
+  // Drinks waits follow Time to greet: only for the meals the venue times (greet is null otherwise).
+  if (waiting.length && greet) {
     const dm = minutesSince(Math.min(...waiting.map((l) => l.upAt || l.firedAt || o.openedAt)));
     if (dm >= 2) add(dm >= gc.over, dm, `Waiting ${dm} min for drinks`, 'Get the drinks out');
   }
@@ -81,9 +82,13 @@ export function triageReasons(o: Order, opts: TriageOptions = {}): TriageReason[
       if (cm >= (after || Infinity)) add(true, cm, `No check-in after course ${run.c} · ${cm} min`, 'Check in with the table');
     }
   }
+  // Eating past the Alerts & Timing mark, when no check-in reason already covers it.
+  if (st.key === 'eat' && m >= t('eatLate') && !out.some((r) => r.text.startsWith('No check-in'))) add(true, m, `Eating ${m} min`, 'Check on the table');
   if (st.key === 'cook' && m >= t('floorCook')) add(true, m, `Fired ${m} min ago`, 'Check with the kitchen');
-  if (st.key === 'seat' && m >= 8) add(m >= 12, m, `Seated ${m} min, nothing ordered`, 'Help take the order');
-  if (st.key === 'check' && m >= 10)
+  // Waiting to order: red at the Alerts & Timing mark (12 min while it is blank), worth a look from two thirds of it.
+  const seatRed = Number.isFinite(t('seatLate')) ? t('seatLate') : 12;
+  if (st.key === 'seat' && m >= Math.max(1, Math.round((seatRed * 2) / 3))) add(m >= seatRed, m, `Seated ${m} min, nothing ordered`, 'Help take the order');
+  if (st.key === 'check' && m >= Math.min(10, t('closeLate')))
     add(m >= t('closeLate'), m, printerMode(cfg) ? `Sent ${m} min ago, check still open` : `Served ${m} min ago, check still open`, 'Help close the check');
   return out.sort((a, b) => b.score - a.score);
 }

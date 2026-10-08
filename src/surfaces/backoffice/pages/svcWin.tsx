@@ -383,11 +383,12 @@ function Timing({ win }: { win: WindowSettings }) {
   const nocOptions = Array.from({ length: 17 }, (_, i) => 1080 + i * 15);
   return (
     <BoSection title="Timing">
-      <BoRow label="Orders close before the range starts" hint="A range disappears from every booking screen this long before it starts.">
+      <BoRow label="Orders close before the range starts" hint="A range disappears from every booking screen this long before it starts. Up to 4 hours (240 min).">
         <NumberBox
           value={cut}
           unit="min"
           min={0}
+          max={240}
           step={5}
           aria-label="Orders close before the range starts"
           onChange={(v) => setSetting('win.cut', v == null ? undefined : Math.max(0, v))}
@@ -419,6 +420,7 @@ function Timing({ win }: { win: WindowSettings }) {
           value={cfg.pickupPackMinutes}
           unit="min"
           min={0}
+          max={60}
           aria-label="Packing time"
           onChange={(v) => updateConfig({ pickupPackMinutes: Math.max(0, v ?? 5) })}
         />

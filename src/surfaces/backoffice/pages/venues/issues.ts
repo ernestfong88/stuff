@@ -22,6 +22,11 @@ export function venueIssues(settings: VenueAdminView, venue: Venue): VenueIssue[
   const { cycle, alc } = venueMenus(venue, settings.menus);
   if (!cycle && !alc) add('menu', 'danger', 'No menu, so it serves nothing');
   else if (cycle && !venue.menuStartDt) add('menu', 'danger', `${cycle.name} has no week 1 date, so the cycle day can't be worked out`);
+  // A menu on the tablets that the dietitian hasn't signed off.
+  for (const m of [cycle, alc]) {
+    if (m?.approval === 'waiting') add('menu', 'warning', `${m.name} is served, but the dietitian hasn't approved it yet`);
+    else if (m?.approval === 'none') add('menu', 'warning', `${m.name} is served, but it hasn't been sent to the dietitian for approval`);
+  }
   for (const { printer } of venuePrinters(settings, venue.id)) {
     if (!printer.reachable) add('devices', 'warning', `${printer.name} printer can't be reached at ${printer.ip}`);
   }

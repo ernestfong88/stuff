@@ -185,6 +185,11 @@ export interface OrderLine {
   upAt?: number;
   /** Server reminders dismissed for this line. */
   rmOff?: string[];
+  /**
+   * The room (kitchen) whose menu the line was ordered from, when it is not
+   * the dining room's: it is priced at that room's venue prices (see itemIn).
+   */
+  room?: string;
   [k: string]: unknown;
 }
 

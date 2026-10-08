@@ -45,6 +45,8 @@ export const modePhaseKey = (id: ModeId) => `mode:${id}`;
 
 /** A screen's release phase: the plan's call, else its standard phase. */
 export function modePhase(id: ModeId, plan: PhasePlan): Phase {
+  // The Back Office is where phases are switched, so it is always Phase 1 (a later phase would never hide it anyway).
+  if (id === 'backoffice') return 1;
   return plan[modePhaseKey(id)] ?? MODES.find((m) => m.id === id)?.phase ?? 1;
 }
 

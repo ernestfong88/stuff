@@ -58,7 +58,7 @@ export function cardActions(o: Order, ctx: CardContext): CardAction[] {
   const cfg = ctx.cfg ?? DEFAULT_CONFIG;
   const acts: CardAction[] = [];
   const work = courseWork(o);
-  const dq = drinkQueue(o);
+  const dq = drinkQueue(o, cfg.barScreen !== false);
   const drinksToGet = dq.pour.length + dq.up.length;
   const hasFood = o.diners.some((d) => d.items.some((i) => !i.cancelled && !isDrinkLine(i, o)));
 

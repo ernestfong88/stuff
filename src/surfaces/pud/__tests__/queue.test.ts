@@ -132,7 +132,7 @@ describe('hand-off undo', () => {
     expect(handOffMessage('packed', o)).toMatch(/^\w+'s order is set out\.$/);
     expect(handOffMessage('packed', o, true)).toMatch(/set out and done\.$/);
     expect(handOffMessage('onMyWay', order('d', { queueType: 'delivery' }))).toMatch(/'s delivery is on the way\.$/);
-    expect(handOffMessage('delivered', order('d', { queueType: 'delivery' }))).toMatch(/'s delivery is delivered\.$/);
+    expect(handOffMessage('delivered', order('d', { queueType: 'delivery' }))).toMatch(/'s delivery reached Apt \w+\.$/);
   });
 
   it('puts a handed-on order back to ready, and clears the hand-off on a closed one', () => {
@@ -201,10 +201,11 @@ describe('stage wording and the next step', () => {
 describe('completed today', () => {
   it('lists today’s handed-off orders, latest first, with how on time they were', () => {
     const early = order('e', { readyAt: '5:00 PM', readyStampAt: at(16, 58), deliveredAt: at(17, 10), closedAt: at(17, 10) });
-    const late = order('l', { queueType: 'delivery', readyAt: '5:00 PM', readyStampAt: at(16, 59), deliveredAt: at(17, 8), closedAt: at(17, 8) });
+    // Booked 5:00 to 5:15: late counts from the end of the range.
+    const late = order('l', { queueType: 'delivery', readyAt: '5:00 PM', readyStampAt: at(16, 59), deliveredAt: at(17, 23), closedAt: at(17, 23) });
     const yesterday = order('y', { deliveredAt: at(17, 0) - 86_400_000 });
     const list = completedToday([early, late, yesterday], at(0, 0));
-    expect(list.map((o) => o.id)).toEqual(['e', 'l']);
+    expect(list.map((o) => o.id)).toEqual(['l', 'e']);
     expect(completedSummary(list)).toEqual({ count: 2, onTimePercent: 50, pickedUp: 1, delivered: 1 });
     expect(completedView(early)).toEqual({
       headline: 'Ready on time',

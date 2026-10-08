@@ -62,6 +62,8 @@ export interface Charge {
   approvedBy: string | null;
   importedAt: number | null;
   source: 'delivery' | 'item' | 'meal' | 'manual' | string;
+  /** Floor charges: the amount the check last had ("none" once comped or paid another way), so a later correction can be followed. */
+  floorSig?: string;
 }
 
 interface SeedCharge extends Omit<Charge, 'date' | 'approvedAt' | 'importedAt'> {

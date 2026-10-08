@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import modifierRulesSeed from '../../../../data/seed/modifierRules.json';
-import { catalog, getItem, menuVersion, pinSeq } from '../../../../data';
+import { catalog, getItem, itemIn, menuDayOf, menuFor, menuVersion, pinSeq, SEED_MENU_DAY } from '../../../../data';
 import { resetMenuEdits, RULE_DEFAULTS, SEED, updateBo } from '../data';
 import { computeLive, liveModifiers } from '../model/liveOverlay';
 import { tabletIndex } from '../model/tablet';
@@ -53,6 +53,44 @@ describe('computeLive', () => {
   });
 });
 
+describe('each room orders from its own venue', () => {
+  const v = (id: string) => SEED.venues.find((x) => x.id === id)!;
+  const withVenue = (id: string, patch: Partial<BoState['venues'][number]>): BoState => ({ ...SEED, venues: SEED.venues.map((x) => (x.id === id ? { ...x, ...patch } : x)) });
+
+  it("puts today's specials on the venue's cycle day, which follows its week 1", () => {
+    expect(live(SEED).day).toBe(SEED_MENU_DAY);
+    const o = live(withVenue('v1', { menuStartDt: v('v1').menuStartDt! - 7 * 86_400_000 }));
+    const day = ((SEED_MENU_DAY + 7 - 1) % 35) + 1;
+    expect(o.day).toBe(day);
+    const want = SEED.grid.filter((g) => g.menuId === 'm1' && g.day === day && g.meal === 'Dinner' && g.cat === 'Entrees').map((g) => g.recipeId);
+    const today = o.added.filter((a) => a.meal === 'Dinner' && a.item.day === day).map((a) => a.item.id);
+    for (const id of want) expect(today.some((x) => x === id || idx.canonOf.get(x) === id)).toBe(true);
+  });
+
+  it('serves no specials with "No cycle menu" (no quiet fallback to another cycle)', () => {
+    const o = live(withVenue('v1', { menuId: null, menuStartDt: null }));
+    expect(o.day).toBe(0);
+    expect(o.added.filter((a) => a.item.day > 0)).toEqual([]);
+  });
+
+  it("honours the à la carte choice: none hides the every-day dishes, another menu shows its own", () => {
+    const none = live(withVenue('v1', { alcMenuId: null }));
+    expect(none.items['l_burger']?.day).toBe(-1);
+    const bistro = live(withVenue('v1', { alcMenuId: 'm2' }));
+    expect(bistro.items['l_burger']).toBeUndefined();
+    expect(bistro.items['l_wings']?.day).toBe(-1);
+  });
+
+  it("gives The Bistro its own menu and prices, and the dining room keeps Sequoia's", () => {
+    const o = live({ ...SEED, prices: [{ recipeId: 'l_burger', venueId: 'v3', res: null, guest: 77, ala: null }] });
+    expect(o.items['l_burger']).toBeUndefined();
+    const b = o.rooms!.bistro;
+    expect(b).toMatchObject({ venueId: 'v3', day: 0 });
+    expect(b.items['l_burger']).toEqual({ guestPrice: 77 });
+    expect(b.items['l_wings']?.day).toBe(-1);
+  });
+});
+
 describe('liveModifiers', () => {
   it('reproduces the shipped modifier rules from the seed groups', () => {
     const m = liveModifiers(SEED, idx, RULE_DEFAULTS, pinSeq);
@@ -73,5 +111,20 @@ describe('the floor sees Back Office edits', () => {
     expect(catalog.filter((i) => i.name === 'Terrace Burger').length).toBeGreaterThan(1);
     resetMenuEdits();
     expect(getItem('d_burger')?.name).not.toBe('Terrace Burger');
+  });
+
+  it("lists each room's menu at its own prices, and only today's dishes", () => {
+    updateBo(() => ({ prices: [{ recipeId: 'l_burger', venueId: 'v3', res: null, guest: 77, ala: null }] }));
+    expect(itemIn('l_burger', 'bistro')?.guestPrice).toBe(77);
+    expect(itemIn('l_burger', 'sequoia')?.guestPrice).not.toBe(77);
+    expect(getItem('l_burger')?.guestPrice).not.toBe(77);
+    const bistroLunch = Object.values(menuFor('bistro').Lunch).flat().map((i) => i.id);
+    expect(bistroLunch).toContain('l_burger');
+    expect(bistroLunch).not.toContain('l_wings');
+    expect(menuDayOf('bistro')).toBe(0);
+    expect(menuDayOf()).toBe(SEED_MENU_DAY);
+    // Nothing from another cycle day is on the dining room's menu.
+    for (const it of Object.values(menuFor('sequoia').Dinner).flat()) expect([0, SEED_MENU_DAY]).toContain(it.day);
+    resetMenuEdits();
   });
 });

@@ -16,7 +16,7 @@
  */
 import { getItem } from '../data';
 import { DEFAULT_CONFIG, type DiningConfig } from './config';
-import { isAlcohol, isDrink } from './menu';
+import { isAlcohol, isDrink, isSide } from './menu';
 import type { KitchenState, Order, OrderLine } from './types';
 
 export type FoodRoute = 'kds' | 'expo' | 'none';
@@ -62,13 +62,35 @@ export function foodRoute(itemId: string, room?: string, cfg: DiningConfig = DEF
   return (v as FoodRoute) || defaultFoodRoute(itemId);
 }
 
+/**
+ * A line's route: its dish's, except that a side follows its plate. The
+ * sides of an entrée the server makes are the server's too, so they never
+ * sit on the cook line as an orphan ticket.
+ */
+export function lineFoodRoute(
+  line: Pick<OrderLine, 'itemId' | 'parentId'>,
+  items: readonly Pick<OrderLine, 'id' | 'itemId'>[],
+  room?: string,
+  cfg: DiningConfig = DEFAULT_CONFIG,
+): FoodRoute {
+  const own = foodRoute(line.itemId, room, cfg);
+  if (!line.parentId || own !== 'kds' || !isSide(line.itemId)) return own;
+  const parent = items.find((p) => p.id === line.parentId);
+  return parent && foodRoute(parent.itemId, room, cfg) === 'expo' ? 'expo' : own;
+}
+
 /** __kDrinkRouteDefault */
 export function defaultDrinkRoute(itemId: string, room?: string): DrinkRoute {
   return isAlcohol(itemId) && room != null && COCKTAIL_ROOMS.includes(room) ? 'bar' : 'server';
 }
 
-/** __kDrinkRoute: venue override, else the default. */
+/**
+ * __kDrinkRoute: venue override, else the default. With the Bar screen
+ * switched off (its release phase is off) there is no one at a bar, so
+ * every drink goes to the server.
+ */
 export function drinkRoute(itemId: string, room?: string, cfg: DiningConfig = DEFAULT_CONFIG): DrinkRoute {
+  if (cfg.barScreen === false) return 'server';
   const v = cfg.route[overrideKey(room, itemId)];
   return v === 'bar' || v === 'server' ? v : defaultDrinkRoute(itemId, room);
 }
@@ -87,6 +109,18 @@ export function firedState(itemId: string, room?: string, cfg: DiningConfig = DE
 /** __kQms: the state a pick up / delivery line takes when it fires (nothing skips the pass). */
 export function queueFiredState(itemId: string, room?: string, cfg: DiningConfig = DEFAULT_CONFIG): KitchenState {
   return foodRoute(itemId, room, cfg) === 'none' ? 'ready' : firedState(itemId, room, cfg);
+}
+
+const stateFor = (r: FoodRoute, queue: boolean): KitchenState => (r === 'kds' ? 'cooking' : r === 'expo' || queue ? 'ready' : 'cleared');
+
+/** The state a line takes when it fires, with sides following their plate (lineFoodRoute). */
+export function lineFiredState(
+  line: Pick<OrderLine, 'itemId' | 'parentId'>,
+  items: readonly Pick<OrderLine, 'id' | 'itemId'>[],
+  o: Pick<Order, 'room' | 'queueType'>,
+  cfg: DiningConfig = DEFAULT_CONFIG,
+): KitchenState {
+  return stateFor(lineFoodRoute(line, items, o.room, cfg), !!o.queueType);
 }
 
 /**

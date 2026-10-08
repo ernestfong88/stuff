@@ -1,5 +1,6 @@
 import { mealPlans } from '../../../../data';
 import type { MealPlan, Resident } from '../../../../domain/types';
+import { residentPlan } from '../../../backoffice/kit/residentRecords';
 
 export const CARE_LEVELS: Record<string, string> = {
   IL: 'Independent Living',
@@ -45,8 +46,9 @@ export interface PlanStatus {
   period: string;
 }
 
-export function planStatus(r: Pick<Resident, 'plan' | 'consumed'>): PlanStatus {
-  const plan = mealPlans[r.plan] ?? mealPlans.alacarte;
+export function planStatus(r: Pick<Resident, 'plan' | 'consumed'> & { id?: string }): PlanStatus {
+  // The Back Office plan when the resident is known there, else the seed's.
+  const plan = r.id ? residentPlan(r.id) : (mealPlans[r.plan] ?? mealPlans.alacarte);
   const left = plan.amt ? Math.max(0, plan.amt - r.consumed) : null;
   return { plan, left, period: plan.type === 'Daily' ? 'today' : 'this month' };
 }
@@ -56,7 +58,7 @@ export function planStatus(r: Pick<Resident, 'plan' | 'consumed'>): PlanStatus {
  * day allowance, so a monthly plan resets on the 1st and a daily plan
  * tomorrow.
  */
-export function planTill(r: Pick<Resident, 'plan' | 'consumed'>, at: Date): string | null {
+export function planTill(r: Pick<Resident, 'plan' | 'consumed'> & { id?: string }, at: Date): string | null {
   const { plan, left } = planStatus(r);
   if (left == null) return null;
   const d = new Date(at);

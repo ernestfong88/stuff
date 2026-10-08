@@ -115,7 +115,8 @@ describe('allergies and diets', () => {
     const f = { query: '', cat: 'all' as const, tag: null, includeNone: false, sort: { key: 'name' as const, dir: 1 as const } };
     expect(filterDietRows(rows, f)).toHaveLength(8);
     expect(filterDietRows(rows, { ...f, includeNone: true })).toHaveLength(residents.length);
-    expect(filterDietRows(rows, { ...f, cat: 'allergy' })).toHaveLength(4);
+    // Rose, Walter, Joan (peanuts), Mildred, Beatrice.
+    expect(filterDietRows(rows, { ...f, cat: 'allergy' })).toHaveLength(5);
     expect(filterDietRows(rows, { ...f, tag: 'allergy|Gluten' }).map((x) => x.r.name)).toEqual(['Beatrice Sanderson', 'Mildred Vanholder']);
     expect(filterDietRows(rows, { ...f, query: 'mussels' }).map((x) => x.r.name)).toEqual(['Rose Delgado']);
     expect(filterDietRows(rows, { ...f, sort: { key: 'apt', dir: -1 } })[0].r.apt).toBe('412');

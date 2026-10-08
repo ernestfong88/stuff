@@ -2,7 +2,7 @@
 import type { Recipe } from '../../../../store/menuEdits';
 import { cx, toast } from '../../../../ui';
 import { getBo, updateBo, useBo } from '../data';
-import { dishLong, normCategory, proteinLabel, proteinOf, subColor, subOf } from '../model/categories';
+import { categoryLabel, dishLong, normCategory, proteinLabel, proteinOf, subColor, subOf } from '../model/categories';
 import { scoreTone, type RecipeScore } from '../model/score';
 import s from './recipeBits.module.css';
 
@@ -32,7 +32,7 @@ export function CategoryCell({ r }: { r: Recipe }) {
   const protein = normCategory(r.cat) === 'Entrees' ? proteinLabel(proteinOf(r), true) : '';
   return (
     <div>
-      {r.cat}
+      {categoryLabel(r.cat)}
       {(sub || protein) && (
         <div className={s.chips}>
           {sub && (

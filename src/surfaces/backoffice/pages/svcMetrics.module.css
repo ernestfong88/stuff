@@ -154,3 +154,9 @@
     grid-column: 1 / -1;
   }
 }
+.problem {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--danger);
+}

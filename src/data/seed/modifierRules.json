@@ -1,53 +1,111 @@
 {
  "groups": {
-  "g_omelet": {
-   "name": "Omelet Toppings",
+  "g_bread": {
+   "name": "Breads",
    "options": [
     {
-     "name": "Diced Ham"
+     "name": "White"
     },
     {
-     "name": "Crumbled Bacon"
+     "name": "Wheat"
     },
     {
-     "name": "Crumbled Sausage"
+     "name": "Rye"
     },
     {
-     "name": "Diced Turkey"
+     "name": "Sourdough"
     },
     {
-     "name": "Onions"
+     "name": "Multigrain"
     },
     {
-     "name": "Green Peppers"
+     "name": "Gluten-Free Bread",
+     "price": 1.5
     },
     {
-     "name": "Mushrooms"
+     "name": "Croissant"
     },
     {
-     "name": "Tomatoes"
+     "name": "Plain Bagel"
     },
     {
-     "name": "Spinach"
+     "name": "Everything Bagel"
     },
     {
-     "name": "Jalapenos"
+     "name": "Cinnamon Raisin Bagel"
     },
     {
-     "name": "Avocado"
-    },
-    {
-     "name": "Salsa"
+     "name": "Flour Tortilla"
     }
    ],
    "rule": {
     "required": false,
     "min": 0,
-    "max": 4,
+    "max": 1,
     "included": null,
     "extra": 0,
-    "ask": "Choose your fillings",
-    "label": "Fillings"
+    "ask": "Choose your bread",
+    "label": "Bread"
+   }
+  },
+  "g_burger": {
+   "name": "Burgers",
+   "options": [
+    {
+     "name": "Lettuce"
+    },
+    {
+     "name": "Tomato"
+    },
+    {
+     "name": "Onion"
+    },
+    {
+     "name": "Pickles"
+    },
+    {
+     "name": "Grilled Onions"
+    },
+    {
+     "name": "Sauteed Mushrooms"
+    },
+    {
+     "name": "Bacon",
+     "price": 2
+    },
+    {
+     "name": "Avocado",
+     "price": 1.5
+    },
+    {
+     "name": "Jalapenos"
+    },
+    {
+     "name": "Brioche Bun"
+    },
+    {
+     "name": "Wheat Bun"
+    },
+    {
+     "name": "Gluten-Free Bun",
+     "price": 1.5
+    },
+    {
+     "name": "Lettuce Wrap"
+    },
+    {
+     "name": "Double Patty",
+     "price": 4
+    }
+   ],
+   "rule": {
+    "required": false,
+    "min": 0,
+    "max": 0,
+    "included": null,
+    "extra": 0,
+    "ask": "",
+    "label": ""
    }
   },
   "g_cheese": {
@@ -95,8 +153,46 @@
     "label": "Cheese"
    }
   },
-  "g_bread": {
-   "name": "Breads",
+  "g_delimeat": {
+   "name": "Deli Meat",
+   "options": [
+    {
+     "name": "Turkey"
+    },
+    {
+     "name": "Ham"
+    },
+    {
+     "name": "Roast Beef"
+    },
+    {
+     "name": "Pastrami"
+    },
+    {
+     "name": "Chicken Salad"
+    },
+    {
+     "name": "Tuna Salad"
+    },
+    {
+     "name": "Egg Salad"
+    },
+    {
+     "name": "Hummus & Veggies"
+    }
+   ],
+   "rule": {
+    "required": true,
+    "min": 1,
+    "max": 1,
+    "included": null,
+    "extra": 0,
+    "ask": "Choose your meat or salad",
+    "label": "Filling"
+   }
+  },
+  "g_delibread": {
+   "name": "Sandwich Bread",
    "options": [
     {
      "name": "White"
@@ -119,23 +215,11 @@
     },
     {
      "name": "Croissant"
-    },
-    {
-     "name": "Plain Bagel"
-    },
-    {
-     "name": "Everything Bagel"
-    },
-    {
-     "name": "Cinnamon Raisin Bagel"
-    },
-    {
-     "name": "Flour Tortilla"
     }
    ],
    "rule": {
-    "required": false,
-    "min": 0,
+    "required": true,
+    "min": 1,
     "max": 1,
     "included": null,
     "extra": 0,
@@ -193,78 +277,83 @@
     "label": "Dressing"
    }
   },
-  "g_delibread": {
-   "name": "Sandwich Bread",
+  "g_temp": {
+   "name": "Meat Temp",
    "options": [
     {
-     "name": "White"
+     "name": "Rare"
     },
     {
-     "name": "Wheat"
+     "name": "Medium Rare"
     },
     {
-     "name": "Rye"
+     "name": "Medium"
     },
     {
-     "name": "Sourdough"
+     "name": "Medium Well"
     },
     {
-     "name": "Multigrain"
-    },
-    {
-     "name": "Gluten-Free Bread",
-     "price": 1.5
-    },
-    {
-     "name": "Croissant"
+     "name": "Well Done"
     }
    ],
    "rule": {
-    "required": true,
-    "min": 1,
+    "required": false,
+    "min": 0,
     "max": 1,
     "included": null,
     "extra": 0,
-    "ask": "Choose your bread",
-    "label": "Bread"
+    "ask": "How would you like it cooked?",
+    "label": "Cooked"
    }
   },
-  "g_delimeat": {
-   "name": "Deli Meat",
+  "g_omelet": {
+   "name": "Omelet Toppings",
    "options": [
     {
-     "name": "Turkey"
+     "name": "Diced Ham"
     },
     {
-     "name": "Ham"
+     "name": "Crumbled Bacon"
     },
     {
-     "name": "Roast Beef"
+     "name": "Crumbled Sausage"
     },
     {
-     "name": "Pastrami"
+     "name": "Diced Turkey"
     },
     {
-     "name": "Chicken Salad"
+     "name": "Onions"
     },
     {
-     "name": "Tuna Salad"
+     "name": "Green Peppers"
     },
     {
-     "name": "Egg Salad"
+     "name": "Mushrooms"
     },
     {
-     "name": "Hummus & Veggies"
+     "name": "Tomatoes"
+    },
+    {
+     "name": "Spinach"
+    },
+    {
+     "name": "Jalapenos"
+    },
+    {
+     "name": "Avocado"
+    },
+    {
+     "name": "Salsa"
     }
    ],
    "rule": {
-    "required": true,
-    "min": 1,
-    "max": 1,
+    "required": false,
+    "min": 0,
+    "max": 4,
     "included": null,
     "extra": 0,
-    "ask": "Choose your meat or salad",
-    "label": "Filling"
+    "ask": "Choose your fillings",
+    "label": "Fillings"
    }
   },
   "g_pizzacrust": {
@@ -430,35 +519,6 @@
     "ask": "Choose your toppings",
     "label": "Toppings"
    }
-  },
-  "g_temp": {
-   "name": "Meat Temp",
-   "options": [
-    {
-     "name": "Rare"
-    },
-    {
-     "name": "Medium Rare"
-    },
-    {
-     "name": "Medium"
-    },
-    {
-     "name": "Medium Well"
-    },
-    {
-     "name": "Well Done"
-    }
-   ],
-   "rule": {
-    "required": false,
-    "min": 0,
-    "max": 1,
-    "included": null,
-    "extra": 0,
-    "ask": "How would you like it cooked?",
-    "label": "Cooked"
-   }
   }
  },
  "items": {
@@ -466,8 +526,23 @@
    "g_omelet",
    "g_cheese"
   ],
+  "b_eggs": [
+   "g_eggs"
+  ],
+  "b_cereal": [
+   "g_cereal"
+  ],
+  "b_hamsteak": [
+   "g_eggs"
+  ],
+  "b_loaded": [
+   "g_eggs"
+  ],
   "b_bagel": [
    "g_bread"
+  ],
+  "b_pastry": [
+   "g_bkpastry"
   ],
   "b_toast": [
    "g_bread"
@@ -478,7 +553,8 @@
   "l_deli": [
    "g_delibread",
    "g_delimeat",
-   "g_cheese"
+   "g_cheese",
+   "g_deli"
   ],
   "l_omelet": [
    "g_omelet",
@@ -495,12 +571,28 @@
    "g_salad",
    "g_dress"
   ],
+  "l_catch": [
+   "g_catch"
+  ],
   "l_burger": [
    "g_temp",
+   "g_burger",
    "g_cheese"
+  ],
+  "l_orange": [
+   "g_chxbowl"
+  ],
+  "l_salmonburger": [
+   "g_burger"
   ],
   "l_swsalad": [
    "g_dress"
+  ],
+  "l_bakedpot": [
+   "g_potato"
+  ],
+  "l_yam": [
+   "g_potato"
   ],
   "l_sidesalad": [
    "g_dress"
@@ -508,10 +600,17 @@
   "l_toast": [
    "g_bread"
   ],
+  "l_icecream": [
+   "g_icecream"
+  ],
+  "l_housewine": [
+   "g_wine"
+  ],
   "d_deli": [
    "g_delibread",
    "g_delimeat",
-   "g_cheese"
+   "g_cheese",
+   "g_deli"
   ],
   "d_omelet": [
    "g_omelet",
@@ -528,18 +627,40 @@
    "g_salad",
    "g_dress"
   ],
+  "d_catch": [
+   "g_catch"
+  ],
   "d_burger": [
    "g_temp",
+   "g_burger",
    "g_cheese"
+  ],
+  "d_orange": [
+   "g_chxbowl"
+  ],
+  "d_salmonburger": [
+   "g_burger"
   ],
   "d_swsalad": [
    "g_dress"
+  ],
+  "d_bakedpot": [
+   "g_potato"
+  ],
+  "d_yam": [
+   "g_potato"
   ],
   "d_sidesalad": [
    "g_dress"
   ],
   "d_toast": [
    "g_bread"
+  ],
+  "d_icecream": [
+   "g_icecream"
+  ],
+  "d_housewine": [
+   "g_wine"
   ]
  }
 }

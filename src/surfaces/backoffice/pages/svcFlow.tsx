@@ -25,11 +25,12 @@ const TABS = ['courses', 'order', 'pickup'] as const;
 type FlowTab = (typeof TABS)[number];
 const TAB_LABELS: Record<FlowTab, string> = { courses: 'Courses and timing', order: 'Taking the order', pickup: 'Pick up and comps' };
 
-function FlowToggle({ k, label, hint }: { k: FlowFlag; label: string; hint?: string }) {
+function FlowToggle({ k, label, hint, disabled }: { k: FlowFlag; label: string; hint?: string; disabled?: boolean }) {
   const cfg = useConfig();
   return (
     <BoRow label={label} hint={hint}>
       <Toggle
+        disabled={disabled}
         checked={flag(cfg, k)}
         onChange={(v) => updateConfig((c) => ({ flow: { ...c.flow, [k]: v } }))}
         label={<span className="sr-only">{label}</span>}
@@ -164,9 +165,22 @@ function Greet() {
       ),
     },
   ];
+  const problems = venues.flatMap((v) => {
+    const g = greetConfig(v.key);
+    return g.under >= g.over ? [`${v.name}: "Don't count under" (${g.under} min) has to be less than "Slow over" (${g.over} min).`] : [];
+  });
   return (
-    <BoSection flush title="Time to greet" sub="From opening the check to drinks served. Slow ones are flagged to the manager.">
+    <BoSection
+      flush
+      title="Time to greet"
+      sub="From opening the check to drinks served. Slow ones are flagged to the manager on Triage, for the meals timed. Greets under the floor are left out of greet times."
+    >
       <BoTable columns={columns} rows={venues} rowKey={(v) => v.key} />
+      {problems.map((p) => (
+        <p key={p} className={css.problem} role="alert">
+          {p}
+        </p>
+      ))}
     </BoSection>
   );
 }
@@ -180,13 +194,14 @@ function CheckInNudge() {
   return (
     <PerVenue
       label="Light up the Check in button after"
-      hint="Minutes after a course is run. 0 lights it straight away."
+      hint="Minutes after a course is run, 0 to 60. 0 lights it straight away."
       control={(v) => (
         <SettingNumber
           path={`ciMin.${v.key}`}
           label={`${v.name} check-in nudge minutes`}
           placeholder={String(checkInWakeMinutes(v.key))}
           clearRemoves
+          max={60}
           width={58}
         />
       )}
@@ -222,9 +237,9 @@ export default function Page({ goto }: BoPageProps) {
       actions={
         <ConfirmReset
           sections={['ciMin', 'greet', 'pud']}
-          onReset={() => updateConfig({ flow: {}, course: {} })}
+          onReset={() => updateConfig({ flow: {}, course: {}, kitchenMode: 'kds' })}
           title="Put service flow back to the default?"
-          message="Coursing, greet times, pick up tracking and every switch on all three tabs go back to the standard."
+          message="Kitchen screens instead of printers, coursing, greet times, pick up tracking and every switch on all three tabs go back to the standard."
           done="Pacing & Coursing is back to the defaults"
         />
       }
@@ -239,7 +254,16 @@ export default function Page({ goto }: BoPageProps) {
             {flag(cfg, 'checkIn') && <CheckInNudge />}
           </BoSection>
           <BoSection title="Dessert">
-            <FlowToggle k="dessert" label="Offer dessert after the check-in" hint="Off: the table goes to Ready to close once checked in." />
+            <FlowToggle
+              k="dessert"
+              label="Offer dessert after the check-in"
+              disabled={!flag(cfg, 'checkIn')}
+              hint={
+                flag(cfg, 'checkIn')
+                  ? 'Off: the table goes to Ready to close once checked in.'
+                  : 'Not used while "Ask to check in" is off: tables go straight to Ready to close.'
+              }
+            />
           </BoSection>
           <Greet />
         </>

@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { BadgeCheck, ChevronLeft, ShoppingBag, Truck } from 'lucide-react';
 import type { FloorTable } from '../../../domain/types';
 import { useDining } from '../../../store/dining';
+import { now } from '../../../lib/clock';
 import { useConfirm } from '../../../ui';
 import { currentMeal } from '../shared/meal';
 import { FloorPicker } from './FloorPicker';
 import { myChecksAt, pickerTable } from './floorTables';
+import { heldConfirm, useHeldFor } from './heldTable';
 import { NewCheckAsk } from './NewCheckAsk';
 import s from './NewCheckView.module.css';
 
@@ -15,6 +17,7 @@ export function NewCheckView({ room, me, onBack, onOpen }: { room: string; me: s
   const [ask, setAsk] = useState<{ table: FloorTable; mine: ReturnType<typeof myChecksAt> } | null>(null);
 
   const [confirm, confirmDialog] = useConfirm();
+  const heldAt = useHeldFor(room);
 
   const pick = async (table: FloorTable) => {
     const mine = myChecksAt(orders, table.id, me);
@@ -32,6 +35,10 @@ export function NewCheckView({ room, me, onBack, onOpen }: { room: string; me: s
         confirmLabel: 'Start my check',
       });
       if (!ok) return;
+    } else {
+      // Held for a reservation on the host stand: say so before taking it.
+      const held = heldAt(table.id);
+      if (held && !(await confirm(heldConfirm(table.label, held, now())))) return;
     }
     const id = openOrder(table.id, room, currentMeal(), me);
     if (id) onOpen(id);
@@ -53,7 +60,7 @@ export function NewCheckView({ room, me, onBack, onOpen }: { room: string; me: s
         </button>
         <h1 className={s.title}>Pick a table for the new check</h1>
         <p className={s.legend}>
-          White is open. Blue is your check. Yellow outline is another server’s check, with their name. Full means every seat is taken.
+          White is open. Blue is your check. Yellow outline is another server’s check, with their name. Amber outline is reserved by the host. Full means every seat is taken.
         </p>
         <div className={s.away} role="group" aria-label="Not at a table">
           <span className={s.awayLabel}>Not at a table?</span>

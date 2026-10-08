@@ -9,21 +9,11 @@
 import { useCallback, useMemo } from 'react';
 import { rooms } from '../data';
 import { tableName } from '../domain/orders';
-import type { FloorBand, FloorTable, Order } from '../domain/types';
-import { createSharedStore, useShared } from '../lib/sharedStore';
+import type { FloorBand, Order } from '../domain/types';
+import { useShared } from '../lib/sharedStore';
+import { layoutStore, type PlanItem, type SavedLayouts } from './layoutStore';
 
-/** A table or wall on a plan. Walls are drawn but never seated. */
-export interface PlanItem extends FloorTable {
-  type: 'seat' | 'wall';
-}
-
-/** Saved layouts by room key. */
-export type SavedLayouts = Record<string, PlanItem[]>;
-
-export const layoutStore = createSharedStore<SavedLayouts>({}, {
-  persistKey: 'kisco_floorplan_v1',
-  channel: 'kisco-floorplan',
-});
+export { layoutStore, type PlanItem, type SavedLayouts } from './layoutStore';
 
 export interface RoomPlan {
   key: string;

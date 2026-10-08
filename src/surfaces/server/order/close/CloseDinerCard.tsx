@@ -178,7 +178,7 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
           return (
             <div key={line.id} className={s.line}>
               <span className={s.lineName}>{getItem(line.itemId)?.name}</span>
-              <span className={cx(s.linePrice, !price && (view.onPlan ? s.onPlan : s.noCharge), !!price && c.comped && s.struck)}>
+              <span className={cx(s.linePrice, !price && (view.onPlan ? s.onPlan : s.noCharge), !!price && (c.comped || c.hospiceMeal) && s.struck)}>
                 {price ? formatMoney(price) : view.onPlan ? 'Meal plan' : 'No charge'}
               </span>
             </div>
@@ -195,7 +195,10 @@ export function CloseDinerCard(p: CloseDinerCardProps) {
       </div>
 
       {d.seat === 1 && o.queueType === 'delivery' && !o.comp && !p.feeComp && <HospiceWaiver order={o} />}
-      {d.seat === 1 && o.queueType === 'delivery' && !o.comp && <SickWaiver order={o} onComp={p.onFeeComp} comp={p.feeComp} onUndo={p.onFeeUndo} />}
+      {/* No sick waiver to offer on a fee that is already $0 (unless one is granted, so it can be undone). */}
+      {d.seat === 1 && o.queueType === 'delivery' && !o.comp && (fee.amt > 0 || !!o.sickTray) && (
+        <SickWaiver order={o} onComp={p.onFeeComp} comp={p.feeComp} onUndo={p.onFeeUndo} />
+      )}
 
       {c.needsDrop && (
         <div className={s.pay}>

@@ -12,7 +12,7 @@ import { isoDate } from '../../../domain/pickup';
 import { useDining } from '../../../store/dining';
 import { setSetting } from '../../../store/serviceConfig';
 import { Button, Chip, Stat, Tabs, toast } from '../../../ui';
-import { STANDING_SLOTS, addDays, itemsLeft, menuWeek, mondayOf, weekState, type WeekState } from '../../../domain/assocMeals/menu';
+import { STANDING_SLOTS, addDays, itemsLeft, menuWeek, weekStartOf, weekState, type WeekState } from '../../../domain/assocMeals/menu';
 import { useAssocSettings } from '../../../domain/assocMeals/settings';
 import { assocWindows, isLive, windowMinutes, type AssocMealName } from '../../../domain/assocMeals/windows';
 import {
@@ -51,7 +51,7 @@ export default function Page({ goto }: BoPageProps) {
   const menuSettings = useAssocMenuSettings();
   const { assocOrders } = useDining();
   const todayIso = isoDate(0);
-  const current = mondayOf(todayIso);
+  const current = weekStartOf(todayIso);
 
   // This week's associate meals, from the dining store.
   const thisWeek = assocOrders.filter((o) => o.date >= current && o.date <= addDays(current, 6));
@@ -131,7 +131,7 @@ export default function Page({ goto }: BoPageProps) {
 
 /** The chef's special for each meal period, day by day, from the menu cycle. */
 function MenuSection({ settings, todayIso }: { settings: AssocMenuSettings; todayIso: string }) {
-  const current = mondayOf(todayIso);
+  const current = weekStartOf(todayIso);
   const [monday, setMonday] = useState(current);
   const week = menuWeek(monday, todayIso, settings.weeks);
   const state = weekState(week, monday, todayIso);

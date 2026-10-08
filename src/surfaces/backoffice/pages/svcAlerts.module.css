@@ -62,3 +62,7 @@
   color: var(--s500);
   white-space: nowrap;
 }
+.problem {
+  font-weight: 600;
+  color: var(--danger);
+}

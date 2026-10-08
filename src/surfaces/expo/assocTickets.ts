@@ -26,11 +26,14 @@ export const NOC_CLOSE = '8:00 PM';
 
 const isLive = (m: AssocMeal) => !(m.status || '').startsWith('Cancelled');
 
-/**
- * Today's associate meals still to hand over. Where pick ups are not
- * tracked, a meal is done once it is ready.
- */
-export function assocTickets(meals: readonly AssocTicketMeal[], today: string, trackPickup: boolean): AssocTicket[] {
+/** Minutes after its window starts that a meal nobody fired counts as missed (a no-show) and leaves the pass. */
+export const MISSED_AFTER_MIN = 60;
+
+/** Never fired, and its window started over an hour ago: lunch meals at dinner, say. */
+export const isMissed = (t: AssocTicket, now: number) => !t.meal.firedAt && !t.meal.readyAt && !!t.at && now - t.at > MISSED_AFTER_MIN * MIN;
+
+/** Today's live associate meals not yet handed over, in window order. */
+function todaysTickets(meals: readonly AssocTicketMeal[], today: string, trackPickup: boolean): AssocTicket[] {
   const gone = (m: AssocTicketMeal) => m.status === 'Picked up' || (!trackPickup && !!m.readyAt);
   return meals
     .filter((m) => m.date === today && isLive(m) && !gone(m))
@@ -42,6 +45,21 @@ export function assocTickets(meals: readonly AssocTicketMeal[], today: string, t
       return { meal, at, noc };
     })
     .sort((a, b) => a.at - b.at);
+}
+
+/**
+ * Today's associate meals still to hand over. Where pick ups are not
+ * tracked, a meal is done once it is ready. With `now`, meals that were
+ * never fired for a window long past are left out (see missedAssocTickets).
+ */
+export function assocTickets(meals: readonly AssocTicketMeal[], today: string, trackPickup: boolean, now?: number): AssocTicket[] {
+  const list = todaysTickets(meals, today, trackPickup);
+  return now == null ? list : list.filter((t) => !isMissed(t, now));
+}
+
+/** Today's meals nobody fired whose window is long past. */
+export function missedAssocTickets(meals: readonly AssocTicketMeal[], today: string, trackPickup: boolean, now: number): AssocTicket[] {
+  return todaysTickets(meals, today, trackPickup).filter((t) => isMissed(t, now));
 }
 
 /** Planned meals for today, the count on the Associates filter. */

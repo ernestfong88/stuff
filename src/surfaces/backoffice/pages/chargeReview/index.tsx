@@ -7,6 +7,7 @@ import { BoPage, BoTable, setBillingList, useBilling, useResidentRecords, type B
 import type { BoPageProps } from '../../nav';
 import { BACK_OFFICE_USER } from '../../seed/associates';
 import type { Charge } from '../../seed/billing';
+import { careLevel } from '../../seed/residents';
 import { approveAll, chargeStep, chargesFor, itemLabel, sendToBilling, toggleApproval, type ChargeTab } from './charges';
 import { EditAmountModal } from './EditAmountModal';
 import { ManualChargeModal } from './ManualChargeModal';
@@ -62,7 +63,7 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
     const total = ready.reduce((sum, c) => sum + c.amount, 0);
     const ok = await ask({
       title: `Send ${ready.length} ${ready.length === 1 ? 'charge' : 'charges'} to billing?`,
-      message: `$${total} goes on residents' accounts. Once sent, a charge can no longer be changed or voided here.`,
+      message: `$${total.toFixed(2)} goes on residents' accounts. Once sent, a charge can no longer be changed or voided here.`,
       confirmLabel: 'Send to billing',
     });
     if (!ok) return;
@@ -77,7 +78,7 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
       render: (c) => (
         <span className={s.resident}>
           <span className={cx(s.name, !c.active && s.voided)}>{nameOf(c.residentId)}</span>
-          {c.level && <span className={s.level}>{c.level}</span>}
+          {(careLevel(c.residentId) ?? c.level) && <span className={s.level}>{careLevel(c.residentId) ?? c.level}</span>}
         </span>
       ),
     },
@@ -92,7 +93,7 @@ export default function ChargeApprovalPage(_props: BoPageProps) {
         </span>
       ),
     },
-    { key: 'amount', header: 'Amount', align: 'right', width: 80, render: (c) => <span className={cx(s.amount, !c.active && s.voided)}>${c.amount}</span> },
+    { key: 'amount', header: 'Amount', align: 'right', width: 80, render: (c) => <span className={cx(s.amount, !c.active && s.voided)}>${Number(c.amount).toFixed(2)}</span> },
     { key: 'status', header: 'Status', render: (c) => <Status c={c} /> },
     {
       key: 'actions',

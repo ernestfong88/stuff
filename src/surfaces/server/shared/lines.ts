@@ -20,14 +20,17 @@ export interface DrinkQueue {
   up: DrinkLine[];
 }
 
-/** __kDrinkQ: sent drinks by where they are. */
-export function drinkQueue(o: Order): DrinkQueue {
+/**
+ * __kDrinkQ: sent drinks by where they are. With the Bar screen switched
+ * off (barOn false) a drink sent to the bar before that is the server's to pour.
+ */
+export function drinkQueue(o: Order, barOn = true): DrinkQueue {
   const q: DrinkQueue = { pour: [], bar: [], up: [] };
   for (const diner of o.diners ?? []) {
     for (const line of diner.items) {
       if (!line.drink || line.cancelled) continue;
       if (line.kitchenState === 'pour' || line.kitchenState === 'bar' || line.kitchenState === 'up') {
-        q[line.kitchenState].push({ line, diner });
+        q[line.kitchenState === 'bar' && !barOn ? 'pour' : line.kitchenState].push({ line, diner });
       }
     }
   }

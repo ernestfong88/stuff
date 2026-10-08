@@ -26,7 +26,7 @@ import { RecallMenu } from '../kitchen/RecallMenu';
 import type { SubcategoryChoices } from '../../domain/subcategories';
 import { useBumpBar } from '../kitchen/useBumpBar';
 import { useThreshold } from '../kitchen/useThreshold';
-import { kitchenPrinters, kitchenScreens, screenOptions, useDeviceScreen, useVenueSettings } from '../../store/venueSettings';
+import { kitchenHasExpo, kitchenPrinters, kitchenScreens, screenOptions, useDeviceScreen, useVenueSettings } from '../../store/venueSettings';
 import { AllDayBar } from './AllDayBar';
 import { allDayCounts, averageTicketMinutes, bumpLineIds, buildCookTickets, screenLines, ticketStatus, type CookLine, type CookTicket } from './cookTickets';
 import { CookTicketCard } from './CookTicketCard';
@@ -68,9 +68,11 @@ function CookLine() {
     (itemId: string, room: string) => screensForItem(itemId, room, kitchenScreens(settings, room), choices),
     [settings, choices],
   );
+  // Per kitchen: KDS Settings says whether it has an expo station, and the Expo screen's phase must be on.
+  const expoAt = useCallback((room: string) => expoActive && kitchenHasExpo(settings, room), [expoActive, settings]);
   const tickets = useMemo(
-    () => buildCookTickets(orders, { screen: screen.key, expoActive, cfg, screensOf }),
-    [orders, screen.key, expoActive, cfg, screensOf],
+    () => buildCookTickets(orders, { screen: screen.key, expoActive: expoAt, cfg, screensOf }),
+    [orders, screen.key, expoAt, cfg, screensOf],
   );
 
   const bumped = recentBumps.flatMap((b) => {
@@ -101,7 +103,7 @@ function CookLine() {
   const bumpTicket = (t: CookTicket) => {
     const st = ticketStatus(t, screen.key);
     if (st.onlyCancelled) return clearCancelled(t);
-    if (st.allReady && !expoActive) return clearTicket(t);
+    if (st.allReady && !expoAt(t.order.room)) return clearTicket(t);
     dining.markCourseReady(t.orderId, t.course, bumpLineIds(t, screen.key, screensOf));
     clearCancelled(t);
   };
@@ -180,7 +182,7 @@ function CookLine() {
                 ticket={t}
                 index={i}
                 screen={screen.key}
-                expoActive={expoActive}
+                expoActive={expoAt(t.order.room)}
                 lateAfter={lateAfter}
                 now={clock}
                 cfg={cfg}

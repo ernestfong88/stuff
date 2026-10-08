@@ -22,3 +22,10 @@
   background: var(--gold);
   color: var(--night);
 }
+.note {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px dashed currentColor;
+  font-weight: 800;
+  white-space: normal;
+}

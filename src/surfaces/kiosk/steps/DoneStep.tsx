@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react';
 import { hasMobile, maskPhone } from '../../../domain/pickupService/phones';
 import { mobileOverrides, useServiceSettings } from '../../../domain/pickupService/settings';
-import { rangeLabel } from '../../../domain/pickupService/windows';
+import { winLabel } from '../model/times';
 import { kioskVenue } from '../model/order';
 import { KButton } from '../ui/KButton';
 import { Panel } from '../ui/Layout';
@@ -14,7 +14,7 @@ export function DoneStep({ flow, today, onShowText }: { flow: KioskFlow; today: 
   const r = st.resident;
   const svc = useServiceSettings();
   const meal = `${String(st.meal ?? 'meal').toLowerCase()}${today ? '' : ' tomorrow'}`;
-  const range = st.win != null ? rangeLabel(st.win) : '';
+  const range = winLabel(st.win);
   const texts = !!r && hasMobile(mobileOverrides(svc), r.id);
   const later = st.type === 'delivery' ? "We'll text you again when it's on the way." : "We'll text you again when it's ready.";
   return (

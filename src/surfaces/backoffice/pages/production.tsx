@@ -12,7 +12,7 @@ import { uid } from '../../../lib/id';
 import { useDining } from '../../../store/dining';
 import {
   DEFAULT_DIRECTOR,
-  PLAN_DAYS,
+  productionWeeks,
   PRODUCTION_VENUES,
   getProductionVenue,
   prepTasks,
@@ -28,14 +28,12 @@ import {
   type ProductionRow,
   type ProductionState,
 } from '../../../store/production';
-import { Button, Chip, Tabs, TextField, cx, toast } from '../../../ui';
+import { Button, Chip, Tabs, TextField, cx, toast, useConfirm } from '../../../ui';
 import { BoPage, BoSection, NumberBox } from '../kit';
 import type { BoPageProps } from '../nav';
 import { printProductionSheets, printProductionWeek } from './productionPrint';
 import s from './production.module.css';
 
-const WEEK = 7;
-const WEEKS = Math.ceil(PLAN_DAYS / WEEK);
 
 function dayName(day: ProductionDay): string {
   if (day.offset === 0) return 'Today';
@@ -58,8 +56,11 @@ export default function Page(_props: BoPageProps) {
   const [venueId, setVenueId] = useState(PRODUCTION_VENUES[0].id);
   const [week, setWeek] = useState(0);
   const [offset, setOffset] = useState(0);
+  const [ask, confirmDialog] = useConfirm();
   const venue = getProductionVenue(venueId);
-  const weeks = Array.from({ length: WEEKS }, (_, w) => Array.from({ length: WEEK }, (_, i) => productionDay(venueId, w * WEEK + i)).filter((d) => d.offset < PLAN_DAYS));
+  // Weeks run Sunday to Saturday, like the menu cycle's: this week is today to Saturday.
+  const weekOffsets = productionWeeks();
+  const weeks = weekOffsets.map((offs) => offs.map((o) => productionDay(venueId, o)));
   const days = weeks[week];
   const day = days.find((d) => d.offset === offset) ?? days[0];
   const meals = [...new Set(day.rows.map((r) => r.meal))];
@@ -76,17 +77,30 @@ export default function Page(_props: BoPageProps) {
     ).length;
   const pickWeek = (w: number) => {
     setWeek(w);
-    setOffset(w * WEEK);
+    setOffset(weekOffsets[w]?.[0] ?? 0);
   };
-  const confirmWeek = () => {
-    let n = 0;
-    for (const d of days) {
-      const open = d.rows.filter((r) => !productionCount(state, venueId, d.iso, r).ok);
-      if (!open.length) continue;
-      updateProductionCounts(venueId, d.iso, open, { ok: true, by: DEFAULT_DIRECTOR });
-      n += open.length;
-    }
-    toast(`${n} ${n === 1 ? 'count' : 'counts'} confirmed for ${week === 0 ? 'this week' : 'next week'} at ${venue.name}`, { tone: 'success' });
+  /** Confirm every open count of the week, after asking, with Undo (it locks in days nobody has checked yet). */
+  const confirmWeek = async () => {
+    const open = days.map((d) => ({ iso: d.iso, rows: d.rows.filter((r) => !productionCount(state, venueId, d.iso, r).ok) })).filter((d) => d.rows.length);
+    const n = open.reduce((sum, d) => sum + d.rows.length, 0);
+    if (!n) return;
+    const when = week === 0 ? 'this week' : 'next week';
+    const ok = await ask({
+      title: `Confirm all ${n} ${n === 1 ? 'count' : 'counts'} ${when}?`,
+      message: `Every count ${when} at ${venue.name} that nobody has confirmed yet is locked in at its current number, including days not checked yet. You can undo it straight after.`,
+      confirmLabel: `Confirm ${n} ${n === 1 ? 'count' : 'counts'}`,
+    });
+    if (!ok) return;
+    for (const d of open) updateProductionCounts(venueId, d.iso, d.rows, { ok: true, by: DEFAULT_DIRECTOR });
+    toast(`${n} ${n === 1 ? 'count' : 'counts'} confirmed for ${when} at ${venue.name}`, {
+      tone: 'success',
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          for (const d of open) updateProductionCounts(venueId, d.iso, d.rows, { ok: false, by: undefined, at: undefined });
+        },
+      },
+    });
   };
 
   return (
@@ -128,10 +142,12 @@ export default function Page(_props: BoPageProps) {
           options={weeks.map((ds, w) => ({ id: String(w), label: `${w === 0 ? 'This week' : 'Next week'} · ${weekRange(ds)}` }))}
         />
         <span className={s.weekStatus}>
-          {weekDone === weekTotal ? 'Every count this week is confirmed' : `${weekDone} of ${weekTotal} counts confirmed this week`}
+          {weekDone === weekTotal
+            ? `Every count ${week === 0 ? 'this' : 'next'} week is confirmed`
+            : `${weekDone} of ${weekTotal} counts confirmed ${week === 0 ? 'this' : 'next'} week`}
         </span>
         {weekDone < weekTotal && (
-          <Button size="sm" variant="soft" icon={<CheckCheck size={15} />} onClick={confirmWeek}>
+          <Button size="sm" variant="soft" icon={<CheckCheck size={15} />} onClick={() => void confirmWeek()}>
             Confirm all this week
           </Button>
         )}
@@ -148,7 +164,7 @@ export default function Page(_props: BoPageProps) {
               </span>
               <span className={s.dayMeta}>
                 {d.cycleDay ? `Cycle day ${d.cycleDay} · ` : ''}
-                {all ? 'All confirmed' : `${done} of ${d.rows.length}`}
+                {all ? 'All confirmed' : `${done} of ${d.rows.length} confirmed`}
               </span>
               {all && (
                 <span className={s.ready}>
@@ -189,6 +205,7 @@ export default function Page(_props: BoPageProps) {
       <PrepTasks state={state} day={day} dayLabel={dayName(day)} />
 
       {day.offset === 0 && <MadeAndOrdered venueId={venueId} state={state} />}
+      {confirmDialog}
     </BoPage>
   );
 }

@@ -1,29 +1,33 @@
 /** Today's menu for the 86 list. */
-import { menu } from '../../../data';
-import { TODAY_MENU_DAY } from '../../server/order/menu/menuCatalog';
+import { DINING_ROOM, menuFor, rooms } from '../../../data';
 import type { MealName, MenuItem } from '../../../domain/types';
-
-/** Day of the menu cycle being served (the server tablet's); items with day 0 are on every day. */
-export const MENU_CYCLE_DAY = TODAY_MENU_DAY;
 
 /** __kMealNow: the meal the clock is in. */
 export function mealByHour(hour: number): MealName {
   return hour >= 15 ? 'Dinner' : hour >= 10 ? 'Lunch' : 'Breakfast';
 }
 
-/** Today's items of a meal by category, each item once, matching the search. */
+/**
+ * Today's items of a meal by category, each item once, matching the search:
+ * every room's menu (the dining room's first), each room on its own venue's
+ * cycle day, so the kitchen can 86 anything any room serves today.
+ */
 export function menuForToday(meal: MealName, query: string): Array<[string, MenuItem[]]> {
   const seen = new Set<string>();
   const q = query.trim().toLowerCase();
-  return Object.entries(menu[meal] ?? {})
-    .map(([cat, items]): [string, MenuItem[]] => [
-      cat,
-      items.filter((it) => {
-        if (!(it.day == null || it.day === 0 || it.day === MENU_CYCLE_DAY) || seen.has(it.id)) return false;
+  const byCat = new Map<string, MenuItem[]>();
+  const order = [DINING_ROOM, ...Object.keys(rooms).filter((r) => r !== DINING_ROOM)];
+  for (const room of order) {
+    for (const [cat, items] of Object.entries(menuFor(room)[meal] ?? {})) {
+      const list = byCat.get(cat) ?? [];
+      for (const it of items) {
+        if (seen.has(it.id)) continue;
         seen.add(it.id);
-        return !q || it.name.toLowerCase().includes(q);
-      }),
-    ])
-    .filter(([, items]) => items.length > 0);
+        if (!q || it.name.toLowerCase().includes(q)) list.push(it);
+      }
+      byCat.set(cat, list);
+    }
+  }
+  return [...byCat].filter(([, items]) => items.length > 0);
 }
 

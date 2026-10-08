@@ -4,7 +4,9 @@ import { startOfToday } from '../../lib/clock';
 import { useView } from '../../shell/router';
 import { useConfig } from '../../store/config';
 import { useDining } from '../../store/dining';
-import { useNow } from '../../ui';
+import { toast, useConfirm, useNow } from '../../ui';
+import { pickupWho } from '../../domain/pickup';
+import type { Order } from '../../domain/types';
 import { CompletedList } from './components/CompletedList';
 import { OpenQueue } from './components/OpenQueue';
 import { QueueToolbar } from './components/QueueToolbar';
@@ -31,7 +33,32 @@ export function PudBoard({ onOpen, onNew, local }: PudBoardProps) {
   const filter: QueueFilter = FILTERS.includes(view) ? view : 'all';
   const showDone = local ? own.done : rest[0] === 'done';
   const at = useNow(15_000);
-  const { orders, history, kitchenMode } = useDining();
+  const { orders, history, kitchenMode, setOrders, setHistory } = useDining();
+  const [ask, confirmDialog] = useConfirm();
+
+  /** Reopening changes today's numbers, so it asks first and can be undone. */
+  const reopenCompleted = async (o: Order) => {
+    const ok = await ask({
+      title: `Reopen ${pickupWho(o)}'s ${o.queueType === 'delivery' ? 'delivery' : 'pick up'}?`,
+      message: 'It goes back on the list as not handed off, and comes off Completed today, so you can correct it.',
+      confirmLabel: 'Reopen',
+    });
+    if (!ok) return;
+    reopen(o);
+    setView(filter);
+    onOpen(o.id);
+    toast(`${pickupWho(o)}'s order is open again.`, {
+      tone: 'success',
+      action: {
+        label: 'Undo',
+        // Back to Completed today as it was, with its hand-off time.
+        onClick: () => {
+          setOrders((list) => list.filter((x) => x.id !== o.id));
+          setHistory((list) => [o, ...list.filter((x) => x.id !== o.id)]);
+        },
+      },
+    });
+  };
   const cfg = useConfig();
   const svc = useServiceSettings();
   const ctx = useTextContext();
@@ -64,11 +91,7 @@ export function PudBoard({ onOpen, onNew, local }: PudBoardProps) {
           <CompletedList
             list={done.filter((o) => matchesFilter(o, filter))}
             mobile={ctx.mobile}
-            onReopen={(o) => {
-              reopen(o);
-              setView(filter);
-              onOpen(o.id);
-            }}
+            onReopen={(o) => void reopenCompleted(o)}
           />
         ) : (
           <OpenQueue
@@ -84,6 +107,7 @@ export function PudBoard({ onOpen, onNew, local }: PudBoardProps) {
           />
         )}
       </div>
+      {confirmDialog}
     </div>
   );
 }

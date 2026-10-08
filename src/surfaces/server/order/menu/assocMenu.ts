@@ -5,8 +5,9 @@
  * the tablet items its recipes are.
  */
 import { catalog } from '../../../../data';
-import type { AssocMealKind, AssocMenuItem } from '../../../../domain/assocMeals/menu';
-import type { CatalogItem, MealName, MenuItem } from '../../../../domain/types';
+import { itemsLeft, type AssocMealKind, type AssocMenuItem } from '../../../../domain/assocMeals/menu';
+import { serverRungCount } from '../../../../domain/assocMeals/serverRung';
+import type { AssocMeal, CatalogItem, MealName, MenuItem, Order } from '../../../../domain/types';
 import { assocMenuFor } from '../../../../store/assocMenu';
 import { recipeInfo } from '../../../../store/recipes';
 
@@ -17,6 +18,8 @@ export interface AssocSection {
   /** Shown as a special: the chef's special of the day or the special of the week. */
   special: boolean;
   items: MenuItem[];
+  /** The associate menu choice behind the section (its daily limit, for the special). */
+  menuItem: AssocMenuItem;
 }
 
 /** The section heading for a choice: what kind of choice it is, then its name. */
@@ -48,7 +51,25 @@ export function assocSections(menu: AssocMenuItem[], meal: MealName, items: Cata
     sub: m.sub,
     special: !!(m.special || m.weekly),
     items: m.recipeIds.map((id) => tabletItemFor(id, meal, items)).filter((x): x is MenuItem => !!x),
+    menuItem: m,
   }));
+}
+
+/**
+ * How many more of a limited choice (the associate special) can be had
+ * today: its daily limit less the meals planned in the Associate App and the
+ * ones servers rang in on a tablet. Null when it has no limit.
+ */
+export function assocSectionLeft(sec: AssocSection, planned: AssocMeal[], checks: readonly Order[], todayIso: string): number | null {
+  const left = itemsLeft(planned, todayIso, sec.menuItem);
+  if (left == null) return null;
+  const rung = serverRungCount(
+    checks,
+    todayIso,
+    sec.items.map((i) => i.id),
+    sec.menuItem.capMeals,
+  );
+  return Math.max(0, left - rung);
 }
 
 /** Today's associate menu for this meal (any day, so a server can always ring one in). */

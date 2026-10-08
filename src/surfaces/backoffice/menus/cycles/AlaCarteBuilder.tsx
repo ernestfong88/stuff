@@ -9,7 +9,7 @@ import { addPlacements, removePlacements, setAnyDayMeals } from '../menuActions'
 import { dishLong, normCategory } from '../model/categories';
 import { menuState, venuesAt } from '../../../../domain/menuCycle';
 import { countAlc } from '../model/alcStandards';
-import { DINING_VENUE_ID } from '../model/liveOverlay';
+import { roomVenue } from '../../../../store/venueMenu';
 import { isUpchargeRecipe } from '../model/tablet';
 import type { BuilderMeal } from '../model/types';
 import { RecipeDialog } from '../recipes/RecipeDialog';
@@ -56,7 +56,8 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
   const venues = useMemo(() => venuesAt(bo.venues, now()), [bo.venues]);
   const own = everyDay ? `${m.id}:everyday` : m.id;
   const where = venues.filter((v) => (!everyDay && v.menuId === m.id) || v.alcMenuId === own).map((v) => v.name);
-  const live = venues.some((v) => v.id === DINING_VENUE_ID && (v.menuId === m.id || v.alcMenuId === own));
+  // Servers see it now when a room's tablets order from a venue that serves it (each room orders from its first active venue).
+  const live = venues.some((v) => !!v.room && roomVenue(v.room, venues)?.id === v.id && ((!everyDay && v.menuId === m.id) || v.alcMenuId === own));
 
   const rows = useMemo(() => {
     const by = new Map<string, Row>();

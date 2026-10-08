@@ -1,17 +1,18 @@
 import type { CSSProperties } from 'react';
-import { rooms } from '../../../data';
 import type { FloorTable } from '../../../domain/types';
 import { useDining } from '../../../store/dining';
+import { useRoomPlan } from '../../../store/floorLayout';
 import { cx } from '../../../ui';
-import { pickerTable } from './floorTables';
+import { pickerTable, seatsText } from './floorTables';
+import { heldWord, useHeldFor } from './heldTable';
 import s from './FloorPicker.module.css';
 
-/** The venue's floor plan for picking the table of a new check. */
+/** The venue's floor plan (as saved in Back Office) for picking the table of a new check. */
 export function FloorPicker({ room, me, onPick }: { room: string; me: string; onPick: (table: FloorTable) => void }) {
   const { orders } = useDining();
-  const plan = rooms[room];
-  if (!plan) return null;
-  const tables = plan.tables.filter((t) => t.type === 'seat');
+  const plan = useRoomPlan(room);
+  const heldAt = useHeldFor(room);
+  const tables = plan.tables;
   const box = (b: { x: number; y: number; w: number; h: number }): CSSProperties => ({
     left: `${b.x}%`,
     top: `${b.y}%`,
@@ -28,14 +29,22 @@ export function FloorPicker({ room, me, onPick }: { room: string; me: string; on
       ))}
       {tables.map((t, i) => {
         const p = pickerTable(t, orders, me);
-        const status = p.mine ? 'Your check' : p.others.length ? p.others.join(', ') : 'Open';
+        const held = !p.mine && !p.others.length ? heldAt(t.id) : null;
+        const status = p.mine ? 'Your check' : p.others.length ? p.others.join(', ') : held ? heldWord(held) : 'Open';
         return (
           <button
             key={t.id}
-            className={cx(s.table, 'pop-in', t.shape === 'round' && s.round, p.mine && s.mine, !p.mine && p.others.length > 0 && s.other)}
+            className={cx(
+              s.table,
+              'pop-in',
+              t.shape === 'round' && s.round,
+              p.mine && s.mine,
+              !p.mine && p.others.length > 0 && s.other,
+              held && s.held,
+            )}
             style={{ ...box(t), animationDelay: `${i * 12}ms` }}
             onClick={() => onPick(t)}
-            aria-label={`${t.label}: ${status}${p.covers ? `, ${p.covers} of ${p.seats} seats taken` : ''}`}
+            aria-label={`${t.label}: ${status}${p.covers ? `, ${seatsText(p)}` : ''}`}
           >
             <span className={s.label}>{t.label}</span>
             <span className={s.status}>{status}</span>

@@ -1,8 +1,10 @@
 import { Archive } from 'lucide-react';
+import { useState } from 'react';
 import { rooms } from '../../../../data';
 import { patchVenue, type Venue, type VenueAdminView } from '../../../../store/venueSettings';
 import { Button, TextField, toast, useConfirm } from '../../../../ui';
 import { BoField, BoSection, BoSelect } from '../../kit';
+import { venueNameProblem } from './venueName';
 import s from './venues.module.css';
 
 /** "Sequoia / Evergreen kitchen", or who else cooks there. */
@@ -13,6 +15,8 @@ export function kitchenName(room: string): string {
 /** A venue's name, the kitchen it cooks in, and retiring it. */
 export function VenueDetails({ settings, venue, onRetired }: { settings: VenueAdminView; venue: Venue; onRetired: () => void }) {
   const [ask, confirmDialog] = useConfirm();
+  const [nameDraft, setNameDraft] = useState<string | null>(null);
+  const nameProblem = nameDraft == null ? null : venueNameProblem(nameDraft, settings.venues, venue.id);
   const sharing = venue.room ? settings.venues.filter((v) => v.active && v.id !== venue.id && v.room === venue.room) : [];
 
   const retire = async () => {
@@ -32,7 +36,20 @@ export function VenueDetails({ settings, venue, onRetired }: { settings: VenueAd
     <>
       <BoSection title="Name and kitchen">
         <div className={s.form}>
-          <TextField label="Venue name" hint="What servers, residents and the menus call it." value={venue.name} onChange={(e) => patchVenue(venue.id, { name: e.target.value })} />
+          <TextField
+            label="Venue name"
+            hint="What servers, residents and the menus call it."
+            value={nameDraft ?? venue.name}
+            error={nameProblem}
+            onChange={(e) => {
+              const v = e.target.value;
+              setNameDraft(v);
+              // Saves as you type while the name is fine; a blank or taken name isn't saved.
+              if (!venueNameProblem(v, settings.venues, venue.id)) patchVenue(venue.id, { name: v.trim() });
+            }}
+            onBlur={() => setNameDraft(null)}
+            onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+          />
           <BoField
             label="Kitchen"
             hint={

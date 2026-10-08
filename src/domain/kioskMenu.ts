@@ -3,7 +3,7 @@
  * dishes, sides, soups, desserts and drinks, without anything 86'd, plus
  * the plain-language names and short lists residents see.
  */
-import { catalog, modifierRules } from '../data';
+import { modifierRules, todayCatalog } from '../data';
 import { isAlcohol } from './menu';
 import type { CatalogItem, MealName, ModSelection } from './types';
 
@@ -180,9 +180,13 @@ export interface KioskMenu {
 const SOUP = /soup|chowder|bisque|chili|gumbo/i;
 const isBottle = (it: CatalogItem) => /^BTL\s*-/i.test(it.name);
 
-/** What the kiosk offers for a meal; `isOut` hides what the kitchen 86'd. */
+/**
+ * What the kiosk offers for a meal; `isOut` hides what the kitchen 86'd.
+ * Only today's menu: the dining room's every-day items and today's specials
+ * (a special taken off in Menu Cycle, or another day's, is not offered).
+ */
 export function kioskMenu(meal: MealName, isOut: (id: string) => boolean): KioskMenu {
-  const items = catalog.filter((it) => it.meal === meal && !isOut(it.id) && it.category !== 'Snacks');
+  const items = todayCatalog().filter((it) => it.meal === meal && !isOut(it.id) && it.category !== 'Snacks');
   const inCat = (...cats: string[]) => items.filter((it) => cats.includes(it.category));
   const mains = inCat('Specials', 'Entrées');
   const regular = mains.filter((it) => !it.special);

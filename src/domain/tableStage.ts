@@ -5,7 +5,7 @@
  * the meal. The manager floor and Triage use the same stages and colours,
  * so a server and a manager see the same colour for the same state.
  */
-import { checkedIn, courseNumber, lastRun } from './courses';
+import { checkedIn, courseNumber, lastRun, lineReadyAt } from './courses';
 import { DEFAULT_CONFIG, flag, printerMode, type DiningConfig } from './config';
 import { isSide } from './menu';
 import { isDrinkLine } from './routing';
@@ -62,7 +62,7 @@ export function tableStage(o: Order, cfg: DiningConfig = DEFAULT_CONFIG, at: num
   const ateEntree = highestServed != null && highestServed >= 2;
 
   if (live.length && live.filter((i) => courseNumber(i) === lowest).every((i) => i.kitchenState === 'ready')) {
-    return { key: 'run', label: `Ready at Expo · C${lowest}`, since: o.readyStampAt || at };
+    return { key: 'run', label: `Ready at Expo · C${lowest}`, since: readySinceOf(o, live.filter((i) => courseNumber(i) === lowest), cfg, at) };
   }
   if (live.length && served.length && ateEntree) {
     return { key: 'eat', label: `Eating · C${highestServed}`, since: servedAt(o, served) };
@@ -95,20 +95,21 @@ export function tableStage(o: Order, cfg: DiningConfig = DEFAULT_CONFIG, at: num
 }
 
 /**
- * A ready course is stamped "now" when the order carries no readyStampAt
- * (every seeded table), so the first sighting is remembered or the timer
- * would sit at 0:00 forever.
+ * When the lowest course came up at the pass: the order's ready stamp, else
+ * the latest ready time of its plates (lineReadyAt: the line's readyAtMs, or
+ * a time derived from when it was fired). Never the time a screen first drew
+ * it, so My Tables, the table map and Triage show one timer that survives a
+ * reload.
  */
-const readySeen = new Map<string, number>();
+function readySinceOf(o: Order, ready: OrderLine[], cfg: DiningConfig, at: number): number {
+  if (o.readyStampAt) return o.readyStampAt;
+  const times = ready.map((l) => lineReadyAt(o, l, cfg)).filter((t): t is number => t != null);
+  return times.length ? Math.max(...times) : at;
+}
 
-/** __kMgrState (since): when the table entered its stage, remembering first sightings of a ready course. */
+/** __kMgrState (since): when the table entered its stage. */
 export function stageSince(o: Order, stage: TableStage): number {
-  if (stage.key !== 'run' || o.readyStampAt) return stage.since || o.openedAt;
-  const key = o.id + ':' + stage.label;
-  const seen = readySeen.get(key);
-  if (seen != null) return seen;
-  readySeen.set(key, stage.since);
-  return stage.since;
+  return stage.since || o.openedAt;
 }
 
 /** __kLateBy: past the manager's threshold for this stage (a blank threshold never alerts). */

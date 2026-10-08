@@ -311,3 +311,12 @@
   color: var(--s700);
   line-height: 1.5;
 }
+.suggested {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px dashed var(--warning, #b7791f);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}

@@ -60,3 +60,50 @@
 .down {
   background: var(--danger);
 }
+.log {
+  width: min(560px, 100%);
+  margin-top: 10px;
+  text-align: left;
+}
+.logTitle {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--night-dim);
+}
+.logList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.logRow {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 7px 10px;
+  border-radius: var(--r-md);
+  background: var(--night-2);
+  font-size: 13px;
+  color: var(--night-ink);
+}
+.logWarn {
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+.logTime {
+  flex-shrink: 0;
+  color: var(--night-dim);
+  font-variant-numeric: tabular-nums;
+}
+.logLabel {
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.logWhere {
+  min-width: 0;
+  color: var(--night-dim);
+}

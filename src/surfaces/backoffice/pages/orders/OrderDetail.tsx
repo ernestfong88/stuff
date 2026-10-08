@@ -1,5 +1,7 @@
 import { RotateCcw, Gift } from 'lucide-react';
-import { deliveryFees, getItem } from '../../../../data';
+import { getItem } from '../../../../data';
+import { queueFee } from '../../../../domain/billing';
+import { checkGaps, type GapSettings } from '../../../../domain/checkTimeline';
 import { dinerName } from '../../../../domain/orders';
 import { modsText } from '../../../../domain/menu';
 import type { Order } from '../../../../domain/types';
@@ -7,8 +9,10 @@ import { now } from '../../../../lib/clock';
 import { formatTime } from '../../../../lib/format';
 import { useConfig } from '../../../../store/config';
 import { useDining } from '../../../../store/dining';
-import { Button, toast, useConfirm } from '../../../../ui';
+import { useSetting } from '../../../../store/serviceConfig';
+import { Button, cx, toast, useConfirm } from '../../../../ui';
 import { BoCaption, BoSelect } from '../../kit';
+import { dropKind } from '../../kit/billing';
 import { BACK_OFFICE_USER } from '../../seed/associates';
 import { PAYMENT_CHOICES, PAYMENT_LABELS, dinerCharge, feedbackTag, type OrderRow } from './orderRows';
 import s from './orders.module.css';
@@ -26,7 +30,11 @@ export function OrderDetail({ row }: { row: OrderRow }) {
   const cfg = useConfig();
   const [ask, dialog] = useConfirm();
   const o = row.order;
-  const fee = o.deliveryFeeId ? deliveryFees.find((f) => f.id === o.deliveryFeeId) : undefined;
+  /** How long each moment took, coloured by Alerts & Timing › Check timeline. */
+  const gaps = checkGaps(o, useSetting<GapSettings>('gap') ?? {});
+  /** The delivery or pick up fee, from the same per-venue setting close & charge uses. */
+  const fee = queueFee(o, cfg);
+  const feeWaived = fee.waived ? (fee.waived === 'hospice' ? 'waived (hospice)' : 'waived (sick)') : o.comp || o.feeComped ? 'comped' : '';
   /** Correct a closed check, with Undo; the activity trail keeps both. */
   const fix = (patch: (o: Order) => Order, what: string, message: string) => {
     const before = o;
@@ -68,18 +76,27 @@ export function OrderDetail({ row }: { row: OrderRow }) {
                 })}
               </ul>
               {fb && <div className={s.fb}>Feedback: {fb.text}</div>}
-              {!row.open && (
+              {!row.open && o.comp && (
+                <div className={s.pay}>
+                  <span className={s.payLabel}>Paid with</span>
+                  <strong>Comped</strong>
+                  <span className={s.payAmt}>whole check</span>
+                </div>
+              )}
+              {!row.open && !o.comp && (
                 <div className={s.pay}>
                   <label className={s.payLabel} htmlFor={`pay-${d.id}`}>
                     Paid with
                   </label>
                   <BoSelect
                     id={`pay-${d.id}`}
-                    value={d.chargeDrop ?? 'plan'}
+                    value={PAYMENT_LABELS[dropKind(d.chargeDrop)] ? dropKind(d.chargeDrop) : 'plan'}
                     onChange={(e) => {
                       const v = e.target.value;
+                      // Moving a charge between apartment and card keeps its amount; plan or comp clears it.
+                      const amt = v === 'apt' || v === 'card' ? charge || undefined : undefined;
                       fix(
-                        (x) => ({ ...x, diners: x.diners.map((y) => (y.id === d.id ? { ...y, chargeDrop: v, chargeAmt: undefined } : y)) }),
+                        (x) => ({ ...x, diners: x.diners.map((y) => (y.id === d.id ? { ...y, chargeDrop: v, chargeAmt: amt } : y)) }),
                         `Changed ${dinerName(d)}'s payment to ${PAYMENT_LABELS[v]}`,
                         `${dinerName(d)} now paid with ${PAYMENT_LABELS[v].toLowerCase()}`,
                       );
@@ -105,10 +122,9 @@ export function OrderDetail({ row }: { row: OrderRow }) {
             Opened {formatTime(o.openedAt)}
             {o.closedAt ? ` · Closed ${formatTime(o.closedAt)} by ${o.closedBy ?? o.server}` : ''}
           </div>
-          {fee && (
+          {fee.kind && (
             <div>
-              Delivery: <strong>{fee.text}</strong>
-              {fee.amt > 0 && ` · $${fee.amt}`}
+              {fee.kind}: <strong>{feeWaived || `$${fee.amt.toFixed(2)}`}</strong>
             </div>
           )}
           {o.comp && (
@@ -152,6 +168,22 @@ export function OrderDetail({ row }: { row: OrderRow }) {
                 Reopen check
               </Button>
             </div>
+          </div>
+        )}
+
+        {gaps.length > 0 && (
+          <div>
+            <BoCaption>Timing</BoCaption>
+            <ul className={s.timing} aria-label="Check timing">
+              {gaps.map((g) => (
+                <li key={g.key}>
+                  <span>{g.label}</span>
+                  <span className={cx(s.gapMins, g.tone !== 'ok' && s[`gap_${g.tone}`])}>
+                    {g.mins} min{g.tone !== 'ok' && ` · ${g.tone}`}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 

@@ -12,7 +12,7 @@ import { getItem } from '../../../../data';
 import { DEFAULT_CONFIG, flag, type DiningConfig } from '../../../../domain/config';
 import { defaultSides, isDrink, isSide } from '../../../../domain/menu';
 import type { Order } from '../../../../domain/types';
-import { isDessert, isMain, type MenuTab } from './menuCatalog';
+import { isDessert, isMain, orderMenuRoom, type MenuTab } from './menuCatalog';
 
 /** __kNeedsSide: no default side and no Sides choice on the item itself. */
 export function needsSide(itemId: string): boolean {
@@ -44,14 +44,14 @@ export function afterPick(
     tab: tabs.includes('Starters') ? 'Starters' : undefined,
   });
   let wait = sideWait && (sideWait !== dinerId || !isSide(itemId)) ? null : sideWait;
-  if (isMain(o.meal, itemId) && needsSide(itemId) && tabs.includes('Sides')) return { sideWait: dinerId, tab: 'Sides' };
+  if (isMain(o.meal, itemId, orderMenuRoom(o)) && needsSide(itemId) && tabs.includes('Sides')) return { sideWait: dinerId, tab: 'Sides' };
   if (wait === dinerId && isSide(itemId)) {
     wait = null;
     return next && flag(cfg, 'entreeNext') ? moveOn(null) : { sideWait: null };
   }
   if (!next) return { sideWait: wait };
-  if (flag(cfg, 'entreeNext') && isMain(o.meal, itemId)) return moveOn(wait);
+  if (flag(cfg, 'entreeNext') && isMain(o.meal, itemId, orderMenuRoom(o))) return moveOn(wait);
   const ateAlready = o.diners.some((d) => d.items.some((l) => l.sent && !l.cancelled && !isDrink(l.itemId)));
-  if (flag(cfg, 'dessertNext') && isDessert(o.meal, itemId) && ateAlready) return { sideWait: wait, diner: next.id };
+  if (flag(cfg, 'dessertNext') && isDessert(o.meal, itemId, orderMenuRoom(o)) && ateAlready) return { sideWait: wait, diner: next.id };
   return { sideWait: wait };
 }

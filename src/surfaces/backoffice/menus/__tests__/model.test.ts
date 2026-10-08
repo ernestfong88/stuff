@@ -71,6 +71,18 @@ describe('categories', () => {
   it('guesses category, subcategory and protein from a name', () => {
     expect(guessCategory('Chocolate Mousse')).toBe('Desserts');
     expect(guessCategory('Clam Chowder')).toBe('Starters');
+  });
+  it('files cakes and pies as desserts, but not pancakes, crab cakes, pot pie or oatmeal', () => {
+    expect(guessCategory('Lemon Ricotta Pancakes')).toBe('Entrees');
+    expect(guessCategory('Maryland Crab Cakes')).toBe('Entrees');
+    expect(guessCategory('Apple Pie Oatmeal')).toBe('Entrees');
+    expect(guessCategory('Chicken Pot Pie')).toBe('Entrees');
+    expect(guessCategory("Shepherd's Pie")).toBe('Entrees');
+    expect(guessCategory('Belgian Waffles')).toBe('Entrees');
+    expect(guessCategory('Carrot Cake')).toBe('Desserts');
+    expect(guessCategory('Dutch Apple Pie')).toBe('Desserts');
+    expect(guessCategory('Strawberry Shortcake')).toBe('Desserts');
+    expect(guessCategory('Pumpkin Cheesecake')).toBe('Desserts');
     expect(guessSubcategory('Entrees', 'Reuben Sandwich')).toBe('Sandwiches');
     expect(guessSubcategory('Drinks', 'Iced Tea')).toBe('Coffee & Tea');
     expect(guessSubcategory('Drinks', 'Merlot')).toBe('Wine');

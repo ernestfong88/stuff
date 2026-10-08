@@ -1,4 +1,5 @@
 import { getItem } from '../../../../data';
+import { avoidLabel, inferAllergens } from '../../../../domain/allergens';
 import { defaultSides } from '../../../../domain/menu';
 import type { MenuItem } from '../../../../domain/types';
 import { Modal } from '../../../../ui';
@@ -15,6 +16,8 @@ export function DishView({ item, out, onClose }: { item: MenuItem; out: boolean;
     .filter((n): n is string => !!n);
   const choices = (item.mods ?? []).filter((m) => m.opts?.length).slice(0, 3);
   const allergens = item.allergens ?? [];
+  // Nothing recorded: what the dish's name and description suggest.
+  const maybe = allergens.length ? [] : inferAllergens(item).map(avoidLabel);
   return (
     <Modal open onClose={onClose} width="100%" tall className={s.modal}>
       <div className={s.layout} onClick={onClose}>
@@ -43,7 +46,9 @@ export function DishView({ item, out, onClose }: { item: MenuItem; out: boolean;
           )}
           <div>
             <div className={s.label}>Allergens</div>
-            <div className={allergens.length ? s.allergens : s.muted}>{allergens.length ? allergens.join(', ') : 'None listed'}</div>
+            <div className={allergens.length || maybe.length ? s.allergens : s.muted}>
+              {allergens.length ? allergens.join(', ') : maybe.length ? `May contain ${maybe.join(', ')} (suggested, not confirmed)` : 'None listed'}
+            </div>
           </div>
           <div className={s.hint}>Tap anywhere to close</div>
         </div>

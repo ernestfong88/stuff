@@ -14,7 +14,7 @@
 import { getItem } from '../../data';
 import type { DiningConfig } from '../../domain/config';
 import { defaultSides, isSide } from '../../domain/menu';
-import { foodRoute } from '../../domain/routing';
+import { lineFoodRoute } from '../../domain/routing';
 import type { Diner, Order, OrderLine } from '../../domain/types';
 
 export interface CookLine extends OrderLine {
@@ -40,7 +40,8 @@ export interface CookTicket {
 export interface CookTicketOptions {
   /** This device's screen key, or "all". */
   screen: string;
-  expoActive: boolean;
+  /** An expo station runs this kitchen's tickets (a flag for every kitchen, or per kitchen). */
+  expoActive: boolean | ((room: string) => boolean);
   cfg: DiningConfig;
   /** The screens a dish shows on in a kitchen. */
   screensOf: (itemId: string, room: string) => string[];
@@ -48,13 +49,18 @@ export interface CookTicketOptions {
 
 const DEFAULT_ROOM = 'sequoia';
 
+/** Does an expo station take this kitchen's tickets once they are up? */
+export const expoFor = (opts: Pick<CookTicketOptions, 'expoActive'>, room: string | undefined): boolean =>
+  typeof opts.expoActive === 'function' ? opts.expoActive(room || DEFAULT_ROOM) : opts.expoActive;
+
 export const onScreen = (line: CookLine, screen: string) => screen === 'all' || line.screens.includes(screen);
 
 const onLine = (i: OrderLine) => i.sent && !i.comped && i.kitchenState !== 'scheduled' && i.kitchenState !== 'cleared';
 
 function dinerLines(o: Order, d: Diner, opts: CookTicketOptions): CookLine[] {
   const room = o.room || DEFAULT_ROOM;
-  const cooked = (i: OrderLine) => onLine(i) && foodRoute(i.itemId, o.room, opts.cfg) === 'kds';
+  // Sides follow their plate: those of a dish the server makes never reach the line.
+  const cooked = (i: OrderLine) => onLine(i) && lineFoodRoute(i, d.items, o.room, opts.cfg) === 'kds';
   const sides = d.items.filter((i) => i.sent && !i.comped && isSide(i.itemId));
   const mains: CookLine[] = d.items
     .filter((i) => cooked(i) && !isSide(i.itemId))
@@ -97,7 +103,7 @@ export function buildCookTickets(orders: readonly Order[], opts: CookTicketOptio
     })
     .filter((t) => {
       const mine = t.lines.filter((l) => onScreen(l, opts.screen));
-      return mine.length > 0 && (!opts.expoActive || mine.some((l) => l.kitchenState !== 'ready'));
+      return mine.length > 0 && (!expoFor(opts, t.order.room) || mine.some((l) => l.kitchenState !== 'ready'));
     })
     .sort((a, b) => Number(rushOnFire(b)) - Number(rushOnFire(a)) || a.firedAt - b.firedAt);
 }

@@ -1,12 +1,13 @@
 /**
  * Prices, fees and how each diner's meal is paid for.
  */
-import { getItem, mealPlans, venueFees } from '../data';
+import { lineItem, mealPlans, venueFees } from '../data';
 import { DEFAULT_CONFIG, type DiningConfig } from './config';
 import { upcharge } from './menu';
 import { dinerPerson } from './orders';
 import type { Diner, Order, OrderLine, Resident } from './types';
 import { hospiceOnOrder, isHospiceDiner } from './waivers';
+import { residentPlan } from '../surfaces/backoffice/kit/residentRecords';
 
 /**
  * ad: one line's price for a diner. Residents (not their guests) pay the
@@ -14,7 +15,7 @@ import { hospiceOnOrder, isHospiceDiner } from './waivers';
  * à la carte price. Modifier upcharges are added on top.
  */
 export function linePrice(line: OrderLine, diner: Pick<Diner, 'kind' | 'isGuest'>, mode?: 'ala'): number {
-  const it = getItem(line.itemId);
+  const it = lineItem(line);
   if (!it) return 0;
   const base =
     mode === 'ala'
@@ -30,7 +31,7 @@ export function alaCarteTotal(diner: Pick<Diner, 'items'>): number {
   return diner.items
     .filter((i) => !i.comped)
     .reduce((sum, i) => {
-      const it = getItem(i.itemId);
+      const it = lineItem(i);
       return sum + (it?.alaPrice ?? it?.guestPrice ?? 0) + upcharge(i);
     }, 0);
 }
@@ -49,9 +50,17 @@ export interface QueueFee {
 /** __kSickFee: a sick-tray delivery has no fee. */
 export const SICK_TRAY_FEE: QueueFee = { kind: 'Delivery fee', amt: 0, waived: 'sick' };
 
+/** A venue's delivery and pick up fees: the Back Office setting, else the venue's standard fee. */
+export function venueFee(room: string, cfg: DiningConfig = DEFAULT_CONFIG): { delivery: number; pickup: number } {
+  const std = venueFees[room] ?? venueFees.sequoia;
+  const set = cfg.fees?.[room] ?? {};
+  const ok = (v: number | undefined): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+  return { delivery: ok(set.delivery) ? set.delivery : std.delivery, pickup: ok(set.pickup) ? set.pickup : std.pickup };
+}
+
 /** mh: the pick up or delivery fee for an order (waived for hospice and sick trays). */
 export function queueFee(o: Order, cfg: DiningConfig = DEFAULT_CONFIG): QueueFee {
-  const fees = venueFees[o.room] ?? venueFees.sequoia;
+  const fees = venueFee(o.room, cfg);
   if (o.queueType === 'delivery') {
     if (hospiceOnOrder(o, cfg)) return { kind: 'Delivery fee', amt: 0, waived: 'hospice' };
     if (o.sickTray) return { ...SICK_TRAY_FEE };
@@ -92,6 +101,8 @@ export interface DinerBilling {
   /** The meal plan covers this meal. */
   covered: boolean;
   comped?: boolean;
+  /** A hospice resident's meal is comped, but a fee still charges (its own waiver is off). */
+  hospiceMeal?: boolean;
 }
 
 /**
@@ -106,6 +117,18 @@ export function dinerBilling(diner: Diner, o: Order, cfg: DiningConfig = DEFAULT
   const total = itemsTotal + fees;
   const base = { itemsTotal, delivery: fees };
   if (isHospiceDiner(diner, cfg)) {
+    // The meal is comped; the delivery fee follows its own hospice waiver and corkage its own setting.
+    if (fees > 0)
+      return {
+        planLabel: 'Hospice',
+        planType: 'Comp',
+        remainText: 'Hospice · meal comped automatically, fees still charge',
+        ...base,
+        outOfPlan: fees,
+        needsDrop: true,
+        covered: true,
+        hospiceMeal: true,
+      };
     return {
       planLabel: 'Hospice',
       planType: 'Comp',
@@ -128,9 +151,9 @@ export function dinerBilling(diner: Diner, o: Order, cfg: DiningConfig = DEFAULT
   });
   if (diner.kind === 'associate') return payAlaCarte('Associate', 'Pays à la carte');
   const resident = dinerPerson(diner) as Resident | undefined;
-  const plan = (resident && mealPlans[resident.plan]) || mealPlans.alacarte;
+  const plan = resident ? residentPlan(resident.id) : mealPlans.alacarte;
   if (diner.isGuest) return payAlaCarte('Guest', 'Guest pays à la carte');
-  if (plan.type === 'A la carte') return payAlaCarte(plan.label, 'No plan — à la carte');
+  if (plan.type === 'A la carte') return payAlaCarte(plan.label, plan.id.startsWith('bo:') ? 'Spend-down plan — à la carte' : 'No plan — à la carte');
   if ((plan.type === 'Monthly' || plan.type === 'Daily') && resident) {
     const left = Math.max(0, plan.amt - resident.consumed);
     const covered = left > 0;

@@ -10,6 +10,8 @@ import { useDining } from '../../../store/dining';
 import { useShared } from '../../../lib/sharedStore';
 import { serviceConfig } from '../../../store/serviceConfig';
 import { itemsLeft, modsText } from '../../../domain/assocMeals/menu';
+import { serverRungCount } from '../../../domain/assocMeals/serverRung';
+import { assocSections } from '../../server/order/menu/assocMenu';
 import { assocItemByName, assocMenuForDay, useAssocMenuSettings } from '../../../store/assocMenu';
 import { Button, EmptyState, cx, useNow } from '../../../ui';
 import { AssocOrderForm, type AssocFormValue } from './AssocOrderForm';
@@ -37,7 +39,7 @@ type FormState = { mode: 'add'; window: string } | { mode: 'edit'; id: string; w
 
 /** __KMgrAssoc: today's associate meals by pickup window; the manager can add, change or cancel. */
 export function AssociatesView() {
-  const { assocOrders: all, setAssocOrders } = useDining();
+  const { assocOrders: all, setAssocOrders, orders, history: closedChecks } = useDining();
   const me = useMe();
   useShared(serviceConfig);
   const t = useNow(30_000);
@@ -116,7 +118,10 @@ export function AssociatesView() {
         </span>
         <span className={s.caps}>
           {specials.map((m) => {
-            const c = (m.cap ?? 0) - (itemsLeft(all, date, m) ?? 0);
+            // App meals plus the ones servers rang in on a tablet.
+            const meal = m.capMeals?.includes('Lunch') ? 'Lunch' : 'Dinner';
+            const ids = assocSections([m], meal).flatMap((x) => x.items.map((i) => i.id));
+            const c = (m.cap ?? 0) - (itemsLeft(all, date, m) ?? 0) + serverRungCount([...orders, ...closedChecks], date, ids, m.capMeals);
             return (
               <span key={m.id}>
                 {m.id === 'am_special_lunch' ? 'Lunch' : 'Dinner'} special: {m.name} · <b className={cx(c >= (m.cap ?? 0) ? s.red : s.green)}>{`${c} of ${m.cap}`}</b> ordered

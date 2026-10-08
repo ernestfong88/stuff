@@ -221,6 +221,12 @@ export function BoTable<T>({
 }
 
 /** Small number box with a unit ("5 min"); empty means off/unset. */
+/** A typed number held to the box's max (min is left to the page, so typing "15" into a min-5 box still works). */
+export function capAtMax(v: number, max: number | string | undefined): number {
+  const m = max == null || max === '' ? NaN : Number(max);
+  return Number.isFinite(m) && v > m ? m : v;
+}
+
 export function NumberBox({ value, onChange, unit, placeholder, width = 64, ...rest }: Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & { value: number | '' | null | undefined; onChange: (v: number | null) => void; unit?: string; width?: number }) {
   return (
     <span className={s.numberBox}>
@@ -231,8 +237,8 @@ export function NumberBox({ value, onChange, unit, placeholder, width = 64, ...r
         style={{ width } as CSSProperties}
         value={value ?? ''}
         placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value === '' ? null : Number(e.target.value))}
         {...rest}
+        onChange={(e) => onChange(e.target.value === '' ? null : capAtMax(Number(e.target.value), rest.max))}
       />
       {unit && <span className={s.unit}>{unit}</span>}
     </span>

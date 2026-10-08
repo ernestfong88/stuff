@@ -153,13 +153,16 @@ export function AiReview({ menu: m, len, onGo }: { menu: BoMenu; len: number; on
       newId: () => uid('g'),
     });
     if (!op || op.op !== 'add') {
-      toast('No empty slots to fill. Remove a dish first, or add days to the cycle.');
+      // It fills lunch and dinner specials; breakfast specials and snacks are placed by hand.
+      toast('Every lunch and dinner already has its specials. Fill from recipe book only fills lunch and dinner: add breakfast specials and snacks by hand.', {
+        duration: 7000,
+      });
       return;
     }
     const key = 'fill' + uid();
     run(key, [op]);
     setDone((d) => ({ ...d, [key]: { ...d[key], fill: op.placements.length } }));
-    toast(`Filled ${op.placements.length} empty slot${op.placements.length > 1 ? 's' : ''} from the recipe book`, { tone: 'success' });
+    toast(`Filled ${op.placements.length} empty lunch and dinner slot${op.placements.length > 1 ? 's' : ''} from the recipe book`, { tone: 'success' });
   };
   const lastFill = Object.keys(done)
     .filter((k) => k.startsWith('fill'))
