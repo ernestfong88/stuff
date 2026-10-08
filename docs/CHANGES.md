@@ -220,6 +220,18 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Associate Meals: no count stats
+The row of counts at the top of *Associate Meals* (planned this week, picked up, cancelled, days a special sold out) is gone. The page opens straight on the menu.
+
+### Menu Export: by meal, paper size, date or week
+
+- The options sit in one bar above the preview: venue, menu, date or week, meals, paper and template. The preview follows every choice.
+- The daily menu prints for any date, picked from a calendar. It prints the cycle day that venue serves on that date, worked out the same way as the floor.
+- The weekly menu, à la carte menu and order form print for a week picked from a list (Sun 10/4 – Sat 10/10), four weeks back to eight ahead.
+- The daily menu can print all meals on one page, or only the meals picked (Breakfast, Lunch, Dinner, and Snacks when the menu has them), one page each.
+- Every printout can go on Letter, Legal, Half letter, Tabloid or A4. The menu shrinks to fit a half sheet and grows for a tabloid. This device remembers the last paper for each printout.
+
+
 ### KDS Settings: dropdowns and checkboxes
 *KDS Settings* is calmer to read. The settings and what they do are unchanged.
 

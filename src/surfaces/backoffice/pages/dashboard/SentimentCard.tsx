@@ -83,7 +83,12 @@ export function SentimentCard({ data }: { data: DashboardData }) {
   const { n, sentimentDays: days, sentimentPeriods } = data;
   const c = countSentiment(days.flatMap((d) => d.items));
   const dir = sentimentTrend(c, sentimentPeriods[6]);
-  const sub = { up: `More positive than the ${n} days before`, down: `More negative than the ${n} days before`, flat: `About the same as the ${n} days before`, none: 'Too few comments to compare' }[dir];
+  const sub = {
+    up: `More positive than the ${n} days before`,
+    down: `More negative than the ${n} days before`,
+    flat: `About the same as the ${n} days before`,
+    none: 'Too few comments to compare',
+  }[dir];
   const max = Math.max(1, ...days.map((d) => d.count.n));
   const action = sentimentAction(days);
   const items = days.flatMap((d) => d.items);
@@ -166,14 +171,35 @@ export function SentimentCard({ data }: { data: DashboardData }) {
   );
 }
 
-function SentimentDayModal({ data, index, setIndex, onClose }: { data: DashboardData; index: number; setIndex: (i: number) => void; onClose: () => void }) {
+function SentimentDayModal({
+  data,
+  index,
+  setIndex,
+  onClose,
+}: {
+  data: DashboardData;
+  index: number;
+  setIndex: (i: number) => void;
+  onClose: () => void;
+}) {
   const [all, setAll] = useState(false);
   const d = data.sentimentDays[index];
   const detail = sentimentDay(data.sentimentDays, index, data.n);
   return (
-    <DayModal cap="Resident meal sentiment" dayTitle={(d.today ? 'Today, ' : '') + longDay(d.a)} index={index} count={data.sentimentDays.length} setIndex={setIndex} onClose={onClose}>
+    <DayModal
+      cap="Resident meal sentiment"
+      dayTitle={(d.today ? 'Today, ' : '') + longDay(d.a)}
+      index={index}
+      count={data.sentimentDays.length}
+      setIndex={setIndex}
+      onClose={onClose}
+    >
       <SentimentMix c={d.count} />
-      {detail.insight ? <StartHere insight={detail.insight} /> : <p className={s.muted}>No comments captured this day. Servers add them with the mic on a check.</p>}
+      {detail.insight ? (
+        <StartHere insight={detail.insight} />
+      ) : (
+        <p className={s.muted}>No comments captured this day. Servers add them with the mic on a check.</p>
+      )}
       {detail.alsoDisliked.length > 0 && (
         <div className={s.block}>
           <BoCaption>Also disliked</BoCaption>

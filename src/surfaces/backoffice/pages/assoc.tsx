@@ -9,14 +9,12 @@
 import { useState } from 'react';
 import { rooms } from '../../../data';
 import { isoDate } from '../../../domain/pickup';
-import { useDining } from '../../../store/dining';
 import { setSetting } from '../../../store/serviceConfig';
-import { Button, Chip, Stat, Tabs, toast } from '../../../ui';
-import { STANDING_SLOTS, addDays, itemsLeft, menuWeek, weekStartOf, weekState, type WeekState } from '../../../domain/assocMeals/menu';
+import { Button, Chip, Tabs, toast } from '../../../ui';
+import { STANDING_SLOTS, addDays, menuWeek, weekStartOf, weekState, type WeekState } from '../../../domain/assocMeals/menu';
 import { useAssocSettings } from '../../../domain/assocMeals/settings';
-import { assocWindows, isLive, windowMinutes, type AssocMealName } from '../../../domain/assocMeals/windows';
+import { assocWindows, windowMinutes, type AssocMealName } from '../../../domain/assocMeals/windows';
 import {
-  assocMenuFor,
   daySoup,
   daySpecial,
   setDaySpecial,
@@ -49,22 +47,7 @@ const weekday = (iso: string) => new Date(iso + 'T12:00:00').toLocaleDateString(
 export default function Page({ goto }: BoPageProps) {
   const settings = useAssocSettings();
   const menuSettings = useAssocMenuSettings();
-  const { assocOrders } = useDining();
   const todayIso = isoDate(0);
-  const current = weekStartOf(todayIso);
-
-  // This week's associate meals, from the dining store.
-  const thisWeek = assocOrders.filter((o) => o.date >= current && o.date <= addDays(current, 6));
-  const live = thisWeek.filter(isLive);
-  const pickedUp = thisWeek.filter((o) => o.status === 'Picked up').length;
-  const cancelled = thisWeek.length - live.length;
-  // Days this week a special (lunch or dinner) ran out.
-  const soldOutDays = Array.from({ length: 7 }, (_, i) => addDays(current, i)).filter((date) =>
-    (['Lunch', 'Dinner'] as const).some((meal) => {
-      const special = assocMenuFor(date, meal, date, menuSettings, true)?.find((x) => x.special);
-      return !!special && special.cap! > 0 && itemsLeft(assocOrders, date, special) === 0;
-    }),
-  ).length;
 
   const rangesFor = (meal: AssocMealName) => spansText(assocWindows(settings.grid, meal, '', []).map((w) => windowMinutes(w) ?? 0));
 
@@ -72,13 +55,6 @@ export default function Page({ goto }: BoPageProps) {
     <BoPage title="Associate Meals">
       <MenuSection settings={menuSettings} todayIso={todayIso} />
       <StandingChoices settings={menuSettings} todayIso={todayIso} />
-
-      <div className={s.stats}>
-        <Stat value={live.length} label="Planned this week" />
-        <Stat value={pickedUp} label="Picked up" tone="flora" />
-        <Stat value={cancelled} label="Cancelled" tone="clay" />
-        <Stat value={soldOutDays} label={soldOutDays === 1 ? 'Day a special sold out' : 'Days a special sold out'} tone="ocean" />
-      </div>
 
       <BoSection title="Ordering">
         <BoRow label="Associate meal venue" hint="Exactly one per community. Its pick up ranges decide when associates can pick up.">

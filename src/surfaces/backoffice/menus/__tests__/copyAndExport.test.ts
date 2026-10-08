@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { BoModGroup } from '../../../../store/menuEdits';
-import { dayLabel, exportDays, exportWeeks } from '../export/exportDays';
+import { exportWeeks, weekLabel } from '../export/exportDays';
+import { paperCss, paperOf, weekRowHeight } from '../model/menuPrint';
 import { OTHER_COMMUNITY_MODS, planCopy } from '../modifiers/copyGroups';
 
 describe('copy modifiers from another community', () => {
@@ -38,21 +39,25 @@ describe('copy modifiers from another community', () => {
   });
 });
 
-describe('menu export days and weeks', () => {
-  it('offers today and the next six days, stopping at the end of the cycle', () => {
-    expect(exportDays(15, 35)).toEqual([15, 16, 17, 18, 19, 20, 21]);
-    expect(exportDays(33, 35)).toEqual([33, 34, 35]);
-    expect(exportDays(0, 35)).toEqual([]);
+describe('menu export weeks and paper', () => {
+  it('offers four weeks back and eight ahead, each from its Sunday', () => {
+    const weeks = exportWeeks(new Date(2026, 9, 8, 12));
+    expect(weeks).toHaveLength(13);
+    expect(weeks.every((d) => d.getDay() === 0)).toBe(true);
+    expect(weeks[4]).toEqual(new Date(2026, 9, 4));
+    expect(weeks[0]).toEqual(new Date(2026, 8, 6));
+    expect(weekLabel(weeks[4])).toBe('Sun 10/4 – Sat 10/10');
   });
-  it('offers this week and next when the cycle has a next week', () => {
-    expect(exportWeeks(2, 35)).toEqual([2, 3]);
-    expect(exportWeeks(4, 35)).toEqual([4]);
-    expect(exportWeeks(0, 0)).toEqual([]);
+  it('sizes the page for the paper and scales a half sheet down', () => {
+    expect(paperCss(paperOf('half'))).toContain('@page{size:5.5in 8.5in;margin:0.35in}');
+    expect(paperCss(paperOf('letter'), true)).toContain('@page{size:11in 8.5in;margin:0.5in}');
+    expect(paperCss(paperOf('a4'))).toContain('size:8.27in 11.69in');
+    expect(paperCss(paperOf('half'))).toContain('zoom:0.72');
+    expect(paperOf('nope').id).toBe('letter');
   });
-  it('names the days', () => {
-    const fri = new Date(2026, 9, 9, 12);
-    expect(dayLabel(0, fri)).toBe('Today');
-    expect(dayLabel(1, fri)).toBe('Tomorrow');
-    expect(dayLabel(2, fri)).toBe('Fri 10/9');
+  it('fits the week at a glance rows to the page', () => {
+    expect(weekRowHeight(paperOf('letter'), 3)).toBeCloseTo(1.57, 2);
+    expect(weekRowHeight(paperOf('letter'), 2)).toBeCloseTo(2.35, 2);
+    expect(weekRowHeight(paperOf('half'), 3)).toBeLessThan(weekRowHeight(paperOf('letter'), 3));
   });
 });

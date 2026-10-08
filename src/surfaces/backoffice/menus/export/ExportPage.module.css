@@ -1,35 +1,13 @@
-.layout {
-  display: grid;
-  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
-  gap: 16px;
-  align-items: start;
-}
-.side {
+.bar {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.card,
-.preview {
-  padding: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px 18px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
   border-radius: var(--r-xl);
   background: var(--surface);
   box-shadow: var(--shadow-1);
-}
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.kinds {
-  align-self: flex-start;
-  max-width: 100%;
-}
-.hint {
-  margin: 0;
-  font-size: 11.5px;
-  color: var(--s500);
-  line-height: 1.45;
 }
 .label {
   font-size: 10.5px;
@@ -38,41 +16,18 @@
   text-transform: uppercase;
   color: var(--s400);
 }
-.templates {
+.checks {
+  align-self: flex-end;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.template {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  min-height: 40px;
-  padding: 9px 12px;
-  border-radius: var(--r-md);
-  background: var(--paper);
-  text-align: left;
-  font-size: 13px;
-}
-.template:hover {
-  background: var(--limestone);
-}
-.templateOn,
-.templateOn:hover {
-  background: var(--ocean-100);
-  box-shadow: inset 0 0 0 2px var(--ocean);
-}
-.templateName {
-  font-weight: 700;
-  color: var(--ink);
-}
-.templateUse {
-  color: var(--s500);
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  min-height: 32px;
+  align-items: center;
 }
 .check {
   display: flex;
-  align-items: flex-start;
-  gap: 9px;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--s700);
@@ -81,31 +36,34 @@
 .check input {
   width: 16px;
   height: 16px;
-  margin: 1px 0 0;
+  margin: 0;
   accent-color: var(--ocean);
 }
 .preview {
-  position: sticky;
-  top: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 16px 20px 22px;
+  border-radius: var(--r-xl);
   background: var(--sunken);
+  box-shadow: var(--shadow-1);
 }
 .previewHead {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.dayPicks {
+.sheet {
+  width: 100%;
+  margin: 0 auto;
+}
+.picks {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 6px;
 }
-.dayPick {
-  min-height: 36px;
+.pick {
+  min-height: 32px;
   padding: 0 12px;
   border-radius: var(--r-pill);
   font-size: 12.5px;
@@ -114,11 +72,11 @@
   background: var(--surface);
   box-shadow: inset 0 0 0 1px var(--hair-2);
 }
-.dayPick:hover {
+.pick:hover {
   background: var(--paper);
 }
-.dayPickOn,
-.dayPickOn:hover {
+.pickOn,
+.pickOn:hover {
   color: #fff;
   background: var(--ocean);
   box-shadow: none;

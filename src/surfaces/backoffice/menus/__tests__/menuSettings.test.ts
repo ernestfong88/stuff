@@ -4,7 +4,9 @@ import { linePrice } from '../../../../domain/billing';
 import { now } from '../../../../lib/clock';
 import { getBo, placementSides, resetMenuEdits, updateBo } from '../data';
 import { blankMenu, setCycleLength } from '../menuActions';
-import { menuHtml, printContext, printedRecipes } from '../model/menuPrint';
+import { menuHtml, printContext, printedRecipes, printMeals } from '../model/menuPrint';
+import { venueServing } from '../../../../store/venueMenu';
+import { addDays, dayStart, isoDay, weekStart } from '../../../../domain/menuCycle';
 
 afterEach(() => resetMenuEdits());
 
@@ -35,8 +37,7 @@ describe('new menus', () => {
 });
 
 describe('menu export', () => {
-  const ctx = (venueId: string) =>
-    printContext(getBo(), { venueId, at: now() }, (m, d, r) => placementSides(getBo(), m, d, r).sides);
+  const ctx = (venueId: string, at = now()) => printContext(getBo(), { venueId, at }, (m, d, r) => placementSides(getBo(), m, d, r).sides);
 
   it("counts what the printout lists: today's specials on the daily menu", () => {
     const c = ctx('v1');
@@ -55,6 +56,39 @@ describe('menu export', () => {
     for (const name of ['Classic Terrace Burger', 'Build Your Own Deli Sandwich', 'French Fries', 'Vanilla Ice Cream Cup']) expect(html).toContain(name);
     expect(html).not.toContain('also available at every meal');
     expect(printedRecipes('daily', c).size).toBe(4);
+  });
+
+  it('prints the cycle day the floor serves on a chosen date', () => {
+    const bo = getBo();
+    const v1 = bo.venues.find((v) => v.id === 'v1')!;
+    for (const n of [-9, 0, 3, 40]) {
+      const at = addDays(dayStart(now()), n).getTime();
+      const c = ctx('v1', at);
+      expect(c.today).toBe(venueServing(v1, at, bo.menus, bo.grid).day);
+      expect(isoDay(c.dateOf(c.today))).toBe(isoDay(new Date(at)));
+    }
+  });
+
+  it('starts a week printout on the Sunday picked', () => {
+    const sunday = addDays(weekStart(now()), 14);
+    const c = ctx('v1', sunday.getTime());
+    expect(c.today % 7).toBe(1);
+    expect(menuHtml('week', c)).toContain(`${sunday.getMonth() + 1}/${sunday.getDate()} to `);
+    expect(menuHtml('alacarte', c, { weekOf: sunday })).toContain(`À la carte · ${sunday.getMonth() + 1}/${sunday.getDate()} to `);
+  });
+
+  it('prints chosen meals a page each', () => {
+    const c = ctx('v1');
+    expect(printMeals(c).slice(0, 3)).toEqual(['Breakfast', 'Lunch', 'Dinner']);
+    const html = menuHtml('daily', c, { meals: ['Dinner', 'Lunch'] });
+    expect(html.match(/class="sheet"/g)).toHaveLength(2);
+    expect(html.indexOf('Lunch · ')).toBeLessThan(html.indexOf('Dinner · '));
+    expect(html).not.toContain('<h2>Breakfast</h2>');
+    const lunch = printedRecipes('daily', c, { meals: ['Lunch'] });
+    const all = printedRecipes('daily', c);
+    expect(lunch.size).toBeGreaterThan(0);
+    expect(lunch.size).toBeLessThan(all.size);
+    for (const id of lunch) expect(all.has(id)).toBe(true);
   });
 });
 

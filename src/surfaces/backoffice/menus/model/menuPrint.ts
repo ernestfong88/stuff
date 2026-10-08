@@ -1,14 +1,16 @@
 /**
- * Printed menus: four letter-size printouts from the menu builder and Menu
- * Export. The day's menu by meal, the week at a glance, the Any Day à la
- * carte menu and the weekly order form for residents who pick up. Always
- * the full dish name, and every value is escaped.
+ * Printed menus: four printouts from the menu builder and Menu Export. The
+ * day's menu by meal, the week at a glance, the Any Day à la carte menu and
+ * the weekly order form for residents who pick up. Letter size unless Menu
+ * Export picks another paper. Always the full dish name, and every value is
+ * escaped.
  */
 import { COMMUNITY_NAME } from '../../../../data';
 import type { GridEntry, Recipe, VenueSchedule } from '../../../../store/menuEdits';
 import type { BoState } from './types';
 import { dishLong, normCategory } from './categories';
 import { addDays, cycleDayOn, dayStart, menuAnchor, monthDay, venuesAt, type CycleAnchor } from '../../../../domain/menuCycle';
+import { venueServing } from '../../../../store/venueMenu';
 import { pickupSpan } from './pickupWindows';
 import { tabletItem } from './tablet';
 
@@ -30,6 +32,65 @@ const SECTIONS: Array<[PrintCat, string]> = [
   ['Desserts', 'Dessert'],
 ];
 const PRINT_MEALS = ['Breakfast', 'Lunch', 'Dinner'] as const;
+
+export type PaperId = 'letter' | 'legal' | 'half' | 'tabloid' | 'a4';
+
+/**
+ * Paper sizes in inches, portrait. `zoom` scales the whole printout so the
+ * layout keeps its shape: a half sheet prints a smaller letter menu, a
+ * tabloid a bigger one.
+ */
+export interface Paper {
+  id: PaperId;
+  name: string;
+  w: number;
+  h: number;
+  margin: number;
+  zoom: number;
+}
+
+export const PAPERS: Paper[] = [
+  { id: 'letter', name: 'Letter 8.5 × 11', w: 8.5, h: 11, margin: 0.5, zoom: 1 },
+  { id: 'legal', name: 'Legal 8.5 × 14', w: 8.5, h: 14, margin: 0.5, zoom: 1 },
+  { id: 'half', name: 'Half letter 5.5 × 8.5', w: 5.5, h: 8.5, margin: 0.35, zoom: 0.72 },
+  { id: 'tabloid', name: 'Tabloid 11 × 17', w: 11, h: 17, margin: 0.6, zoom: 1.3 },
+  { id: 'a4', name: 'A4 210 × 297 mm', w: 8.27, h: 11.69, margin: 0.5, zoom: 0.97 },
+];
+
+/** A paper by id; letter for anything unknown. */
+export function paperOf(id: string | null | undefined): Paper {
+  return PAPERS.find((p) => p.id === id) ?? PAPERS[0];
+}
+
+/** Page width and height in inches, turned for landscape. */
+export function pageSize(p: Paper, landscape = false): { w: number; h: number } {
+  return landscape ? { w: p.h, h: p.w } : { w: p.w, h: p.h };
+}
+
+/** The page rule and scale for a paper: `@page { size: 5.5in 8.5in }` and the zoom. */
+export function paperCss(p: Paper, landscape = false): string {
+  const { w, h } = pageSize(p, landscape);
+  const inner = +((h - 2 * p.margin) / p.zoom).toFixed(2);
+  return (
+    '@page{size:' +
+    w +
+    'in ' +
+    h +
+    'in;margin:' +
+    p.margin +
+    'in}body{zoom:' +
+    p.zoom +
+    '}.sheet+.sheet{break-before:page}' +
+    // On screen (the preview) the margin is padding, and each sheet starts where its page would.
+    '@media screen{html{padding:' +
+    p.margin +
+    'in;background:#fff}.sheet{min-height:' +
+    inner +
+    'in}.sheet+.sheet{margin-top:' +
+    +((2 * p.margin) / p.zoom).toFixed(2) +
+    'in;border-top:1px dashed #C9D2DA;padding-top:.2in}}'
+  );
+}
 
 type PrintCat = 'Starters' | 'Entrees' | 'Sides' | 'Desserts' | 'Drinks';
 
@@ -56,6 +117,9 @@ export interface PrintOptions {
   snacks?: boolean;
   /** Service config pick up grid (win.grid), for the order form. */
   winGrid?: unknown;
+  /** Paper size (Menu Export); letter when unset. */
+  paper?: PaperId;
+  /** The date printed: a venue's menu and cycle day are the ones it serves on this date. */
   at: number;
 }
 
@@ -81,16 +145,30 @@ export function venueRoom(v: Pick<VenueSchedule, 'room'> | undefined): string {
 export function printContext(bo: BoState, o: PrintOptions, sidesOf: (menuId: string, day: number, recipeId: string) => string[]): PrintContext {
   const venues = venuesAt(bo.venues, o.at);
   const v = venues.find((x) => x.id === o.venueId) ?? venues.find((x) => x.active && (x.menuId === o.menuId || x.alcMenuId === o.menuId)) ?? venues.find((x) => x.active && (x.menuId || x.alcMenuId));
-  const menuId = o.menuId ?? v?.menuId ?? v?.alcMenuId?.replace(/:everyday$/, '') ?? null;
+  // Printing for a venue: its menu and cycle day on the date, worked out as the floor does.
+  const raw = !o.menuId && v ? bo.venues.find((x) => x.id === v.id) : undefined;
+  const serving = raw ? venueServing(raw, o.at, bo.menus, bo.grid) : null;
+  const menuId = serving
+    ? (serving.cycleId ?? serving.alcId?.replace(/:everyday$/, '') ?? null)
+    : (o.menuId ?? v?.menuId ?? v?.alcMenuId?.replace(/:everyday$/, '') ?? null);
   const menu = bo.menus.find((m) => m.id === menuId);
   let last = 0;
   for (const g of bo.grid) if (g.menuId === menuId && g.day > last) last = g.day;
-  const len = menu && menu.kind === 'cycle' ? Math.max(menu.cycleLen || 0, last) : 0;
   const t0 = dayStart(o.at);
-  const live = len > 0 && !!v && v.menuId === menuId && v.menuStartDt != null && dayStart(v.menuStartDt) <= t0;
-  const anchor = o.anchor ?? (menu ? menuAnchor(menu, venues, len, o.at) : null);
-  const today = live && v ? (cycleDayOn(v.menuStartDt, len, o.at) ?? 1) : anchor?.live ? (anchor.today ?? 0) : 0;
-  const start = anchor ? anchor.start : live ? addDays(t0, 1 - today) : t0;
+  let len: number;
+  let today: number;
+  let start: Date;
+  if (serving) {
+    len = serving.len;
+    today = serving.day;
+    start = addDays(t0, 1 - (today || 1));
+  } else {
+    len = menu && menu.kind === 'cycle' ? Math.max(menu.cycleLen || 0, last) : 0;
+    const live = len > 0 && !!v && v.menuId === menuId && v.menuStartDt != null && dayStart(v.menuStartDt) <= t0;
+    const anchor = o.anchor ?? (menu ? menuAnchor(menu, venues, len, o.at) : null);
+    today = live && v ? (cycleDayOn(v.menuStartDt, len, o.at) ?? 1) : anchor?.live ? (anchor.today ?? 0) : 0;
+    start = anchor ? anchor.start : live ? addDays(t0, 1 - today) : t0;
+  }
   const recipes = new Map(bo.recipes.map((r) => [r.id, r]));
   return {
     venueName: v?.name ?? 'Dining Room',
@@ -146,16 +224,14 @@ const BASE_CSS =
   '.it{margin:0 0 6px;break-inside:avoid}.nm{font-size:14.5px;font-weight:bold}.ds{font-size:12px;font-style:italic;color:#3A4751}.sd{font-size:12px;color:#3A4751}' +
   '.dt{font:600 9.5px -apple-system,system-ui,sans-serif;color:#4F6A38;border:1px solid #B9CBA6;border-radius:8px;padding:0 5px;margin-left:5px;vertical-align:2px;white-space:nowrap}' +
   '.meal{margin-bottom:14px;break-inside:avoid}.any{font-size:13px;margin:4px 0}.note{font:11.5px -apple-system,system-ui,sans-serif;color:#6B7780;margin:2px 0}' +
-  '.diet-only{border:1px dashed #A8703B;border-radius:6px;padding:6px 10px;margin-top:10px}' +
-  '@media screen{body{padding:.5in;background:#fff}}';
+  '.diet-only{border:1px dashed #A8703B;border-radius:6px;padding:6px 10px;margin-top:10px}';
 
 function doc(title: string, body: string, o: PrintOptions, landscape = false): string {
   return (
     '<!doctype html><html><head><meta charset="utf-8"><title>' +
     esc(title) +
-    '</title><style>@page{size:letter' +
-    (landscape ? ' landscape' : '') +
-    ';margin:.5in}' +
+    '</title><style>' +
+    paperCss(paperOf(o.paper), landscape) +
     BASE_CSS +
     TEMPLATE_CSS[o.template ?? 'classic'] +
     '</style></head><body>' +
@@ -199,9 +275,11 @@ function dish(x: PrintLine, o: PrintOptions, sides: string[] = [], extra = ''): 
   );
 }
 
-function snacksBlock(C: PrintContext, day: number): string {
-  if (!C.options.snacks) return '';
-  const list = [...C.at(day, 'Snacks'), ...(day ? C.at(0, 'Snacks') : [])];
+const snackLines = (C: PrintContext, day: number) => [...C.at(day, 'Snacks'), ...(day ? C.at(0, 'Snacks') : [])];
+
+function snacksBlock(C: PrintContext, day: number, always = false): string {
+  if (!C.options.snacks && !always) return '';
+  const list = snackLines(C, day);
   if (!list.length) return '';
   return (
     '<div class="diet-only"><div class="cat">Snacks · dietitian copy, not for residents</div><p class="any">' +
@@ -213,11 +291,18 @@ function snacksBlock(C: PrintContext, day: number): string {
 /** Everyday entrées a meal with no specials lists on the daily menu (at most 12). */
 const everydayEntrees = (C: PrintContext, m: string) => C.at(0, m).filter((x) => x.c === 'Entrees' && !/pureed|molded/i.test(x.r.name)).slice(0, 12);
 
+/** The meals a daily menu can print on their own: Breakfast, Lunch, Dinner, and Snacks when the menu has any. */
+export function printMeals(C: PrintContext): string[] {
+  const days = Array.from({ length: C.len + 1 }, (_, d) => d);
+  return days.some((d) => C.at(d, 'Snacks').length) ? [...PRINT_MEALS, 'Snacks'] : [...PRINT_MEALS];
+}
+
 /**
  * The day's menu by meal. Meals with no specials list the everyday entrées.
  * A venue with no cycle (only an à la carte menu) prints that menu in full.
+ * With `meals`, each of those meals prints on a page of its own.
  */
-export function dailyMenuHtml(C: PrintContext, day: number): string {
+export function dailyMenuHtml(C: PrintContext, day: number, meals: string[] = []): string {
   const o = C.options;
   const d = C.dateOf(day);
   const noCycle = C.len === 0;
@@ -245,6 +330,25 @@ export function dailyMenuHtml(C: PrintContext, day: number): string {
       '</div>'
     );
   };
+  const date = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const picked = PRINT_MEALS.filter((m) => meals.includes(m)) as string[];
+  if (meals.includes('Snacks')) picked.push('Snacks');
+  if (picked.length) {
+    const sheets = picked.map((m) => {
+      const inner =
+        m === 'Snacks'
+          ? snacksBlock(C, day, true)
+          : block(m) + (!noCycle && lines(m).length ? '<p class="note" style="text-align:center">The à la carte menu is also available.</p>' : '');
+      return (
+        '<div class="sheet">' +
+        head(C.venueName, m + ' · ' + date) +
+        (inner || '<p class="note" style="text-align:center">Nothing is on the ' + esc(m.toLowerCase()) + ' menu this day.</p>') +
+        FOOT +
+        '</div>'
+      );
+    });
+    return doc(picked.join(', ') + ' menu ' + monthDay(d), '<style>.meal,h2{text-align:center}</style>' + sheets.join(''), o);
+  }
   const cycleMeals = PRINT_MEALS.filter((m) => lines(m).length);
   const everyday = PRINT_MEALS.filter((m) => !lines(m).length)
     .map(block)
@@ -259,12 +363,22 @@ export function dailyMenuHtml(C: PrintContext, day: number): string {
     (alsoAlc ? '<p class="note" style="text-align:center">The à la carte menu is also available at every meal.</p>' : '') +
     snacksBlock(C, day) +
     FOOT;
-  return doc('Daily menu ' + monthDay(d), head(C.venueName, d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })) + body, o);
+  return doc('Daily menu ' + monthDay(d), head(C.venueName, date) + body, o);
 }
 
 /** Cycle days in week w (0 based). */
 export function weekDays(C: PrintContext, w: number): number[] {
   return Array.from({ length: 7 }, (_, i) => w * 7 + i + 1).filter((d) => d <= Math.max(C.len, 1));
+}
+
+/**
+ * Height of a meal row on the week at a glance (inches, before the paper's
+ * zoom): the page less room for the heading and footer, shared by the rows.
+ */
+export function weekRowHeight(p: Paper, rows: number): number {
+  const { h } = pageSize(p, true);
+  const usable = (h - 2 * p.margin) / p.zoom - 2.8;
+  return +Math.max(0.7, usable / Math.max(rows, 1)).toFixed(2);
 }
 
 /** The week at a glance: a landscape table of days by meal. */
@@ -275,7 +389,7 @@ export function weekHtml(C: PrintContext, w: number): string {
   const b = C.dateOf(ds[ds.length - 1]);
   const css =
     '<style>table{width:100%;border-collapse:collapse;table-layout:fixed}th{font:700 10.5px/1.3 -apple-system,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--accent);padding:6px 4px}th span{display:block;font-weight:500;letter-spacing:0;text-transform:none;opacity:.85}td{vertical-align:top;border:1px solid #C9D2DA;padding:8px 7px;font-size:13px;line-height:1.3;height:' +
-    (ms.length > 2 ? 1.9 : 2.7) +
+    weekRowHeight(paperOf(C.options.paper), Math.max(ms.length, 2)) +
     'in}td.m{width:70px;font:700 10px -apple-system,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:#F0F3F6;vertical-align:middle;text-align:center}.e{font-weight:bold;margin-bottom:7px}.s{font-style:italic;color:#3A4751;margin-bottom:7px}.d{color:#5E6B74;font-style:italic}</style>';
   const cell = (L: PrintLine[], c: PrintCat, cls: string) =>
     L.filter((x) => x.c === c)
@@ -335,8 +449,8 @@ export function alaCarteItems(C: PrintContext): Array<{ x: PrintLine; meals: Set
   return [...by.values()];
 }
 
-/** The Any Day menu: Breakfast, then Lunch and Dinner, in two columns. */
-export function alaCarteHtml(C: PrintContext): string {
+/** The Any Day menu: Breakfast, then Lunch and Dinner, in two columns. With `weekOf` (a Sunday), it is dated for that week. */
+export function alaCarteHtml(C: PrintContext, weekOf?: Date | null): string {
   const o = C.options;
   const css =
     '<style>.cols{column-count:2;column-gap:28px}.sl{font-size:12.5px;line-height:1.5;margin:0 0 6px}.only{font-weight:normal;font-style:italic;font-size:11.5px;color:#5E6B74}</style>';
@@ -379,7 +493,7 @@ export function alaCarteHtml(C: PrintContext): string {
   return doc(
     'A la carte menu',
     css +
-      head(C.venueName, 'À la carte · available every day') +
+      head(C.venueName, weekOf ? 'À la carte · ' + monthDay(weekOf) + ' to ' + monthDay(addDays(weekOf, 6)) : 'À la carte · available every day') +
       (body || '<p class="note">Nothing is on the à la carte menu yet.</p>') +
       snacksBlock(C, 0) +
       FOOT,
@@ -453,7 +567,16 @@ export function printWeek(C: PrintContext, week?: number | null): number {
  * The dishes a printout lists, each once: what the preview counts, so the
  * count matches what prints.
  */
-export function printedRecipes(kind: PrintKind, C: PrintContext, opts: { week?: number | null; day?: number | null } = {}): Set<string> {
+export interface MenuPick {
+  week?: number | null;
+  day?: number | null;
+  /** Daily menu: these meals, a page each; empty or unset prints every meal on one page. */
+  meals?: string[];
+  /** À la carte: the Sunday of the week it is printed for. */
+  weekOf?: Date | null;
+}
+
+export function printedRecipes(kind: PrintKind, C: PrintContext, opts: MenuPick = {}): Set<string> {
   const w = printWeek(C, opts.week);
   const day = opts.day || C.today || w * 7 + 1;
   const ids = new Set<string>();
@@ -465,19 +588,22 @@ export function printedRecipes(kind: PrintKind, C: PrintContext, opts: { week?: 
     for (const d of weekDays(C, w)) for (const m of ['Lunch', 'Dinner']) add(C.at(d, m).filter((x) => x.c !== 'Sides'));
   } else {
     const noCycle = C.len === 0;
+    const picked: readonly string[] = opts.meals?.length ? opts.meals : PRINT_MEALS;
     for (const m of PRINT_MEALS) {
+      if (!picked.includes(m)) continue;
       const L = C.at(noCycle ? 0 : day, m);
       add(L.length ? L : noCycle ? [] : everydayEntrees(C, m));
     }
+    if (opts.meals?.includes('Snacks') || (!opts.meals?.length && C.options.snacks)) add(snackLines(C, day));
   }
   return ids;
 }
 
-export function menuHtml(kind: PrintKind, C: PrintContext, opts: { week?: number | null; day?: number | null } = {}): string {
+export function menuHtml(kind: PrintKind, C: PrintContext, opts: MenuPick = {}): string {
   const w = printWeek(C, opts.week);
   const day = opts.day || C.today || w * 7 + 1;
   if (kind === 'week') return weekHtml(C, w);
-  if (kind === 'alacarte') return alaCarteHtml(C);
+  if (kind === 'alacarte') return alaCarteHtml(C, opts.weekOf);
   if (kind === 'order') return orderFormHtml(C, w);
-  return dailyMenuHtml(C, day);
+  return dailyMenuHtml(C, day, opts.meals);
 }
