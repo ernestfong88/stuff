@@ -76,8 +76,8 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
     return [...by.values()].sort((a, b) => dishLong(a.r?.name ?? '').localeCompare(dishLong(b.r?.name ?? '')));
   }, [bo.grid, bo.recipes, m.id]);
 
-  // The standard is for à la carte menus; a cycle's every-day list is the whole standing tablet menu.
-  const standard = m.kind === 'alc' && !everyDay;
+  // The menu standard applies to every à la carte list, a cycle's every-day items included (venues serve it as their à la carte).
+  const standard = m.kind === 'alc' || everyDay;
   const tally = useMemo(
     () =>
       countAlc(
@@ -145,8 +145,9 @@ export function AlaCarteBuilder({ menu: m, everyDay, onBack }: { menu: BoMenu; e
       </button>
       {readOnly && <LockBanner menu={m} />}
       {over.length > 0 && (
-        <BoCallout tone="warning" title={`This menu is ${over.join(' and ')}.`}>
-          It is a guide, not a block: your changes still save.
+        <BoCallout tone="danger" title={`Over the menu standard: reduce the menu by ${over.join(' and ')}.`}>
+          The standard is {tally.limitItems} menu items, at most {tally.limitSides} of them sides; this menu has {tally.items} menu items and {tally.sides}{' '}
+          {tally.sides === 1 ? 'side' : 'sides'}. Your changes still save.
         </BoCallout>
       )}
       <div className={s.meals}>

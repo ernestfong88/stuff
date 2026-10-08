@@ -220,6 +220,10 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### À la carte: the 20-item / 8-side counter on every list
+- The counter (**Menu items N / 20 · Sides N / 8**) now also shows on a cycle's **Every-day items**, which venues serve as their à la carte menu. Before, it only showed on standalone à la carte menus. It is a little larger.
+- **At** a limit it turns amber, and **over** it turns red. A red warning then says how much to cut, for example "Over the menu standard: reduce the menu by 42 menu items and 22 sides", with the counts it is based on. Changes still save: it is a guide, not a block.
+
 ### Manager Metrics: Steps of Service made clear
 - The Metrics tab on the manager tablet now reads top to bottom: one headline, the steps in order, one thing to do, by server, then every table.
 - **One headline:** this meal's average table time (order to entrée) in big green or red against the 22 min goal, with *N of M tables got their food on time* (appetizer within 7 min and entrée within 15; goal 90% of tables) and how it compares with the last 7 of the same meal. The same numbers as before; the separate *Tables that missed a step* card is folded into it.

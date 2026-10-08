@@ -38,11 +38,12 @@ function Part({ label, n, limit, level }: { label: string; n: number; limit: num
   );
 }
 
-/** The non-blocking warnings when a menu is over the standard; empty when it is not. */
+/** How much a menu is over the standard ("45 menu items", "4 sides"); empty when it is not. */
 export function alcWarnings(c: AlcCount): string[] {
   const out: string[] = [];
-  if (c.items > c.limitItems) out.push(`${c.items - c.limitItems} over the ${c.limitItems}-item standard`);
-  if (c.sides > c.limitSides)
-    out.push(`${c.sides - c.limitSides} ${c.sides - c.limitSides === 1 ? 'side' : 'sides'} over the ${c.limitSides}-side standard`);
+  const items = c.items - c.limitItems;
+  const sides = c.sides - c.limitSides;
+  if (items > 0) out.push(`${items} menu ${items === 1 ? 'item' : 'items'}`);
+  if (sides > 0) out.push(`${sides} ${sides === 1 ? 'side' : 'sides'}`);
   return out;
 }
