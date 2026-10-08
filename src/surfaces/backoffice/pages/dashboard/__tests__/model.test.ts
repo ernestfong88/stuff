@@ -4,7 +4,7 @@ import { HISTORY_SERVERS } from '../../../seed/dashboard';
 import { countSentiment, feedbackHistory, matchDish, readComment, sentimentOf, sentimentTrend } from '../model/feedback';
 import { currentDays, dayLabel, period } from '../model/periods';
 import { budgetPct, compsFor, revenuePeriod } from '../model/revenue';
-import { avgTableTime, lateTablesByServer, serviceAction, timedTables } from '../model/service';
+import { avgTableTime, bestWorstTables, lateTablesByServer, serviceAction, tableTime, timedTables } from '../model/service';
 
 // A Wednesday; the prototype showed these same numbers for this day.
 const TODAY = new Date(2026, 9, 7).getTime();
@@ -77,7 +77,15 @@ describe('feedback', () => {
     expect(sentimentOf('Had the soup')).toBe('neu');
   });
   it('does not read a dish name as a complaint', () => {
-    const c = readComment({ id: 'x', at: 0, dish: 'Slow Roasted Prime Rib', text: 'Loved the Slow Roasted Prime Rib.', sent: 'pos', who: '', src: 'Voice note' });
+    const c = readComment({
+      id: 'x',
+      at: 0,
+      dish: 'Slow Roasted Prime Rib',
+      text: 'Loved the Slow Roasted Prime Rib.',
+      sent: 'pos',
+      who: '',
+      src: 'Voice note',
+    });
     expect(c.themes).toEqual([]);
     expect(c.pos).toBe(true);
   });
@@ -90,5 +98,27 @@ describe('feedback', () => {
     expect(sentimentTrend({ pos: 8, neu: 1, neg: 1, n: 10 }, { pos: 5, neu: 1, neg: 4, n: 10 })).toBe('up');
     expect(sentimentTrend({ pos: 5, neu: 1, neg: 4, n: 10 }, { pos: 5, neu: 1, neg: 4, n: 10 })).toBe('flat');
     expect(sentimentTrend(countSentiment([]), { pos: 1, neu: 0, neg: 0, n: 1 })).toBe('none');
+  });
+});
+
+describe('best and worst tables', () => {
+  const day = timedTables(new Date(2026, 9, 7).getTime(), HISTORY_SERVERS);
+
+  it('lists the slowest visits first and the fastest first, never the same visit twice', () => {
+    const { worst, best } = bestWorstTables(day);
+    const times = day.map(tableTime).sort((a, b) => a - b);
+    expect(worst.map((x) => x.minutes)).toEqual(times.slice(-3).reverse());
+    expect(best.map((x) => x.minutes)).toEqual(times.slice(0, 3));
+    expect(worst[0].server).toBeTruthy();
+  });
+
+  it('averages each table over a range, and splits a short list without overlap', () => {
+    const { worst, best } = bestWorstTables(day, { byTable: true });
+    expect(worst.every((x) => (x.visits ?? 0) >= 1)).toBe(true);
+    expect(worst.at(-1)!.minutes).toBeGreaterThanOrEqual(best.at(-1)!.minutes);
+    const two = bestWorstTables(day.slice(0, 2));
+    expect(two.worst).toHaveLength(1);
+    expect(two.best).toHaveLength(1);
+    expect(bestWorstTables([])).toEqual({ worst: [], best: [] });
   });
 });

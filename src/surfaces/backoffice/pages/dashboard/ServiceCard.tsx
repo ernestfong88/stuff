@@ -5,7 +5,7 @@ import { Button, cx } from '../../../../ui';
 import { BarChart, BoCaption, CHART } from '../../kit';
 import { GOALS, TABLE_TIME_GOAL, min1 } from './model/insight';
 import { dayLabel, longDay } from './model/periods';
-import { avgTableTime, lateTablesByServer, serviceAction, serviceWeek, tableTime } from './model/service';
+import { avgTableTime, bestWorstTables, lateTablesByServer, serviceAction, serviceWeek, tableTime, type TableRank } from './model/service';
 import type { DashboardData } from './model/useDashboardData';
 import { CardHead, DayModal, DetailStat, Drivers, PeriodTrend, RangeModal, StartHere, TopAction } from './parts';
 import s from './dashboard.module.css';
@@ -25,7 +25,12 @@ export function ServiceCard({ data, goto }: { data: DashboardData; goto: (pageId
   const pa = avgTableTime(servicePeriods[6]);
   const dr = ca != null && pa != null ? ca - pa : null;
   const dir = dr == null ? 'none' : dr < -0.5 ? 'up' : dr > 0.5 ? 'down' : 'flat';
-  const sub = { up: `Faster than the ${n} days before`, down: `Slower than the ${n} days before`, flat: `About the same as the ${n} days before`, none: 'Too few tables to compare' }[dir];
+  const sub = {
+    up: `Faster than the ${n} days before`,
+    down: `Slower than the ${n} days before`,
+    flat: `About the same as the ${n} days before`,
+    none: 'Too few tables to compare',
+  }[dir];
   const vals = perDay.map((d) => d.v).filter((v): v is number => v != null);
   // Start the bars a little under the lowest day so differences of a minute or two are visible.
   const floor = Math.max(0, Math.floor(Math.min(TABLE_TIME_GOAL, ...vals) - 4));
@@ -44,7 +49,8 @@ export function ServiceCard({ data, goto }: { data: DashboardData; goto: (pageId
           <span className={s.heroLabel}>average table time · goal {TABLE_TIME_GOAL} min</span>
         </div>
         <span className={cx(s.trendChip, dir === 'up' ? s.trendGood : dir === 'down' ? s.trendBad : s.trendFlat)} title={sub}>
-          {dir === 'up' ? '▼' : dir === 'down' ? '▲' : '–'} {dr == null ? 'No trend yet' : dir === 'flat' ? 'Steady' : `${Math.abs(dr).toFixed(1)} min ${dir === 'up' ? 'faster' : 'slower'}`}
+          {dir === 'up' ? '▼' : dir === 'down' ? '▲' : '–'}{' '}
+          {dr == null ? 'No trend yet' : dir === 'flat' ? 'Steady' : `${Math.abs(dr).toFixed(1)} min ${dir === 'up' ? 'faster' : 'slower'}`}
           <span className={s.trendVs}>vs the {n} days before</span>
         </span>
       </div>
@@ -85,7 +91,17 @@ export function ServiceCard({ data, goto }: { data: DashboardData; goto: (pageId
   );
 }
 
-function ServiceDayModal({ data, index, setIndex, onClose }: { data: DashboardData; index: number; setIndex: (i: number) => void; onClose: () => void }) {
+function ServiceDayModal({
+  data,
+  index,
+  setIndex,
+  onClose,
+}: {
+  data: DashboardData;
+  index: number;
+  setIndex: (i: number) => void;
+  onClose: () => void;
+}) {
   const d = data.days[index];
   const D = data.servicePeriods[7].filter((x) => x.day === d.a);
   const av = avgTableTime(D);
@@ -94,16 +110,32 @@ function ServiceDayModal({ data, index, setIndex, onClose }: { data: DashboardDa
   const aa = D.length ? D.reduce((q, x) => q + x.app, 0) / D.length : null;
   const ae = D.length ? D.reduce((q, x) => q + x.ent, 0) / D.length : null;
   return (
-    <DayModal cap="Steps of Service" dayTitle={(d.today ? 'Today, ' : '') + longDay(d.a)} index={index} count={data.days.length} setIndex={setIndex} onClose={onClose}>
+    <DayModal
+      cap="Steps of Service"
+      dayTitle={(d.today ? 'Today, ' : '') + longDay(d.a)}
+      index={index}
+      count={data.days.length}
+      setIndex={setIndex}
+      onClose={onClose}
+    >
       <div className={s.dstats3}>
         <DetailStat value={`${min1(av)} min`} label="average table time" tone={av != null && av > TABLE_TIME_GOAL ? 'bad' : 'good'} />
         <DetailStat value={`${TABLE_TIME_GOAL} min`} label="goal, order to entrée" />
         <DetailStat value={`${lateCount} of ${D.length}`} label="tables over goal" tone={lateCount ? 'bad' : undefined} />
       </div>
       <div className={s.dstats2}>
-        <DetailStat value={`${min1(aa)} min`} label={`order → appetizer · goal ${GOALS.app}`} tone={aa != null && aa > GOALS.app ? 'bad' : undefined} />
-        <DetailStat value={`${min1(ae)} min`} label={`appetizer → entrée · goal ${GOALS.ent}`} tone={ae != null && ae > GOALS.ent ? 'bad' : undefined} />
+        <DetailStat
+          value={`${min1(aa)} min`}
+          label={`order → appetizer · goal ${GOALS.app}`}
+          tone={aa != null && aa > GOALS.app ? 'bad' : undefined}
+        />
+        <DetailStat
+          value={`${min1(ae)} min`}
+          label={`appetizer → entrée · goal ${GOALS.ent}`}
+          tone={ae != null && ae > GOALS.ent ? 'bad' : undefined}
+        />
       </div>
+      <BestWorst {...bestWorstTables(D)} />
       <div className={s.block}>
         <BoCaption>Follow up with · slowest tables first</BoCaption>
         {late.length === 0 && <p className={s.muted}>Every table came in under {TABLE_TIME_GOAL} minutes.</p>}
@@ -154,6 +186,7 @@ function ServiceRangeModal({ data, goto, onClose }: { data: DashboardData; goto:
     <RangeModal title="Steps of Service" n={data.n} onClose={onClose}>
       <StartHere insight={week.insight} />
       <Drivers rows={week.drivers} />
+      <BestWorst {...bestWorstTables(P[7], { byTable: true })} range />
       <PeriodTrend
         values={V.map((v) => +v.toFixed(1))}
         n={data.n}
@@ -178,5 +211,36 @@ function ServiceRangeModal({ data, goto, onClose }: { data: DashboardData; goto:
         </Button>
       </div>
     </RangeModal>
+  );
+}
+
+/** The slowest and fastest tables side by side: one day's visits, or each table's average over the range. */
+function BestWorst({ worst, best, range }: { worst: TableRank[]; best: TableRank[]; range?: boolean }) {
+  if (!worst.length) return null;
+  const list = (title: string, rows: TableRank[], tone: 'bad' | 'good') => (
+    <section className={s.rankCol} aria-label={title}>
+      <BoCaption>{title}</BoCaption>
+      <ol className={s.rankList}>
+        {rows.map((x) => (
+          <li key={x.table + (x.at ?? '')} className={s.rankRow}>
+            <span className={s.rankTable}>{x.table}</span>
+            <span className={s.rankSub}>
+              {range ? `${x.visits} ${x.visits === 1 ? 'visit' : 'visits'}` : `${x.server?.split(' ')[0]} · ${x.meal} ${formatTime(x.at!)}`}
+            </span>
+            <b
+              className={tone === 'bad' && x.minutes > TABLE_TIME_GOAL ? s.bad : tone === 'good' && x.minutes <= TABLE_TIME_GOAL ? s.good : undefined}
+            >
+              {min1(x.minutes)} min
+            </b>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+  return (
+    <div className={s.rank}>
+      {list(range ? 'Slowest tables · average' : 'Slowest tables', worst, 'bad')}
+      {best.length > 0 && list(range ? 'Fastest tables · average' : 'Fastest tables', best, 'good')}
+    </div>
   );
 }

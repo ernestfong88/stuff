@@ -37,7 +37,8 @@ export function timedTables(day: number, servers: Array<{ id: string; name: stri
   const q = mixHash('dq' + ds) % 100;
   const band = q < 30 ? [2, 3] : q < 75 ? [4, 6] : [7, 10];
   const spread = (k: string) => band[0] + (mixHash('sp' + k + ds) % (band[1] - band[0] + 1));
-  const noise = q < 30 ? -2.5 + (mixHash('no' + ds) % 150) / 100 : q < 75 ? -0.5 + (mixHash('no' + ds) % 250) / 100 : 2.5 + (mixHash('no' + ds) % 350) / 100;
+  const noise =
+    q < 30 ? -2.5 + (mixHash('no' + ds) % 150) / 100 : q < 75 ? -0.5 + (mixHash('no' + ds) % 250) / 100 : 2.5 + (mixHash('no' + ds) % 350) / 100;
   const out: TimedTable[] = [];
   for (const m of MEALS) {
     const count = (m === 'Dinner' ? 12 : m === 'Lunch' ? 10 : 6) + (mixHash('nt' + m + ds) % 6);
@@ -50,8 +51,19 @@ export function timedTables(day: number, servers: Array<{ id: string; name: stri
       const h5 = mixHash('st' + ds + m + i);
       const sv = S[h5 % S.length];
       const bias = sv.id === 'MT' && m === 'Dinner' ? 0.9 : sv.id === 'RJ' && m === 'Lunch' ? 0.5 : 0;
-      const app = Math.max(2.5, 3.3 + noise * 0.25 + (h1 % 30) / 10 + mealLag * 0.4 + (sv.id === 'RJ' ? bias * 1.4 : 0) + (mixHash('xa' + ds + m + i) % 100 < slowApp ? 3.6 : 0));
-      const ent = Math.max(6, 12.8 + noise * 0.85 + (h2 % 42) / 10 + mealLag * 1.3 + (sv.id === 'MT' ? bias : 0) + (mixHash('xe' + ds + m + i) % 100 < slowEnt ? 5 : 0));
+      const app = Math.max(
+        2.5,
+        3.3 +
+          noise * 0.25 +
+          (h1 % 30) / 10 +
+          mealLag * 0.4 +
+          (sv.id === 'RJ' ? bias * 1.4 : 0) +
+          (mixHash('xa' + ds + m + i) % 100 < slowApp ? 3.6 : 0),
+      );
+      const ent = Math.max(
+        6,
+        12.8 + noise * 0.85 + (h2 % 42) / 10 + mealLag * 1.3 + (sv.id === 'MT' ? bias : 0) + (mixHash('xe' + ds + m + i) % 100 < slowEnt ? 5 : 0),
+      );
       const sat = new Date(day);
       sat.setHours(m === 'Breakfast' ? 7 : m === 'Lunch' ? 11 : 17, 30 + (mixHash('sh' + ds + m + i) % 120));
       out.push({
@@ -84,7 +96,8 @@ export function serviceAction(T: TimedTable[]): { tone: Tone; text: string } | n
   const ae = slow.L.reduce((q, x) => q + x.ent, 0) / slow.L.length;
   const step = ae / GOALS.ent >= aa / GOALS.app ? 'entrée pacing' : 'appetizer timing';
   const sv = [...groupBy(slow.L, (x) => x.server).entries()].map(([k, L]) => [k, avgTableTime(L)!] as const).sort((a, b) => b[1] - a[1])[0];
-  if (av <= TABLE_TIME_GOAL - 2 && slow.v <= TABLE_TIME_GOAL) return { tone: 'good', text: `Keep the pace. Average table time is ${min1(av)} min, inside the ${TABLE_TIME_GOAL} min goal at every meal.` };
+  if (av <= TABLE_TIME_GOAL - 2 && slow.v <= TABLE_TIME_GOAL)
+    return { tone: 'good', text: `Keep the pace. Average table time is ${min1(av)} min, inside the ${TABLE_TIME_GOAL} min goal at every meal.` };
   return {
     tone: av > TABLE_TIME_GOAL ? 'bad' : 'warn',
     text: `Coach ${sv[0]} and the line on ${slow.m.toLowerCase()} ${step}. ${slow.m} tables average ${min1(slow.v)} min against the ${TABLE_TIME_GOAL} min goal; ${sv[0].split(' ')[0]}’s average ${min1(sv[1])}.`,
@@ -108,7 +121,10 @@ export function serviceWeek(cur: TimedTable[], prevAvg: number | null, dayAverag
   const srv = ranked((x) => x.server);
   const aa = cur.reduce((q, x) => q + x.app, 0) / (cur.length || 1);
   const ae = cur.reduce((q, x) => q + x.ent, 0) / (cur.length || 1);
-  const step = ae / GOALS.ent >= aa / GOALS.app ? { name: 'Appetizer → entrée', v: ae, goal: GOALS.ent, fix: 'entrée' } : { name: 'Order → appetizer', v: aa, goal: GOALS.app, fix: 'appetizer' };
+  const step =
+    ae / GOALS.ent >= aa / GOALS.app
+      ? { name: 'Appetizer → entrée', v: ae, goal: GOALS.ent, fix: 'entrée' }
+      : { name: 'Order → appetizer', v: aa, goal: GOALS.app, fix: 'appetizer' };
   if (!meal || !srv) return { insight: { tone: 'good', head: 'No tables timed in this range.' }, drivers: [] };
   return {
     insight: {
@@ -119,7 +135,12 @@ export function serviceWeek(cur: TimedTable[], prevAvg: number | null, dayAverag
     },
     drivers: [
       { name: meal.k, what: 'slowest meal', value: `${min1(meal.v)} min`, tone: meal.v > TABLE_TIME_GOAL ? 'bad' : 'good' },
-      { name: step.name, what: 'step furthest from its goal', value: `${min1(step.v)} of ${step.goal} min`, tone: step.v > step.goal ? 'bad' : 'good' },
+      {
+        name: step.name,
+        what: 'step furthest from its goal',
+        value: `${min1(step.v)} of ${step.goal} min`,
+        tone: step.v > step.goal ? 'bad' : 'good',
+      },
       { name: srv.k, what: 'slowest server', value: `${min1(srv.v)} min`, tone: srv.v > TABLE_TIME_GOAL ? 'bad' : 'good' },
     ],
   };
@@ -137,4 +158,38 @@ export function lateTablesByServer(day: TimedTable[]): ServerFollowUp[] {
   return [...groupBy(late, (x) => x.server).entries()]
     .map(([server, L]) => ({ server, late: L, tables: day.filter((x) => x.server === server).length }))
     .sort((a, b) => b.late.length - a.late.length || tableTime(b.late[0]) - tableTime(a.late[0]));
+}
+
+export interface TableRank {
+  table: string;
+  /** Average table time, minutes. */
+  minutes: number;
+  /** One timed visit: who served it and when. A table over a range: how many times it was timed. */
+  server?: string;
+  meal?: MealName;
+  at?: number;
+  visits?: number;
+}
+
+/**
+ * The slowest and fastest tables, `k` of each and never the same one twice.
+ * For one day each timed visit counts on its own; over a range the visits
+ * are averaged per table, keeping tables timed at least twice when there are
+ * enough of them, so one bad night doesn't decide it.
+ */
+export function bestWorstTables(T: TimedTable[], opts: { byTable?: boolean; k?: number } = {}): { worst: TableRank[]; best: TableRank[] } {
+  const k = opts.k ?? 3;
+  let rows: TableRank[];
+  if (opts.byTable) {
+    const all = [...groupBy(T, (x) => x.table).entries()].map(([table, L]) => ({ table, minutes: avgTableTime(L)!, visits: L.length }));
+    const repeat = all.filter((x) => x.visits >= 2);
+    rows = repeat.length >= k * 2 ? repeat : all;
+  } else rows = T.map((x) => ({ table: x.table, minutes: tableTime(x), server: x.server, meal: x.meal, at: x.at }));
+  const slow = [...rows].sort((a, b) => b.minutes - a.minutes);
+  const worst = slow.slice(0, Math.min(k, Math.ceil(rows.length / 2)));
+  const best = slow
+    .filter((x) => !worst.includes(x))
+    .reverse()
+    .slice(0, k);
+  return { worst, best };
 }

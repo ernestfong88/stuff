@@ -220,6 +220,12 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Steps of Service: slowest and fastest tables
+The Steps of Service drill-downs now show the 3 slowest and the 3 fastest tables side by side.
+
+- **One day:** each timed table, with its server, meal and time.
+- **Detail (7 or more days):** each table's average over the period, with how many times it was timed. Tables timed only once are left out when there are enough others, so one bad night doesn't decide it.
+
 ### A way back to My tables
 The PU & Delivery screen now has a **← My tables** button.
 

@@ -1053,3 +1053,48 @@
   padding-top: 12px;
   border-top: 1px solid var(--hair);
 }
+
+/* Steps of Service drill down: slowest and fastest tables side by side. */
+.rank {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 560px) {
+  .rank {
+    grid-template-columns: 1fr;
+  }
+}
+.rankCol {
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  box-shadow: var(--ring);
+}
+.rankList {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.rankRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid var(--hair);
+  font-size: 12.5px;
+}
+.rankRow:first-child {
+  border-top: 0;
+}
+.rankTable {
+  font-weight: 700;
+  min-width: 44px;
+}
+.rankSub {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--s500);
+}
