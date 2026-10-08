@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { ChevronRight, Images } from 'lucide-react';
+import { useMenuVersion } from '../../../../data';
 import { dishPhoto } from '../../../../data/photos';
 import type { MealName, MenuItem } from '../../../../domain/types';
 import { today } from '../../../../lib/clock';
+import { useVenue } from '../../../../shell/session';
+import { venueName } from '../../../../store/sideWork';
 import { is86, use86 } from '../../../../store/eightySix';
 import { Button, Chip, Modal, Tabs, cx } from '../../../../ui';
 import { DishPhoto } from './DishPhoto';
@@ -19,8 +22,9 @@ function OutBadge() {
 }
 
 /**
- * Today's menu for describing dishes at the table: specials first with
- * photos, every other dish by category, and a photo gallery. Tap a dish to
+ * Today's menu at the tablet's venue, for describing dishes at the table:
+ * specials first with photos, every other dish by category, and a photo
+ * gallery. Tap a dish to
  * see it full screen with what it comes with.
  */
 export function MenuReference({ meal: initialMeal, onClose }: { meal?: MealName; onClose: () => void }) {
@@ -28,7 +32,9 @@ export function MenuReference({ meal: initialMeal, onClose }: { meal?: MealName;
   const [meal, setMeal] = useState<MealName>(initialMeal ?? mealAt(today().getHours() + today().getMinutes() / 60));
   const [photos, setPhotos] = useState(false);
   const [view, setView] = useState<MenuItem | null>(null);
-  const { specials, categories, all } = menuSections(meal);
+  const [venue] = useVenue();
+  useMenuVersion();
+  const { specials, categories, all } = menuSections(meal, venue);
   const withPhoto = all.filter((it) => dishPhoto(it.name)).length;
 
   const name = (it: MenuItem) => <span className={cx(s.name, is86(marks, it.id) && s.outName)}>{it.name}</span>;
@@ -40,7 +46,7 @@ export function MenuReference({ meal: initialMeal, onClose }: { meal?: MealName;
         onClose={onClose}
         width={photos ? 1100 : 780}
         className={s.modal}
-        title="Today's menu"
+        title={`Today's menu · ${venueName(venue)}`}
         subtitle={photos ? `Dish photos · ${withPhoto} of ${all.length} have a photo` : 'Specials first. Tap a dish to see its photo full screen and what it comes with.'}
       >
         <div className={s.toolbar}>

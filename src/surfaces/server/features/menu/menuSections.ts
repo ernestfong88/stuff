@@ -1,4 +1,4 @@
-import { menu } from '../../../../data';
+import { menuFor } from '../../../../data';
 import { isDrink } from '../../../../domain/menu';
 import { mealAtHour } from '../../../../domain/mealPeriods';
 import type { MealName, MenuItem } from '../../../../domain/types';
@@ -21,12 +21,13 @@ const specialOrder = (it: MenuItem) => (it.entree ? 0 : it.course === 1 ? 1 : it
 
 /**
  * A meal's menu for the reference: dishes only (no drinks, add-ons or
- * fees), each listed once, specials pulled to the top.
+ * fees), each listed once, specials pulled to the top. The venue's own
+ * menu (its cycle and à la carte), or the dining room's without one.
  */
-export function menuSections(meal: MealName): MenuSections {
+export function menuSections(meal: MealName, room?: string | null): MenuSections {
   const seen = new Set<string>();
   const dishes: Array<[string, MenuItem]> = [];
-  for (const [category, items] of Object.entries(menu[meal] ?? {})) {
+  for (const [category, items] of Object.entries(menuFor(room)[meal] ?? {})) {
     if (/add-?ons?|fees?/i.test(category)) continue;
     for (const it of items) {
       if (isDrink(it.id) || seen.has(it.id)) continue;

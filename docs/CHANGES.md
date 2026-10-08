@@ -220,6 +220,10 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Server: the menu reference shows the tablet's venue
+- The menu reference (the book button in the server and manager top bars) now shows the menu of the venue the tablet is set to, with its own cycle specials and à la carte, and its name in the title (*Today's menu · The Bistro*). It used to always show the Sequoia dining room menu.
+- It updates live when the menu changes in Back Office, the same as ordering.
+
 ### Pick up & delivery orders follow the menu cycle and à la carte
 - A pick up or delivery started on the server tablet (New check → *Not at a table?*, or the server's PU board) or on the PU & Delivery tablet orders from the menu for its venue, its day and its meal: that day's cycle specials and that meal's à la carte items, at the venue's prices. Back Office changes show at once, also on an order already open.
 - **Pick up day and time** on the order: *Today* or *Tomorrow*, then the times for the order's meal. The other meals that day are one tap away (*Dinner times*). A time in another meal moves the order to that meal and its menu; so does the meal switch at the top, which also moves the time to that meal's first open range.
