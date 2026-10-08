@@ -220,6 +220,9 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Handoff note for IT
+- New [docs/HANDOFF.md](HANDOFF.md) for the team taking over: how to run it, what's real and what's simulated, where a backend plugs in, how to build and host it, and what's left to build before it can go live. The README links to it.
+
 ### Faster first load
 - Kitchen, Expo, the specials TV, Prep, Bar and the associate phone no longer download the Back Office menu model when today's menu is already saved on the device, about 57 KB less each time they open. A new device, or a saved menu from another day, still loads it once to catch up.
 - The production plan, Back Office resident records and an unused bar menu no longer load with every screen, and recipe details are no longer downloaded twice: about 29 KB less on every screen.

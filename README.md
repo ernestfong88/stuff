@@ -85,3 +85,6 @@ enough to demo and pilot on a single device or browser, but not across
 devices. For production, replace the dining store's persistence layer
 (`src/store`) and the seed data (`src/data`) with the KiscoConnect API.
 Components only read through those modules, so the change stays in one place.
+
+Taking the app over? Start with [docs/HANDOFF.md](docs/HANDOFF.md): what's real and what's
+simulated, and what's left to build before it can go live.
