@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { rooms } from '../../../data';
-import { COURSE_MODES, COURSE_SAFETY_NET, flag, printerMode, type CourseMode, type FlowFlag } from '../../../domain/config';
+import { COURSE_MODES, COURSE_SAFETY_NET, DEFAULT_COURSE_MODE, flag, printerMode, type CourseMode, type FlowFlag } from '../../../domain/config';
 import type { MealName } from '../../../domain/types';
 import { updateConfig, useConfig } from '../../../store/config';
 import { getSetting, setSetting, useSetting } from '../../../store/serviceConfig';
@@ -68,7 +68,7 @@ function Coursing() {
   const set = (room: string, meal: MealName, mode: CourseMode) =>
     updateConfig((c) => {
       const venue = { ...c.course[room] };
-      if (mode === 'expo') delete venue[meal];
+      if (mode === DEFAULT_COURSE_MODE) delete venue[meal];
       else venue[meal] = mode;
       return { course: { ...c.course, [room]: venue } };
     });
@@ -81,7 +81,7 @@ function Coursing() {
         render: (v) => (
           <SettingSelect<CourseMode>
             label={`${v.name} ${meal} coursing`}
-            value={cfg.course[v.key]?.[meal] ?? 'expo'}
+            value={cfg.course[v.key]?.[meal] ?? DEFAULT_COURSE_MODE}
             options={COURSE_OPTIONS}
             onChange={(m) => set(v.key, meal, m)}
           />

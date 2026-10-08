@@ -115,8 +115,9 @@ describe('courseDue', () => {
 
   it('expo mode fires the next course once the prior one is served', () => {
     const o = order([]);
-    expect(courseDue(o, 2, prevRun, true, 0)).toBe(true);
-    expect(courseDue(o, 2, prevRun, false, 0)).toBe(false);
+    const cfg = withMode('expo');
+    expect(courseDue(o, 2, prevRun, true, 0, cfg)).toBe(true);
+    expect(courseDue(o, 2, prevRun, false, 0, cfg)).toBe(false);
   });
 
   it('dessert waits for the 15 minute backup', () => {
@@ -124,6 +125,13 @@ describe('courseDue', () => {
     expect(courseDue(o, 3, prevRun, true, 0)).toBe(false);
     advance(COURSE_BACKUP_MIN * MIN);
     expect(courseDue(o, 3, prevRun, true, 0)).toBe(true);
+  });
+
+  it('manual coursing is the default: nothing fires on its own until the backup', () => {
+    const o = order([]);
+    expect(courseDue(o, 2, prevRun, true, 0)).toBe(false);
+    advance(COURSE_BACKUP_MIN * MIN);
+    expect(courseDue(o, 2, prevRun, true, 0)).toBe(true);
   });
 
   it('timed and manual modes', () => {
@@ -140,11 +148,12 @@ describe('courseDue', () => {
 describe('pacingTick (dine-in)', () => {
   it('fires the held entrée once the soup course is run', () => {
     const { o, entree, dessert } = dinnerCheck();
+    const cfg = withMode('expo');
     let s = sendOrder(stateOf(o), o.id);
-    expect(pacingTick(s.orders)).toBe(s.orders);
+    expect(pacingTick(s.orders, cfg)).toBe(s.orders);
     s = runCourse(s, o.id, 1);
     advance(5000);
-    const fired = pacingTick(s.orders)[0];
+    const fired = pacingTick(s.orders, cfg)[0];
     const byId = Object.fromEntries(lines(fired).map((i) => [i.id, i]));
     expect(byId[entree.id]).toMatchObject({ kitchenState: 'cooking', firedAt: T0 + 5000 });
     expect(byId[dessert.id].kitchenState).toBe('scheduled');
@@ -184,7 +193,7 @@ describe('course work and timeline helpers', () => {
     const undo = runUndoSnapshot(o, 1);
     let s = runCourse(stateOf(o), o.id, 1);
     advance(1000);
-    s = { ...s, orders: pacingTick(s.orders) };
+    s = { ...s, orders: pacingTick(s.orders, withMode('expo')) };
     expect(lines(s.orders[0]).map((i) => i.kitchenState)).toEqual(['cleared', 'cooking']);
     s = undoRunCourse(s, o.id, undo);
     expect(lines(s.orders[0]).map((i) => i.kitchenState)).toEqual(['ready', 'scheduled']);

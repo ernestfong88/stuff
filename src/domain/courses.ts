@@ -7,7 +7,7 @@
  * means a takeout order.
  */
 import { now } from '../lib/clock';
-import { DEFAULT_CONFIG, type CourseMode, type DiningConfig } from './config';
+import { DEFAULT_CONFIG, DEFAULT_COURSE_MODE, type CourseMode, type DiningConfig } from './config';
 import { isDrink, isSide, itemCourse, itemLabel } from './menu';
 import { lineCourse, plateLines } from './orders';
 import { foodRoute, isDrinkLine } from './routing';
@@ -35,10 +35,10 @@ export function courseNumber(line: Pick<OrderLine, 'course' | 'itemId'>): number
   return line.course || itemCourse(line.itemId);
 }
 
-/** __kCourseMode: the venue's coursing for this check's meal (default "expo"). */
+/** __kCourseMode: the venue's coursing for this check's meal (default: manual coursing). */
 export function courseMode(o: Pick<Order, 'room' | 'meal'> | null | undefined, cfg: DiningConfig = DEFAULT_CONFIG): CourseMode {
-  if (!o) return 'expo';
-  return cfg.course[o.room]?.[o.meal] ?? 'expo';
+  if (!o) return DEFAULT_COURSE_MODE;
+  return cfg.course[o.room]?.[o.meal] ?? DEFAULT_COURSE_MODE;
 }
 
 /**

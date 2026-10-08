@@ -220,6 +220,9 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Coursing: Manual coursing is the default
+*Hold for server* is renamed **Manual coursing**, and it is now the default for every venue and meal: each course waits until the server or expo fires it, with the 15-minute safety net. A venue and meal still set to another option in *Pacing & Coursing* keeps it. Ones never changed, which were *Fire when served* until now, follow the new default.
+
 ### HO Settings: Home Office only
 - HO Settings is for Home Office. Alerts & Timing, Shift Metrics, Meal Credits, Recipe Approval and Release Phases show only to someone signed in to Back Office as Home Office. For a community user (the Culinary Director, as before) the section is gone from the side menu, from page search and from the breadcrumb bar, and opening one of its addresses shows a plain "This page is for Home Office" note, with no settings and no way in.
 - View as: Community · Home Office, a demo switch in the screen menu's Demo box and in the Back Office account card at the bottom of the side menu. It is a setting of the device, so *Reset demo data* keeps it, and it starts on Community. As Home Office the account card reads Home Office, Culinary Services, and Recipe Approval decisions are recorded as Home Office.
@@ -536,9 +539,9 @@ The coursing choices on *Pacing & Coursing* are renamed. They work the same as b
 | Before | Now | What it does |
 | --- | --- | --- |
 | Fire all | **All at once** | Every course but dessert fires when the order is sent |
-| Fire on drop | **Fire when served** | The next course fires once the one before is served (the default) |
+| Fire on drop | **Fire when served** | The next course fires once the one before is served |
 | Auto-fire +5 / +8 | **Timed 5 min / Timed 8 min** | The next course fires 5 or 8 min after the one before |
-| Manual fire | **Hold for server** | Each course waits until the server or expo fires it |
+| Manual fire | **Manual coursing** (the default) | Each course waits until the server or expo fires it |
 
 The 15-minute backup is now called the **safety net**. Under the venue table, a key lists each option with one line on what it does.
 

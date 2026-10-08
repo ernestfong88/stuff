@@ -12,20 +12,23 @@ import type { MealName } from './types';
 /**
  * When the next course fires:
  *   off     All at once: every course fires when the order is sent
- *   expo    Fire when served: once the prior course is served at the table (default)
+ *   expo    Fire when served: once the prior course is served at the table
  *   timer5  Timed 5 / 8 min: 5 / 8 minutes after the prior course fired
- *   manual  Hold for server: only when a server or expo fires it
+ *   manual  Manual coursing: only when a server or expo fires it (default)
  * Every mode has a 15 minute safety net counted from when the prior course was
  * served, so nothing stalls; dessert always waits for that or a manual fire.
  */
 export type CourseMode = 'off' | 'expo' | 'timer5' | 'timer8' | 'manual';
+
+/** The coursing a venue and meal uses until Back Office sets another. */
+export const DEFAULT_COURSE_MODE: CourseMode = 'manual';
 
 export const COURSE_MODES: ReadonlyArray<{ id: CourseMode; label: string; short: string; what: string }> = [
   { id: 'off', label: 'All at once', short: 'all at once', what: 'Every course but dessert fires when the order is sent' },
   { id: 'expo', label: 'Fire when served', short: 'fire when served', what: 'The next course fires once the one before is served' },
   { id: 'timer5', label: 'Timed 5 min', short: 'timed 5 min', what: 'The next course fires 5 min after the one before' },
   { id: 'timer8', label: 'Timed 8 min', short: 'timed 8 min', what: 'The next course fires 8 min after the one before' },
-  { id: 'manual', label: 'Hold for server', short: 'hold for server', what: 'Each course waits until the server or expo fires it' },
+  { id: 'manual', label: 'Manual coursing', short: 'manual coursing', what: 'Each course waits until the server or expo fires it' },
 ];
 
 /** The safety net every coursing mode has, in one line. */
