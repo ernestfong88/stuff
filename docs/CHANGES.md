@@ -220,6 +220,18 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Venue Settings: an overview first
+- **Venue Settings opens on one card per venue** instead of a list on the left and a pile of "needs attention" lines on top. Each card says the venue's name, what kind of place it is (Dining room, Bistro or Catering) and that it is Open.
+- **Serving now** on each card, in plain words, for example *Cycle: VT Fall 2026 · week 3 of 5* and *À la carte: VT Fall 2026 · Every-day items*, or *No menu yet* in red.
+- **Kitchen** on each card says whose kitchen and tablets it uses, for example *Shares Sequoia Dining Room's kitchen & tablets*, or *No kitchen: orders print only*.
+- Anything that needs fixing shows on that venue's card as an amber line (red when nothing can be ordered) with **Fix**, which opens the venue on the right tab. The top of the page counts open venues and things that need attention.
+- **Click a card to open the venue.** Its page has the venue's name, kind, status and kitchen at the top, an **All venues** button back, and its own things to fix.
+- The first tab is now **Menus & details**: **Menus** (Menu cycle, Week 1 started, À la carte) and then **Details** (name, kitchen, and Status with a **Retire** button). Week 1 started shows **This week is week 3 of 5**, which updates as soon as the date changes. Prices, Floor plan, Kitchen routing, and Printers & terminals are the other tabs, as before.
+- Each section says in one line what it controls. Wording such as "cycle day" is gone: a cycle with no week 1 date now reads *today's specials can't be picked*.
+- Retired venues show as their own cards under **Retired**, each with **Bring back**.
+- Nothing else changed: choosing a menu still asks first and offers **Undo**, a week 1 date still moves to that week's Sunday, names are still checked, and the server tablets switch menus straight away. Old links to a venue and its tabs still work.
+
+
 ### Resident Dining Profile: one list with filters
 - **Residents is now Resident Dining Profile** in the side menu, the page title, the breadcrumb and page search. Addresses are unchanged, so old links still work.
 - **Allergies & diets is no longer a separate tab.** Its old address, and the *See everyone's allergies and diets* link on a resident's Meal plan & kitchen notes page, open the one list.

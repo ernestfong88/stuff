@@ -1,258 +1,231 @@
-/* Needs attention */
-.attention {
-  padding: 14px 16px 8px;
+/* Overview: one card per venue */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px 18px;
   border-radius: var(--r-xl);
   background: var(--surface);
   box-shadow: var(--shadow-1);
+  transition:
+    box-shadow var(--fast),
+    background var(--fast);
 }
-.attentionHead {
+.card:has(.cardOpen:hover) {
+  box-shadow:
+    var(--shadow-1),
+    inset 0 0 0 1.5px var(--ocean);
+}
+.card:has(.cardOpen:focus-visible) {
+  outline: 2px solid var(--ocean);
+  outline-offset: 2px;
+}
+.cardHead {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-  font-size: 14px;
-  font-weight: 700;
+  align-items: flex-start;
+  gap: 10px;
+}
+.cardTitles {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cardName {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.25;
   color: var(--ink);
 }
-.attentionHead svg {
-  color: var(--clay);
+/* The whole card opens the venue; the issue buttons sit above it. */
+.cardOpen {
+  font: inherit;
+  color: inherit;
+  text-align: left;
 }
-.attentionList {
+.cardOpen:focus-visible {
+  outline: none;
+}
+.cardOpen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  cursor: pointer;
+}
+.cardKind {
+  font-size: 13px;
+  color: var(--s500);
+}
+.cardChevron {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--s400);
+}
+.facts {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hair);
+}
+.fact {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 10px;
+  font-size: 13.5px;
+}
+.fact dt {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--s500);
+  padding-top: 1px;
+}
+.fact dd {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--s700);
+}
+.factLine {
+  color: var(--ink);
+}
+.factKey {
+  font-weight: 700;
+}
+.factNone {
+  font-weight: 600;
+  color: var(--danger);
+}
+.cardIssues,
+.headIssues {
   margin: 0;
   padding: 0;
   list-style: none;
-}
-.issue {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  min-height: 40px;
-  padding: 6px 8px;
-  border-radius: var(--r-sm);
-  text-align: left;
-  font-size: 13.5px;
-}
-.issue:hover {
-  background: var(--paper);
-}
-.issueDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.dotDanger {
-  background: var(--danger);
-}
-.dotWarning {
-  background: var(--clay-600);
-}
-.issueVenue {
-  font-weight: 700;
-  color: var(--ink);
-}
-.issueText {
-  flex: 1;
-  min-width: 180px;
-  color: var(--s700);
-}
-.issueFix {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  font-weight: 600;
-  color: var(--ocean);
-}
-
-/* List and detail */
-.layout {
-  display: grid;
-  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-@media (max-width: 860px) {
-  .layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-.list {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  position: sticky;
-  top: 0;
 }
-.venueBtn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.cardIssues {
+  margin-top: auto;
+}
+.cardIssue {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  min-height: 64px;
-  padding: 10px 12px;
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-1);
-  text-align: left;
-  transition:
-    background var(--fast),
-    box-shadow var(--fast);
-}
-.venueBtn:hover {
-  background: var(--paper);
-}
-.venueOn,
-.venueOn:hover {
-  background: var(--ocean-100);
-  box-shadow: inset 0 0 0 1.5px var(--ocean);
-}
-.venueText {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.venueName {
-  font-size: 14.5px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.venueMenu {
-  font-size: 12.5px;
-  color: var(--s700);
-}
-.venueKitchen {
-  font-size: 12px;
-  color: var(--s400);
-}
-.badge {
-  flex-shrink: 0;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-}
-.badgeDanger {
-  background: var(--danger);
-}
-.badgeWarning {
-  background: var(--clay-600);
-}
-.retired {
-  margin-top: 8px;
-}
-.retiredToggle {
-  min-height: 36px;
-  padding: 0 4px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--s500);
-}
-.retiredToggle:hover {
-  color: var(--ink);
-}
-.retiredRow {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 2px 4px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  background: var(--warning-bg);
+  color: var(--warning);
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
 }
-.retiredName {
+.cardIssue > svg {
+  flex-shrink: 0;
+}
+.cardIssue:hover {
+  filter: brightness(0.97);
+}
+.cardIssueDanger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.cardIssueText {
   flex: 1;
   min-width: 0;
+}
+.issueFix {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 700;
+  color: var(--ocean);
+}
+.cardRetired {
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+.retiredNote {
+  margin: 0;
   font-size: 13px;
+  color: var(--s500);
+}
+.retiredGroup {
+  margin-top: 24px;
+}
+.groupTitle {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: var(--s500);
 }
 
-.detail {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.detailHead {
-  display: flex;
-  align-items: baseline;
+/* A venue */
+.headSub {
+  display: inline-flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 4px 12px;
-  margin-bottom: 6px;
-}
-.detailName {
-  font-family: var(--font-serif);
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--ink);
-}
-.detailSub {
-  font-size: 13px;
-  color: var(--s500);
+  gap: 6px 10px;
 }
 .tabs {
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 .tabBody {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
-/* Menu tab */
-.now {
-  padding: 2px 0 16px;
-}
-.nowName {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.nowMeta {
-  margin-top: 4px;
+.tabLine {
+  margin: 0;
   font-size: 13.5px;
   color: var(--s500);
 }
+.anchor {
+  scroll-margin-top: 16px;
+}
+.statusControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.weekNow {
+  font-weight: 700;
+  color: var(--ink);
+}
+.weekMissing {
+  font-weight: 700;
+  color: var(--danger);
+}
+
+/* Menu tab */
 .missing {
   margin: 0 0 16px;
   font-size: 14px;
   font-weight: 600;
   color: var(--danger);
-}
-.upList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.upRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px 12px;
-  min-height: 48px;
-  border-top: 1px solid var(--hair);
-}
-.upDate {
-  width: 110px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--s700);
-}
-.upName {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink);
-}
-.upRemove {
-  margin-left: auto;
 }
 .quiet {
   margin: 0 0 14px;
@@ -278,9 +251,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px 16px;
-  padding-bottom: 16px;
-}
-.retireRow {
   padding-bottom: 16px;
 }
 .dateInput {

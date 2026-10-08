@@ -21,7 +21,7 @@ export function venueIssues(settings: VenueAdminView, venue: Venue): VenueIssue[
   const add = (tab: VenueTab, tone: VenueIssue['tone'], text: string) => out.push({ venueId: venue.id, tab, tone, text });
   const { cycle, alc } = venueMenus(venue, settings.menus);
   if (!cycle && !alc) add('menu', 'danger', 'No menu, so it serves nothing');
-  else if (cycle && !venue.menuStartDt) add('menu', 'danger', `${cycle.name} has no week 1 date, so the cycle day can't be worked out`);
+  else if (cycle && !venue.menuStartDt) add('menu', 'danger', `${cycle.name} has no week 1 date, so today's specials can't be picked`);
   // A menu on the tablets that the dietitian hasn't signed off.
   for (const m of [cycle, alc]) {
     if (m?.approval === 'waiting') add('menu', 'warning', `${m.name} is served, but the dietitian hasn't approved it yet`);

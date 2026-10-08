@@ -2,17 +2,13 @@ import { Archive } from 'lucide-react';
 import { useState } from 'react';
 import { rooms } from '../../../../data';
 import { patchVenue, type Venue, type VenueAdminView } from '../../../../store/venueSettings';
-import { Button, TextField, toast, useConfirm } from '../../../../ui';
-import { BoField, BoSection, BoSelect } from '../../kit';
+import { Button, Chip, TextField, toast, useConfirm } from '../../../../ui';
+import { BoField, BoRow, BoSection, BoSelect } from '../../kit';
+import { kitchenName } from './summary';
 import { venueNameProblem } from './venueName';
 import s from './venues.module.css';
 
-/** "Sequoia / Evergreen kitchen", or who else cooks there. */
-export function kitchenName(room: string): string {
-  return `${rooms[room]?.name ?? room} kitchen`;
-}
-
-/** A venue's name, the kitchen it cooks in, and retiring it. */
+/** A venue's name, the kitchen it cooks in, and whether it is open (retiring it). */
 export function VenueDetails({ settings, venue, onRetired }: { settings: VenueAdminView; venue: Venue; onRetired: () => void }) {
   const [ask, confirmDialog] = useConfirm();
   const [nameDraft, setNameDraft] = useState<string | null>(null);
@@ -34,7 +30,7 @@ export function VenueDetails({ settings, venue, onRetired }: { settings: VenueAd
 
   return (
     <>
-      <BoSection title="Name and kitchen">
+      <BoSection title="Details" sub="Its name, the kitchen that cooks its orders, and whether it is open.">
         <div className={s.form}>
           <TextField
             label="Venue name"
@@ -72,13 +68,14 @@ export function VenueDetails({ settings, venue, onRetired }: { settings: VenueAd
             )}
           </BoField>
         </div>
-      </BoSection>
-      <BoSection title="Retire this venue" sub="For a dining room that has closed. Nothing is deleted.">
-        <div className={s.retireRow}>
-          <Button variant="softDanger" icon={<Archive size={15} />} onClick={retire}>
-            Retire {venue.name}
-          </Button>
-        </div>
+        <BoRow label="Status" hint="Retire a venue that has closed. Its prices, layouts and order history are kept, and you can bring it back.">
+          <div className={s.statusControl}>
+            <Chip tone="success">Open</Chip>
+            <Button size="sm" variant="softDanger" icon={<Archive size={14} />} aria-label={`Retire ${venue.name}`} onClick={retire}>
+              Retire
+            </Button>
+          </div>
+        </BoRow>
       </BoSection>
       {confirmDialog}
     </>

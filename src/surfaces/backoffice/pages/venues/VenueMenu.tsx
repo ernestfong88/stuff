@@ -1,11 +1,20 @@
 import { parseQuarter, quarterIndexOf, quarterRange, weekStart } from '../../../../domain/menuCycle';
 import { today } from '../../../../lib/clock';
 import { roomVenue } from '../../../../store/venueMenu';
-import { patchVenue, setVenueAlc, setVenueCycle, venueMenus, type MenuSummary, type Venue, type VenueAdminView } from '../../../../store/venueSettings';
+import {
+  patchVenue,
+  setVenueAlc,
+  setVenueCycle,
+  venueMenus,
+  type MenuSummary,
+  type Venue,
+  type VenueAdminView,
+} from '../../../../store/venueSettings';
 import { toast, useConfirm } from '../../../../ui';
 import { cycleWeekLabel } from '../../../kitchen/admin/menuCycle';
-import { BoRow, BoSection } from '../../kit';
+import { BoCallout, BoRow, BoSection } from '../../kit';
 import { SettingSelect } from '../../kit/SettingControls';
+import { thisWeek } from './summary';
 import s from './venues.module.css';
 
 const NONE = '__none';
@@ -37,10 +46,16 @@ export function VenueMenu({ settings, venue, goto }: { settings: VenueAdminView;
   const { cycle, alc } = venueMenus(venue, settings.menus);
   // Archived menus aren't offered, unless the venue still serves one.
   const offer = (kind: 'cycle' | 'alc', current?: MenuSummary) =>
-    settings.menus.filter((m) => (kind === 'alc' ? m.kind === 'alc' || m.cycleLen === 0 : m.kind !== 'alc' && m.cycleLen > 0) && (m.status !== 'archived' || m.id === current?.id));
-  const options = (list: MenuSummary[], none: string) => [{ id: NONE, label: none }, ...list.map((m) => ({ id: m.id, label: `${m.name} · ${m.quarter}` }))];
+    settings.menus.filter(
+      (m) =>
+        (kind === 'alc' ? m.kind === 'alc' || m.cycleLen === 0 : m.kind !== 'alc' && m.cycleLen > 0) &&
+        (m.status !== 'archived' || m.id === current?.id),
+    );
+  const options = (list: MenuSummary[], none: string) => [
+    { id: NONE, label: none },
+    ...list.map((m) => ({ id: m.id, label: `${m.name} · ${m.quarter}` })),
+  ];
   const at = today().getTime();
-  const week = cycle && cycleWeekLabel(venue.menuStartDt, cycle, at);
   const nameOf = (id: string) => settings.menus.find((m) => m.id === id)?.name ?? 'the menu';
   // A kitchen's tablets order from its first active venue; another venue in it sets only its own printed menus and Production.
   const tabletVenue = venue.room ? roomVenue(venue.room, settings.venues) : null;
@@ -117,27 +132,46 @@ export function VenueMenu({ settings, venue, goto }: { settings: VenueAdminView;
     patchVenue(venue.id, { menuStartDt: sunday.getTime() });
     const now = cycleWeekLabel(sunday.getTime(), cycle, at);
     const snapped = sunday.getDate() !== d || sunday.getMonth() !== mo - 1 ? ` (the Sunday of that week: weeks run Sunday to Saturday)` : '';
-    toast(`Week 1 started ${sunday.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })}${snapped}. Today is ${now?.toLowerCase() ?? 'not on the cycle'}, so today's specials changed.`, {
-      tone: 'success',
-      action: { label: 'Undo', onClick: () => patchVenue(venue.id, { menuStartDt: venue.menuStartDt }) },
-    });
+    toast(
+      `Week 1 started ${sunday.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })}${snapped}. Today is ${now?.toLowerCase() ?? 'not on the cycle'}, so today's specials changed.`,
+      {
+        tone: 'success',
+        action: { label: 'Undo', onClick: () => patchVenue(venue.id, { menuStartDt: venue.menuStartDt }) },
+      },
+    );
   };
 
+  const weekNow = thisWeek(venue, cycle, at);
   return (
-    <BoSection title="Menus">
+    <BoSection title="Menus" sub="What servers can order here: daily specials from a menu cycle, and an à la carte menu every day.">
       {confirmDialog}
       {tabletVenue && !drives && (
-        <p className={s.foot}>
-          {venue.name} shares its kitchen&apos;s tablets with {tabletVenue.name}, so servers order from {tabletVenue.name}&apos;s menus. These menus are for
-          {` ${venue.name}'s`} printed menus and Production.
-        </p>
+        <BoCallout tone="info">
+          {venue.name} shares {tabletVenue.name}&apos;s tablets, so servers here order from {tabletVenue.name}&apos;s menus. The menus below set only{' '}
+          {venue.name}&apos;s printed menus and Production.
+        </BoCallout>
       )}
-      <BoRow label="Menu cycle" hint={cycle ? (week ? `${week} today` : 'Set the day week 1 started') : 'No cycle: no daily specials, only the à la carte menu is served'}>
-        <SettingSelect label={`${venue.name} menu cycle`} value={cycle?.id ?? NONE} options={options(offer('cycle', cycle), 'No cycle menu')} onChange={(id) => void pickCycle(id)} />
+      <BoRow label="Menu cycle" hint={cycle ? 'Daily specials that rotate week by week' : 'None: no daily specials, only the à la carte menu'}>
+        <SettingSelect
+          label={`${venue.name} menu cycle`}
+          value={cycle?.id ?? NONE}
+          options={options(offer('cycle', cycle), 'No menu cycle')}
+          onChange={(id) => void pickCycle(id)}
+        />
       </BoRow>
       {cycle && liveWarning(cycle, at) && <p className={s.missing}>Served today, but {liveWarning(cycle, at)}.</p>}
       {cycle && (
-        <BoRow label="Week 1 started" hint="Weeks run Sunday to Saturday, so this is always a Sunday. Changing it changes today's specials.">
+        <BoRow
+          label="Week 1 started"
+          hint={
+            <>
+              <span className={weekNow ? s.weekNow : s.weekMissing}>
+                {weekNow ? `${weekNow}.` : 'Not set yet, so today’s specials can’t be picked.'}
+              </span>{' '}
+              Always a Sunday; changing it changes today&apos;s specials.
+            </>
+          }
+        >
           <input
             type="date"
             className={s.dateInput}
@@ -147,8 +181,16 @@ export function VenueMenu({ settings, venue, goto }: { settings: VenueAdminView;
           />
         </BoRow>
       )}
-      <BoRow label="À la carte menu" hint={alc ? 'Served every day alongside the cycle' : 'No à la carte menu'}>
-        <SettingSelect label={`${venue.name} à la carte menu`} value={alc?.id ?? NONE} options={options(offer('alc', alc), 'No à la carte menu')} onChange={(id) => void pickAlc(id)} />
+      <BoRow
+        label="À la carte"
+        hint={alc ? (cycle ? 'Served every day, alongside the cycle' : 'Served every day') : 'None: only the menu cycle’s specials'}
+      >
+        <SettingSelect
+          label={`${venue.name} à la carte menu`}
+          value={alc?.id ?? NONE}
+          options={options(offer('alc', alc), 'No à la carte menu')}
+          onChange={(id) => void pickAlc(id)}
+        />
       </BoRow>
       {!cycle && !alc && <p className={s.missing}>No menu yet, so nothing can be ordered here.</p>}
       <p className={s.foot}>

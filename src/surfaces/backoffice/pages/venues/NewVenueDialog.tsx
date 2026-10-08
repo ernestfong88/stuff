@@ -5,7 +5,7 @@ import { uid } from '../../../../lib/id';
 import { addVenue, useVenueSettings } from '../../../../store/venueSettings';
 import { Button, Modal, TextField, toast } from '../../../../ui';
 import { BoField, BoSelect } from '../../kit';
-import { kitchenName } from './VenueDetails';
+import { kitchenName } from './summary';
 import { venueNameProblem } from './venueName';
 import s from './venues.module.css';
 
