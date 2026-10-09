@@ -220,6 +220,9 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Docs: the demo clock
+- The README and the handoff note now say the app runs on the device's real time by default. They said it was pinned to 5:45 PM, which is no longer the case.
+
 ### Handoff note for IT
 - New [docs/HANDOFF.md](HANDOFF.md) for the team taking over: how to run it, what's real and what's simulated, where a backend plugs in, how to build and host it, and what's left to build before it can go live. The README links to it.
 

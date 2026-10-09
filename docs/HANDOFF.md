@@ -24,7 +24,7 @@ npm run dev
 3. Sign in with a demo PIN: Adriana `2468`, Ricardo `1357` or Maria `1122`.
 
 Two controls are useful while testing:
-- **Demo clock:** the demo is a dinner service pinned to 5:45 PM, and the clock ticks from there. Add `?clock=11:30` before the `#` to start at another time, or `?clock=real` to use the device clock.
+- **Demo clock:** the app runs on the device's real time, and the demo checks are timed around it. Add `?clock=17:45` before the `#` to pin another time today, or `?clock=real` to go back to the device clock.
 - **Reset:** the screen menu at the top right of every screen has *Reset demo data*.
 
 ## Real vs simulated
