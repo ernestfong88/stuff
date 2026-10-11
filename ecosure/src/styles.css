@@ -423,3 +423,49 @@ ul.plain { margin: 0; padding-left: 18px; } ul.plain li { margin: 0 0 6px; }
 .ibody p { margin: 0; max-width: 75ch; }
 .talk h3 { margin-bottom: 8px; }
 @media (max-width: 860px) { .ibody { padding-left: 16px; } .irow > summary { grid-template-columns: 24px 60px minmax(0, 1fr); gap: 10px; } .irow img, .irow .noimg { width: 60px; height: 45px; } }
+
+/* ---------- executive summary ---------- */
+.exec { max-width: 1040px; display: flex; flex-direction: column; gap: 18px; }
+.exec .pagehead { margin-bottom: -4px; }
+.bottomline { background: var(--brand); color: #EAF3F1; border-radius: 14px; padding: 20px 24px; }
+.bottomline .lbl { color: #9FD3CB; }
+.bottomline ol { margin: 10px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 16.5px; line-height: 1.45; }
+.bottomline li::marker { color: #9FD3CB; font-weight: 700; }
+.bottomline b { color: #FFFFFF; font-weight: 600; }
+.xkpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.xkpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.xkpi b { font-family: var(--display); font-size: 36px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.xkpi b small { font-size: 18px; color: var(--muted); }
+.xkpi span { font-weight: 600; font-size: 14px; }
+.xkpi small { color: var(--muted); font-size: 12.5px; }
+.xkpi.good b { color: var(--good); } .xkpi.warn b { color: var(--maj); } .xkpi.bad b { color: var(--crit); }
+.xgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.xcard { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+.xcard > header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.xcard > header h3 { margin: 0; font-size: 21px; }
+.xcard > header p { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; max-width: 70ch; }
+.xcard > header .linkbtn { white-space: nowrap; font-size: 13.5px; padding-top: 4px; }
+.xlist { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.xrow { border-bottom: 1px solid var(--line); }
+.xrow > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 10px 4px; min-width: 0; }
+.xrow > summary::-webkit-details-marker { display: none; }
+.xrow > summary:hover { background: var(--sunk); }
+.xrow > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.xrow .rank { width: 26px; height: 26px; border-radius: 50%; background: var(--brand); color: #FFFFFF; font-family: var(--display); font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.xrow img, .xrow .noimg { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; background: var(--sunk); flex-shrink: 0; }
+.xt { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.xt b { font-weight: 600; font-size: 15px; }
+.xs { color: var(--muted); font-size: 13px; }
+.xn { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.xn b { color: var(--ink); font-size: 15px; }
+.meter { display: block; height: 6px; background: var(--sunk); border-radius: 99px; overflow: hidden; max-width: 320px; }
+.meter span { display: block; height: 100%; background: var(--crit); border-radius: 99px; }
+.chev { width: 9px; height: 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); margin: 0 6px 4px 4px; flex-shrink: 0; transition: transform .15s; }
+.xrow[open] .chev { transform: rotate(225deg); margin-bottom: -2px; }
+@media (prefers-reduced-motion: reduce) { .chev { transition: none; } }
+.xbody { padding: 2px 4px 14px 38px; display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; align-items: flex-start; }
+.xbody p { margin: 0; max-width: 75ch; }
+.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 15.5px; }
+.exec > .fold { margin-top: 0; border-radius: 14px; }
+@media (max-width: 960px) { .xgrid { grid-template-columns: 1fr; } .xkpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .xrow img, .xrow .noimg { display: none; } .xn { display: none; } .xbody { padding-left: 4px; } }

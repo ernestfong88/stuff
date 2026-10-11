@@ -9,6 +9,7 @@ import { PLAYBOOK } from './playbook';
 import { photoUrl } from './store';
 import { avg, esc, fmtDate, pct, plural } from './util';
 import { inRound, latestPerKitchen, scorePill, type ViewState } from './views';
+import { scoreBand } from './model';
 import { communitiesOfFocus } from './views-roles';
 import { OPEN, fold, top } from './expand';
 
@@ -67,55 +68,88 @@ function helpLine(c: CommunityView): string {
 
 const kitchenName = (a: Audit) => (a.kitchen === 'Main Kitchen' ? a.community : `${a.community} (${a.kitchen})`);
 
+/** A few words on why a community is on the list, for compact rows. */
+function shortWhy(c: CommunityView): string {
+  const parts: string[] = [];
+  if (c.critLatest) parts.push(`${c.critLatest} critical`);
+  if (c.repeats) parts.push(plural(c.repeats, 'repeat'));
+  parts.push(c.capState === 'closed' ? 'plan closed' : c.capState === 'late' ? 'plan late' : c.capState === 'overdue' ? 'items past due' : c.capState === 'missing' ? 'plan due soon' : c.capState === 'open' ? 'plan in progress' : 'no findings');
+  return parts.join(' · ');
+}
+
+function nextSteps(b: Brief): string[] {
+  const steps: string[] = [];
+  if (b.focus.length) steps.push(`Visit or call the ${Math.min(5, b.focus.length)} communities to help first, starting with ${b.focus[0].c.c.name}.`);
+  if (b.late.length || b.pastDue.length) steps.push([b.late.length ? `Get the ${plural(b.late.length, 'missing corrective action plan')} submitted` : '', b.pastDue.length ? `${b.late.length ? 'and follow' : 'Follow'} up on ${plural(b.pastDue.length, 'plan')} with items past due` : ''].filter(Boolean).join(' ') + '.');
+  const t = b.top[0];
+  if (t) steps.push(`Make "${plainTitle(t.short).toLowerCase()}" a portfolio focus${PLAYBOOK[t.short] ? `: ${lower(PLAYBOOK[t.short].have[0])}` : ''}.`);
+  return steps.slice(0, 3);
+}
+
 export function briefing(m: Model, v: ViewState): string {
   const b = compute(m, v);
   const cur = currentRound(m.settings.rounds, m.today);
   if (!b.A.length) return '<div class="empty">No audits yet. Add EcoSure reports on the Import files page.</div>';
   const roundName = b.A[0].round;
-  const seg = (n: number, cls: string, label: string) => (n ? `<span class="bandseg ${cls}" style="flex:${n}" title="${n} ${label}"><b>${n}</b> ${label}</span>` : '');
   const help = top('brief-help', b.focus, 5, 'communities');
   const follow = top('brief-follow', [...b.late.map((a) => ({ a, t: 'No plan yet' })), ...b.pastDue.map((a) => ({ a, t: 'Items past due' }))], 5, 'kitchens');
-  return `<div class="brief">
-    <div class="pagehead"><div><p class="crumb">${esc(roundName)} round · ${fmtDate(b.start, true)} to ${fmtDate(b.end)}</p><h2 class="page">Food safety briefing</h2></div>
+  const t1 = b.top[0];
+  const kpi = (v: string, l: string, sub: string, tone = '') => `<div class="xkpi ${tone}"><b>${v}</b><span>${l}</span><small>${sub}</small></div>`;
+  const row = (key: string, sumHtml: string, body: string) => `<details class="xrow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>${sumHtml}<span class="chev" aria-hidden="true"></span></summary><div class="xbody">${body}</div></details>`;
+  const card = (title: string, sowhat: string, go: string, goLabel: string, body: string, cls = '') => `<section class="xcard ${cls}"><header><div><h3>${title}</h3><p>${sowhat}</p></div><button class="linkbtn" data-go="${go}">${goLabel}</button></header>${body}</section>`;
+
+  return `<div class="exec">
+    <div class="pagehead"><div><p class="crumb">Executive summary · ${esc(roundName)} round · ${fmtDate(b.start, true)} to ${fmtDate(b.end)}</p><h2 class="page">Food safety briefing</h2></div>
       <div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-summary">Copy as email</button></div></div>
 
-    <section class="bsec lead"><p class="big">${b.A.length} kitchens audited. Average score <b>${pct(b.s)}</b>${b.prev?.s != null ? `, ${b.s! >= b.prev.s ? 'up' : 'down'} from ${pct(b.prev.s)}` : ''}.</p>
-      <div class="bandbar" role="img" aria-label="${b.good} kitchens scored 85 or better, ${b.warn} scored 70 to 84, ${b.bad} scored below 70">${seg(b.good, 'good', '85 or better')}${seg(b.warn, 'warn', '70 to 84')}${seg(b.bad, 'bad', 'below 70')}</div></section>
+    <section class="bottomline"><span class="lbl">The bottom line</span><ol>
+      <li><b>${b.A.length} kitchens audited, average score ${pct(b.s)}.</b> ${b.good} are strong (85 or better) and ${b.bad} are below 70${b.prev?.s != null ? `; the average is ${b.s! >= b.prev.s ? 'up' : 'down'} from ${pct(b.prev.s)}` : ''}.</li>
+      ${t1 ? `<li><b>Five issues cause ${Math.round(b.topShare * 100)}% of lost points.</b> The biggest is ${esc(lower(plainTitle(t1.short)))}, found in ${t1.kitchens} of ${b.A.length} kitchens.</li>` : ''}
+      <li><b>${b.capClosed} of ${b.capKitchens} corrective action plans are closed.</b> ${b.late.length ? `${plural(b.late.length, 'kitchen has', 'kitchens have')} not started one.` : 'Every cited kitchen has started one.'}</li>
+    </ol></section>
 
-    <section class="bsec"><h3><span class="step">1</span>Top 5 things to fix</h3>
-      <p class="note">These five make up ${Math.round(b.topShare * 100)}% of all points lost. Select one for why it matters and the fix.</p>
-      <div class="issues">${b.top.map((p, i) => {
-        const ph = bestPhoto(p.findings);
-        return `<details class="irow" data-fold="issue-${i}"${OPEN.has('fold:issue-' + i) ? ' open' : ''}><summary><span class="rank">${i + 1}</span>${ph ? `<img src="${esc(photoUrl(ph.f.photos[0]))}" alt="" loading="lazy">` : '<span class="noimg"></span>'}<span class="it"><b>${esc(plainTitle(p.short))}</b><span>Found in ${p.kitchens} of ${b.A.length} kitchens</span></span></summary>
-          <div class="ibody"><p>${esc(PLAIN[p.short]?.why ?? '')}</p>${PLAYBOOK[p.short] ? `<p><b>The fix:</b> ${esc(PLAYBOOK[p.short].have[0])}.</p>` : ''}
-          ${ph ? `<div class="thumbs">${p.findings.filter((f) => f.photos.length).slice(0, 5).map((f) => `<button data-photo="${esc(f.key)}" data-n="0" aria-label="Open photo from ${esc(f.audit.community)}"><img loading="lazy" src="${esc(photoUrl(f.photos[0]))}" alt=""></button>`).join('')}</div>` : ''}
-          <button class="linkbtn" data-act="std-photos:${esc(p.short)}">See all ${p.findings.length} findings</button></div></details>`;
-      }).join('')}</div></section>
+    <div class="xkpis">
+      ${kpi(pct(b.s), 'Average score', `${b.good} kitchens at 85 or better`, scoreBand(b.s))}
+      ${kpi(String(b.bad), 'Kitchens below 70', `of ${b.A.length} audited`, b.bad ? 'bad' : 'good')}
+      ${kpi(String(b.crit), 'Critical findings', `${b.critClosed} closed so far`, b.crit ? 'bad' : 'good')}
+      ${kpi(`${b.capClosed}<small>/${b.capKitchens}</small>`, 'Plans closed', `${b.late.length} not started`, b.capClosed === b.capKitchens ? 'good' : 'warn')}
+    </div>
 
-    <section class="bsec"><h3><span class="step">2</span>Communities to help first</h3>
-      ${b.focus.length ? `<ul class="help">${help.shown.map(({ c }) => `<li><button class="linkbtn" data-go="c-${c.slug}">${esc(c.c.name)}</button>${scorePill(c.score)}<span>${esc(helpLine(c))}</span></li>`).join('')}</ul>${help.more}` : '<div class="okbox">No community needs extra help right now.</div>'}</section>
+    ${card('What to fix', `Ranked by points lost; together ${Math.round(b.topShare * 100)}% of the total. Select one for why it matters and the fix.`, 'priorities', 'All priorities', `<div class="xlist">${b.top.map((p, i) => {
+      const ph = bestPhoto(p.findings);
+      return row('issue-' + i, `<span class="rank">${i + 1}</span>${ph ? `<img src="${esc(photoUrl(ph.f.photos[0]))}" alt="" loading="lazy">` : '<span class="noimg"></span>'}<span class="xt"><b>${esc(plainTitle(p.short))}</b><span class="meter" aria-hidden="true"><span style="width:${(p.kitchens / b.A.length) * 100}%"></span></span></span><span class="xn"><b>${p.kitchens}</b> of ${b.A.length} kitchens</span>`,
+        `<p>${esc(PLAIN[p.short]?.why ?? '')}</p>${PLAYBOOK[p.short] ? `<p><b>The fix:</b> ${esc(PLAYBOOK[p.short].have[0])}.</p>` : ''}
+        ${ph ? `<div class="thumbs">${p.findings.filter((f) => f.photos.length).slice(0, 5).map((f) => `<button data-photo="${esc(f.key)}" data-n="0" aria-label="Open photo from ${esc(f.audit.community)}"><img loading="lazy" src="${esc(photoUrl(f.photos[0]))}" alt=""></button>`).join('')}</div>` : ''}
+        <button class="linkbtn" data-act="std-photos:${esc(p.short)}">See all ${p.findings.length} findings</button>`);
+    }).join('')}</div>`, 'wide')}
 
-    <section class="bsec"><h3><span class="step">3</span>Corrective action plans</h3>
-      <p class="big2"><b>${b.capClosed} of ${b.capKitchens}</b> kitchens have closed their plan.${follow.shown.length ? ' Still waiting on:' : ''}</p>
-      ${follow.shown.length ? `<ul class="help">${follow.shown.map(({ a, t }) => `<li><button class="linkbtn" data-go="c-${a.slug}">${esc(kitchenName(a))}</button><span class="chip t-bad">${t}</span><span>Audited ${fmtDate(a.date)}</span></li>`).join('')}</ul>${follow.more}` : ''}</section>
+    <div class="xgrid">
+      ${card('Who needs help', 'Score below 70, four or more critical findings, or three or more repeats.', 'communities', 'All communities', b.focus.length ? `<div class="xlist">${help.shown.map(({ c }) => row('help-' + c.slug, `${scorePill(c.score)}<span class="xt"><b>${esc(c.c.name)}</b><span class="xs">${esc(shortWhy(c))}</span></span>`,
+        `<p>${esc(helpLine(c))}</p><button class="btn sm" data-go="c-${c.slug}">Open ${esc(c.c.name)}</button>`)).join('')}</div>${help.more}` : '<div class="okbox">No community needs extra help right now.</div>')}
+      ${card('Follow-through', `${b.capClosed} of ${b.capKitchens} corrective action plans closed. Plans are due ${m.settings.capDueDays} days after the audit.`, 'actions', 'Action list', follow.shown.length ? `<div class="xlist">${follow.shown.map(({ a, t }) => row('cap-' + a.key, `<span class="chip t-bad plain">${t}</span><span class="xt"><b>${esc(kitchenName(a))}</b><span class="xs">Audited ${fmtDate(a.date)} · ${daysAgo(m, a.date)}</span></span>`,
+        `<p>${a.cap ? `EcoSure shows the plan as ${esc(a.cap.status)}${a.pastDueItems ? `, with ${plural(a.pastDueItems, 'item')} past the due date` : ''}.` : `No plan in EcoSure yet. It was due ${fmtDate(a.capDue)}.`} ${plural(a.items.length, 'finding')}${a.crit ? `, ${a.crit} critical` : ''}.</p><button class="btn sm" data-go="c-${a.slug}">Open ${esc(a.community)}</button>`)).join('')}</div>${follow.more}` : '<div class="okbox">Every cited kitchen has a closed plan.</div>')}
+    </div>
 
-    <section class="bsec value"><h3><span class="step">4</span>What the program has delivered</h3>
-      <div class="vals">
+    ${card('Next steps', 'What to ask of regional and community teams this month.', 'playbook', 'Readiness playbook', `<ol class="steps">${nextSteps(b).map((s) => `<li>${esc(s)}</li>`).join('')}</ol>`, 'wide')}
+
+    ${fold('value', 'What the program has delivered', `<div class="vals">
         <div><b>${b.crit}</b><span>critical risks found. ${b.critClosed} now closed.</span></div>
         <div><b>${b.actions}</b><span>corrective actions written by community teams.</span></div>
         <div><b>${b.photos}</b><span>photos documenting ${m.audits.length} kitchen audits.</span></div>
-      </div>
-      ${fold('why', 'Why this matters', `<p>The audits turn food safety from a feeling into evidence. We know which habits put residents at risk, where they happen, and whether each community has fixed them. Every kitchen is scored on the same ${allStandards().length} standards, so results compare fairly across communities and rounds.</p>${cur ? `<p><b>Goals for ${esc(cur.name)}:</b> every community audited by ${fmtDate(cur.end)}, every plan submitted within ${m.settings.capDueDays} days, and the top 5 issues fixed everywhere using the <button class="linkbtn" data-go="playbook">readiness playbook</button> and monthly <button class="linkbtn" data-go="self">self-audits</button>.</p>` : ''}`)}</section>
+      </div><p>The audits turn food safety from a feeling into evidence. We know which habits put residents at risk, where they happen, and whether each community has fixed them. Every kitchen is scored on the same ${allStandards().length} standards, so results compare fairly across communities and rounds.</p>${cur ? `<p><b>Goals for ${esc(cur.name)}:</b> every community audited by ${fmtDate(cur.end)}, every plan within ${m.settings.capDueDays} days, and the five issues above fixed everywhere.</p>` : ''}`)}
   </div>`;
 }
+
+const daysAgo = (m: Model, d: string) => { const n = Math.round((Date.parse(m.today) - Date.parse(d)) / 86400000); return n <= 0 ? 'today' : `${n} days ago`; };
 
 export function briefingText(m: Model, v: ViewState): string {
   const b = compute(m, v);
   const cur = currentRound(m.settings.rounds, m.today);
   return [`EcoSure food safety briefing: ${b.A[0]?.round ?? ''} round (${fmtDate(b.start, true)} to ${fmtDate(b.end)})`, '',
+    'Next steps:', ...nextSteps(b).map((x, i) => `${i + 1}. ${x}`), '',
     `${b.A.length} kitchens across ${b.comms} communities were audited. The average score was ${pct(b.s)}. ${b.good} kitchens scored 85 or better, ${b.warn} scored 70 to 84, and ${b.bad} scored below 70. The top 5 issues make up ${Math.round(b.topShare * 100)}% of all points lost.`, '',
     'Top 5 things to fix:', ...b.top.map((p, i) => `${i + 1}. ${plainTitle(p.short)}: found in ${p.kitchens} of ${b.A.length} kitchens. ${PLAIN[p.short]?.why ?? ''}`), '',
-    'Communities to help first:', ...b.focus.slice(0, 5).map(({ c }) => `- ${c.c.name}: ${helpLine(c)}`), '',
+    'Who needs help:', ...b.focus.slice(0, 5).map(({ c }) => `- ${c.c.name}: ${helpLine(c)}`), '',
     `Follow-through: ${b.capClosed} of ${b.capKitchens} kitchens have closed their corrective action plan.`,
     ...(b.late.length ? [`Waiting on a plan: ${list(b.late.map(kitchenName))}.`] : []),
     ...(b.pastDue.length ? [`Items past due: ${list(b.pastDue.map(kitchenName))}.`] : []), '',

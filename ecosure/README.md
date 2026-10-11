@@ -4,14 +4,14 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 ## What it does
 
-Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more. The site opens on a **Briefing**: one page in plain sentences that anyone can read aloud on a call. Every sentence is built from the data. It covers:
+Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more. The site opens on a **Briefing** laid out as an executive summary. Every line is built from the data:
 
-1. The headline: kitchens audited, the average score, and how many scored 85 or better, 70 to 84, and below 70.
-2. Three things to fix everywhere, each with a real photo, how many kitchens it was found in, why it matters to residents, and the fix.
-3. Where to help first, with a one-line read on each community.
-4. Follow-through on corrective action plans: who is late or past due.
-5. What the program has delivered, for leadership: critical risks found and closed, corrective actions written, audits and photos on file.
-6. Goals for the current round.
+1. **The bottom line:** three sentences covering the overall result, the biggest issue, and corrective action plans.
+2. **Four key numbers:** average score, kitchens below 70, critical findings, and plans closed.
+3. **What to fix:** the top 5 issues with a photo each. Expand one for why it matters, the fix, and more photos.
+4. **Who needs help and Follow-through:** the top 5 communities and the top 5 overdue plans, each expandable.
+5. **Next steps:** three asks for regional and community teams.
+6. **What the program has delivered:** folded, for the leadership value case.
 
 **Copy as email** turns the briefing into plain text for an email or Teams message.
 
