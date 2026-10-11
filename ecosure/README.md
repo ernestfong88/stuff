@@ -4,29 +4,32 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 ## What it does
 
-Everyone uses one link. On the first visit, each person picks a view (saved in their browser and changeable from the menu):
+The site opens on a **Briefing**: one page in plain sentences that anyone can read aloud on a call. Every sentence is built from the data. It covers:
 
-| View | Opens on |
-| --- | --- |
-| Leadership | Food safety at a glance: headline numbers, the top 5 focus areas with the score each would add, communities of focus, and a portfolio by theme grid |
-| Regional | A visit planner: their communities ranked by need, each with its top three fixes and audit, CAP and self-audit status |
-| Community team | Their community's report card: a fix-first list of every finding with its corrective action and what to have in place, then photos and history |
+1. The headline: kitchens audited, the average score, and how many scored 85 or better, 70 to 84, and below 70.
+2. Three things to fix everywhere, each with a real photo, how many kitchens it was found in, why it matters to residents, and the fix.
+3. Where to help first, with a one-line read on each community.
+4. Follow-through on corrective action plans: who is late or past due.
+5. What the program has delivered, for leadership: critical risks found and closed, corrective actions written, audits and photos on file.
+6. Goals for the current round.
 
-Pages available to everyone:
+**Copy as email** turns the briefing into plain text for an email or Teams message.
+
+Each **community page** opens with talking points (score, biggest issues in plain words, repeats, CAP status, what to check on the next visit) and up to 8 photos. A fix-first list, score history and every finding follow below.
+
+Under **More detail**:
 
 | Page | Use it to |
 | --- | --- |
 | Priorities | Rank every cited standard by points lost and the score gain from fixing it everywhere |
-| Action list | See which communities still need an audit this round, and which kitchens need a CAP (not started, late, in progress or past due) |
-| Readiness playbook | Review all cited standards grouped by visit theme. Each shows what EcoSure checks, what to have in place, a 30-second check, and the most common misses |
-| Self-audits | Track each community's monthly walk-through against the playbook (Pass, Fail or N/A per standard). Readiness is the points-weighted pass rate |
-| Communities | Sort a scorecard by score, change, findings, repeats, audit status and CAP status |
-| Findings | Filter every finding by community, section, theme, criticality, CAP state, repeats, photos or text, then download a CSV |
-| Trends | Compare scores by round and month, points lost by section, a standards by community heat map, repeat findings, and the biggest score changes |
-| Import files | Drop EcoSure report and CAP PDFs, check what was read, and save. A backup can be downloaded or restored here |
-| Settings | Edit the community roster (including regions), audit rounds, and the CAP, audit and self-audit windows |
+| Findings and photos | Filter every finding by community, section, theme, criticality, CAP state, repeats, photos or text, then download a CSV |
+| Trends | See the portfolio by theme grid, scores by round and month, points lost by section, a standards heat map, repeat findings and the biggest score changes |
+| Readiness playbook | Review every cited standard: what EcoSure checks, what to have in place, a 30-second check, and the most common misses |
+| Self-audits | Track each community's monthly walk-through against the playbook. Readiness is the points-weighted pass rate |
 
-Each page has **Copy link to this page**. Leadership and community pages also have **Copy summary for email**, which produces plain text ready to paste into an email or Teams message.
+Also available: **Action list** (who needs an audit or a CAP), **Communities** (sortable scorecard), **Import files** and **Settings**.
+
+Plain-language titles and "why it matters" lines live in `src/plain.ts`; the playbook text lives in `src/playbook.ts`. Edit either file to match Kisco's own wording.
 
 ### Sharing with the wider team
 
@@ -91,7 +94,9 @@ To publish an update, rebuild and republish `dist/artifact.html` to the same art
 | `src/catalog.ts`, `src/data/standards.json` | The 65 standards with short labels, sections, criticality, client ids and visit themes |
 | `src/model.ts` | Joins reports and CAPs into audits and works out every status |
 | `src/store.ts` | Shared (claude.ai) or local (IndexedDB) storage |
-| `src/views-roles.ts` | Role homes, priorities, playbook and self-audit pages |
+| `src/views-brief.ts` | The briefing and community talking points |
+| `src/views-roles.ts` | Communities of focus, priorities, playbook and self-audit pages |
+| `src/plain.ts` | Plain-language title and why it matters for each standard |
 | `src/playbook.ts` | What to have in place and a quick check for each standard |
 | `src/views*.ts`, `src/charts.ts` | Other pages and charts |
 | `scripts/make_fixtures.py` | Builds the synthetic report and CAP PDFs used by the tests |

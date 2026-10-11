@@ -1,21 +1,14 @@
 import { expect, test } from '@playwright/test';
 
-test('role picker opens the matching home and remembers it', async ({ page }) => {
+test('opens on a plain-language briefing with photos and talking points', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'EcoSure Audit Review', level: 2 })).toBeVisible();
-  await page.locator('[data-role="leadership"]').click();
-  await expect(page.getByRole('heading', { name: 'Food safety at a glance' })).toBeVisible();
-  await expect(page.locator('.focus')).toHaveCount(5);
-  await page.reload();
-  await expect(page.getByRole('heading', { name: 'Food safety at a glance' })).toBeVisible();
-
-  await page.locator('[data-act="role-change"]').click();
-  await page.locator('[data-role="regional"]').click();
-  await expect(page.locator('.vcard').first()).toBeVisible();
-
-  await page.locator('[data-act="role-change"]').click();
-  await page.locator('[data-role="community"]').click();
-  await page.selectOption('#my-community', 'balfour-riverfront');
+  await expect(page.getByRole('heading', { name: 'EcoSure food safety briefing' })).toBeVisible();
+  await expect(page.locator('.issue')).toHaveCount(3);
+  await expect(page.locator('.issue img').first()).toHaveAttribute('src', /^data:image/);
+  await expect(page.locator('.help li').first()).toBeVisible();
+  await page.locator('.help li .linkbtn').first().click();
+  await expect(page.getByRole('heading', { name: 'Talking points' })).toBeVisible();
+  await expect(page.locator('.talk li').first()).toContainText('scored');
   await expect(page.getByRole('heading', { name: 'Fix first' })).toBeVisible();
 });
 

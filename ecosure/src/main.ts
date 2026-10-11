@@ -7,7 +7,8 @@ import { connect, photoUrl, recId, setSeedPhotos, type Backend } from './store';
 import type { Cap, Community, Rec, SelfAudit, SelfResult, Settings } from './types';
 import { csv, esc, fmtDate, pct, slug, todayIso } from './util';
 import { actions, communities, community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
-import { ROLE_LABEL, homeCommunity, homeLeadership, homeRegional, playbookView, prioritiesView, selfAuditForm, selfAuditsView, summaryText, welcome, type Role, type SelfDraft } from './views-roles';
+import { playbookView, prioritiesView, selfAuditForm, selfAuditsView, type SelfDraft } from './views-roles';
+import { briefing, briefingText, talkingText } from './views-brief';
 import { allStandards } from './catalog';
 
 /* ---------- state ---------- */
@@ -31,14 +32,11 @@ const thumbs = new Map<string, string>();
 const V: ViewState = { round: 'all', f: emptyFilters(), sort: { key: 'score', dir: 1 }, commFilter: '', actionTab: 'audits', canWrite: false, mode: 'starting', capEdit: null };
 let route = 'home';
 
-/* Per-viewer conveniences (role, my communities, drafts) live in this browser only. */
+/* Per-viewer conveniences (self-audit drafts, the person's name) live in this browser only. */
 const LS = {
   get(k: string): string | null { try { return localStorage.getItem('ecosure.' + k); } catch { return null; } },
   set(k: string, v: string): void { try { localStorage.setItem('ecosure.' + k, v); } catch { /* storage blocked */ } },
 };
-let role = (LS.get('role') as Role | null) ?? null;
-let mine: string[] = (() => { try { return JSON.parse(LS.get('mine') ?? '[]'); } catch { return []; } })();
-let mySlug = LS.get('my') ?? '';
 const PB = { theme: 'all', q: '', cited: false };
 const drafts: Record<string, SelfDraft> = {};
 function draftFor(s: string): SelfDraft {
@@ -63,9 +61,8 @@ function rebuild(): void {
 
 /* ---------- routing ---------- */
 const NAV: [string | null, [string, string][]][] = [
-  [null, [['home', 'Home'], ['priorities', 'Priorities'], ['actions', 'Action list']]],
-  ['Get ready', [['playbook', 'Readiness playbook'], ['self', 'Self-audits']]],
-  ['Explore', [['communities', 'Communities'], ['findings', 'Findings'], ['trends', 'Trends']]],
+  [null, [['home', 'Briefing'], ['communities', 'Communities'], ['actions', 'Action list']]],
+  ['More detail', [['priorities', 'Priorities'], ['findings', 'Findings and photos'], ['trends', 'Trends'], ['playbook', 'Readiness playbook'], ['self', 'Self-audits']]],
   ['Manage', [['import', 'Import files'], ['settings', 'Settings']]],
 ];
 const MAIN = NAV.flatMap(([, xs]) => xs);
@@ -93,8 +90,7 @@ function navHtml(): string {
   const counts: Record<string, number> = { actions: na + nc };
   const list = model.communities.filter((c) => (c.c.active || c.audits.length) && (c.c.name + ' ' + c.c.city).toLowerCase().includes(q));
   const cur = route.startsWith('self-') ? 'self' : route;
-  $('#navMain').innerHTML = (role ? `<div class="rolebar"><span>Viewing as <b>${ROLE_LABEL[role]}</b></span><button class="linkbtn" data-act="role-change">Change</button></div>` : '') +
-    NAV.map(([label, xs]) => (label ? `<div class="navlabel">${label}</div>` : '') + xs.map(([k, l]) => `<button data-go="${k}" aria-current="${cur === k}"><span>${l}</span>${counts[k] ? `<span class="count" title="${na} need an audit, ${nc} need CAP work">${counts[k]}</span>` : ''}</button>`).join('')).join('');
+  $('#navMain').innerHTML = NAV.map(([label, xs]) => (label ? `<div class="navlabel">${label}</div>` : '') + xs.map(([k, l]) => `<button data-go="${k}" aria-current="${cur === k}"><span>${l}</span>${counts[k] ? `<span class="count" title="${na} need an audit, ${nc} need CAP work">${counts[k]}</span>` : ''}</button>`).join('')).join('');
   $('#navComm').innerHTML = list.map((c) => {
     const flag = c.capState === 'late' || c.capState === 'overdue' ? 'bad' : c.capState === 'missing' || c.capState === 'open' ? 'warn' : '';
     return `<button data-go="c-${c.slug}" aria-current="${route === 'c-' + c.slug}"><span>${esc(c.c.name)}</span><span class="navr">${flag ? `<span class="flag ${flag}" title="CAP needs attention"></span>` : ''}<span class="pill s-${scoreBand(c.score)}">${pct(c.score)}</span></span></button>`;
@@ -111,10 +107,7 @@ function render(): void {
   const main = $('#main');
   let html = '';
   if (route === 'home') {
-    if (!role) html = welcome(model);
-    else if (role === 'leadership') html = homeLeadership(model, V);
-    else if (role === 'regional') html = homeRegional(model, mine);
-    else html = homeCommunity(model, mySlug) + (model.bySlug.has(mySlug) ? community(model, V, mySlug, null) : '');
+    html = briefing(model, V);
   }
   else if (route === 'priorities') html = prioritiesView(model, V);
   else if (route === 'playbook') html = playbookView(model, routeArg, PB);
@@ -169,12 +162,6 @@ function bindPage(): void {
     drop.addEventListener('dragleave', () => drop.classList.remove('over'));
     drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer?.files) void addFiles([...e.dataTransfer.files]); });
   }
-  const my = document.getElementById('my-community') as HTMLSelectElement | null;
-  my?.addEventListener('change', () => { mySlug = my.value; LS.set('my', mySlug); V.f.crit = 'all'; V.f.kitchen = 'all'; rerender(); });
-  document.querySelectorAll<HTMLInputElement>('input[data-mine]').forEach((cb) => cb.addEventListener('change', () => {
-    mine = cb.checked ? [...new Set([...mine, cb.dataset.mine!])] : mine.filter((x) => x !== cb.dataset.mine);
-    LS.set('mine', JSON.stringify(mine)); rerender();
-  }));
   const pbq = document.getElementById('pb-q') as HTMLInputElement | null;
   pbq?.addEventListener('input', () => { clearTimeout(qTimer); qTimer = window.setTimeout(() => { PB.q = pbq.value; rerender(); }, 200); });
   if (route.startsWith('self-')) {
@@ -339,8 +326,6 @@ document.addEventListener('click', (e) => {
   if (tg) { const k = tg.dataset.toggle as 'repeat' | 'photos'; V.f[k] = !V.f[k]; rerender(); return; }
   const so = t.closest<HTMLElement>('th[data-sort]');
   if (so) { const k = so.dataset.sort!; V.sort = { key: k, dir: V.sort.key === k ? (V.sort.dir === 1 ? -1 : 1) : 1 }; rerender(); return; }
-  const rl = t.closest<HTMLElement>('[data-role]');
-  if (rl) { role = rl.dataset.role as Role; LS.set('role', role); go('home'); window.scrollTo(0, 0); return; }
   const pt = t.closest<HTMLElement>('[data-pbtheme]');
   if (pt) { PB.theme = pt.dataset.pbtheme!; rerender(); return; }
   const sg = t.closest<HTMLElement>('[data-self]');
@@ -373,13 +358,11 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'repeat') toFindings({ std: arg, repeat: true });
   else if (k === 'round') { V.round = arg; rerender(); }
   else if (k === 'clear-std') { V.f.std = ''; rerender(); }
-  else if (k === 'role-change') { role = null; LS.set('role', ''); go('home'); }
   else if (k === 'share') copyText(shareUrl(), 'Link copied. Anyone you have shared the page with can open it.');
-  else if (k === 'copy-summary') copyText(summaryText(model, V), 'Summary copied. Paste it into an email or Teams message.');
+  else if (k === 'copy-summary') copyText(briefingText(model, V), 'Briefing copied. Paste it into an email or Teams message.');
   else if (k === 'copy-community') copyText(communityText(arg), 'Summary copied. Paste it into an email or Teams message.');
   else if (k === 'scroll') document.getElementById(arg)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  else if (k === 'mine-clear') { mine = []; LS.set('mine', '[]'); rerender(); }
-  else if (k === 'mine-region') { mine = [...new Set([...mine, ...model.communities.filter((c) => c.c.region === arg).map((c) => c.slug)])]; LS.set('mine', JSON.stringify(mine)); rerender(); }
+  else if (k === 'std-photos') toFindings({ std: arg, photos: false });
   else if (k === 'pb-cited') { PB.cited = !PB.cited; rerender(); }
   else if (k === 'self-pass-rest' || k === 'self-reset' || k === 'self-submit') await selfAct(k);
   else if (k === 'clear-band') { V.f.community = 'all'; rerender(); }
@@ -434,13 +417,7 @@ function copyText(text: string, done: string): void {
 
 function communityText(sl: string): string {
   const c = model.bySlug.get(sl);
-  if (!c) return '';
-  const items = c.latest.flatMap((a) => a.items).sort((a, b) => b.points - a.points);
-  return [`${c.c.name}: EcoSure food safety summary`, '',
-    ...c.latest.map((a) => `${a.kitchen}: score ${pct(a.score)} on ${fmtDate(a.date)}, ${a.items.length} findings, ${a.items.length ? (a.cap ? 'CAP ' + a.cap.status : 'no CAP on file') : 'no CAP needed'}`),
-    c.self ? `Last self-audit: ${fmtDate(c.self.date)} by ${c.self.by}, readiness ${c.readiness == null ? 'n/a' : Math.round(c.readiness) + '%'}` : 'No self-audit on file yet.', '',
-    'Fix first:', ...items.slice(0, 8).map((f, i) => `${i + 1}. ${f.short} (${f.criticality}${f.repeat ? ', repeat' : ''})${f.capItem?.action ? ': ' + f.capItem.action : ': needs a corrective action'}`), '',
-    `Full report: ${(SHARE_BASE || location.href.split('#')[0])}#c-${sl}`].join('\n');
+  return c ? talkingText(c, `${SHARE_BASE || location.href.split('#')[0]}#c-${sl}`) : '';
 }
 
 async function selfAct(k: string): Promise<void> {

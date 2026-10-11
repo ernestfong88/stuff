@@ -6,7 +6,8 @@ import {
   type Audit, type CommunityView, type Finding, type Model,
 } from './model';
 import { fileUrl, photoUrl } from './store';
-import { fixFirst } from './views-roles';
+import { fixFirst, themeHeat } from './views-roles';
+import { talkingBlock } from './views-brief';
 import type { Crit } from './types';
 import { avg, countBy, daysBetween, esc, fmtDate, pct, plural } from './util';
 
@@ -203,7 +204,7 @@ export function community(m: Model, v: ViewState, slugKey: string, auditKey: str
   return `<div class="pagehead"><div><p class="crumb"><button class="linkbtn" data-go="communities">Communities</button> / ${esc(c.c.city)}</p><h2 class="page">${esc(c.c.name)}</h2></div><div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link to this page</button><button class="btn ghost sm" data-act="copy-community:${c.slug}">Copy summary for email</button></div></div>` +
     `<div class="meta">${A[0]?.manager ? `<span>Manager: ${esc(A[0].manager)}</span>` : ''}${A[0]?.hdResult ? `<span>Last health inspection: ${esc(A[0].hdResult)}${A[0].hdDate ? ' on ' + esc(fmtDate(A[0].hdDate) || A[0].hdDate) : ''}</span>` : ''}<span>${plural(c.audits.length, 'kitchen audit')} on file</span></div>` +
     (dates.length > 1 ? `<div class="toolbar"><span class="lbl">Audit</span>${dates.map((d) => `<button class="fbtn" data-audit="${d}" aria-pressed="${d === selDate}">${fmtDate(d)}</button>`).join('')}</div>` : '') +
-    (c.latest.length ? tiles.replace(/<\/div>$/, ready + '</div>') : tiles + `<div class="tiles" style="margin-top:12px">${ready}</div>`) + fixFirst(A) + histChart + themeCards +
+    talkingBlock(c) + `<section class="block"><h3>Scores and status</h3>` + (c.latest.length ? tiles.replace(/<\/div>$/, ready + '</div>') : tiles + `<div class="tiles" style="margin-top:12px">${ready}</div>`) + '</section>' + fixFirst(A) + histChart + themeCards +
     (items.length ? `<section class="block"><h3>Findings and photos <span class="sm">${fmtDate(selDate)}</span></h3>
       <div class="toolbar"><span class="lbl">Show</span>${['all', 'Critical', 'Major', 'Minor'].map((k) => `<button class="fbtn" data-crit="${k}" aria-pressed="${fil.crit === k}">${k === 'all' ? 'All' : k}<span class="n">${k === 'all' ? items.length : items.filter((i) => i.criticality === k).length}</span></button>`).join('')}
       ${multiK ? `<span class="lbl" style="margin-left:8px">Kitchen</span>${['all', ...A.map((a) => a.kitchen)].map((k) => `<button class="fbtn" data-kitchen="${esc(k)}" aria-pressed="${fil.kitchen === k}">${k === 'all' ? 'All' : esc(k)}</button>`).join('')}` : ''}</div>
@@ -321,7 +322,8 @@ export function trends(m: Model, v: ViewState): string {
 
   return head('Trends', 'Trends and themes', 'How scores and findings move across rounds, and which standards keep showing up. The heat map and section chart follow the round filter.') +
     roundChips(m, v) +
-    `<section class="grid two">
+    `<section><h3>Portfolio by theme <span class="sm">points lost in each area a visitor walks, latest audit per kitchen</span></h3>${themeHeat(m, latestPerKitchen(A), [...new Set(latestPerKitchen(A).map((a) => a.community))].sort())}</section>
+    <section class="block grid two">
       <div class="panel"><h3>Average score by round</h3>${bars(roundRows.map((r) => ({ label: `${r.r} (${r.n} audits)`, value: r.s ?? 0, valueText: pct(r.s), act: 'round:' + r.r, segs: [{ v: r.s ?? 0, color: 'var(--bar)', title: '' }] })), 100)}
         ${roundRows.length < 2 ? '<p class="axisnote">Round over round comparisons fill in once the next round\'s reports are imported.</p>' : `<div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Round</th><th class="num">Audits</th><th class="num">Avg score</th><th class="num">Findings per audit</th><th class="num">Critical</th></tr></thead><tbody>${roundRows.map((r) => `<tr><td>${esc(r.r)}</td><td class="num">${r.n}</td><td class="num">${pct(r.s)}</td><td class="num">${r.f.toFixed(1)}</td><td class="num">${r.crit}</td></tr>`).join('')}</tbody></table></div>`}</div>
       <div class="panel"><h3>Score by month</h3>${scoreLine(months.map((mo) => ({ x: fmtDate(mo + '-01', true).split(' ')[0], y: avg(m.audits.filter((a) => a.date.startsWith(mo)).map((a) => a.score)) == null ? null : Math.round(avg(m.audits.filter((a) => a.date.startsWith(mo)).map((a) => a.score))!), label: `${mo}, ${m.audits.filter((a) => a.date.startsWith(mo)).length} audits` })))}<p class="axisnote">Average of all kitchen audits in each month. Dashed lines mark 70 and 85.</p></div>

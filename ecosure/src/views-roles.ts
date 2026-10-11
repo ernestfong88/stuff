@@ -1,18 +1,15 @@
-/** Role homes, priorities, the readiness playbook and self-audits. */
+/** Communities of focus, priorities, the readiness playbook and self-audits. */
 import { THEMES, allStandards, themeOf, type Standard } from './catalog';
 import { CRIT_COLOR } from './charts';
-import { AUDIT_LABEL, AUDIT_TONE, CAP_LABEL, CAP_TONE, needsCap, priorities, scoreBand, type Audit, type CommunityView, type Model, type Priority } from './model';
+import { AUDIT_LABEL, CAP_LABEL, priorities, type Audit, type CommunityView, type Model } from './model';
 import { PLAYBOOK } from './playbook';
 import type { Crit, SelfAudit, SelfResult } from './types';
-import { avg, countBy, esc, fmtDate, pct, plural, slug } from './util';
-import { auditWhy, inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
+import { avg, countBy, esc, fmtDate, plural, slug } from './util';
+import { inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
 
-export type Role = 'leadership' | 'regional' | 'community';
-export const ROLE_LABEL: Record<Role, string> = { leadership: 'Leadership', regional: 'Regional', community: 'Community team' };
 
 const chip = (tone: string, text: string, title = '') => `<span class="chip t-${tone}"${title ? ` title="${esc(title)}"` : ''}>${esc(text)}</span>`;
 const critChip = (c: Crit) => `<span class="chip c-${c}">${c}</span>`;
-const shortName = (m: Model, name: string) => m.settings.roster.find((c) => c.name === name)?.short || name;
 const slugOf = (m: Model, name: string) => m.communities.find((c) => c.c.name === name)?.slug ?? slug(name);
 const shareBtn = (label = 'Copy link to this page') => `<button class="btn ghost sm" data-act="share">${label}</button>`;
 const head = (crumb: string, title: string, lede: string, extra = '') => `<div class="pagehead"><div><p class="crumb">${esc(crumb)}</p><h2 class="page">${esc(title)}</h2><p class="lede">${lede}</p></div><div class="pageacts">${extra}</div></div>`;
@@ -20,32 +17,6 @@ export const readyPill = (r: number | null) => `<span class="score s-${r == null
 const SELF_LABEL = { none: 'No self-audit yet', due: 'Self-audit due', current: 'Self-audit current' } as const;
 const SELF_TONE = { none: 'none', due: 'warn', current: 'good' } as const;
 export const selfChip = (c: CommunityView) => chip(SELF_TONE[c.selfState], SELF_LABEL[c.selfState], c.self ? `Last on ${fmtDate(c.self.date)} by ${c.self.by}` : '');
-
-/* ---------- welcome ---------- */
-export function welcome(m: Model): string {
-  const kitchens = latestPerKitchen(m.audits);
-  return `<div class="welcome"><p class="crumb">Kisco Senior Living · Culinary food safety</p>
-    <h2 class="page">EcoSure Audit Review</h2>
-    <p class="lede">EcoSure food safety audits for ${plural(m.communities.filter((c) => c.c.active).length, 'community', 'communities')} and ${plural(kitchens.length, 'kitchen')} in one place: what to fix first, who needs an audit or a corrective action plan, and what every kitchen needs in place to pass. Choose the view that fits your job. You can switch any time from the menu.</p>
-    <div class="roles">
-      <button class="role" data-role="leadership"><b>Leadership</b><span>Portfolio priorities, communities of focus, CAP follow-up and trends.</span><span class="go">Open leadership view</span></button>
-      <button class="role" data-role="regional"><b>Regional</b><span>Your communities ranked for visits, with each one's top fixes and status.</span><span class="go">Open regional view</span></button>
-      <button class="role" data-role="community"><b>Community team</b><span>Your kitchen's fix list, CAP status, and the self-audit checklist.</span><span class="go">Open community view</span></button>
-    </div></div>`;
-}
-
-/* ---------- focus cards ---------- */
-function focusCard(m: Model, p: Priority, n: number, total: number): string {
-  const play = PLAYBOOK[p.short];
-  const list = p.communities.slice(0, 8).map((c) => `<button class="tag" data-go="c-${slugOf(m, c)}">${esc(shortName(m, c))}</button>`).join('') + (p.communities.length > 8 ? `<span class="note">+${p.communities.length - 8} more</span>` : '');
-  return `<article class="focus"><div class="fnum" aria-hidden="true">${n}</div><div class="fbody">
-    <div class="ftop"><h4>${esc(p.short)}</h4>${critChip(p.crit)}<span class="note">${esc(p.theme)}</span></div>
-    <p class="fimpact"><b>+${p.impact.toFixed(1)} points</b> on the average kitchen score if fixed everywhere. Cited in ${p.kitchens} of ${total} kitchens${p.repeats ? `, ${p.repeats} repeat` : ''}.</p>
-    ${play ? `<p class="fgood"><span class="lbl">What good looks like</span> ${esc(play.have[0])}.</p>` : ''}
-    <div class="tags">${list}</div>
-    <div class="factions"><button class="btn sm" data-act="std:${esc(p.short)}">See the ${p.findings.length} findings</button><button class="btn ghost sm" data-go="playbook.${slug(p.short)}">Playbook</button></div>
-  </div></article>`;
-}
 
 /** Communities that need leadership attention, with the reasons. */
 export function communitiesOfFocus(m: Model): { c: CommunityView; why: string[] }[] {
@@ -64,7 +35,7 @@ export function communitiesOfFocus(m: Model): { c: CommunityView; why: string[] 
   }).filter((x) => x.why.length).sort((a, b) => b.why.length - a.why.length || (a.c.score ?? 101) - (b.c.score ?? 101));
 }
 
-function themeHeat(m: Model, audits: Audit[], names: string[]): string {
+export function themeHeat(m: Model, audits: Audit[], names: string[]): string {
   if (!names.length) return '<div class="empty">No audits yet.</div>';
   const items = audits.flatMap((a) => a.items);
   const max = Math.max(1, ...names.flatMap((c) => THEMES.map((t) => items.filter((i) => i.audit.community === c && themeOf(i.short) === t.t).reduce((s, i) => s + i.points, 0))));
@@ -78,86 +49,6 @@ function themeHeat(m: Model, audits: Audit[], names: string[]): string {
   return `<div class="tablewrap"><table class="hm theme-hm"><thead><tr><th>Community</th>${THEMES.map((t) => `<th class="c" data-act="theme:${esc(t.t)}" style="cursor:pointer">${esc(t.t)}</th>`).join('')}<th class="num">Score</th></tr></thead><tbody>
     ${names.map((c) => `<tr><td class="lab"><button class="linkbtn" data-go="c-${slugOf(m, c)}">${esc(c)}</button></td>${THEMES.map((t) => cell(c, t.t)).join('')}<td class="num">${scorePill(avg(audits.filter((a) => a.community === c).map((a) => a.score)))}</td></tr>`).join('')}
     </tbody></table></div><div class="legend"><span>Points lost per theme in the latest audit of each kitchen.</span><span><i style="background:var(--hm1)"></i>Low</span><span><i style="background:var(--hm2)"></i>Medium</span><span><i style="background:var(--hm3)"></i>High</span></div>`;
-}
-
-/* ---------- leadership ---------- */
-export function homeLeadership(m: Model, v: ViewState): string {
-  const A = latestPerKitchen(inRound(m, v));
-  const P = priorities(A);
-  const scored = A.filter((a) => a.score != null);
-  const focus = communitiesOfFocus(m);
-  const capNeeded = A.filter((a) => a.items.length), closed = capNeeded.filter((a) => a.capState === 'closed').length;
-  const active = m.communities.filter((c) => c.c.active);
-  const selfCurrent = active.filter((c) => c.selfState === 'current').length;
-  const top5 = P.slice(0, 5);
-  const gain = top5.reduce((s, p) => s + p.impact, 0);
-  const names = [...new Set(A.map((a) => a.community))].sort((a, b) => (avg(A.filter((x) => x.community === a).map((x) => x.score)) ?? 101) - (avg(A.filter((x) => x.community === b).map((x) => x.score)) ?? 101));
-  return head('Leadership', 'Food safety at a glance', `Where the portfolio stands and the few things that would move it most. Based on the latest audit of each kitchen${v.round !== 'all' ? ` in ${esc(v.round)}` : ''}.`, `${shareBtn()}<button class="btn ghost sm" data-act="copy-summary">Copy summary for email</button>`) +
-    roundChips(m, v) +
-    `<div class="grid kpis">
-      <div class="kpi ${scoreBand(avg(scored.map((a) => a.score)))}"><div class="v">${pct(avg(scored.map((a) => a.score)))}</div><div class="l">Average kitchen score</div></div>
-      <button class="kpi ${focus.length ? 'bad' : 'good'}" data-act="scroll:focus-comms"><div class="v">${focus.length}</div><div class="l">Communities of focus</div></button>
-      <button class="kpi ${A.some((a) => a.crit) ? 'bad' : ''}" data-go="findings" data-crit="Critical"><div class="v">${A.reduce((s, a) => s + a.crit, 0)}</div><div class="l">Critical findings</div></button>
-      <button class="kpi ${closed === capNeeded.length ? 'good' : 'warn'}" data-go="actions" data-tab="caps"><div class="v">${closed}<small> of ${capNeeded.length}</small></div><div class="l">CAPs closed</div></button>
-      <button class="kpi ${selfCurrent === active.length ? 'good' : 'warn'}" data-go="self"><div class="v">${selfCurrent}<small> of ${active.length}</small></div><div class="l">Self-audits current</div></button>
-    </div>
-    <section class="block"><div class="sechead"><h3>Top 5 focus areas</h3><p class="note">Fixing these five everywhere would add about <b>${gain.toFixed(1)} points</b> to the average kitchen score. Ranked by points lost across the portfolio.</p><button class="btn ghost sm" data-go="priorities">All priorities</button></div>
-      <div class="focuslist">${top5.map((p, i) => focusCard(m, p, i + 1, A.length)).join('') || '<div class="empty">No findings yet.</div>'}</div></section>
-    <section class="block" id="focus-comms"><div class="sechead"><h3>Communities of focus</h3><p class="note">A score below 70, four or more critical findings, or three or more repeat findings. Late CAPs for everyone else are on the action list.</p></div>
-      ${focus.length ? `<div class="tablewrap"><table><thead><tr><th>Community</th><th class="num">Score</th><th>Why</th><th>CAP</th><th>Next step</th></tr></thead><tbody>${focus.map(({ c, why }) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.name)}</b><span class="sub">${esc(c.c.city)}</span></td><td class="num">${scorePill(c.score)}</td><td>${why.map((w) => `<span class="reason">${esc(w)}</span>`).join(' ')}</td><td>${chip(CAP_TONE[c.capState], CAP_LABEL[c.capState])}</td><td class="why">${esc(nextStep(c))}</td></tr>`).join('')}</tbody></table></div>` : '<div class="okbox">No community meets the focus criteria.</div>'}</section>
-    <section class="block"><div class="sechead"><h3>Portfolio by theme</h3><p class="note">The whole picture in one grid: points lost in each area a visitor walks. Select a theme to see its findings.</p></div>${themeHeat(m, A, names)}</section>`;
-}
-
-function nextStep(c: CommunityView): string {
-  if (c.capState === 'late') return 'Get the CAP submitted in EcoSure.';
-  if (c.capState === 'overdue') return 'Follow up on CAP items past their due date.';
-  if (c.score != null && c.score < 70) return 'Schedule a support visit and a self-audit.';
-  if (c.repeats >= 2) return 'Review repeat findings with the culinary director.';
-  if (c.auditState === 'overdue' || c.auditState === 'never') return 'Schedule the EcoSure audit.';
-  return 'Review the critical findings on the next visit.';
-}
-
-export function summaryText(m: Model, v: ViewState): string {
-  const A = latestPerKitchen(inRound(m, v));
-  const P = priorities(A).slice(0, 5);
-  const focus = communitiesOfFocus(m);
-  const nc = needsCap(m);
-  const s = avg(A.map((a) => a.score));
-  return [`EcoSure food safety summary, ${fmtDate(m.today)}`, '',
-    `Average kitchen score: ${pct(s)} across ${A.length} kitchens. ${A.reduce((x, a) => x + a.crit, 0)} critical findings.`, '',
-    'Top focus areas:', ...P.map((p, i) => `${i + 1}. ${p.short} (${p.crit}): cited in ${p.kitchens} kitchens, worth ${p.impact.toFixed(1)} points on the average score`), '',
-    `Communities of focus (${focus.length}):`, ...focus.map(({ c, why }) => `- ${c.c.name}: ${why.join(', ')}`), '',
-    `CAPs needing follow-up (${nc.length}):`, ...nc.map((a) => `- ${a.community}${a.kitchen !== 'Main Kitchen' ? ', ' + a.kitchen : ''}: ${CAP_LABEL[a.capState]}`)].join('\n');
-}
-
-/* ---------- regional ---------- */
-export function homeRegional(m: Model, mine: string[]): string {
-  const all = m.communities.filter((c) => c.c.active);
-  const regions = [...new Set(all.map((c) => c.c.region).filter(Boolean))] as string[];
-  const list = (mine.length ? all.filter((c) => mine.includes(c.slug)) : all);
-  const rank = (c: CommunityView) => (c.capState === 'late' || c.capState === 'overdue' ? 0 : 10) + (c.score == null ? 5 : c.score / 20) - c.critLatest;
-  const rows = [...list].sort((a, b) => rank(a) - rank(b));
-  return head('Regional', mine.length ? 'Your communities' : 'Visit planner', `Communities ranked by need: late CAPs and low scores first. Each card shows the three fixes worth the most points. ${mine.length ? '' : 'Pick your communities below to narrow this list; the choice is saved in this browser.'}`, shareBtn()) +
-    `<details class="panel picker"${mine.length ? '' : ' open'}><summary><b>Choose your communities</b> <span class="note">${mine.length ? `${mine.length} selected` : 'showing all'}</span></summary>
-      ${regions.length ? `<div class="toolbar" style="margin-top:10px"><span class="lbl">Region</span>${regions.map((r) => `<button class="fbtn" data-act="mine-region:${esc(r)}">${esc(r)}</button>`).join('')}</div>` : ''}
-      <div class="checks">${all.map((c) => `<label><input type="checkbox" data-mine="${c.slug}"${mine.includes(c.slug) ? ' checked' : ''}> ${esc(c.c.name)}</label>`).join('')}</div>
-      <div class="toolbar" style="margin:10px 0 0">${mine.length ? '<button class="btn quiet sm" data-act="mine-clear">Show all communities</button>' : ''}</div></details>
-    <section class="block grid cards">${rows.map((c) => visitCard(m, c)).join('')}</section>`;
-}
-
-function visitCard(m: Model, c: CommunityView): string {
-  const fixes = c.latest.flatMap((a) => a.items).sort((a, b) => b.points - a.points || Number(b.repeat) - Number(a.repeat)).filter((f, i, arr) => arr.findIndex((x) => x.short === f.short) === i).slice(0, 3);
-  return `<article class="vcard"><div class="vhead"><button class="linkbtn" data-go="c-${c.slug}"><b>${esc(c.c.name)}</b></button>${scorePill(c.score)}</div>
-    <div class="vmeta">${c.lastDate ? `Audited ${fmtDate(c.lastDate)}` : 'No audit on file'} · ${esc(c.c.city)}</div>
-    <div class="chips">${chip(AUDIT_TONE[c.auditState], AUDIT_LABEL[c.auditState])}${c.latest.some((a) => a.items.length) ? chip(CAP_TONE[c.capState], CAP_LABEL[c.capState]) : ''}${selfChip(c)}</div>
-    ${fixes.length ? `<ol class="fixes">${fixes.map((f) => `<li><span>${esc(f.short)}${f.repeat ? ' <span class="repeat">REPEAT</span>' : ''}</span>${critChip(f.criticality)}</li>`).join('')}</ol>` : `<p class="note">${esc(auditWhy(c, m))}</p>`}
-    <div class="factions"><button class="btn sm" data-go="c-${c.slug}">Visit brief</button><button class="btn ghost sm" data-go="self-${c.slug}">Self-audit</button></div></article>`;
-}
-
-/* ---------- community team ---------- */
-export function homeCommunity(m: Model, mySlug: string): string {
-  const opts = m.communities.filter((c) => c.c.active || c.audits.length);
-  return `<div class="panel mypick"><label class="field"><span class="lbl">Your community</span><select id="my-community">${mySlug ? '' : '<option value="">Choose your community</option>'}${opts.map((c) => `<option value="${c.slug}"${c.slug === mySlug ? ' selected' : ''}>${esc(c.c.name)}</option>`).join('')}</select></label><span class="note">Saved in this browser. The page below is your kitchen's report card.</span></div>`;
 }
 
 /** The "fix first" list for one community's latest audits. */
