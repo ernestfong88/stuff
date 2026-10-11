@@ -5,6 +5,10 @@ device in the dining program: the servers' tablets, the kitchen line, expo,
 the host stand, pick up and delivery, the resident kiosk, the specials TV and
 the culinary back office.
 
+## EcoSure Audit Review
+
+The food safety audit review site lives in [`ecosure/`](ecosure/README.md), a separate app with its own `package.json`.
+
 ## Run it
 
 ```bash

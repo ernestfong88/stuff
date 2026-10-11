@@ -1,0 +1,7 @@
+node_modules
+dist
+test-results
+playwright-report
+# Audit data (names, findings, photos) stays out of this public repo.
+# Recreate it with: npm run seed -- path/to/EcoSure_Audit_Review.html
+src/data/legacy-seed.json

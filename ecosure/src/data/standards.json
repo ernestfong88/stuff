@@ -1,0 +1,522 @@
+[
+ {
+  "q": "Food Handler Certificates available where required",
+  "short": "Food handler certificates",
+  "section": "Demonstration of Knowledge",
+  "sub": "Food Safety Certifications",
+  "crit": "Minor",
+  "cid": "1.1.2"
+ },
+ {
+  "q": "System is in place to monitor temperatures",
+  "short": "Temperature monitoring system/logs",
+  "section": "Demonstration of Knowledge",
+  "sub": "Sufficient Record Keeping",
+  "crit": "Major",
+  "cid": "1.2.3"
+ },
+ {
+  "q": "Consumer Advisory disclosure and reminder are available for raw/undercooked food",
+  "short": "Consumer advisory",
+  "section": "Demonstration of Knowledge",
+  "sub": "Consumer Advisory Available",
+  "crit": "Major",
+  "cid": "1.3.1"
+ },
+ {
+  "q": "Local public health authority permit available",
+  "short": "Health permit current",
+  "section": "Demonstration of Knowledge",
+  "sub": "General Demonstration of Knowledge",
+  "crit": "Major",
+  "cid": "1.4.1"
+ },
+ {
+  "q": "All critical/priority findings on the previous local public health authority inspection have been corrected",
+  "short": "Prior health inspection items corrected",
+  "section": "Demonstration of Knowledge",
+  "sub": "General Demonstration of Knowledge",
+  "crit": "Major",
+  "cid": "1.4.2"
+ },
+ {
+  "q": "Allergen Awareness requirements met",
+  "short": "Allergen awareness/policy",
+  "section": "Demonstration of Knowledge",
+  "sub": "General Demonstration of Knowledge",
+  "crit": "Major",
+  "cid": "1.4.4"
+ },
+ {
+  "q": "No critical pest activity is observed",
+  "short": "No critical pest activity",
+  "section": "Insects/Rodents/Animals",
+  "sub": "Insects / Rodents / Animals not present",
+  "crit": "Critical",
+  "cid": "10.1.1"
+ },
+ {
+  "q": "Insect control devices are installed in areas to prevent contamination",
+  "short": "Insect control devices placed properly",
+  "section": "Insects/Rodents/Animals",
+  "sub": "Insects / Rodents / Animals not present",
+  "crit": "Minor",
+  "cid": "10.1.2"
+ },
+ {
+  "q": "Pest activity prevented through proper sealing of outer openings and elimination of harborage conditions",
+  "short": "Outer openings sealed (pest entry)",
+  "section": "Insects/Rodents/Animals",
+  "sub": "Proper Sealing of Outer Openings",
+  "crit": "Minor",
+  "cid": "10.2.1"
+ },
+ {
+  "q": "Sinks meet water temperature requirements; hot and cold water are available at the facility",
+  "short": "Sink water temperature",
+  "section": "Facility",
+  "sub": "Plumbing Properly Installed; Proper Back Flow Devices—Hot/Cold Water Available",
+  "crit": "Major",
+  "cid": "11.2.1"
+ },
+ {
+  "q": "All plumbing is in good repair",
+  "short": "Plumbing in good repair",
+  "section": "Facility",
+  "sub": "Health Department Sewage and Plumbing- Plumbing Fixtures in Good Repair",
+  "crit": "Minor",
+  "cid": "11.4.1"
+ },
+ {
+  "q": "Employee clothing, food and personal items are properly stored",
+  "short": "Employee personal items stored properly",
+  "section": "Facility",
+  "sub": "General Facility—Employee Personal Belongings/Maintenance Tools Properly Stored",
+  "crit": "Minor",
+  "cid": "11.5.1"
+ },
+ {
+  "q": "Proper drinking/eating in food service area",
+  "short": "Proper eating/drinking in kitchen",
+  "section": "Good Hygienic Practices",
+  "sub": "Proper Eating, Drinking, or Tobacco Use",
+  "crit": "Minor",
+  "cid": "3.1.2"
+ },
+ {
+  "q": "Open wounds covered",
+  "short": "Open wounds covered",
+  "section": "Good Hygienic Practices",
+  "sub": "Personal Cleanliness",
+  "crit": "Critical",
+  "cid": "3.2.1"
+ },
+ {
+  "q": "Proper hair restraints are worn in the food service area",
+  "short": "Hair restraints worn",
+  "section": "Good Hygienic Practices",
+  "sub": "Personal Cleanliness",
+  "crit": "Minor",
+  "cid": "3.2.2"
+ },
+ {
+  "q": "No jewelry worn on arms or hands expect plain ring",
+  "short": "No jewelry on hands/arms",
+  "section": "Good Hygienic Practices",
+  "sub": "Health Department Good Hygienic Practices- Jewelry Requirements",
+  "crit": "Minor",
+  "cid": "3.3.1"
+ },
+ {
+  "q": "Hand washing at appropriate times",
+  "short": "Handwashing at appropriate times",
+  "section": "Contamination by Hands",
+  "sub": "Clean Hands, Properly Washed",
+  "crit": "Critical",
+  "cid": "4.1.2"
+ },
+ {
+  "q": "Single-Use Gloves are used properly",
+  "short": "Gloves used properly",
+  "section": "Contamination by Hands",
+  "sub": "No Bare Hand Contact with Ready-To-Eat Foods / Exemption When Applicable",
+  "crit": "Critical",
+  "cid": "4.2.2"
+ },
+ {
+  "q": "Hand washing sinks are present, accessible, usable and used only for handwashing",
+  "short": "Hand sinks accessible, handwash only",
+  "section": "Contamination by Hands",
+  "sub": "Handwashing Facilities are Adequate",
+  "crit": "Major",
+  "cid": "4.3.1"
+ },
+ {
+  "q": "Hand washing sinks are clean",
+  "short": "Hand sinks clean",
+  "section": "Contamination by Hands",
+  "sub": "Handwashing Facilities are Adequate",
+  "crit": "Minor",
+  "cid": "4.3.3"
+ },
+ {
+  "q": "Soap and single-use paper towels or high velocity hand drying device available at all hand washing sinks, including restrooms",
+  "short": "Soap and towels at hand sinks",
+  "section": "Contamination by Hands",
+  "sub": "Handwashing Facilities are Adequate",
+  "crit": "Major",
+  "cid": "4.3.4"
+ },
+ {
+  "q": "Hand washing reminder signs at all sinks",
+  "short": "Handwash signs at all sinks",
+  "section": "Contamination by Hands",
+  "sub": "Handwashing Facilities are Adequate",
+  "crit": "Minor",
+  "cid": "4.4.1"
+ },
+ {
+  "q": "Covered waste container available in restrooms where required",
+  "short": "Covered restroom waste container",
+  "section": "Facility",
+  "sub": "Adequate Toilet Facilities",
+  "crit": "Minor",
+  "cid": "4.4.2"
+ },
+ {
+  "q": "Proper use of food hierarchy in storage",
+  "short": "Food storage hierarchy",
+  "section": "Protection from Contamination",
+  "sub": "Hierarchy/Storage Conditions/Contamination Observed/Food Integrity",
+  "crit": "Critical",
+  "cid": "6.1.1"
+ },
+ {
+  "q": "Food contact items (disposable and non-disposable) and laundered linens stored in appropriate locations; and, are properly handled/displayed/dispensed",
+  "short": "Food-contact items/linens stored properly",
+  "section": "Protection from Contamination",
+  "sub": "Hierarchy/Storage Conditions/Contamination Observed/Food Integrity",
+  "crit": "Minor",
+  "cid": "6.1.10"
+ },
+ {
+  "q": "Food stored in packages, covered containers, or wrappings",
+  "short": "Food covered/wrapped in storage",
+  "section": "Protection from Contamination",
+  "sub": "Hierarchy/Storage Conditions/Contamination Observed/Food Integrity",
+  "crit": "Major",
+  "cid": "6.1.2"
+ },
+ {
+  "q": "Food stored and prepared in appropriate locations",
+  "short": "Food stored in appropriate locations",
+  "section": "Protection from Contamination",
+  "sub": "Hierarchy/Storage Conditions/Contamination Observed/Food Integrity",
+  "crit": "Minor",
+  "cid": "6.1.3"
+ },
+ {
+  "q": "Cross contamination prevented during food storage and preparation",
+  "short": "Cross contamination prevented",
+  "section": "Protection from Contamination",
+  "sub": "Hierarchy/Storage Conditions/Contamination Observed/Food Integrity",
+  "crit": "Critical",
+  "cid": "6.1.5"
+ },
+ {
+  "q": "Food utensils in use are stored properly",
+  "short": "In-use utensils stored properly",
+  "section": "Protection from Contamination",
+  "sub": "Food Utensils In-Use are Stored Properly",
+  "crit": "Minor",
+  "cid": "6.2.1"
+ },
+ {
+  "q": "Utensils/equipment food contact surfaces are in good repair",
+  "short": "Food-contact surfaces in good repair",
+  "section": "Protection from Contamination",
+  "sub": "Food Contact Surfaces in Good Repair, Proper Type and Design",
+  "crit": "Major",
+  "cid": "6.3.1"
+ },
+ {
+  "q": "Utensils/equipment food contact surfaces proper type; Single-use articles not re-used",
+  "short": "Proper utensils; single-use not reused",
+  "section": "Protection from Contamination",
+  "sub": "Food Contact Surfaces in Good Repair, Proper Type and Design",
+  "crit": "Minor",
+  "cid": "6.3.2"
+ },
+ {
+  "q": "Foods on display stored protected",
+  "short": "Displayed food protected",
+  "section": "Protection from Contamination",
+  "sub": "Proper Set-up for Self-Service",
+  "crit": "Critical",
+  "cid": "6.5.1"
+ },
+ {
+  "q": "Proper concentration of chemical sanitizing for dishwashing machine",
+  "short": "Dish machine sanitizer concentration",
+  "section": "Protection from Contamination",
+  "sub": "Food Contact Surfaces Clean and Sanitized- Stored Food Contact Surfaces and Clean-in-Place Equipment / Sanitizing Systems/Dish machine Functionality",
+  "crit": "Critical",
+  "cid": "6.6.4"
+ },
+ {
+  "q": "Stored food contact surfaces/clean-in place food contact equipment properly cleaned and sanitized",
+  "short": "Stored food-contact equipment clean (ice machines, pans)",
+  "section": "Protection from Contamination",
+  "sub": "Food Contact Surfaces Clean and Sanitized- Stored Food Contact Surfaces and Clean-in-Place Equipment / Sanitizing Systems/Dish machine Functionality",
+  "crit": "Major",
+  "cid": "6.6.5"
+ },
+ {
+  "q": "Dishwashing machine using hot water sanitizing is at the proper pressure per data plate",
+  "short": "Dish machine pressure",
+  "section": "Protection from Contamination",
+  "sub": "Food Contact Surfaces Clean and Sanitized- Stored Food Contact Surfaces and Clean-in-Place Equipment / Sanitizing Systems/Dish machine Functionality",
+  "crit": "Minor",
+  "cid": "6.6.7"
+ },
+ {
+  "q": "3-compartment sink is present, sufficient size and used properly (Outside North America: this may not be required)",
+  "short": "3-compartment sink set up/labeled",
+  "section": "Protection from Contamination",
+  "sub": "Proper Warewashing Facility Available— Manual Procedures and Air Drying/Sanitizer Test Strips",
+  "crit": "Major",
+  "cid": "6.7.1"
+ },
+ {
+  "q": "Equipment/utensils are air-dried before stacking and not observed cloth dried",
+  "short": "Air-dry before stacking (wet nesting)",
+  "section": "Protection from Contamination",
+  "sub": "Proper Warewashing Facility Available— Manual Procedures and Air Drying/Sanitizer Test Strips",
+  "crit": "Minor",
+  "cid": "6.7.3"
+ },
+ {
+  "q": "Wiping cloths stored properly and are at the proper concentration (per manufacturer specifications); spray bottles at proper concentration.",
+  "short": "Wiping cloths/sanitizer buckets",
+  "section": "Protection from Contamination",
+  "sub": "Proper Use/Storage of Wiping Cloths",
+  "crit": "Major",
+  "cid": "6.8.2"
+ },
+ {
+  "q": "All non-food contact surfaces are clean, cleanable, and in good repair.",
+  "short": "Non-food contact surfaces clean/in repair",
+  "section": "Protection from Contamination",
+  "sub": "Non-food Contact Surfaces/Floors, Walls, Ceilings/Hood Systems/Refuse Disposal Properly Maintained",
+  "crit": "Minor",
+  "cid": "6.9.1"
+ },
+ {
+  "q": "Floors, walls, ceilings and attached equipment are cleanable, clean, and in good repair",
+  "short": "Floors, walls, ceilings clean/in repair",
+  "section": "Protection from Contamination",
+  "sub": "Non-food Contact Surfaces/Floors, Walls, Ceilings/Hood Systems/Refuse Disposal Properly Maintained",
+  "crit": "Minor",
+  "cid": "6.9.2"
+ },
+ {
+  "q": "Ventilation hood systems are clean and in good repair with adequate drip prevention",
+  "short": "Hood system clean/in repair",
+  "section": "Protection from Contamination",
+  "sub": "Non-food Contact Surfaces/Floors, Walls, Ceilings/Hood Systems/Refuse Disposal Properly Maintained",
+  "crit": "Minor",
+  "cid": "6.9.3"
+ },
+ {
+  "q": "All gaskets on refrigeration are clean and in good repair",
+  "short": "Refrigeration gaskets clean/in repair",
+  "section": "Protection from Contamination",
+  "sub": "Non-food Contact Surfaces/Floors, Walls, Ceilings/Hood Systems/Refuse Disposal Properly Maintained",
+  "crit": "Minor",
+  "cid": "6.9.4"
+ },
+ {
+  "q": "All lighting sources properly shielded or shatter-proof and functioning in areas where food, service utensils and equipment are stored or prepared. Lighting is adequate. Light fixtures are clean.",
+  "short": "Lighting shielded and clean",
+  "section": "Protection from Contamination",
+  "sub": "Non-food Contact Surfaces/Floors, Walls, Ceilings/Hood Systems/Refuse Disposal Properly Maintained",
+  "crit": "Minor",
+  "cid": "6.9.5"
+ },
+ {
+  "q": "Waste receptacles in the back of house are sufficient availability/capacity. Waste containers are maintained clean and in good repair.",
+  "short": "BOH waste containers clean",
+  "section": "Protection from Contamination",
+  "sub": "Non-food Contact Surfaces/Floors, Walls, Ceilings/Hood Systems/Refuse Disposal Properly Maintained",
+  "crit": "Minor",
+  "cid": "6.9.6"
+ },
+ {
+  "q": "Dumpster area is regularly cleaned and free of excess debris or unnecessary items; dumpster plug is in place where applicable; dumpster and outdoor garbage container lids are kept closed and are in good repair",
+  "short": "Dumpster area clean, lids closed",
+  "section": "Protection from Contamination",
+  "sub": "Non-food Contact Surfaces/Floors, Walls, Ceilings/Hood Systems/Refuse Disposal Properly Maintained",
+  "crit": "Minor",
+  "cid": "6.9.9"
+ },
+ {
+  "q": "All coolers and freezers have functioning thermometers within reasonable range",
+  "short": "Cooler/freezer thermometers",
+  "section": "Time/Temperature Control",
+  "sub": "Functional Refrigeration Thermometers/FIFO of TCS, RTE Foods",
+  "crit": "Minor",
+  "cid": "7.10.1"
+ },
+ {
+  "q": "Reconstituted foods/salad and sandwich ingredients are chilled to ≤41°F (5°C) within 4 hours",
+  "short": "Salads/sandwich items chilled within 4 hrs",
+  "section": "Time/Temperature Control",
+  "sub": "Appropriate Cooling Procedures in Place",
+  "crit": "Critical",
+  "cid": "7.3.3"
+ },
+ {
+  "q": "Proper cooling methods are in use. Recently prepared high risk product placed in cold holding service equipment has been properly cooled/chilled to 41° F (5° C).",
+  "short": "Proper cooling before cold holding",
+  "section": "Time/Temperature Control",
+  "sub": "Appropriate Cooling Procedures in Place",
+  "crit": "Major",
+  "cid": "7.3.4"
+ },
+ {
+  "q": "Items in hot holding at or above 135º F (57°C)",
+  "short": "Hot holding at 135°F or above",
+  "section": "Time/Temperature Control",
+  "sub": "Proper Hot Holding Requirements Met",
+  "crit": "Critical",
+  "cid": "7.4.1"
+ },
+ {
+  "q": "High risk foods in cold holding are held at ≤ 41° F (5°C)",
+  "short": "Cold holding at 41°F or below",
+  "section": "Time/Temperature Control",
+  "sub": "Proper Cold Holding Requirements Met",
+  "crit": "Critical",
+  "cid": "7.5.1"
+ },
+ {
+  "q": "No expired Ready-to-eat high risk product present",
+  "short": "No expired RTE product",
+  "section": "Time/Temperature Control",
+  "sub": "Appropriate Date Marking and Disposition Procedures — Food Name and Date labeling/Expiration",
+  "crit": "Critical",
+  "cid": "7.7.3"
+ },
+ {
+  "q": "Refrigerated, ready-to-eat high risk foods prepared and held for more than 24 hours properly date or day labeled; Commercially prepared high risk food is properly date or day labeled when original packaging is opened if held for more than 24 hours",
+  "short": "RTE foods date labeled",
+  "section": "Time/Temperature Control",
+  "sub": "Appropriate Date Marking and Disposition Procedures — Food Name and Date labeling/Expiration",
+  "crit": "Major",
+  "cid": "7.7.4"
+ },
+ {
+  "q": "Any food products (non-high risk and high risk) not visibly identifiable are labeled with a common name where required",
+  "short": "Foods labeled with common name",
+  "section": "Time/Temperature Control",
+  "sub": "Appropriate Date Marking and Disposition Procedures — Food Name and Date labeling/Expiration",
+  "crit": "Minor",
+  "cid": "7.7.5"
+ },
+ {
+  "q": "High risk foods properly thawed/slacked",
+  "short": "Proper thawing",
+  "section": "Time/Temperature Control",
+  "sub": "Proper Thawing Procedures",
+  "crit": "Major",
+  "cid": "7.9.1"
+ },
+ {
+  "q": "Chemicals are properly labeled",
+  "short": "Chemicals labeled",
+  "section": "Chemicals",
+  "sub": "Chemicals / Toxic Substances Properly Identified, Stored, Used",
+  "crit": "Major",
+  "cid": "8.2.1"
+ },
+ {
+  "q": "Chemicals are properly stored",
+  "short": "Chemicals stored properly",
+  "section": "Chemicals",
+  "sub": "Chemicals / Toxic Substances Properly Identified, Stored, Used",
+  "crit": "Critical",
+  "cid": "8.2.2"
+ },
+ {
+  "q": "First aid supplies and employee medication are properly labeled and stored",
+  "short": "First aid/medications stored",
+  "section": "Chemicals",
+  "sub": "Chemicals / Toxic Substances Properly Identified, Stored, Used",
+  "crit": "Critical",
+  "cid": "8.2.6"
+ },
+ {
+  "q": "Food packages and cans are in good condition; damaged/spoiled products are segregated",
+  "short": "Damaged cans/packages segregated",
+  "section": "Protection from Contamination",
+  "sub": "Hierarchy/Storage Conditions/Contamination Observed/Food Integrity",
+  "crit": "Major",
+  "cid": ""
+ },
+ {
+  "q": "Manager/Person-in-Charge certified by accredited program",
+  "short": "Certified manager/PIC",
+  "section": "Demonstration of Knowledge",
+  "sub": "Food Safety Certifications",
+  "crit": "Major",
+  "cid": ""
+ },
+ {
+  "q": "Pesticides are applied by approved personnel only",
+  "short": "Pesticides applied by approved personnel",
+  "section": "Chemicals",
+  "sub": "Chemicals / Toxic Substances Properly Identified, Stored, Used",
+  "crit": "Major",
+  "cid": ""
+ },
+ {
+  "q": "Proper concentration of chemical sanitizing at the 3-compartment sink that is set-up for use and sufficient contact time for effective sanitizing",
+  "short": "3-comp sink sanitizer concentration",
+  "section": "Protection from Contamination",
+  "sub": "Food Contact Surfaces Clean and Sanitized- Stored Food Contact Surfaces and Clean-in-Place Equipment / Sanitizing Systems/Dish machine Functionality",
+  "crit": "Critical",
+  "cid": ""
+ },
+ {
+  "q": "Proper hand washing procedure",
+  "short": "Proper handwashing procedure",
+  "section": "Contamination by Hands",
+  "sub": "Clean Hands, Properly Washed",
+  "crit": "Critical",
+  "cid": ""
+ },
+ {
+  "q": "Proper written procedures for clean-up of biohazard events are available",
+  "short": "Biohazard clean-up procedures",
+  "section": "Employee Health",
+  "sub": "Good Employee Health",
+  "crit": "Major",
+  "cid": ""
+ },
+ {
+  "q": "Raw produce properly washed before preparation or service; and, are not washed in the original container and not placed back into original container once washed; Produce wash system (if present) is properly used and maintained",
+  "short": "Produce washed properly",
+  "section": "Protection from Contamination",
+  "sub": "Hierarchy/Storage Conditions/Contamination Observed/Food Integrity",
+  "crit": "Major",
+  "cid": ""
+ },
+ {
+  "q": "Sanitizer test kits / strips are available and not expired",
+  "short": "Sanitizer test strips available",
+  "section": "Protection from Contamination",
+  "sub": "Proper Warewashing Facility Available— Manual Procedures and Air Drying/Sanitizer Test Strips",
+  "crit": "Major",
+  "cid": ""
+ }
+]

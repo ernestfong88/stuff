@@ -1,0 +1,345 @@
+[
+ {
+  "name": "Abbotswood of Irving Park",
+  "short": "Abbotswood",
+  "city": "Greensboro",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Abbotswood of Stonehenge",
+  "short": "Stonehenge",
+  "city": "Raleigh",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Balfour Central Park",
+  "short": "Central Park",
+  "city": "Denver",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Balfour Cherrywood",
+  "short": "Cherrywood",
+  "city": "Louisville",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Balfour Littleton",
+  "short": "Littleton",
+  "city": "Littleton",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Balfour Louisville",
+  "short": "Bal. Louisville",
+  "city": "Louisville",
+  "kitchens": [
+   "Kitchen 1",
+   "Kitchen 2",
+   "Kitchen 3",
+   "Kitchen 4"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Balfour Riverfront",
+  "short": "Riverfront",
+  "city": "Denver",
+  "kitchens": [
+   "Kitchen 1",
+   "Kitchen 2"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Bridgepoint at Los Altos",
+  "short": "Bridgepoint",
+  "city": "Los Altos",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Byron Park",
+  "short": "Byron Park",
+  "city": "Walnut Creek",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Cedarwood at Sandy",
+  "short": "Cedarwood",
+  "city": "Sandy",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Crestavilla",
+  "short": "Crestavilla",
+  "city": "Laguna Niguel",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Drake Terrace",
+  "short": "Drake Terrace",
+  "city": "San Rafael",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Emerald Court",
+  "short": "Emerald Court",
+  "city": "Anaheim",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "First Colonial Inn",
+  "short": "First Colonial",
+  "city": "Virginia Beach",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Heritage Greens",
+  "short": "Heritage Greens",
+  "city": "Greensboro",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Ilima At Leihano",
+  "short": "Ilima",
+  "city": "Kapolei",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "La Posada",
+  "short": "La Posada",
+  "city": "Palm Beach Gardens",
+  "kitchens": [
+   "Kitchen 1",
+   "Kitchen 2",
+   "Kitchen 3"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Magnolia Glen",
+  "short": "Magnolia Glen",
+  "city": "Raleigh",
+  "kitchens": [
+   "Kitchen 1",
+   "Kitchen 2"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Park Terrace",
+  "short": "Park Terrace",
+  "city": "Rancho Santa Margarita",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Sagewood at Daybreak",
+  "short": "Sagewood",
+  "city": "South Jordan",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "The Cardinal of North Hills",
+  "short": "Cardinal",
+  "city": "Raleigh",
+  "kitchens": [
+   "Kitchen 1",
+   "Kitchen 2",
+   "Kitchen 3",
+   "Kitchen 4"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "The Carnegie at Washingtonian",
+  "short": "Carnegie",
+  "city": "Gaithersburg",
+  "kitchens": [
+   "Kitchen 1",
+   "Kitchen 2"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "The Fitzgerald",
+  "short": "Fitzgerald",
+  "city": "Washington",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "The Fountains",
+  "short": "Fountains",
+  "city": "Melbourne",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "The Kensington",
+  "short": "Kensington",
+  "city": "Walnut Creek",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "The Newbury at Brookline",
+  "short": "Newbury",
+  "city": "Brookline",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "The Preston of Rockville",
+  "short": "Preston",
+  "city": "Rockville",
+  "kitchens": [
+   "Kitchen 1",
+   "Kitchen 2"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Valencia Terrace",
+  "short": "Valencia Terrace",
+  "city": "Corona",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ },
+ {
+  "name": "Woodbridge Terrace of Irvine",
+  "short": "Woodbridge",
+  "city": "Irvine",
+  "kitchens": [
+   "Main Kitchen"
+  ],
+  "active": true,
+  "note": "Audited Sep 25, 2026. Report not yet received.",
+  "aliases": []
+ },
+ {
+  "name": "Woodland Terrace",
+  "short": "Woodland Terrace",
+  "city": "Cary",
+  "kitchens": [
+   "Kitchen 1",
+   "Kitchen 2"
+  ],
+  "active": true,
+  "note": "",
+  "aliases": []
+ }
+]
