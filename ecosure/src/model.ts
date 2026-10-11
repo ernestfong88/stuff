@@ -2,9 +2,9 @@
  * Turns stored records into what the pages show: one Audit per kitchen visit with its CAP
  * attached, plus a status per community (does it need an audit, does it need a CAP).
  */
-import { POINTS, critFor, findStandard, sectionFor, shortLabel } from './catalog';
+import { POINTS, allStandards, critFor, findStandard, sectionFor, shortLabel, themeOf } from './catalog';
 import ROSTER from './data/roster.json';
-import type { Cap, CapItem, Community, Item, Rec, Report, Round, Settings } from './types';
+import type { Cap, CapItem, Community, Crit, Item, Rec, Report, Round, SelfAudit, Settings } from './types';
 import { addDays, avg, daysBetween, norm, slug, todayIso } from './util';
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -16,6 +16,7 @@ export const DEFAULT_SETTINGS: Settings = {
   ],
   capDueDays: 10,
   cycleDays: 100,
+  selfAuditDays: 30,
   updatedAt: '',
 };
 
@@ -80,6 +81,9 @@ export interface CommunityView {
   openFindings: number;
   critLatest: number;
   repeats: number;
+  self: SelfAudit | null; // latest self-audit (any kitchen)
+  readiness: number | null; // 0-100 from the latest self-audit
+  selfState: 'none' | 'due' | 'current';
 }
 
 export interface Model {
@@ -91,6 +95,48 @@ export interface Model {
   communities: CommunityView[];
   bySlug: Map<string, CommunityView>;
   unknown: string[]; // communities in data but not on the roster
+  selfAudits: SelfAudit[];
+}
+
+/** Points-weighted share of applicable checklist items that passed. */
+export function readiness(sa: SelfAudit): number | null {
+  let got = 0, all = 0;
+  for (const s of allStandards()) {
+    const r = sa.results[s.short]?.r;
+    if (!r || r === 'na') continue;
+    const w = POINTS[(s.crit || 'Minor') as Crit] || 1;
+    all += w;
+    if (r === 'pass') got += w;
+  }
+  return all ? (got / all) * 100 : null;
+}
+
+export interface Priority {
+  short: string;
+  theme: string;
+  crit: Crit;
+  points: number; // total points lost
+  impact: number; // average points per audited kitchen: what fixing it everywhere adds to the average score
+  kitchens: number;
+  communities: string[];
+  critical: number;
+  repeats: number;
+  findings: Finding[];
+}
+
+/** Standards ranked by how many points they cost across the given audits. */
+export function priorities(audits: Audit[]): Priority[] {
+  const scored = audits.filter((a) => a.score != null || a.items.length);
+  const by = new Map<string, Finding[]>();
+  for (const f of scored.flatMap((a) => a.items)) by.set(f.short, [...(by.get(f.short) ?? []), f]);
+  return [...by.entries()].map(([short, fs]) => {
+    const points = fs.reduce((x, f) => x + f.points, 0);
+    return {
+      short, theme: themeOf(short), crit: fs[0].criticality, points, impact: points / Math.max(1, scored.length),
+      kitchens: new Set(fs.map((f) => f.audit.community + '|' + f.audit.kitchen)).size, communities: [...new Set(fs.map((f) => f.audit.community))].sort(),
+      critical: fs.filter((f) => f.criticality === 'Critical').length, repeats: fs.filter((f) => f.repeat).length, findings: fs,
+    };
+  }).sort((a, b) => b.points - a.points || b.kitchens - a.kitchens);
 }
 
 export const isClosed = (status: string) => /^(approved|completed|closed)$/i.test(status.trim());
@@ -127,6 +173,7 @@ export function mergeRecords(seed: Rec[], stored: Rec[]): Rec[] {
 export function buildModel(recs: Rec[], settings: Settings, today = todayIso()): Model {
   const roster = settings.roster;
   const reports = recs.filter((r): r is Report => r.kind === 'report');
+  const selfAudits = recs.filter((r): r is SelfAudit => r.kind === 'self').map((r) => ({ ...r, community: canonical(r.community, roster) })).sort((a, b) => a.date.localeCompare(b.date));
   const caps = recs.filter((r): r is Cap => r.kind === 'cap').sort((a, b) => a.importedAt.localeCompare(b.importedAt));
 
   const audits: Audit[] = [];
@@ -216,18 +263,21 @@ export function buildModel(recs: Rec[], settings: Settings, today = todayIso()):
     else if (c.note) auditState = 'pending-report';
     else if (nextDue && today > nextDue) auditState = 'overdue';
     else auditState = cur ? 'due' : 'done';
+    const self = selfAudits.filter((x) => x.community === name).pop() ?? null;
+    const selfState: CommunityView['selfState'] = !self ? 'none' : daysBetween(self.date, today) > (settings.selfAuditDays ?? 30) ? 'due' : 'current';
     const capState = latest.map((a) => a.capState).sort((x, y) => CAP_ORDER.indexOf(x) - CAP_ORDER.indexOf(y))[0] ?? 'not-needed';
     return {
       c, slug: slug(name), audits: list, latest, lastDate, score: avg(scored.map((a) => a.score)), prevScore: avg(prev.map((a) => a?.score)),
       auditState, nextDue, daysSince: lastDate ? daysBetween(lastDate, today) : null, capState,
       openFindings: latest.filter((a) => a.capState !== 'closed').reduce((s, a) => s + a.items.length, 0),
       critLatest: latest.reduce((s, a) => s + a.crit, 0), repeats: latest.reduce((s, a) => s + a.items.filter((f) => f.repeat).length, 0),
+      self, readiness: self ? readiness(self) : null, selfState,
     };
   });
 
   return {
     settings, today, currentRound: cur, audits, findings: audits.flatMap((a) => a.items), communities,
-    bySlug: new Map(communities.map((c) => [c.slug, c])), unknown,
+    bySlug: new Map(communities.map((c) => [c.slug, c])), unknown, selfAudits,
   };
 }
 

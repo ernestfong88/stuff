@@ -74,7 +74,24 @@ export interface Cap {
   deleted?: boolean;
 }
 
-export type Rec = Report | Cap;
+export type SelfResult = 'pass' | 'fail' | 'na';
+
+/** A community's own walk-through against the readiness checklist. */
+export interface SelfAudit {
+  kind: 'self';
+  id: string;
+  community: string;
+  kitchen: string;
+  date: string;
+  by: string; // name typed by the person submitting
+  results: Record<string, { r: SelfResult; note?: string }>; // by standard short label
+  importedAt: string;
+  deleted?: boolean;
+}
+
+export type Rec = Report | Cap | SelfAudit;
+/** Records that come from EcoSure files. */
+export type FileRec = Report | Cap;
 
 export interface Community {
   name: string; // exactly as EcoSure prints it (without " - Kitchen #n")
@@ -84,6 +101,7 @@ export interface Community {
   active: boolean;
   note: string; // e.g. "Audited Sep 25, report not yet received"
   aliases: string[];
+  region?: string;
 }
 
 export interface Round {
@@ -97,5 +115,6 @@ export interface Settings {
   rounds: Round[];
   capDueDays: number; // days after the audit a CAP should be submitted
   cycleDays: number; // a community is overdue for an audit after this many days
+  selfAuditDays?: number; // a self-audit is expected this often
   updatedAt: string;
 }

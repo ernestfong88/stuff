@@ -4,9 +4,9 @@ test('opens on the portfolio with the carried-over audits', async ({ page }) => 
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Portfolio at a glance' })).toBeVisible();
+  await expect(page.locator('[data-role="leadership"]')).toBeVisible();
   await expect(page.locator('#navComm button')).toHaveCount(30);
-  for (const r of ['actions', 'communities', 'findings', 'trends', 'import', 'settings', 'c-balfour-riverfront']) {
+  for (const r of ['priorities', 'actions', 'playbook', 'self', 'communities', 'findings', 'trends', 'import', 'settings', 'c-balfour-riverfront', 'self-crestavilla']) {
     await page.evaluate((h) => (location.hash = h), r);
     await expect(page.locator('h2.page')).toBeVisible();
   }

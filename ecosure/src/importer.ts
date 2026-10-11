@@ -6,7 +6,7 @@ import { fromLegacy, isLegacyJson, readLegacyHtml } from './parse/legacy';
 import { openPdf, readAll } from './parse/pdf';
 import { isReport, parseReport } from './parse/report';
 import { recId, type Backend } from './store';
-import type { Rec, Settings } from './types';
+import type { FileRec, Rec, Settings } from './types';
 
 export type QKind = 'report' | 'cap' | 'legacy' | 'backup' | 'unknown';
 
@@ -15,13 +15,14 @@ export interface QItem {
   name: string;
   status: 'reading' | 'ready' | 'saving' | 'saved' | 'error' | 'skipped';
   kind: QKind;
-  recs: Rec[];
+  recs: FileRec[];
   photos: Map<string, Blob>; // temporary key -> JPEG
   dataPhotos: Record<string, string>; // backup/legacy photo name -> data URL
   pdf?: Blob;
   error?: string;
   progress?: string;
   settings?: Settings; // from a backup
+  selfAudits?: Rec[]; // from a backup
 }
 
 export interface BackupFile {
@@ -70,7 +71,8 @@ export async function readFile(file: File, settings: Settings): Promise<QItem> {
       if (v?.format === 'ecosure-review-backup') {
         const bk = v as BackupFile;
         q.kind = 'backup';
-        q.recs = bk.records;
+        q.recs = bk.records.filter((r): r is FileRec => r.kind !== 'self');
+        q.selfAudits = bk.records.filter((r) => r.kind === 'self');
         q.dataPhotos = bk.photos ?? {};
         q.settings = bk.settings ?? undefined;
       } else if (isLegacyJson(v)) {
@@ -122,4 +124,5 @@ export async function saveItem(q: QItem, be: Backend, onProgress: (s: string) =>
     if (r.kind === 'report') r.items.forEach(learnStandard);
     await be.put(r);
   }
+  for (const r of q.selfAudits ?? []) await be.put(r);
 }

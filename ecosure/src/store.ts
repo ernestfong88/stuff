@@ -13,6 +13,7 @@ import { slug } from './util';
 type Any = any;
 
 export function recId(r: Rec): string {
+  if (r.kind === 'self') return `s~${slug(r.community)}~${slug(r.kitchen)}~${r.date}`;
   const d = r.kind === 'report' ? r.date : r.auditDate || r.submitted || 'undated';
   return `${r.kind === 'report' ? 'r' : 'c'}~${slug(r.community)}~${slug(r.kitchen)}~${d}`;
 }
@@ -73,7 +74,7 @@ async function sharedBackend(): Promise<Backend | null> {
       try { await col.doc(rec.id).set(pack(rec)); }
       catch (e: Any) { if (e?.code === 'invalid_argument' && !canWrite) throw new Error('You can view this page but not change its data. Ask the owner for Contributor access.'); throw new Error(e?.message ?? String(e)); }
     },
-    async remove(id) { await col.doc(id).set({ id, deleted: true, kind: id.startsWith('r~') ? 'report' : 'cap' }); },
+    async remove(id) { await col.doc(id).set({ id, deleted: true, kind: id.startsWith('r~') ? 'report' : id.startsWith('s~') ? 'self' : 'cap' }); },
     async putSettings(s) { await settingsDoc.set(pack(s)); },
     async savePhoto(b) {
       if (!assets) throw new Error('Photos can only be added by people who can edit this page.');
@@ -142,7 +143,7 @@ async function localBackend(): Promise<Backend> {
     async start(onChange) { notify = onChange; await reload(); },
     async put(rec) { if (db) await tx(db, 'records', 'readwrite', (s) => s.put(JSON.parse(JSON.stringify(rec)))); else mem.set(rec.id, rec); await changed(); },
     async remove(id) {
-      const t = { id, deleted: true, kind: id.startsWith('r~') ? 'report' : 'cap' } as unknown as Rec;
+      const t = { id, deleted: true, kind: id.startsWith('r~') ? 'report' : id.startsWith('s~') ? 'self' : 'cap' } as unknown as Rec;
       if (db) await tx(db, 'records', 'readwrite', (s) => s.put(t)); else mem.set(id, t);
       await changed();
     },

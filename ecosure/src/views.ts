@@ -6,6 +6,7 @@ import {
   type Audit, type CommunityView, type Finding, type Model,
 } from './model';
 import { fileUrl, photoUrl } from './store';
+import { fixFirst } from './views-roles';
 import type { Crit } from './types';
 import { avg, countBy, daysBetween, esc, fmtDate, pct, plural } from './util';
 
@@ -62,7 +63,7 @@ export function inRound(m: Model, v: ViewState): Audit[] {
 }
 
 /** Latest audit per kitchen within the selected round. */
-function latestPerKitchen(audits: Audit[]): Audit[] {
+export function latestPerKitchen(audits: Audit[]): Audit[] {
   const m = new Map<string, Audit>();
   for (const a of audits) { const k = a.community + '|' + a.kitchen; const p = m.get(k); if (!p || a.date > p.date) m.set(k, a); }
   return [...m.values()];
@@ -198,11 +199,12 @@ export function community(m: Model, v: ViewState, slugKey: string, auditKey: str
 
   const sources = A.flatMap((a) => [a.report && { what: `${a.kitchen} report`, file: a.report.file, ref: a.report.fileRef, src: a.report.source }, a.cap && { what: `${a.kitchen} CAP (${a.cap.status})`, file: a.cap.file, ref: a.cap.fileRef, src: a.cap.source }]).filter(Boolean) as { what: string; file: string; ref?: string; src: string }[];
 
-  return `<p class="crumb"><button class="linkbtn" data-go="communities">Communities</button> / ${esc(c.c.city)}</p><h2 class="page">${esc(c.c.name)}</h2>` +
+  const ready = `<div class="tile"><span class="l">Self-audit readiness</span><span class="v ${c.readiness == null ? 'none' : c.readiness >= 90 ? 'good' : c.readiness >= 75 ? 'warn' : 'bad'}">${c.readiness == null ? 'None yet' : Math.round(c.readiness) + '%'}</span><span class="l">${c.self ? `${fmtDate(c.self.date)} by ${esc(c.self.by)}` : 'No self-audit on file'}</span><button class="btn ghost sm" data-go="self-${c.slug}">${c.self ? 'New self-audit' : 'Start self-audit'}</button></div>`;
+  return `<div class="pagehead"><div><p class="crumb"><button class="linkbtn" data-go="communities">Communities</button> / ${esc(c.c.city)}</p><h2 class="page">${esc(c.c.name)}</h2></div><div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link to this page</button><button class="btn ghost sm" data-act="copy-community:${c.slug}">Copy summary for email</button></div></div>` +
     `<div class="meta">${A[0]?.manager ? `<span>Manager: ${esc(A[0].manager)}</span>` : ''}${A[0]?.hdResult ? `<span>Last health inspection: ${esc(A[0].hdResult)}${A[0].hdDate ? ' on ' + esc(fmtDate(A[0].hdDate) || A[0].hdDate) : ''}</span>` : ''}<span>${plural(c.audits.length, 'kitchen audit')} on file</span></div>` +
     (dates.length > 1 ? `<div class="toolbar"><span class="lbl">Audit</span>${dates.map((d) => `<button class="fbtn" data-audit="${d}" aria-pressed="${d === selDate}">${fmtDate(d)}</button>`).join('')}</div>` : '') +
-    tiles + histChart + themeCards +
-    (items.length ? `<section class="block"><h3>Findings <span class="sm">${fmtDate(selDate)}</span></h3>
+    (c.latest.length ? tiles.replace(/<\/div>$/, ready + '</div>') : tiles + `<div class="tiles" style="margin-top:12px">${ready}</div>`) + fixFirst(A) + histChart + themeCards +
+    (items.length ? `<section class="block"><h3>Findings and photos <span class="sm">${fmtDate(selDate)}</span></h3>
       <div class="toolbar"><span class="lbl">Show</span>${['all', 'Critical', 'Major', 'Minor'].map((k) => `<button class="fbtn" data-crit="${k}" aria-pressed="${fil.crit === k}">${k === 'all' ? 'All' : k}<span class="n">${k === 'all' ? items.length : items.filter((i) => i.criticality === k).length}</span></button>`).join('')}
       ${multiK ? `<span class="lbl" style="margin-left:8px">Kitchen</span>${['all', ...A.map((a) => a.kitchen)].map((k) => `<button class="fbtn" data-kitchen="${esc(k)}" aria-pressed="${fil.kitchen === k}">${k === 'all' ? 'All' : esc(k)}</button>`).join('')}` : ''}</div>
       <div class="finds">${shown.map((i) => findingCard(i, m, multiK, false)).join('') || '<div class="empty">No findings match.</div>'}</div></section>` : '') +

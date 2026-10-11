@@ -4,16 +4,36 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 ## What it does
 
+Everyone uses one link. On the first visit, each person picks a view (saved in their browser and changeable from the menu):
+
+| View | Opens on |
+| --- | --- |
+| Leadership | Food safety at a glance: headline numbers, the top 5 focus areas with the score each would add, communities of focus, and a portfolio by theme grid |
+| Regional | A visit planner: their communities ranked by need, each with its top three fixes and audit, CAP and self-audit status |
+| Community team | Their community's report card: a fix-first list of every finding with its corrective action and what to have in place, then photos and history |
+
+Pages available to everyone:
+
 | Page | Use it to |
 | --- | --- |
-| Overview | See average score, kitchens below 70, critical findings and CAPs closed, plus the top of both action lists |
+| Priorities | Rank every cited standard by points lost and the score gain from fixing it everywhere |
 | Action list | See which communities still need an audit this round, and which kitchens need a CAP (not started, late, in progress or past due) |
-| Communities | Sort a scorecard by score, change since the last audit, findings, repeats, audit status and CAP status |
-| Community page | Review one community: kitchen scores, score history, what to look for on a visit, findings with photos and CAP actions, and a CAP status form |
-| Findings | Filter every finding by community, section, theme, criticality, CAP state, repeats, photos or free text, then download a CSV |
+| Readiness playbook | Review all cited standards grouped by visit theme. Each shows what EcoSure checks, what to have in place, a 30-second check, and the most common misses |
+| Self-audits | Track each community's monthly walk-through against the playbook (Pass, Fail or N/A per standard). Readiness is the points-weighted pass rate |
+| Communities | Sort a scorecard by score, change, findings, repeats, audit status and CAP status |
+| Findings | Filter every finding by community, section, theme, criticality, CAP state, repeats, photos or text, then download a CSV |
 | Trends | Compare scores by round and month, points lost by section, a standards by community heat map, repeat findings, and the biggest score changes |
-| Import files | Drop EcoSure report PDFs and CAP PDFs, check what was read, and save. A backup can be downloaded or restored here |
-| Settings | Edit the community roster, audit rounds, and how many days a CAP or an audit can wait |
+| Import files | Drop EcoSure report and CAP PDFs, check what was read, and save. A backup can be downloaded or restored here |
+| Settings | Edit the community roster (including regions), audit rounds, and the CAP, audit and self-audit windows |
+
+Each page has **Copy link to this page**. Leadership and community pages also have **Copy summary for email**, which produces plain text ready to paste into an email or Teams message.
+
+### Sharing with the wider team
+
+- Share the page from claude.ai's Share menu.
+- Give **Viewer** access to people who only read it.
+- Give **Contributor** access to anyone who imports files, updates CAP status, or submits self-audits.
+- Links to a community or a playbook entry (for example `#c-balfour-riverfront`) open straight to that page.
 
 ## Adding new files
 
@@ -55,7 +75,7 @@ npm run seed -- path/to/EcoSure_Audit_Review.html   # optional starting data, ke
 npm run dev        # http://localhost:5173
 npm test           # unit tests for the rules (vitest)
 npm run e2e        # import flow in a real browser (Playwright)
-npm run build      # dist/index.html (standalone) and dist/artifact.html (for claude.ai)
+VITE_SHARE_URL=https://claude.ai/artifact/<id> npm run build   # dist/index.html and dist/artifact.html; the URL makes copied links point at the published page
 ```
 
 To publish an update, rebuild and republish `dist/artifact.html` to the same artifact URL, keeping the `db`, `assets`, `user` and `downloads` capabilities.
@@ -71,7 +91,9 @@ To publish an update, rebuild and republish `dist/artifact.html` to the same art
 | `src/catalog.ts`, `src/data/standards.json` | The 65 standards with short labels, sections, criticality, client ids and visit themes |
 | `src/model.ts` | Joins reports and CAPs into audits and works out every status |
 | `src/store.ts` | Shared (claude.ai) or local (IndexedDB) storage |
-| `src/views*.ts`, `src/charts.ts` | Pages and charts |
+| `src/views-roles.ts` | Role homes, priorities, playbook and self-audit pages |
+| `src/playbook.ts` | What to have in place and a quick check for each standard |
+| `src/views*.ts`, `src/charts.ts` | Other pages and charts |
 | `scripts/make_fixtures.py` | Builds the synthetic report and CAP PDFs used by the tests |
 
 ### Known limits
