@@ -4,16 +4,18 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 ## What it does
 
-Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more. The site opens on a **Briefing** laid out as an executive summary. Every line is built from the data:
+Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more. The site opens on a **Briefing** written as an executive summary that can be read cold, without anyone there to explain it. Every line is built from the data:
 
-1. **The bottom line:** three sentences covering the overall result, the biggest issue, and corrective action plans.
-2. **Four key numbers:** average score, kitchens below 70, critical findings, and plans closed.
-3. **What to fix:** the top 5 issues with a photo each. Expand one for why it matters, the fix, and more photos.
-4. **Who needs help and Follow-through:** the top 5 communities and the top 5 overdue plans, each expandable.
-5. **Next steps:** three asks for regional and community teams.
-6. **What the program has delivered:** folded, for the leadership value case.
+1. **Context:** one line on what EcoSure is and what the scores mean.
+2. **The bottom line:** three sentences covering the overall result, the biggest issue, and corrective action plans.
+3. **Four key numbers:** average score, kitchens below 70, critical findings, and plans closed.
+4. **What to fix:** the top 5 issues with a photo each. Expand one for why it matters, the fix, and more photos.
+5. **Who needs help and Follow-through:** the top 5 communities and the top 5 overdue plans, each expandable.
+6. **By region:** average score, kitchens below 70 and plans closed for each region, lowest first. Expand a region to see its communities. Regions are set per community in Settings.
+7. **What the program has delivered:** critical risks closed, the score change since last round (or the baseline until the next round arrives), and corrective actions written.
+8. **Next steps:** three asks for regional and community teams.
 
-**Copy as email** turns the briefing into plain text for an email or Teams message.
+**Copy as email** produces a complete email (subject, context, every section and a link back) for executives who read it without the page.
 
 Each **community page** opens with talking points (score, biggest issues in plain words, repeats, CAP status, what to check on the next visit) and up to 8 photos. A fix-first list, score history and every finding follow below.
 

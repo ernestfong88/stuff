@@ -223,7 +223,7 @@ function readSettingsForm(): Settings {
   const rounds = settings.rounds.map((_, i) => ({ name: val(`r-name-${i}`).trim(), start: val(`r-start-${i}`), end: val(`r-end-${i}`) })).filter((r) => r.name && r.start && r.end);
   const roster = settings.roster.map((c, i) => {
     const k = Math.max(1, parseInt(val(`c-k-${i}`)) || 1);
-    return { ...c, name: val(`c-name-${i}`).trim() || c.name, short: val(`c-short-${i}`).trim(), city: val(`c-city-${i}`).trim(), note: val(`c-note-${i}`).trim(),
+    return { ...c, name: val(`c-name-${i}`).trim() || c.name, short: val(`c-short-${i}`).trim(), city: val(`c-city-${i}`).trim(), region: val(`c-region-${i}`).trim(), note: val(`c-note-${i}`).trim(),
       aliases: val(`c-alias-${i}`).split(';').map((s) => s.trim()).filter(Boolean), active: (document.getElementById(`c-active-${i}`) as HTMLInputElement | null)?.checked ?? c.active,
       kitchens: k === 1 ? (c.kitchens.length === 1 ? c.kitchens : ['Main Kitchen']) : Array.from({ length: k }, (_, n) => `Kitchen ${n + 1}`) };
   });
@@ -360,7 +360,7 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'round') { V.round = arg; rerender(); }
   else if (k === 'clear-std') { V.f.std = ''; rerender(); }
   else if (k === 'share') copyText(shareUrl(), 'Link copied. Anyone you have shared the page with can open it.');
-  else if (k === 'copy-summary') copyText(briefingText(model, V), 'Briefing copied. Paste it into an email or Teams message.');
+  else if (k === 'copy-summary') copyText(briefingText(model, V, SHARE_BASE || location.href.split('#')[0]), 'Briefing copied. Paste it into an email or Teams message.');
   else if (k === 'copy-community') copyText(communityText(arg), 'Summary copied. Paste it into an email or Teams message.');
   else if (k === 'scroll') document.getElementById(arg)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   else if (k === 'expand') { if (OPEN.has(arg)) OPEN.delete(arg); else OPEN.add(arg); rerender(); }
@@ -494,7 +494,11 @@ async function start(): Promise<void> {
   V.canWrite = backend.canWrite;
   await backend.start((recs, s) => {
     stored = recs.map((r) => ({ ...r, community: canonical(r.community, (s ?? settings).roster) }));
-    if (s) settings = { ...DEFAULT_SETTINGS, ...s };
+    if (s) {
+      // Saved rosters from before regions existed pick up the default region by name.
+      const roster = s.roster.map((c) => ({ ...c, region: c.region ?? DEFAULT_SETTINGS.roster.find((d) => d.name === c.name)?.region ?? '' }));
+      settings = { ...DEFAULT_SETTINGS, ...s, roster };
+    }
     rebuild();
     rerender();
   });

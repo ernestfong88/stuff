@@ -8,7 +8,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Southeast"
  },
  {
   "name": "Abbotswood of Stonehenge",
@@ -19,7 +20,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Southeast"
  },
  {
   "name": "Balfour Central Park",
@@ -30,7 +32,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mountain"
  },
  {
   "name": "Balfour Cherrywood",
@@ -41,7 +44,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mountain"
  },
  {
   "name": "Balfour Littleton",
@@ -52,7 +56,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mountain"
  },
  {
   "name": "Balfour Louisville",
@@ -66,7 +71,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mountain"
  },
  {
   "name": "Balfour Riverfront",
@@ -78,7 +84,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mountain"
  },
  {
   "name": "Bridgepoint at Los Altos",
@@ -89,7 +96,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "Byron Park",
@@ -100,7 +108,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "Cedarwood at Sandy",
@@ -111,7 +120,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mountain"
  },
  {
   "name": "Crestavilla",
@@ -122,7 +132,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "Drake Terrace",
@@ -133,7 +144,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "Emerald Court",
@@ -144,7 +156,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "First Colonial Inn",
@@ -155,7 +168,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mid-Atlantic and Northeast"
  },
  {
   "name": "Heritage Greens",
@@ -166,7 +180,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Southeast"
  },
  {
   "name": "Ilima At Leihano",
@@ -177,7 +192,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "La Posada",
@@ -190,7 +206,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Southeast"
  },
  {
   "name": "Magnolia Glen",
@@ -202,7 +219,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Southeast"
  },
  {
   "name": "Park Terrace",
@@ -213,7 +231,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "Sagewood at Daybreak",
@@ -224,7 +243,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mountain"
  },
  {
   "name": "The Cardinal of North Hills",
@@ -238,7 +258,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Southeast"
  },
  {
   "name": "The Carnegie at Washingtonian",
@@ -250,7 +271,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mid-Atlantic and Northeast"
  },
  {
   "name": "The Fitzgerald",
@@ -261,7 +283,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mid-Atlantic and Northeast"
  },
  {
   "name": "The Fountains",
@@ -272,7 +295,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Southeast"
  },
  {
   "name": "The Kensington",
@@ -283,7 +307,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "The Newbury at Brookline",
@@ -294,7 +319,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mid-Atlantic and Northeast"
  },
  {
   "name": "The Preston of Rockville",
@@ -306,7 +332,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Mid-Atlantic and Northeast"
  },
  {
   "name": "Valencia Terrace",
@@ -317,7 +344,8 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "Woodbridge Terrace of Irvine",
@@ -328,7 +356,8 @@
   ],
   "active": true,
   "note": "Audited Sep 25, 2026. Report not yet received.",
-  "aliases": []
+  "aliases": [],
+  "region": "West"
  },
  {
   "name": "Woodland Terrace",
@@ -340,6 +369,7 @@
   ],
   "active": true,
   "note": "",
-  "aliases": []
+  "aliases": [],
+  "region": "Southeast"
  }
 ]

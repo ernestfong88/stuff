@@ -469,3 +469,9 @@ ul.plain { margin: 0; padding-left: 18px; } ul.plain li { margin: 0 0 6px; }
 .exec > .fold { margin-top: 0; border-radius: 14px; }
 @media (max-width: 960px) { .xgrid { grid-template-columns: 1fr; } .xkpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .xrow img, .xrow .noimg { display: none; } .xn { display: none; } .xbody { padding-left: 4px; } }
+.context { margin: -6px 0 0; color: var(--muted); font-size: 14px; max-width: 80ch; }
+.rlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.rlist li { display: grid; grid-template-columns: minmax(160px, 260px) auto minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.vals b small { font-size: 16px; color: var(--muted); }
+.vals strong { color: var(--ink); }
+@media (max-width: 560px) { .rlist li { grid-template-columns: 1fr auto; } .rlist li .xs { grid-column: 1 / -1; } }

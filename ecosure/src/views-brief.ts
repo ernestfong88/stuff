@@ -2,7 +2,6 @@
  * The briefing: one page in plain sentences that a regional or national leader can
  * read out loud. Every sentence is built from the data; nothing here is typed by hand.
  */
-import { allStandards } from './catalog';
 import { CAP_LABEL, currentRound, needsCap, priorities, type Audit, type CommunityView, type Finding, type Model } from './model';
 import { PLAIN, plainTitle } from './plain';
 import { PLAYBOOK } from './playbook';
@@ -11,7 +10,7 @@ import { avg, esc, fmtDate, pct, plural } from './util';
 import { inRound, latestPerKitchen, scorePill, type ViewState } from './views';
 import { scoreBand } from './model';
 import { communitiesOfFocus } from './views-roles';
-import { OPEN, fold, top } from './expand';
+import { OPEN, top } from './expand';
 
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const list = (xs: string[]) => (xs.length <= 1 ? xs.join('') : xs.slice(0, -1).join(', ') + (xs.length > 2 ? ',' : '') + ' and ' + xs[xs.length - 1]);
@@ -29,7 +28,10 @@ interface Brief {
   top: ReturnType<typeof priorities>; topShare: number; focus: ReturnType<typeof communitiesOfFocus>;
   capKitchens: number; capClosed: number; late: Audit[]; pastDue: Audit[];
   crit: number; critClosed: number; actions: number; photos: number; prev: { name: string; s: number | null } | null;
+  regions: Region[]; reaudited: number; improved: number;
 }
+
+interface Region { name: string; comms: CommunityView[]; kitchens: number; s: number | null; bad: number; capClosed: number; capKitchens: number }
 
 function compute(m: Model, v: ViewState): Brief {
   const A = latestPerKitchen(inRound(m, v));
@@ -52,8 +54,43 @@ function compute(m: Model, v: ViewState): Brief {
     crit: all.filter((f) => f.criticality === 'Critical').length, critClosed: all.filter((f) => f.criticality === 'Critical' && f.capItem && f.audit.capState === 'closed').length,
     actions: all.filter((f) => f.capItem).length, photos: all.reduce((x, f) => x + f.photos.length, 0),
     prev: prevName && prevName !== cur ? { name: prevName, s: avg(latestPerKitchen(m.audits.filter((a) => a.round === prevName)).map((a) => a.score)) } : null,
+    regions: regionsOf(m, A),
+    ...improvement(m),
   };
 }
+
+function regionsOf(m: Model, A: Audit[]): Region[] {
+  const names = [...new Set(m.communities.filter((c) => c.c.active).map((c) => c.c.region || 'No region set'))];
+  return names.map((name) => {
+    const comms = m.communities.filter((c) => c.c.active && (c.c.region || 'No region set') === name).sort((a, b) => (a.score ?? 101) - (b.score ?? 101));
+    const RA = A.filter((a) => comms.some((c) => c.c.name === a.community));
+    const scored = RA.filter((a) => a.score != null);
+    return { name, comms, kitchens: RA.length, s: avg(scored.map((a) => a.score)), bad: scored.filter((a) => a.score! < 70).length,
+      capClosed: RA.filter((a) => a.capState === 'closed').length, capKitchens: RA.filter((a) => a.items.length).length };
+  }).sort((a, b) => (a.s ?? 101) - (b.s ?? 101));
+}
+
+/** Kitchens with two scored audits, and how many of them went up. */
+function improvement(m: Model): { reaudited: number; improved: number } {
+  let reaudited = 0, improved = 0;
+  for (const c of m.communities) for (const k of new Set(c.audits.map((a) => a.kitchen))) {
+    const l = c.audits.filter((a) => a.kitchen === k && a.score != null);
+    if (l.length < 2) continue;
+    reaudited++;
+    if (l[l.length - 1].score! > l[l.length - 2].score!) improved++;
+  }
+  return { reaudited, improved };
+}
+
+function bottomLine(b: Brief): [string, string][] {
+  const t1 = b.top[0];
+  const out: [string, string][] = [[`${b.A.length} kitchens audited, average score ${pct(b.s)}.`, `${b.good} are strong (85 or better) and ${b.bad} are below 70${b.prev?.s != null ? `; the average is ${b.s! >= b.prev.s ? 'up' : 'down'} from ${pct(b.prev.s)} last round` : ''}.`]];
+  if (t1) out.push([`Five issues cause ${Math.round(b.topShare * 100)}% of lost points.`, `The biggest is ${lower(plainTitle(t1.short))}, found in ${t1.kitchens} of ${b.A.length} kitchens.`]);
+  out.push([`${b.capClosed} of ${b.capKitchens} corrective action plans are closed.`, b.late.length ? `${plural(b.late.length, 'kitchen has', 'kitchens have')} not started one.` : 'Every cited kitchen has started one.']);
+  return out;
+}
+
+const CONTEXT = 'EcoSure is the independent food safety audit of every Kisco kitchen, scored out of 100: 85 or better is strong, and below 70 needs focus. This summary uses the latest audit of each kitchen.';
 
 /** A one-line read on a community for the "where to help" list. */
 function helpLine(c: CommunityView): string {
@@ -93,7 +130,6 @@ export function briefing(m: Model, v: ViewState): string {
   const roundName = b.A[0].round;
   const help = top('brief-help', b.focus, 5, 'communities');
   const follow = top('brief-follow', [...b.late.map((a) => ({ a, t: 'No plan yet' })), ...b.pastDue.map((a) => ({ a, t: 'Items past due' }))], 5, 'kitchens');
-  const t1 = b.top[0];
   const kpi = (v: string, l: string, sub: string, tone = '') => `<div class="xkpi ${tone}"><b>${v}</b><span>${l}</span><small>${sub}</small></div>`;
   const row = (key: string, sumHtml: string, body: string) => `<details class="xrow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>${sumHtml}<span class="chev" aria-hidden="true"></span></summary><div class="xbody">${body}</div></details>`;
   const card = (title: string, sowhat: string, go: string, goLabel: string, body: string, cls = '') => `<section class="xcard ${cls}"><header><div><h3>${title}</h3><p>${sowhat}</p></div><button class="linkbtn" data-go="${go}">${goLabel}</button></header>${body}</section>`;
@@ -102,10 +138,9 @@ export function briefing(m: Model, v: ViewState): string {
     <div class="pagehead"><div><p class="crumb">Executive summary · ${esc(roundName)} round · ${fmtDate(b.start, true)} to ${fmtDate(b.end)}</p><h2 class="page">Food safety briefing</h2></div>
       <div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-summary">Copy as email</button></div></div>
 
+    <p class="context">${esc(CONTEXT)}</p>
     <section class="bottomline"><span class="lbl">The bottom line</span><ol>
-      <li><b>${b.A.length} kitchens audited, average score ${pct(b.s)}.</b> ${b.good} are strong (85 or better) and ${b.bad} are below 70${b.prev?.s != null ? `; the average is ${b.s! >= b.prev.s ? 'up' : 'down'} from ${pct(b.prev.s)}` : ''}.</li>
-      ${t1 ? `<li><b>Five issues cause ${Math.round(b.topShare * 100)}% of lost points.</b> The biggest is ${esc(lower(plainTitle(t1.short)))}, found in ${t1.kitchens} of ${b.A.length} kitchens.</li>` : ''}
-      <li><b>${b.capClosed} of ${b.capKitchens} corrective action plans are closed.</b> ${b.late.length ? `${plural(b.late.length, 'kitchen has', 'kitchens have')} not started one.` : 'Every cited kitchen has started one.'}</li>
+      ${bottomLine(b).map(([h, t]) => `<li><b>${esc(h)}</b> ${esc(t)}</li>`).join('')}
     </ol></section>
 
     <div class="xkpis">
@@ -130,31 +165,43 @@ export function briefing(m: Model, v: ViewState): string {
         `<p>${a.cap ? `EcoSure shows the plan as ${esc(a.cap.status)}${a.pastDueItems ? `, with ${plural(a.pastDueItems, 'item')} past the due date` : ''}.` : `No plan in EcoSure yet. It was due ${fmtDate(a.capDue)}.`} ${plural(a.items.length, 'finding')}${a.crit ? `, ${a.crit} critical` : ''}.</p><button class="btn sm" data-go="c-${a.slug}">Open ${esc(a.community)}</button>`)).join('')}</div>${follow.more}` : '<div class="okbox">Every cited kitchen has a closed plan.</div>')}
     </div>
 
-    ${card('Next steps', 'What to ask of regional and community teams this month.', 'playbook', 'Readiness playbook', `<ol class="steps">${nextSteps(b).map((s) => `<li>${esc(s)}</li>`).join('')}</ol>`, 'wide')}
+    ${card('By region', 'Lowest average score first. Select a region to see its communities.', 'communities', 'All communities', `<div class="xlist">${b.regions.map((r) => row('region-' + slugify(r.name), `${scorePill(r.s)}<span class="xt"><b>${esc(r.name)}</b><span class="xs">${plural(r.comms.length, 'community', 'communities')} · ${r.bad} below 70 · ${r.capClosed} of ${r.capKitchens} plans closed</span></span>`,
+      `<ul class="rlist">${r.comms.map((c) => `<li><button class="linkbtn" data-go="c-${c.slug}">${esc(c.c.name)}</button>${scorePill(c.score)}<span class="xs">${c.latest.length ? esc(shortWhy(c)) : esc(c.c.note || 'Not audited yet')}</span></li>`).join('')}</ul>`)).join('')}</div>`, 'wide')}
 
-    ${fold('value', 'What the program has delivered', `<div class="vals">
-        <div><b>${b.crit}</b><span>critical risks found. ${b.critClosed} now closed.</span></div>
-        <div><b>${b.actions}</b><span>corrective actions written by community teams.</span></div>
-        <div><b>${b.photos}</b><span>photos documenting ${m.audits.length} kitchen audits.</span></div>
-      </div><p>The audits turn food safety from a feeling into evidence. We know which habits put residents at risk, where they happen, and whether each community has fixed them. Every kitchen is scored on the same ${allStandards().length} standards, so results compare fairly across communities and rounds.</p>${cur ? `<p><b>Goals for ${esc(cur.name)}:</b> every community audited by ${fmtDate(cur.end)}, every plan within ${m.settings.capDueDays} days, and the five issues above fixed everywhere.</p>` : ''}`)}
+    ${card('What the program has delivered', 'Results of the audit program so far, for residents and for the company.', 'trends', 'Trends', `<div class="vals">
+        <div><b>${b.critClosed}<small> of ${b.crit}</small></b><span><strong>Critical risks closed.</strong> Each was a real hazard to residents, such as food held at unsafe temperatures or sanitizer that was not working, now fixed and documented in EcoSure.</span></div>
+        ${b.prev?.s != null && b.s != null
+          ? `<div><b>${b.s >= b.prev.s ? '+' : ''}${Math.round(b.s - b.prev.s)}<small> points</small></b><span><strong>Average score since ${esc(b.prev.name)}.</strong> ${b.improved} of ${b.reaudited} re-audited kitchens improved.</span></div>`
+          : `<div><b>${pct(b.s)}</b><span><strong>Baseline average score.</strong> ${cur ? `${esc(cur.name)} audits` : 'The next round'} will show how much each kitchen improves.</span></div>`}
+        <div><b>${b.actions}</b><span><strong>Corrective actions</strong> written by community teams, each tied to a specific finding and photo.</span></div>
+      </div>`, 'wide')}
+
+    ${card('Next steps', 'What we are asking regional and community teams to do this month.', 'playbook', 'Readiness playbook', `<ol class="steps">${nextSteps(b).map((s) => `<li>${esc(s)}</li>`).join('')}</ol>`, 'wide')}
   </div>`;
 }
 
+const slugify = (x: string) => x.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const daysAgo = (m: Model, d: string) => { const n = Math.round((Date.parse(m.today) - Date.parse(d)) / 86400000); return n <= 0 ? 'today' : `${n} days ago`; };
 
-export function briefingText(m: Model, v: ViewState): string {
+export function briefingText(m: Model, v: ViewState, link = ''): string {
   const b = compute(m, v);
   const cur = currentRound(m.settings.rounds, m.today);
-  return [`EcoSure food safety briefing: ${b.A[0]?.round ?? ''} round (${fmtDate(b.start, true)} to ${fmtDate(b.end)})`, '',
-    'Next steps:', ...nextSteps(b).map((x, i) => `${i + 1}. ${x}`), '',
-    `${b.A.length} kitchens across ${b.comms} communities were audited. The average score was ${pct(b.s)}. ${b.good} kitchens scored 85 or better, ${b.warn} scored 70 to 84, and ${b.bad} scored below 70. The top 5 issues make up ${Math.round(b.topShare * 100)}% of all points lost.`, '',
-    'Top 5 things to fix:', ...b.top.map((p, i) => `${i + 1}. ${plainTitle(p.short)}: found in ${p.kitchens} of ${b.A.length} kitchens. ${PLAIN[p.short]?.why ?? ''}`), '',
-    'Who needs help:', ...b.focus.slice(0, 5).map(({ c }) => `- ${c.c.name}: ${helpLine(c)}`), '',
-    `Follow-through: ${b.capClosed} of ${b.capKitchens} kitchens have closed their corrective action plan.`,
-    ...(b.late.length ? [`Waiting on a plan: ${list(b.late.map(kitchenName))}.`] : []),
-    ...(b.pastDue.length ? [`Items past due: ${list(b.pastDue.map(kitchenName))}.`] : []), '',
-    `What the program has delivered: ${b.crit} critical food safety risks found (${b.critClosed} with a closed corrective action), ${b.actions} corrective actions written by community teams, and ${m.audits.length} kitchen audits on one yardstick backed by ${b.photos} photos.`,
-    ...(cur ? ['', `Goals for ${cur.name}: every community audited by ${fmtDate(cur.end)}, every CAP within ${m.settings.capDueDays} days, and the top 5 issues fixed everywhere.`] : [])].join('\n');
+  const round = b.A[0]?.round ?? '';
+  return [`Subject: EcoSure food safety summary, ${round} round`, '',
+    `This is a summary of our EcoSure food safety audits from ${fmtDate(b.start, true)} to ${fmtDate(b.end)}. ${CONTEXT}`, '',
+    'THE BOTTOM LINE', ...bottomLine(b).map(([h, t]) => `- ${h} ${t}`), '',
+    'KEY NUMBERS', `- Average score: ${pct(b.s)}`, `- Kitchens below 70: ${b.bad} of ${b.A.length}`, `- Critical findings: ${b.crit} (${b.critClosed} closed)`, `- Corrective action plans closed: ${b.capClosed} of ${b.capKitchens}`, '',
+    'WHAT TO FIX (top 5 by points lost)', ...b.top.map((p, i) => `${i + 1}. ${plainTitle(p.short)}: ${p.kitchens} of ${b.A.length} kitchens. ${PLAIN[p.short]?.why ?? ''}`), '',
+    'WHO NEEDS HELP', ...b.focus.slice(0, 5).map(({ c }) => `- ${c.c.name}: ${helpLine(c)}`), ...(b.focus.length > 5 ? [`- and ${b.focus.length - 5} more in the full briefing`] : []), '',
+    'FOLLOW-THROUGH', `- ${b.capClosed} of ${b.capKitchens} corrective action plans are closed.`,
+    ...(b.late.length ? [`- No plan yet: ${list(b.late.map(kitchenName))}.`] : []),
+    ...(b.pastDue.length ? [`- Items past due: ${list(b.pastDue.map(kitchenName))}.`] : []), '',
+    'BY REGION', ...b.regions.map((r) => `- ${r.name}: average ${pct(r.s)}, ${r.bad} below 70, ${r.capClosed} of ${r.capKitchens} plans closed`), '',
+    'WHAT THE PROGRAM HAS DELIVERED', `- ${b.critClosed} of ${b.crit} critical risks to residents found and closed.`,
+    b.prev?.s != null && b.s != null ? `- Average score ${b.s >= b.prev.s ? 'up' : 'down'} ${Math.abs(Math.round(b.s - b.prev.s))} points since ${b.prev.name}; ${b.improved} of ${b.reaudited} re-audited kitchens improved.` : `- Baseline average score of ${pct(b.s)} set; ${cur ? cur.name : 'next round'} audits will show the change.`,
+    `- ${b.actions} corrective actions written by community teams.`, '',
+    'NEXT STEPS', ...nextSteps(b).map((x, i) => `${i + 1}. ${x}`),
+    ...(link ? ['', `Full briefing with photos: ${link}`] : [])].join('\n');
 }
 
 /* ---------- community talking points ---------- */
