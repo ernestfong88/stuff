@@ -2,9 +2,14 @@ import { expect, test } from '@playwright/test';
 
 test('opens on a plain-language briefing with photos and talking points', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'EcoSure food safety briefing' })).toBeVisible();
-  await expect(page.locator('.issue')).toHaveCount(3);
-  await expect(page.locator('.issue img').first()).toHaveAttribute('src', /^data:image/);
+  await expect(page.getByRole('heading', { name: 'Food safety briefing' })).toBeVisible();
+  await expect(page.locator('.irow')).toHaveCount(5);
+  await expect(page.locator('.irow img').first()).toHaveAttribute('src', /^data:image/);
+  await page.locator('.irow summary').first().click();
+  await expect(page.locator('.irow').first()).toContainText('The fix');
+  await expect(page.locator('.help').first().locator('li')).toHaveCount(5);
+  await page.locator('[data-act="expand:brief-help"]').click();
+  await expect(page.locator('.irow').first()).toHaveAttribute('open', '');
   await expect(page.locator('.help li').first()).toBeVisible();
   await page.locator('.help li .linkbtn').first().click();
   await expect(page.getByRole('heading', { name: 'Talking points' })).toBeVisible();
@@ -23,6 +28,9 @@ test('a community submits a self-audit and readiness shows up', async ({ page })
   await expect(page.locator('h2.page')).toHaveText('Drake Terrace');
   await expect(page.locator('.tile', { hasText: 'Self-audit readiness' })).toContainText('%');
   await page.evaluate(() => (location.hash = 'self'));
+  // Current self-audits sort to the end, past the top 5.
+  await expect(page.locator('tr', { hasText: 'Drake Terrace' })).toHaveCount(0);
+  await page.locator('[data-act="expand:self"]').click();
   await expect(page.locator('tr', { hasText: 'Drake Terrace' })).toContainText('Self-audit current');
 });
 

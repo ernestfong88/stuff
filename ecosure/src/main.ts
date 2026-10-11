@@ -10,6 +10,7 @@ import { actions, communities, community, emptyFilters, filterFindings, findings
 import { playbookView, prioritiesView, selfAuditForm, selfAuditsView, type SelfDraft } from './views-roles';
 import { briefing, briefingText, talkingText } from './views-brief';
 import { allStandards } from './catalog';
+import { OPEN } from './expand';
 
 /* ---------- state ---------- */
 // Starting data from the previous review page; absent in a fresh clone (see README).
@@ -29,7 +30,7 @@ let settings: Settings = DEFAULT_SETTINGS;
 let model: Model = buildModel(seed, settings);
 const queue: QItem[] = [];
 const thumbs = new Map<string, string>();
-const V: ViewState = { round: 'all', f: emptyFilters(), sort: { key: 'score', dir: 1 }, commFilter: '', actionTab: 'audits', canWrite: false, mode: 'starting', capEdit: null };
+const V: ViewState = { round: 'all', f: emptyFilters(), sort: { key: 'score', dir: 1 }, commFilter: '', actionTab: 'caps', canWrite: false, mode: 'starting', capEdit: null };
 let route = 'home';
 
 /* Per-viewer conveniences (self-audit drafts, the person's name) live in this browser only. */
@@ -149,10 +150,10 @@ function bindPage(): void {
   const commq = document.getElementById('commq') as HTMLInputElement | null;
   commq?.addEventListener('input', () => { V.commFilter = commq.value; rerender(); });
   document.querySelectorAll<HTMLSelectElement>('select[data-filter]').forEach((s) => s.addEventListener('change', () => {
-    (V.f as unknown as Record<string, string>)[s.dataset.filter!] = s.value; V.f.limit = 40; rerender();
+    (V.f as unknown as Record<string, string>)[s.dataset.filter!] = s.value; V.f.limit = 5; rerender();
   }));
   const fq = document.getElementById('f-q') as HTMLInputElement | null;
-  fq?.addEventListener('input', () => { clearTimeout(qTimer); qTimer = window.setTimeout(() => { V.f.q = fq.value; V.f.limit = 40; rerender(); }, 200); });
+  fq?.addEventListener('input', () => { clearTimeout(qTimer); qTimer = window.setTimeout(() => { V.f.q = fq.value; V.f.limit = 5; rerender(); }, 200); });
 
   const drop = document.getElementById('drop');
   const file = document.getElementById('file') as HTMLInputElement | null;
@@ -313,7 +314,7 @@ document.addEventListener('click', (e) => {
   const ph = t.closest<HTMLElement>('[data-photo]');
   if (ph) { openLB(ph.dataset.photo!, Number(ph.dataset.n)); return; }
   const rnd = t.closest<HTMLElement>('[data-round]');
-  if (rnd) { V.round = rnd.dataset.round!; V.f.limit = 40; rerender(); return; }
+  if (rnd) { V.round = rnd.dataset.round!; V.f.limit = 5; rerender(); return; }
   const tab = t.closest<HTMLElement>('[data-tab]');
   if (tab && !tab.dataset.go) { V.actionTab = tab.dataset.tab as ViewState['actionTab']; rerender(); return; }
   const au = t.closest<HTMLElement>('[data-audit]');
@@ -351,9 +352,9 @@ async function doAct(a: string): Promise<void> {
   const [k, ...rest] = a.split(':');
   const arg = rest.join(':');
   const toFindings = (patch: Partial<typeof V.f>) => { V.f = { ...emptyFilters(), ...patch }; if (route === 'findings') rerender(); else { go('findings'); window.scrollTo(0, 0); } };
-  if (k === 'std') toFindings(route === 'findings' ? { ...V.f, std: arg, limit: 40 } : { std: arg });
-  else if (k === 'crit') toFindings(route === 'findings' ? { ...V.f, crit: arg, limit: 40 } : { crit: arg });
-  else if (k === 'section') toFindings(route === 'findings' ? { ...V.f, section: arg, limit: 40 } : { section: arg });
+  if (k === 'std') toFindings(route === 'findings' ? { ...V.f, std: arg, limit: 5 } : { std: arg });
+  else if (k === 'crit') toFindings(route === 'findings' ? { ...V.f, crit: arg, limit: 5 } : { crit: arg });
+  else if (k === 'section') toFindings(route === 'findings' ? { ...V.f, section: arg, limit: 5 } : { section: arg });
   else if (k === 'theme') toFindings({ theme: arg });
   else if (k === 'repeat') toFindings({ std: arg, repeat: true });
   else if (k === 'round') { V.round = arg; rerender(); }
@@ -362,12 +363,13 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'copy-summary') copyText(briefingText(model, V), 'Briefing copied. Paste it into an email or Teams message.');
   else if (k === 'copy-community') copyText(communityText(arg), 'Summary copied. Paste it into an email or Teams message.');
   else if (k === 'scroll') document.getElementById(arg)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  else if (k === 'expand') { if (OPEN.has(arg)) OPEN.delete(arg); else OPEN.add(arg); rerender(); }
   else if (k === 'std-photos') toFindings({ std: arg, photos: false });
   else if (k === 'pb-cited') { PB.cited = !PB.cited; rerender(); }
   else if (k === 'self-pass-rest' || k === 'self-reset' || k === 'self-submit') await selfAct(k);
   else if (k === 'clear-band') { V.f.community = 'all'; rerender(); }
   else if (k === 'clear-filters') { V.f = emptyFilters(); rerender(); }
-  else if (k === 'more') { V.f.limit += 40; rerender(); }
+  else if (k === 'more') { V.f.limit += 10; rerender(); }
   else if (k === 'cap-edit') { V.capEdit = arg || null; rerender(); }
   else if (k === 'save') { const q = queue.find((x) => x.id === arg); if (q) await saveQ(q); }
   else if (k === 'skip') { const q = queue.find((x) => x.id === arg); if (q) { q.status = 'skipped'; queue.splice(queue.indexOf(q), 1); rerender(); } }
@@ -449,9 +451,10 @@ function shell(): void {
     <button class="menu-toggle" id="menuBtn" aria-expanded="false" aria-controls="side">Menu</button>
     <div class="navwrap">
       <nav class="nav" id="navMain" aria-label="Pages"></nav>
-      <div class="navlabel">Communities</div>
-      <input id="q" type="search" placeholder="Find a community" aria-label="Find a community">
-      <nav class="nav" id="navComm" style="margin-top:6px" aria-label="Communities"></nav>
+      <details class="navfold" id="commfold"><summary>All communities</summary>
+        <input id="q" type="search" placeholder="Find a community" aria-label="Find a community">
+        <nav class="nav" id="navComm" style="margin-top:6px" aria-label="Communities"></nav>
+      </details>
     </div>
   </aside>
   <main id="main" tabindex="-1"></main>
@@ -474,7 +477,13 @@ function shell(): void {
     if (e.key === 'ArrowLeft') $('#lbPrev').click();
     if (e.key === 'ArrowRight') $('#lbNext').click();
   });
-  window.addEventListener('hashchange', () => { playbookScrolled = false; render(); $('#main').focus({ preventScroll: true }); });
+  // Remember which folded sections the reader opened, so re-renders keep them open.
+  document.addEventListener('toggle', (e) => {
+    const d = e.target as HTMLDetailsElement;
+    if (!d.dataset?.fold) return;
+    if (d.open) OPEN.add('fold:' + d.dataset.fold); else OPEN.delete('fold:' + d.dataset.fold);
+  }, true);
+  window.addEventListener('hashchange', () => { playbookScrolled = false; OPEN.clear(); render(); $('#main').focus({ preventScroll: true }); });
 }
 
 async function start(): Promise<void> {

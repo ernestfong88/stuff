@@ -4,7 +4,7 @@ test('opens on the portfolio with the carried-over audits', async ({ page }) => 
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'EcoSure food safety briefing' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Food safety briefing' })).toBeVisible();
   await expect(page.locator('#navComm button')).toHaveCount(30);
   for (const r of ['priorities', 'actions', 'playbook', 'self', 'communities', 'findings', 'trends', 'import', 'settings', 'c-balfour-riverfront', 'self-crestavilla']) {
     await page.evaluate((h) => (location.hash = h), r);
@@ -28,12 +28,13 @@ test('imports a report and its CAP, then shows them on the community page', asyn
   await page.evaluate(() => (location.hash = 'c-sample-terrace'));
   await expect(page.locator('h2.page')).toHaveText('Sample Terrace');
   await expect(page.locator('.find')).toHaveCount(3);
-  await expect(page.locator('.find', { hasText: 'Cold holding at 41°F or below' })).toContainText('Reach-in gasket replaced');
+  await expect(page.locator('.find', { hasText: 'Cold food held too warm' })).toContainText('Reach-in gasket replaced');
   await expect(page.locator('.find .thumbs img')).toHaveCount(3);
 
   // The CAP is still Pending, so the kitchen shows up on the action list.
   await page.evaluate(() => (location.hash = 'actions'));
   await page.getByRole('button', { name: /Needs a CAP/ }).click();
+  await page.locator('[data-act="expand:act-caps"]').click();
   await expect(page.locator('tr', { hasText: 'Sample Terrace' })).toBeVisible();
 });
 

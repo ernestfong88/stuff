@@ -3,6 +3,8 @@ import { THEMES, allStandards, themeOf, type Standard } from './catalog';
 import { CRIT_COLOR } from './charts';
 import { AUDIT_LABEL, CAP_LABEL, priorities, type Audit, type CommunityView, type Model } from './model';
 import { PLAYBOOK } from './playbook';
+import { plainTitle } from './plain';
+import { fold, top } from './expand';
 import type { Crit, SelfAudit, SelfResult } from './types';
 import { avg, countBy, esc, fmtDate, plural, slug } from './util';
 import { inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
@@ -55,14 +57,15 @@ export function themeHeat(m: Model, audits: Audit[], names: string[]): string {
 export function fixFirst(A: Audit[]): string {
   const items = A.flatMap((a) => a.items).sort((a, b) => (b.capItem ? 0 : 1) - (a.capItem ? 0 : 1) || b.points - a.points || Number(b.repeat) - Number(a.repeat));
   if (!items.length) return '';
+  const t = top('fix-' + (A[0]?.key ?? ''), items, 5, 'findings');
   const multi = new Set(A.map((a) => a.kitchen)).size > 1;
   const closed = (a: Audit) => a.capState === 'closed';
-  return `<section class="block"><div class="sechead"><h3>Fix first</h3><p class="note">Every finding from this audit, ordered by what still needs a corrective action and how many points it cost.</p></div>
-    <div class="tablewrap"><table class="fixtable"><thead><tr><th>Standard</th>${multi ? '<th>Kitchen</th>' : ''}<th class="num">Points</th><th>Corrective action</th><th>What to have in place</th></tr></thead><tbody>
-    ${items.map((f) => `<tr><td><b>${esc(f.short)}</b> ${critChip(f.criticality)}${f.repeat ? ' <span class="repeat" title="Also cited at the previous audit">REPEAT</span>' : ''}${f.comment ? `<span class="sub">${esc(f.comment.length > 140 ? f.comment.slice(0, 137) + '...' : f.comment)}</span>` : ''}</td>${multi ? `<td>${esc(f.audit.kitchen)}</td>` : ''}<td class="num">-${f.points}</td>
+  return `<section class="block"><div class="sechead"><h3>Fix first</h3><p class="note">Ordered by what still needs a corrective action, then by points.</p></div>
+    <div class="tablewrap"><table class="fixtable"><thead><tr><th>Issue</th>${multi ? '<th>Kitchen</th>' : ''}<th class="num">Points</th><th>Corrective action</th><th>What to have in place</th></tr></thead><tbody>
+    ${t.shown.map((f) => `<tr><td><b>${esc(plainTitle(f.short))}</b> ${critChip(f.criticality)}${f.repeat ? ' <span class="repeat" title="Also cited at the previous audit">REPEAT</span>' : ''}${f.comment ? `<span class="sub">${esc(f.comment.length > 140 ? f.comment.slice(0, 137) + '...' : f.comment)}</span>` : ''}</td>${multi ? `<td>${esc(f.audit.kitchen)}</td>` : ''}<td class="num">-${f.points}</td>
       <td>${f.capItem ? `${chip(closed(f.audit) ? 'good' : 'warn', closed(f.audit) ? 'Closed' : 'Action on file')}${f.capItem.action ? `<span class="sub">${esc(f.capItem.action.length > 120 ? f.capItem.action.slice(0, 117) + '...' : f.capItem.action)}</span>` : ''}` : chip('bad', 'Needs action')}</td>
       <td class="why">${esc(PLAYBOOK[f.short]?.have.join('. ') ?? '')}${PLAYBOOK[f.short] ? ` <button class="linkbtn" data-go="playbook.${slug(f.short)}">More</button>` : ''}</td></tr>`).join('')}
-    </tbody></table></div></section>`;
+    </tbody></table></div>${t.more}</section>`;
 }
 
 /* ---------- priorities ---------- */
@@ -70,14 +73,15 @@ export function prioritiesView(m: Model, v: ViewState): string {
   const A = latestPerKitchen(inRound(m, v));
   const P = priorities(A);
   const max = Math.max(1, ...P.map((p) => p.points));
-  return head('Priorities', 'What to fix first', `Every cited standard ranked by points lost across the latest audit of each kitchen. "Score gain" is how much the average kitchen score would rise if the standard were fixed everywhere.`, shareBtn()) +
+  const t = top('prio', P, 5, 'standards');
+  return head('Priorities', 'What to fix first', `Ranked by points lost. "Score gain" is how much the average kitchen score would rise if the issue were fixed everywhere.`, shareBtn()) +
     roundChips(m, v) +
-    `<div class="tablewrap"><table><thead><tr><th class="num">#</th><th>Standard</th><th>Theme</th><th class="num">Score gain</th><th style="min-width:160px">Points lost</th><th class="num">Kitchens</th><th class="num">Critical</th><th class="num">Repeats</th><th></th></tr></thead><tbody>
-    ${P.map((p, i) => `<tr><td class="num">${i + 1}</td><td><b>${esc(p.short)}</b> ${critChip(p.crit)}</td><td>${esc(p.theme)}</td><td class="num"><b>+${p.impact.toFixed(1)}</b></td>
+    `<div class="tablewrap"><table><thead><tr><th class="num">#</th><th>Issue</th><th class="num">Score gain</th><th style="min-width:140px">Points lost</th><th class="num">Kitchens</th><th></th></tr></thead><tbody>
+    ${t.shown.map((p, i) => `<tr><td class="num">${i + 1}</td><td><b>${esc(plainTitle(p.short))}</b> ${critChip(p.crit)}<span class="sub">${esc(p.short)}</span></td><td class="num"><b>+${p.impact.toFixed(1)}</b></td>
       <td><span class="minibar"><span style="width:${(p.points / max) * 100}%;background:${CRIT_COLOR[p.crit]}"></span></span> <span class="note">${p.points}</span></td>
-      <td class="num">${p.kitchens}</td><td class="num">${p.critical || ''}</td><td class="num">${p.repeats || ''}</td>
+      <td class="num">${p.kitchens}</td>
       <td><button class="linkbtn" data-act="std:${esc(p.short)}">Findings</button> · <button class="linkbtn" data-go="playbook.${slug(p.short)}">Playbook</button></td></tr>`).join('')}
-    </tbody></table></div>`;
+    </tbody></table></div>${t.more}`;
 }
 
 /* ---------- playbook ---------- */
@@ -94,17 +98,21 @@ export function playbookView(m: Model, focus: string | null, filter: { theme: st
   const card = (s: Standard) => {
     const p = P.get(s.short), play = PLAYBOOK[s.short];
     const ms = misses(s);
-    return `<article class="std${focus === slug(s.short) ? ' hl' : ''}" id="p-${slug(s.short)}"><div class="stop"><h4>${esc(s.short)}</h4>${critChip((s.crit || 'Unrated') as Crit)}<span class="note">${s.cid ? esc(s.cid) + ' · ' : ''}${(({ Critical: 5, Major: 3, Minor: 1 }) as Record<string, number>)[s.crit] ?? 0} points</span>
+    return `<article class="pstd${focus === slug(s.short) ? ' hl' : ''}" id="p-${slug(s.short)}"><div class="stop"><h4>${esc(s.short)}</h4>${critChip((s.crit || 'Unrated') as Crit)}<span class="note">${s.cid ? esc(s.cid) + ' · ' : ''}${(({ Critical: 5, Major: 3, Minor: 1 }) as Record<string, number>)[s.crit] ?? 0} points</span>
       <span class="grow"></span>${p ? `<span class="cited">Cited at ${p.communities.length} of ${comms} communities</span>` : '<span class="cited ok">Not cited in the latest audits</span>'}</div>
       <p class="q">EcoSure checks: ${esc(s.q)}</p>
       ${play ? `<div class="pgrid"><div><span class="lbl">Have in place</span><ul>${play.have.map((h) => `<li>${esc(h)}</li>`).join('')}</ul></div><div><span class="lbl">30-second check</span><p>${esc(play.check)}</p></div>${ms.length ? `<div><span class="lbl">Most common misses</span><ul>${ms.map(([x, n]) => `<li>${esc(x)}${n > 1 ? ` <span class="note">(${n})</span>` : ''}</li>`).join('')}</ul></div>` : ''}</div>` : ''}
       ${p ? `<div class="factions"><button class="btn ghost sm" data-act="std:${esc(s.short)}">See ${plural(p.findings.length, 'finding')}</button></div>` : ''}</article>`;
   };
   const themes = filter.theme === 'all' ? THEMES : THEMES.filter((t) => t.t === filter.theme);
-  return head('Readiness playbook', 'What every kitchen needs in place', `The ${allStandards().length} EcoSure standards cited at Kisco so far, grouped the way you walk a kitchen. Each one lists what to have in place, a quick check, and the misses EcoSure found most often. Use it to prepare for an audit or to run a self-audit.`, `${shareBtn()}<button class="btn sm" data-go="self">Start a self-audit</button>`) +
-    `<div class="toolbar"><span class="lbl">Theme</span>${['all', ...THEMES.map((t) => t.t)].map((t) => `<button class="fbtn" data-pbtheme="${esc(t)}" aria-pressed="${filter.theme === t}">${t === 'all' ? 'All' : esc(t)}</button>`).join('')}</div>
+  const top5 = [...P.values()].slice(0, 5).map((p) => allStandards().find((s) => s.short === p.short)!).filter(Boolean);
+  const browsing = !!focus || !!filter.q || filter.theme !== 'all' || filter.cited;
+  const browse = `<div class="toolbar"><span class="lbl">Theme</span>${['all', ...THEMES.map((t) => t.t)].map((t) => `<button class="fbtn" data-pbtheme="${esc(t)}" aria-pressed="${filter.theme === t}">${t === 'all' ? 'All' : esc(t)}</button>`).join('')}</div>
     <div class="toolbar"><input type="search" id="pb-q" placeholder="Search the playbook" value="${esc(filter.q)}" aria-label="Search the playbook"><button class="fbtn" data-act="pb-cited" aria-pressed="${filter.cited}">Only standards cited in the latest audits</button></div>
     ${themes.map((t) => { const ss = list(t.t); return ss.length ? `<section class="block"><div class="sechead"><h3>${esc(t.t)}</h3><p class="note">${esc(t.look)}</p></div><div class="stds">${ss.map(card).join('')}</div></section>` : ''; }).join('') || '<div class="empty">No standards match.</div>'}`;
+  return head('Readiness playbook', 'What every kitchen needs in place', `Start with the five standards kitchens miss most. Each shows what to have in place, a 30-second check, and what EcoSure found. All ${allStandards().length} standards are below.`, `${shareBtn()}<button class="btn sm" data-go="self">Start a self-audit</button>`) +
+    (browsing ? '' : `<section><h3>The five kitchens miss most</h3><div class="stds">${top5.map(card).join('')}</div></section>`) +
+    `<section class="block">${fold('playbook-all', `All ${allStandards().length} standards by theme`, browse, browsing)}</section>`;
 }
 
 /* ---------- self-audits ---------- */
@@ -112,10 +120,10 @@ export function selfAuditsView(m: Model): string {
   const comms = m.communities.filter((c) => c.c.active);
   const done = comms.filter((c) => c.selfState === 'current').length;
   const days = m.settings.selfAuditDays ?? 30;
-  return head('Self-audits', 'Self-audit tracker', `Each community walks its kitchen against the readiness checklist every ${days} days. Readiness is the share of applicable checks that passed, weighted like EcoSure points. ${done} of ${comms.length} communities are current.`, shareBtn()) +
-    `<div class="tablewrap"><table><thead><tr><th>Community</th><th>Last self-audit</th><th>By</th><th class="num">Readiness</th><th class="num">Failed checks</th><th>Status</th><th class="num">EcoSure score</th><th></th></tr></thead><tbody>
-    ${[...comms].sort((a, b) => (a.self?.date ?? '').localeCompare(b.self?.date ?? '') || a.c.name.localeCompare(b.c.name)).map((c) => `<tr><td><button class="linkbtn" data-go="c-${c.slug}">${esc(c.c.name)}</button></td><td>${c.self ? fmtDate(c.self.date) : '<span class="note">Never</span>'}</td><td>${esc(c.self?.by ?? '')}</td><td class="num">${readyPill(c.readiness)}</td><td class="num">${c.self ? Object.values(c.self.results).filter((r) => r.r === 'fail').length : ''}</td><td>${selfChip(c)}</td><td class="num">${scorePill(c.score)}</td><td><button class="btn ghost sm" data-go="self-${c.slug}">${c.self ? 'New self-audit' : 'Start'}</button></td></tr>`).join('')}
-    </tbody></table></div>`;
+  return head('Self-audits', 'Self-audit tracker', `${done} of ${comms.length} communities have a self-audit from the last ${days} days. Those most overdue are first. Readiness is the share of checks that passed, weighted like EcoSure points.`, shareBtn()) +
+    `<div class="tablewrap"><table><thead><tr><th>Community</th><th>Last self-audit</th><th class="num">Readiness</th><th>Status</th><th></th></tr></thead><tbody>
+    ${top('self', [...comms].sort((a, b) => (a.self?.date ?? '').localeCompare(b.self?.date ?? '') || (a.score ?? 101) - (b.score ?? 101)), 5).shown.map((c) => `<tr><td><button class="linkbtn" data-go="c-${c.slug}">${esc(c.c.name)}</button></td><td>${c.self ? `${fmtDate(c.self.date)}<span class="sub">by ${esc(c.self.by)}</span>` : '<span class="note">Never</span>'}</td><td class="num">${readyPill(c.readiness)}</td><td>${selfChip(c)}</td><td><button class="btn ghost sm" data-go="self-${c.slug}">${c.self ? 'New self-audit' : 'Start'}</button></td></tr>`).join('')}
+    </tbody></table></div>${top('self', comms, 5, 'communities').more}`;
 }
 
 export interface SelfDraft { kitchen: string; date: string; by: string; results: Record<string, { r: SelfResult; note?: string }> }

@@ -4,7 +4,7 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 ## What it does
 
-The site opens on a **Briefing**: one page in plain sentences that anyone can read aloud on a call. Every sentence is built from the data. It covers:
+Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more. The site opens on a **Briefing**: one page in plain sentences that anyone can read aloud on a call. Every sentence is built from the data. It covers:
 
 1. The headline: kitchens audited, the average score, and how many scored 85 or better, 70 to 84, and below 70.
 2. Three things to fix everywhere, each with a real photo, how many kitchens it was found in, why it matters to residents, and the fix.
