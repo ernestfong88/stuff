@@ -14,6 +14,8 @@ test('opens on a plain-language briefing with photos and talking points', async 
   await page.locator('[data-act="expand:brief-help"]').click();
   await expect(fix.first()).toHaveAttribute('open', '');
   await expect(page.locator('.steps li')).toHaveCount(3);
+  await expect(page.locator('.xkpi', { hasText: 'CAPs missing' })).toBeVisible();
+  await expect(page.locator('#navComm .captag').first()).toBeAttached();
   await expect(page.locator('.xcard', { hasText: 'By region' }).locator('.xrow')).toHaveCount(4);
   await expect(page.locator('.xcard', { hasText: 'What the program has delivered' })).toContainText('Critical risks closed');
   await help.first().locator('summary').click();

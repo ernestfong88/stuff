@@ -1,7 +1,7 @@
 import './styles.css';
 import { learnStandard } from './catalog';
 import { readFile, saveItem, type BackupFile, type QItem } from './importer';
-import { DEFAULT_SETTINGS, buildModel, canonical, mergeRecords, scoreBand, type Finding, type Model } from './model';
+import { DEFAULT_SETTINGS, buildModel, canonical, capMissing, mergeRecords, scoreBand, type Finding, type Model } from './model';
 import { fromLegacy, type LegacyBundle } from './parse/legacy';
 import { connect, photoUrl, recId, setSeedPhotos, type Backend } from './store';
 import type { Cap, Community, Rec, SelfAudit, SelfResult, Settings } from './types';
@@ -93,8 +93,9 @@ function navHtml(): string {
   const cur = route.startsWith('self-') ? 'self' : route;
   $('#navMain').innerHTML = NAV.map(([label, xs]) => (label ? `<div class="navlabel">${label}</div>` : '') + xs.map(([k, l]) => `<button data-go="${k}" aria-current="${cur === k}"><span>${l}</span>${counts[k] ? `<span class="count" title="${na} need an audit, ${nc} need CAP work">${counts[k]}</span>` : ''}</button>`).join('')).join('');
   $('#navComm').innerHTML = list.map((c) => {
-    const flag = c.capState === 'late' || c.capState === 'overdue' ? 'bad' : c.capState === 'missing' || c.capState === 'open' ? 'warn' : '';
-    return `<button data-go="c-${c.slug}" aria-current="${route === 'c-' + c.slug}"><span>${esc(c.c.name)}</span><span class="navr">${flag ? `<span class="flag ${flag}" title="CAP needs attention"></span>` : ''}<span class="pill s-${scoreBand(c.score)}">${pct(c.score)}</span></span></button>`;
+    const miss = c.latest.some(capMissing);
+    const flag = c.capState === 'overdue' || c.capState === 'open' ? 'warn' : '';
+    return `<button data-go="c-${c.slug}" aria-current="${route === 'c-' + c.slug}"><span>${esc(c.c.name)}</span><span class="navr">${miss ? '<span class="captag" title="CAP missing">CAP</span>' : flag ? `<span class="flag ${flag}" title="CAP open or past due"></span>` : ''}<span class="pill s-${scoreBand(c.score)}">${pct(c.score)}</span></span></button>`;
   }).join('') || '<div class="note" style="color:#9DBAB5;padding:6px 10px">No match</div>';
   const m = $('#mode');
   m.className = 'mode ' + (V.mode === 'local' ? 'local' : '');

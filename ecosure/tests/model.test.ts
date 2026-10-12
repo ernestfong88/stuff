@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { THEMES, allStandards } from '../src/catalog';
 import { existsSync, readFileSync } from 'node:fs';
-import { DEFAULT_SETTINGS, buildModel, mergeRecords, needsAudit, needsCap } from '../src/model';
+import { DEFAULT_SETTINGS, buildModel, capMissing, capMissingText, mergeRecords, needsAudit, needsCap } from '../src/model';
 import { fromLegacy, type LegacyBundle } from '../src/parse/legacy';
 import { recId } from '../src/store';
 import type { Cap, Item, Rec, Report } from '../src/types';
@@ -33,6 +33,9 @@ describe('CAP status', () => {
     expect(early.audits[0].capState).toBe('missing');
     const late = buildModel(withIds([r]), settings, '2026-09-30');
     expect(late.audits[0].capState).toBe('late');
+    expect(capMissing(early.audits[0])).toBe(true);
+    expect(capMissingText(early.audits[0], '2026-09-05')).toBe('CAP missing · due Sep 11');
+    expect(capMissingText(late.audits[0], '2026-09-30')).toBe('CAP missing · 19 days late');
     expect(needsCap(late)).toHaveLength(1);
   });
   it('matches CAP lines by client id and treats Approved and Completed as closed', () => {

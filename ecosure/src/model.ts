@@ -22,11 +22,22 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export type CapState = 'not-needed' | 'missing' | 'late' | 'open' | 'overdue' | 'closed';
 export const CAP_LABEL: Record<CapState, string> = {
-  'not-needed': 'No CAP needed', missing: 'CAP not started', late: 'CAP late', open: 'CAP in progress', overdue: 'CAP past due', closed: 'CAP closed',
+  'not-needed': 'No CAP needed', missing: 'CAP missing', late: 'CAP missing', open: 'CAP in progress', overdue: 'CAP past due', closed: 'CAP closed',
 };
+
+/** True when a kitchen has findings but no CAP on file, whether or not it is late yet. */
+export const capMissing = (a: Audit): boolean => a.capState === 'missing' || a.capState === 'late';
+
+/** "CAP missing · 6 days late" or "CAP missing · due Oct 17". */
+export function capMissingText(a: Audit, today: string): string {
+  const d = Math.round((Date.parse(today) - Date.parse(a.capDue)) / 86400000);
+  const [, mo, da] = a.capDue.split('-').map(Number);
+  const due = `${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][mo - 1]} ${da}`;
+  return a.capState === 'late' ? `CAP missing · ${d === 1 ? '1 day' : d + ' days'} late` : `CAP missing · due ${due}`;
+}
 /** Worst first. */
 export const CAP_ORDER: CapState[] = ['late', 'overdue', 'missing', 'open', 'closed', 'not-needed'];
-export const CAP_TONE: Record<CapState, 'bad' | 'warn' | 'good' | 'none'> = { late: 'bad', overdue: 'bad', missing: 'warn', open: 'warn', closed: 'good', 'not-needed': 'none' };
+export const CAP_TONE: Record<CapState, 'bad' | 'warn' | 'good' | 'none'> = { late: 'bad', overdue: 'bad', missing: 'bad', open: 'warn', closed: 'good', 'not-needed': 'none' };
 
 export type AuditState = 'never' | 'overdue' | 'due' | 'pending-report' | 'done';
 export const AUDIT_LABEL: Record<AuditState, string> = {

@@ -3,7 +3,7 @@ import { THEMES, SECTIONS, themeOf } from './catalog';
 import { CRIT_COLOR, bars, critLegend, scoreLine } from './charts';
 import {
   AUDIT_LABEL, AUDIT_TONE, CAP_LABEL, CAP_ORDER, CAP_TONE, needsAudit, needsCap, scoreBand,
-  type Audit, type CommunityView, type Finding, type Model,
+  type Audit, type CommunityView, type Finding, type Model, capMissing, capMissingText,
 } from './model';
 import { fileUrl, photoUrl } from './store';
 import { fixFirst, themeHeat } from './views-roles';
@@ -11,7 +11,7 @@ import { fold, top } from './expand';
 import { talkingBlock } from './views-brief';
 import { plainTitle } from './plain';
 import type { Crit } from './types';
-import { avg, countBy, daysBetween, esc, fmtDate, pct, plural } from './util';
+import { avg, countBy, daysBetween, esc, fmtDate, pct, plural, todayIso } from './util';
 
 export interface Filters {
   community: string;
@@ -42,7 +42,7 @@ export interface ViewState {
 /* ---------- small pieces ---------- */
 export const scorePill = (s: number | null) => `<span class="score s-${scoreBand(s)}">${pct(s)}</span>`;
 const chip = (tone: string, text: string, title = '') => `<span class="chip t-${tone}"${title ? ` title="${esc(title)}"` : ''}>${esc(text)}</span>`;
-export const capChip = (a: Audit) => chip(CAP_TONE[a.capState], a.capState === 'missing' ? `CAP due ${fmtDate(a.capDue, true)}` : CAP_LABEL[a.capState], a.cap ? `EcoSure status: ${a.cap.status}` : '');
+export const capChip = (a: Audit, today = todayIso()) => capMissing(a) ? `<span class="chip t-bad capmiss">${esc(capMissingText(a, today))}</span>` : chip(CAP_TONE[a.capState], CAP_LABEL[a.capState], a.cap ? `EcoSure status: ${a.cap.status}` : '');
 const auditChip = (c: CommunityView) => chip(AUDIT_TONE[c.auditState], AUDIT_LABEL[c.auditState]);
 const critChip = (c: Crit) => `<span class="chip c-${c}">${c}</span>`;
 function delta(cur: number | null, prev: number | null): string {
@@ -209,6 +209,7 @@ export function community(m: Model, v: ViewState, slugKey: string, auditKey: str
   const strip = (html: string) => html.replace(/^<section class="block"><h3>[^<]*<\/h3>/, '').replace(/<\/section>$/, '');
   return `<div class="pagehead"><div><p class="crumb"><button class="linkbtn" data-go="communities">Communities</button> / ${esc(c.c.city)}</p><h2 class="page">${esc(c.c.name)}</h2></div><div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn ghost sm" data-act="copy-community:${c.slug}">Copy as email</button></div></div>` +
     (dates.length > 1 ? `<div class="toolbar"><span class="lbl">Audit</span>${dates.map((d) => `<button class="fbtn" data-audit="${d}" aria-pressed="${d === selDate}">${fmtDate(d)}</button>`).join('')}</div>` : '') +
+    (A.some(capMissing) ? `<div class="capbanner" role="status"><b>CAP missing</b><span>${A.filter(capMissing).map((a) => `${esc(a.kitchen)}: ${esc(capMissingText(a, m.today).replace('CAP missing · ', ''))}`).join(' · ')}. Ask the team to submit the corrective action plan in EcoSure.</span></div>` : '') +
     talkingBlock(c) +
     (c.latest.length ? tiles.replace(/<\/div>$/, ready + '</div>') : tiles + `<div class="tiles" style="margin-top:12px">${ready}</div>`) +
     fixFirst(A) +
