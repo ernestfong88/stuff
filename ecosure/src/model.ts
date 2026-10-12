@@ -233,7 +233,8 @@ export function buildModel(recs: Rec[], settings: Settings, today = todayIso()):
     if (a.cap) {
       const used = new Set<CapItem>();
       for (const f of a.items) {
-        const ci = a.cap.items.find((x) => !used.has(x) && x.cid && f.cid && x.cid === f.cid) ?? a.cap.items.find((x) => !used.has(x) && qMatch(x.question, f.question));
+        const fcid = f.cid || findStandard(f.question)?.cid || '';
+        const ci = a.cap.items.find((x) => !used.has(x) && x.cid && fcid && x.cid === fcid) ?? a.cap.items.find((x) => !used.has(x) && qMatch(x.question, f.question));
         if (ci) { f.capItem = ci; used.add(ci); }
       }
       a.capMatched = a.items.filter((f) => f.capItem).length;

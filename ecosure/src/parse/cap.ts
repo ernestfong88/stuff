@@ -4,7 +4,8 @@
  */
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { Cap, CapItem } from '../types';
-import { isoDate, splitUnit } from '../util';
+import { findStandard } from '../catalog';
+import { isoDate, norm, splitUnit } from '../util';
 import { extractPhoto, readAll, type PageData } from './pdf';
 
 export interface Parsed<T> {
@@ -62,6 +63,23 @@ export async function parseCap(doc: PDFDocumentProxy, file: string, pagesIn?: Pa
       if (t.startsWith('Submitter notes')) { mode = 'notes'; continue; }
       if (t === '-') { mode = null; continue; }
       if (mode === 'row') {
+        // A row that runs onto the next page is printed there without its header, and EcoSure drops the
+        // columns that are already finished, shifting the rest left. Read those lines by what they are.
+        if (pd.n !== item.at[0] && item.cid) {
+          const DATE = /^\d{2}\/\d{2}\/\d{4}$/;
+          const dateLine = L.find((d) => DATE.test(d.t) && Math.abs(d.y - y) < 3);
+          if (DATE.test(t)) { item.due ||= t; continue; }
+          if (dateLine && !L.some((o) => Math.abs(o.y - y) < 3 && o.x > x && o.x < dateLine.x && !DATE.test(o.t))) {
+            if (!item.owner) item.owner = t; // the column just left of the date is the owner
+            continue;
+          }
+          if (/^(Other|Training|Retrain\w*|Repair\w*|Replace\w*|Clean\w*)\s*-?$/.test(t)) continue;
+          const std = findStandard(item.item, item.cid);
+          if (x < 255 && std && (norm(std.q).startsWith(norm(item.item + ' ' + t)) || (norm(t).length > 8 && norm(std.q).includes(norm(t))))) { item.item += ' ' + t; continue; }
+          if (item.owner && norm(t).length > 2 && norm(item.owner).includes(norm(t))) continue; // owner name wrapped onto its own line
+          item.plan.push(t);
+          continue;
+        }
         if (x < 80) {
           const m = t.match(/^(\d+(?:\.\d+)+)(.*)$/);
           if (m && !item.cid) { item.cid = m[1]; if (m[2].trim()) item.plan.push(m[2].trim()); }
