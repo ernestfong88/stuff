@@ -12,7 +12,12 @@ Every screen starts with its top 5 and lets the reader expand ("Show all") or op
 4. **What to fix:** the top 5 issues with a photo each. Expand one for why it matters, the fix, and more photos.
 5. **Who needs help and Follow-through:** the top 5 communities and the top 5 overdue plans, each expandable.
 6. **By region:** average score, kitchens below 70 and plans closed for each region, lowest first. Expand a region to see its communities. Regions are set per community in Settings.
-7. **What the program has delivered:** critical risks closed, the score change since last round (or the baseline until the next round arrives), and corrective actions written.
+7. **Program impact** (sits right after the key numbers):
+   - total infractions, filterable by severity
+   - how many are remediated (on a CAP EcoSure shows as approved or completed), in progress, or have no CAP yet
+   - a tile for each severity
+   - the score baseline or change since the last round
+   - a folded "Found and fixed" set of critical examples with photos
 8. **Next steps:** three asks for regional and community teams.
 
 **Copy as email** produces a complete email (subject, context, every section and a link back) for executives who read it without the page.

@@ -17,7 +17,11 @@ test('opens on a plain-language briefing with photos and talking points', async 
   await expect(page.locator('.xkpi', { hasText: 'CAPs missing' })).toBeVisible();
   await expect(page.locator('#navComm .captag').first()).toBeAttached();
   await expect(page.locator('.xcard', { hasText: 'By region' }).locator('.xrow')).toHaveCount(4);
-  await expect(page.locator('.xcard', { hasText: 'What the program has delivered' })).toContainText('Critical risks closed');
+  const impact = page.locator('.impact');
+  await expect(impact.locator('.ihead')).toContainText('infractions found');
+  await impact.locator('[data-act="sev:Critical"]').first().click();
+  await expect(impact.locator('.ihead')).toContainText('critical infractions found');
+  await expect(impact.locator('.sevtile')).toHaveCount(3);
   await help.first().locator('summary').click();
   await help.first().locator('.btn').click();
   await expect(page.getByRole('heading', { name: 'Talking points' })).toBeVisible();

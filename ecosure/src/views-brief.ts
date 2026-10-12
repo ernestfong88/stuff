@@ -10,7 +10,7 @@ import { avg, esc, fmtDate, pct, plural } from './util';
 import { inRound, latestPerKitchen, scorePill, type ViewState } from './views';
 import { scoreBand } from './model';
 import { communitiesOfFocus } from './views-roles';
-import { OPEN, top } from './expand';
+import { OPEN, fold, top } from './expand';
 
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const list = (xs: string[]) => (xs.length <= 1 ? xs.join('') : xs.slice(0, -1).join(', ') + (xs.length > 2 ? ',' : '') + ' and ' + xs[xs.length - 1]);
@@ -151,6 +151,8 @@ export function briefing(m: Model, v: ViewState): string {
       ${kpi(String(b.missing.length), 'CAPs missing', `${b.late.length} late · ${b.capClosed} of ${b.capKitchens} closed`, b.missing.length ? 'bad' : 'good')}
     </div>
 
+    ${impact(b, cur)}
+
     ${card('What to fix', `Ranked by points lost; together ${Math.round(b.topShare * 100)}% of the total. Select one for why it matters and the fix.`, 'priorities', 'All priorities', `<div class="xlist">${b.top.map((p, i) => {
       const ph = bestPhoto(p.findings);
       return row('issue-' + i, `<span class="rank">${i + 1}</span>${ph ? `<img src="${esc(photoUrl(ph.f.photos[0]))}" alt="" loading="lazy">` : '<span class="noimg"></span>'}<span class="xt"><b>${esc(plainTitle(p.short))}</b><span class="meter" aria-hidden="true"><span style="width:${(p.kitchens / b.A.length) * 100}%"></span></span></span><span class="xn"><b>${p.kitchens}</b> of ${b.A.length} kitchens</span>`,
@@ -169,23 +171,54 @@ export function briefing(m: Model, v: ViewState): string {
     ${card('By region', 'Lowest average score first. Select a region to see its communities.', 'communities', 'All communities', `<div class="xlist">${b.regions.map((r) => row('region-' + slugify(r.name), `${scorePill(r.s)}<span class="xt"><b>${esc(r.name)}</b><span class="xs">${plural(r.comms.length, 'community', 'communities')} · ${r.bad} below 70 · ${r.capMissing ? `<span class="miss">${r.capMissing} CAP missing</span>` : 'no CAP missing'}</span></span>`,
       `<ul class="rlist">${r.comms.map((c) => `<li><button class="linkbtn" data-go="c-${c.slug}">${esc(c.c.name)}</button>${scorePill(c.score)}<span class="xs">${c.latest.length ? esc(shortWhy(c)) : esc(c.c.note || 'Not audited yet')}</span></li>`).join('')}</ul>`)).join('')}</div>`, 'wide')}
 
-    ${card('What the program has delivered', 'Results of the audit program so far, for residents and for the company.', 'trends', 'Trends', `<div class="vals">
-        <div><b>${b.critClosed}<small> of ${b.crit}</small></b><span><strong>Critical risks closed.</strong> Each was a real hazard to residents, such as food held at unsafe temperatures or sanitizer that was not working, now fixed and documented in EcoSure.</span></div>
-        ${b.prev?.s != null && b.s != null
-          ? `<div><b>${b.s >= b.prev.s ? '+' : ''}${Math.round(b.s - b.prev.s)}<small> points</small></b><span><strong>Average score since ${esc(b.prev.name)}.</strong> ${b.improved} of ${b.reaudited} re-audited kitchens improved.</span></div>`
-          : `<div><b>${pct(b.s)}</b><span><strong>Baseline average score.</strong> ${cur ? `${esc(cur.name)} audits` : 'The next round'} will show how much each kitchen improves.</span></div>`}
-        <div><b>${b.actions}</b><span><strong>Corrective actions</strong> written by community teams, each tied to a specific finding and photo.</span></div>
-      </div>`, 'wide')}
-
     ${card('Next steps', 'What we are asking regional and community teams to do this month.', 'playbook', 'Readiness playbook', `<ol class="steps">${nextSteps(b).map((s) => `<li>${esc(s)}</li>`).join('')}</ol>`, 'wide')}
   </div>`;
+}
+
+/* ---------- program impact (SST style) ---------- */
+type Sev = 'all' | 'Critical' | 'Major' | 'Minor';
+let SEV: Sev = 'all';
+export const setSeverity = (x: string) => { SEV = (['Critical', 'Major', 'Minor'].includes(x) ? x : 'all') as Sev; };
+
+/** Remediated: the finding is on a CAP that EcoSure shows as Approved or Completed. */
+function remediation(fs: Finding[]) {
+  const done = fs.filter((f) => f.capItem && f.audit.capState === 'closed').length;
+  const prog = fs.filter((f) => f.capItem && f.audit.capState !== 'closed').length;
+  return { n: fs.length, done, prog, none: fs.length - done - prog };
+}
+
+function impact(b: Brief, cur: ReturnType<typeof currentRound>): string {
+  const all = b.A.flatMap((a) => a.items);
+  const of = (x: Sev) => (x === 'all' ? all : all.filter((f) => f.criticality === x));
+  const r = remediation(of(SEV));
+  const pctOf = (x: number, n: number) => (n ? Math.round((x / n) * 100) : 0);
+  const word = SEV === 'all' ? 'infractions' : `${SEV.toLowerCase()} infractions`;
+  const seg = (n: number, cls: string, label: string) => (n ? `<span class="iseg ${cls}" style="flex:${n}" title="${n} ${label}"><b>${n}</b> ${label}</span>` : '');
+  const chips = (['all', 'Critical', 'Major', 'Minor'] as Sev[]).map((x) => `<button class="fbtn" data-act="sev:${x}" aria-pressed="${SEV === x}">${x === 'all' ? 'All' : x}<span class="n">${of(x).length}</span></button>`).join('');
+  const tiles = (['Critical', 'Major', 'Minor'] as const).map((x) => {
+    const t = remediation(of(x));
+    return `<button class="sevtile ${x.toLowerCase()}${SEV === x ? ' on' : ''}" data-act="sev:${SEV === x ? 'all' : x}"><span class="sl">${x}<small>${x === 'Critical' ? '5 pts each' : x === 'Major' ? '3 pts each' : '1 pt each'}</small></span><b>${t.n}</b><span class="meter"><span style="width:${pctOf(t.done, t.n)}%"></span></span><span class="xs">${t.done} remediated (${pctOf(t.done, t.n)}%)</span></button>`;
+  }).join('');
+  const examples = all.filter((f) => f.criticality === 'Critical' && f.capItem?.action && f.audit.capState === 'closed' && f.photos.length)
+    .filter((f, i, arr) => arr.findIndex((x) => x.short === f.short) === i).slice(0, 3);
+  const ex = examples.length ? `<div class="fixed">${examples.map((f) => `<article>${photoBtn(f, 0)}<div><span class="chip t-good">Remediated</span><h4>${esc(plainTitle(f.short))}</h4><p class="xs">${esc(f.audit.community)} · ${fmtDate(f.audit.date)}</p>${f.comment ? `<p><b>Found:</b> ${esc(f.comment.length > 150 ? f.comment.slice(0, 147) + '...' : f.comment)}</p>` : ''}<p><b>Fixed:</b> ${esc(f.capItem!.action.length > 170 ? f.capItem!.action.slice(0, 167) + '...' : f.capItem!.action)}</p></div></article>`).join('')}</div>` : '';
+  const scoreTile = b.prev?.s != null && b.s != null
+    ? `<div><b>${b.s >= b.prev.s ? '+' : ''}${Math.round(b.s - b.prev.s)}<small> pts</small></b><span>Average score change since ${esc(b.prev.name)}; ${b.improved} of ${b.reaudited} re-audited kitchens improved.</span></div>`
+    : `<div><b>${pct(b.s)}</b><span>Baseline average score. ${cur ? `${esc(cur.name)} audits` : 'The next round'} will show the improvement.</span></div>`;
+  return `<section class="xcard wide impact"><header><div><h3>Program impact</h3><p>What the EcoSure audits found, and how much our teams have fixed. Remediated means the finding is on a corrective action plan that EcoSure shows as approved or completed.</p></div><button class="linkbtn" data-go="findings">All findings</button></header>
+    <div class="toolbar"><span class="lbl">Severity</span>${chips}</div>
+    <p class="ihead"><b>${r.n}</b> ${word} found in ${b.A.length} kitchens. <b class="good">${r.done} remediated</b> (${pctOf(r.done, r.n)}%).</p>
+    <div class="ibar" role="img" aria-label="${r.done} remediated, ${r.prog} in progress, ${r.none} with no CAP yet">${seg(r.done, 'done', 'remediated')}${seg(r.prog, 'prog', 'in progress')}${seg(r.none, 'none', 'no CAP yet')}</div>
+    <div class="sevtiles">${tiles}</div>
+    <div class="vals">${scoreTile}<div><b>${b.actions}</b><span>Corrective actions written by community teams, each tied to a specific finding.</span></div><div><b>${b.photos}</b><span>Photos documenting what was found, so every fix can be checked.</span></div></div>
+    ${ex ? fold('found-fixed', `Found and fixed <span class="sm">${examples.length} critical examples</span>`, ex) : ''}
+  </section>`;
 }
 
 const slugify = (x: string) => x.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
 export function briefingText(m: Model, v: ViewState, link = ''): string {
   const b = compute(m, v);
-  const cur = currentRound(m.settings.rounds, m.today);
   const round = b.A[0]?.round ?? '';
   return [`Subject: EcoSure food safety summary, ${round} round`, '',
     `This is a summary of our EcoSure food safety audits from ${fmtDate(b.start, true)} to ${fmtDate(b.end)}. ${CONTEXT}`, '',
@@ -197,9 +230,10 @@ export function briefingText(m: Model, v: ViewState, link = ''): string {
     ...(b.missing.length ? [`- CAP missing (${b.missing.length}): ${list(b.missing.map((a) => `${kitchenName(a)} (${capMissingText(a, m.today).replace('CAP missing · ', '')})`))}.`] : []),
     ...(b.pastDue.length ? [`- Items past due: ${list(b.pastDue.map(kitchenName))}.`] : []), '',
     'BY REGION', ...b.regions.map((r) => `- ${r.name}: average ${pct(r.s)}, ${r.bad} below 70, ${r.capMissing} CAP missing`), '',
-    'WHAT THE PROGRAM HAS DELIVERED', `- ${b.critClosed} of ${b.crit} critical risks to residents found and closed.`,
-    b.prev?.s != null && b.s != null ? `- Average score ${b.s >= b.prev.s ? 'up' : 'down'} ${Math.abs(Math.round(b.s - b.prev.s))} points since ${b.prev.name}; ${b.improved} of ${b.reaudited} re-audited kitchens improved.` : `- Baseline average score of ${pct(b.s)} set; ${cur ? cur.name : 'next round'} audits will show the change.`,
-    `- ${b.actions} corrective actions written by community teams.`, '',
+    'PROGRAM IMPACT', ...(() => { const all = b.A.flatMap((a) => a.items); const r = remediation(all);
+      return [`- ${r.n} infractions found in ${b.A.length} kitchens; ${r.done} remediated (${r.n ? Math.round((r.done / r.n) * 100) : 0}%), ${r.prog} in progress, ${r.none} with no CAP yet.`,
+        ...(['Critical', 'Major', 'Minor'] as const).map((x) => { const t = remediation(all.filter((f) => f.criticality === x)); return `- ${x}: ${t.n} found, ${t.done} remediated`; }),
+        `- ${b.actions} corrective actions written by community teams.`]; })(), '',
     'NEXT STEPS', ...nextSteps(b).map((x, i) => `${i + 1}. ${x}`),
     ...(link ? ['', `Full briefing with photos: ${link}`] : [])].join('\n');
 }

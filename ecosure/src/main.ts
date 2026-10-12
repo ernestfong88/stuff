@@ -8,7 +8,7 @@ import type { Cap, Community, Rec, SelfAudit, SelfResult, Settings } from './typ
 import { csv, esc, fmtDate, pct, slug, todayIso } from './util';
 import { actions, communities, community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
 import { playbookView, prioritiesView, selfAuditForm, selfAuditsView, type SelfDraft } from './views-roles';
-import { briefing, briefingText, talkingText } from './views-brief';
+import { briefing, briefingText, setSeverity, talkingText } from './views-brief';
 import { allStandards } from './catalog';
 import { OPEN } from './expand';
 
@@ -364,6 +364,7 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'copy-summary') copyText(briefingText(model, V, SHARE_BASE || location.href.split('#')[0]), 'Briefing copied. Paste it into an email or Teams message.');
   else if (k === 'copy-community') copyText(communityText(arg), 'Summary copied. Paste it into an email or Teams message.');
   else if (k === 'scroll') document.getElementById(arg)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  else if (k === 'sev') { setSeverity(arg); rerender(); }
   else if (k === 'expand') { if (OPEN.has(arg)) OPEN.delete(arg); else OPEN.add(arg); rerender(); }
   else if (k === 'std-photos') toFindings({ std: arg, photos: false });
   else if (k === 'pb-cited') { PB.cited = !PB.cited; rerender(); }
