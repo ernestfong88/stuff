@@ -1,7 +1,24 @@
 import { expect, test } from '@playwright/test';
 
-test('opens on a plain-language briefing with photos and talking points', async ({ page }) => {
+test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
+  await expect(page.locator('.dkpi')).toHaveCount(6);
+  await expect(page.locator('.dsev')).toHaveCount(3);
+  const audited = page.locator('.dkpi', { hasText: 'Communities audited' });
+  const before = await audited.textContent();
+  await page.locator('.dfilters [data-act="region:Mountain"]').click();
+  await expect(page.locator('.dfilters [data-act="region:Mountain"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(audited).not.toHaveText(before!);
+  await page.locator('.dkpi', { hasText: 'CAPs missing' }).click();
+  await expect(page.locator('h2.page')).toBeVisible();
+  await page.goto('/');
+  await page.locator('.dhead [data-go="home"]').click();
+  await expect(page.getByRole('heading', { name: 'Food safety briefing' })).toBeVisible();
+});
+
+test('the executive briefing has photos and talking points', async ({ page }) => {
+  await page.goto('/#home');
   await expect(page.getByRole('heading', { name: 'Food safety briefing' })).toBeVisible();
   await expect(page.locator('.bottomline li')).toHaveCount(3);
   const fix = page.locator('.xcard', { hasText: 'What to fix' }).locator('.xrow');

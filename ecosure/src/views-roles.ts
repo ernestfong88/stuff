@@ -138,7 +138,7 @@ export function selfAuditForm(m: Model, v: ViewState, slugKey: string, d: SelfDr
   const prev = c.self;
   const btn = (s: Standard, r: SelfResult, label: string) => `<button type="button" class="seg ${r}" data-self="${esc(s.short)}" data-r="${r}" aria-pressed="${d.results[s.short]?.r === r}">${label}</button>`;
   return head(`Self-audit · ${c.c.name}`, 'Kitchen self-audit', `Walk the kitchen with this list. Mark each check Pass, Fail or N/A. Items EcoSure cited at the last audit are flagged. Your answers are kept in this browser as you go, and saved for everyone when you select Submit.`) +
-    (v.canWrite ? '' : '<div class="warnbox">You can view this page but not submit. Ask the page owner for Contributor access.</div>') +
+    (v.canWrite ? '' : '<div class="warnbox">You can view this page but not submit. Ask the page owner to make you an Editor.</div>') +
     `<form id="selfform" class="panel"><div class="form">
       <label class="field"><span class="lbl">Kitchen</span><select id="sa-kitchen">${kitchens.map((k) => `<option${k === d.kitchen ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select></label>
       <label class="field"><span class="lbl">Date</span><input type="date" id="sa-date" value="${esc(d.date)}"></label>

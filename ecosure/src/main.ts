@@ -9,6 +9,7 @@ import { csv, esc, fmtDate, pct, slug, todayIso } from './util';
 import { actions, communities, community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
 import { playbookView, prioritiesView, selfAuditForm, selfAuditsView, type SelfDraft } from './views-roles';
 import { briefing, briefingText, setSeverity, talkingText } from './views-brief';
+import { dashboard, setRegion } from './views-dash';
 import { allStandards } from './catalog';
 import { OPEN } from './expand';
 
@@ -62,7 +63,7 @@ function rebuild(): void {
 
 /* ---------- routing ---------- */
 const NAV: [string | null, [string, string][]][] = [
-  [null, [['home', 'Briefing'], ['communities', 'Communities'], ['actions', 'Action list']]],
+  [null, [['dashboard', 'Dashboard'], ['home', 'Executive briefing'], ['communities', 'Communities'], ['actions', 'Action list']]],
   ['More detail', [['priorities', 'Priorities'], ['findings', 'Findings and photos'], ['trends', 'Trends'], ['playbook', 'Readiness playbook'], ['self', 'Self-audits']]],
   ['Manage', [['import', 'Import files'], ['settings', 'Settings']]],
 ];
@@ -73,7 +74,7 @@ function go(to: string): void {
   else render();
 }
 function readHash(): void {
-  let h = decodeURIComponent(location.hash.slice(1)) || 'home';
+  let h = decodeURIComponent(location.hash.slice(1)) || 'dashboard';
   if (h === 'overview') h = 'home';
   if (h.startsWith('playbook.')) { route = 'playbook'; routeArg = h.slice(9); return; }
   if (h.startsWith('self-')) { route = h; routeArg = null; return; }
@@ -81,7 +82,7 @@ function readHash(): void {
     const [s, d] = h.slice(2).split('.');
     if (route !== 'c-' + s) { V.f.crit = 'all'; V.f.kitchen = 'all'; }
     route = 'c-' + s; routeArg = d ?? null;
-  } else { route = MAIN.some(([k]) => k === h) ? h : 'home'; routeArg = null; }
+  } else { route = MAIN.some(([k]) => k === h) ? h : 'dashboard'; routeArg = null; }
 }
 
 function navHtml(): string {
@@ -91,7 +92,8 @@ function navHtml(): string {
   const counts: Record<string, number> = { actions: na + nc };
   const list = model.communities.filter((c) => (c.c.active || c.audits.length) && (c.c.name + ' ' + c.c.city).toLowerCase().includes(q));
   const cur = route.startsWith('self-') ? 'self' : route;
-  $('#navMain').innerHTML = NAV.map(([label, xs]) => (label ? `<div class="navlabel">${label}</div>` : '') + xs.map(([k, l]) => `<button data-go="${k}" aria-current="${cur === k}"><span>${l}</span>${counts[k] ? `<span class="count" title="${na} need an audit, ${nc} need CAP work">${counts[k]}</span>` : ''}</button>`).join('')).join('');
+  // Viewers never see the editing pages; editors (and local copies) do.
+  $('#navMain').innerHTML = NAV.filter(([label]) => label !== 'Manage' || V.canWrite).map(([label, xs]) => (label ? `<div class="navlabel">${label}</div>` : '') + xs.map(([k, l]) => `<button data-go="${k}" aria-current="${cur === k}"><span>${l}</span>${counts[k] ? `<span class="count" title="${na} need an audit, ${nc} need CAP work">${counts[k]}</span>` : ''}</button>`).join('')).join('');
   $('#navComm').innerHTML = list.map((c) => {
     const miss = c.latest.some(capMissing);
     const flag = c.capState === 'overdue' || c.capState === 'open' ? 'warn' : '';
@@ -108,7 +110,8 @@ function render(): void {
   navHtml();
   const main = $('#main');
   let html = '';
-  if (route === 'home') {
+  if (route === 'dashboard') html = dashboard(model, V);
+  else if (route === 'home') {
     html = briefing(model, V);
   }
   else if (route === 'priorities') html = prioritiesView(model, V);
@@ -364,6 +367,7 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'copy-summary') copyText(briefingText(model, V, SHARE_BASE || location.href.split('#')[0]), 'Briefing copied. Paste it into an email or Teams message.');
   else if (k === 'copy-community') copyText(communityText(arg), 'Summary copied. Paste it into an email or Teams message.');
   else if (k === 'scroll') document.getElementById(arg)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  else if (k === 'region') { setRegion(arg); rerender(); }
   else if (k === 'sev') { setSeverity(arg); rerender(); }
   else if (k === 'expand') { if (OPEN.has(arg)) OPEN.delete(arg); else OPEN.add(arg); rerender(); }
   else if (k === 'std-photos') toFindings({ std: arg, photos: false });

@@ -4,7 +4,17 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 ## What it does
 
-Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more. The site opens on a **Briefing** written as an executive summary that can be read cold, without anyone there to explain it. Every line is built from the data:
+Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more.
+
+The site opens on the **Dashboard**, one screen for anyone in the enterprise:
+
+- a region filter (All, or one of the four regions) and the round
+- six key numbers: average score, communities audited, kitchens below 70, infractions remediated, critical findings still open, and CAPs missing
+- remediation by severity, CAP status and score bands as stacked bars
+- average score by region (select a region to filter) and by month
+- the top 5 issues and the top 5 communities needing attention
+
+Every number and panel links to the page with the detail behind it. **Executive briefing** is one click away. It is written as an executive summary that can be read cold, without anyone there to explain it. Every line is built from the data:
 
 1. **Context:** one line on what EcoSure is and what the scores mean.
 2. **The bottom line:** three sentences covering the overall result, the biggest issue, and corrective action plans.
@@ -42,7 +52,7 @@ Plain-language titles and "why it matters" lines live in `src/plain.ts`; the pla
 
 - Share the page from claude.ai's Share menu.
 - Give **Viewer** access to people who only read it.
-- Give **Contributor** access to anyone who imports files, updates CAP status, or submits self-audits.
+- Give **Editor** access to anyone who imports files, changes settings, or submits self-audits. Only Editors can write to the shared data, and the Import and Settings pages are hidden from everyone else.
 - Links to a community or a playbook entry (for example `#c-balfour-riverfront`) open straight to that page.
 
 ## Adding new files
@@ -55,14 +65,14 @@ A CAP attaches to the report with the same kitchen and audit date (EcoSure's "An
 
 ## Where data lives
 
-- **Published on claude.ai** (the normal case): imports go to the page's shared database and photo store, so everyone with access sees them. Viewers need Contributor access to import.
+- **Published on claude.ai** (the normal case): imports go to the page's shared database and photo store, so everyone with access sees them. Only Editors can import.
 - **Opened any other way** (a saved file, `npm run dev`): imports stay in that browser. Use **Download backup** on the Import page to move them.
 - **Starting data:** the 42 kitchen audits, CAPs and 544 photos from the previous review page are built into the published page. An import for the same kitchen and date replaces the built-in copy. This data is not in git, because the repository is public. To build with it, save the old page (or the published one) as HTML and run `npm run seed -- path/to/EcoSure_Audit_Review.html` before `npm run build`. Without it, the site builds with no starting data.
 
 ## Rules the site applies
 
 - **Score bands:** 85 and up is good, 70 to 84 is a warning, below 70 is a community of focus. Critical findings cost 5 points, Major 3, Minor 1.
-- **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP** tag in the sidebar, a banner on the community page, "CAP missing · due Oct 17" or "CAP missing · 6 days late" in lists, and a CAPs missing count on the briefing.
+- **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP** tag in the sidebar, a banner on the community page, "CAP missing · due Oct 17" or "CAP missing · 6 days late" in lists, and a CAPs missing count on the dashboard and briefing.
 - **CAP status:**
   - closed when EcoSure shows Approved or Completed
   - past due when an open CAP has an item past its due date
@@ -89,7 +99,7 @@ npm run e2e        # import flow in a real browser (Playwright)
 VITE_SHARE_URL=https://claude.ai/artifact/<id> npm run build   # dist/index.html and dist/artifact.html; the URL makes copied links point at the published page
 ```
 
-To publish an update, rebuild and republish `dist/artifact.html` to the same artifact URL, keeping the `db`, `assets`, `user` and `downloads` capabilities.
+To publish an update, rebuild and republish `dist/artifact.html` to the same artifact URL, keeping the `db` (writes limited to Editors), `assets`, `user` and `downloads` capabilities.
 
 ### Layout
 
@@ -102,6 +112,7 @@ To publish an update, rebuild and republish `dist/artifact.html` to the same art
 | `src/catalog.ts`, `src/data/standards.json` | The 65 standards with short labels, sections, criticality, client ids and visit themes |
 | `src/model.ts` | Joins reports and CAPs into audits and works out every status |
 | `src/store.ts` | Shared (claude.ai) or local (IndexedDB) storage |
+| `src/views-dash.ts` | The enterprise dashboard |
 | `src/views-brief.ts` | The briefing and community talking points |
 | `src/views-roles.ts` | Communities of focus, priorities, playbook and self-audit pages |
 | `src/plain.ts` | Plain-language title and why it matters for each standard |

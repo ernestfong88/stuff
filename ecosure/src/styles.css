@@ -512,3 +512,48 @@ ul.plain { margin: 0; padding-left: 18px; } ul.plain li { margin: 0 0 6px; }
 .fixed p { margin: 0; }
 .fixed .chip { align-self: flex-start; }
 @media (max-width: 700px) { .sevtiles { grid-template-columns: 1fr; } }
+
+/* ---------- enterprise dashboard: 12-column grid of panels under a KPI strip ---------- */
+.dash { display: flex; flex-direction: column; gap: 14px; max-width: 1400px; }
+.dhead { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; align-items: flex-start; }
+.dhead > div:first-child { flex: 1 1 520px; min-width: 0; }
+.dhead .note { max-width: 90ch; margin: 2px 0 0; }
+.dfilters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; }
+.dfilters .grow { flex: 1; }
+.dround { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.dkpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.dkpi { all: unset; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; border-top: 4px solid var(--line); }
+.dkpi:hover { border-color: var(--accent); }
+.dkpi:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.dkpi .dl { font-size: 12.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.dkpi b { font-family: var(--display); font-size: 34px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.dkpi b small { font-size: 17px; color: var(--muted); }
+.dkpi .ds { font-size: 12.5px; color: var(--muted); }
+.dkpi.good { border-top-color: var(--good); } .dkpi.good b { color: var(--good); }
+.dkpi.warn { border-top-color: var(--maj); } .dkpi.warn b { color: var(--maj); }
+.dkpi.bad { border-top-color: var(--crit); } .dkpi.bad b { color: var(--crit); }
+.dgrid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
+.dpanel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.dpanel.span6 { grid-column: span 6; } .dpanel.span4 { grid-column: span 4; } .dpanel.span12 { grid-column: span 12; }
+.dpanel > header { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.dpanel h3 { margin: 0; font-size: 17px; }
+.dpanel header p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+.dpanel header .linkbtn { font-size: 13px; white-space: nowrap; }
+.dstack { display: flex; gap: 2px; height: 22px; border-radius: 6px; overflow: hidden; background: var(--sunk); }
+.dseg { height: 100%; }
+.dseg.done, .dlegend i.done { background: var(--good); } .dseg.prog, .dlegend i.prog { background: #E3A23B; }
+.dseg.warn2, .dlegend i.warn2 { background: #C2662D; } .dseg.none, .dlegend i.none { background: var(--crit); }
+.dlegend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
+.dlegend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.dlegend b { color: var(--ink); }
+.dsevs { display: flex; flex-direction: column; gap: 10px; }
+.dsev { display: grid; grid-template-columns: 120px minmax(0, 1fr) 44px; gap: 10px; align-items: center; font-size: 13.5px; }
+.dsl { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.dsl i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.dsl small { color: var(--muted); font-weight: 400; margin-left: auto; font-family: var(--mono); }
+.dsp { font-family: var(--mono); font-size: 13px; text-align: right; }
+.dpanel .bar.on { background: var(--sunk); }
+.dpanel svg { max-width: 100%; height: auto; }
+@media (max-width: 1200px) { .dkpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .dpanel.span4 { grid-column: span 6; } }
+@media (max-width: 860px) { .dkpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dpanel.span6, .dpanel.span4 { grid-column: span 12; } .dfilters { position: static; } }
+.dpanel .bar { grid-template-columns: minmax(80px, 42%) minmax(60px, 1fr) 36px; }

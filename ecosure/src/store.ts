@@ -58,7 +58,8 @@ async function sharedBackend(): Promise<Backend | null> {
   const [db, assets, user, downloads] = await Promise.all(['db', 'assets', 'user', 'downloads'].map((n) => claude.use(n).catch(() => null)));
   if (!db) return null;
   let canWrite = true;
-  try { const c = user ? await user.can('data.write') : null; if (c === false) canWrite = false; } catch { /* unknown: let a refused write decide */ }
+  // Only editors change data (the page's db rules say write: admin); canEdit() is that level.
+  try { if (user) canWrite = await user.canEdit(); } catch { /* unknown: let a refused write decide */ }
   const col = db.collection('records');
   const settingsDoc = db.doc('config/settings');
   const pack = (r: object) => JSON.parse(JSON.stringify(r));
@@ -72,7 +73,7 @@ async function sharedBackend(): Promise<Backend | null> {
     },
     async put(rec) {
       try { await col.doc(rec.id).set(pack(rec)); }
-      catch (e: Any) { if (e?.code === 'invalid_argument' && !canWrite) throw new Error('You can view this page but not change its data. Ask the owner for Contributor access.'); throw new Error(e?.message ?? String(e)); }
+      catch (e: Any) { if (e?.code === 'invalid_argument' && !canWrite) throw new Error('You can view this page but not change its data. Ask the page owner to make you an Editor.'); throw new Error(e?.message ?? String(e)); }
     },
     async remove(id) { await col.doc(id).set({ id, deleted: true, kind: id.startsWith('r~') ? 'report' : id.startsWith('s~') ? 'self' : 'cap' }); },
     async putSettings(s) { await settingsDoc.set(pack(s)); },

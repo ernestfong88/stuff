@@ -8,7 +8,7 @@ import type { ViewState } from './views';
 const head = (crumb: string, title: string, lede: string) => `<p class="crumb">${esc(crumb)}</p><h2 class="page">${esc(title)}</h2><p class="lede">${lede}</p>`;
 
 function readOnly(v: ViewState): string {
-  return v.canWrite ? '' : '<div class="warnbox">You can view this page but not change its data. Ask the page owner for Contributor access to import files.</div>';
+  return v.canWrite ? '' : '<div class="warnbox">You can view this page but not change its data. Ask the page owner to make you an Editor.</div>';
 }
 
 function summary(q: QItem, m: Model, stored: Map<string, Rec>, thumbs: Map<string, string>): string {
