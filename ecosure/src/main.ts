@@ -9,7 +9,7 @@ import { csv, esc, fmtDate, pct, slug, todayIso } from './util';
 import { actions, communities, community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
 import { playbookView, prioritiesView, selfAuditForm, selfAuditsView, type SelfDraft } from './views-roles';
 import { briefing, briefingText, setSeverity, talkingText } from './views-brief';
-import { dashboard, setDashSort, setRegion } from './views-dash';
+import { dashboard, setRegion } from './views-dash';
 import { allStandards } from './catalog';
 import { OPEN } from './expand';
 
@@ -368,7 +368,6 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'copy-community') copyText(communityText(arg), 'Summary copied. Paste it into an email or Teams message.');
   else if (k === 'scroll') document.getElementById(arg)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   else if (k === 'region') { setRegion(arg); rerender(); }
-  else if (k === 'dsort') { setDashSort(arg); rerender(); }
   else if (k === 'sev') { setSeverity(arg); rerender(); }
   else if (k === 'expand') { if (OPEN.has(arg)) OPEN.delete(arg); else OPEN.add(arg); rerender(); }
   else if (k === 'std-photos') toFindings({ std: arg, photos: false });

@@ -6,17 +6,12 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more.
 
-The site opens on the **Dashboard**, built for a COO or VP of operations to scan in under a minute:
+The site opens on the **Dashboard**, built for a COO or VP of operations to scan in seconds:
 
-1. **Program impact** at the top:
-   - one sentence on what EcoSure found and how much is fixed
-   - four big numbers: violations identified (by criticality), remediated, remediation rate, and still open
-   - a table of identified vs remediated for Critical, Major, Minor and the total
-   - wins: critical violations fixed, kitchens fully remediated, corrective actions written, and the average score
-2. **Drill down:**
-   - remediation by community (top 5, sortable by most identified, most still open or lowest rate, with Show all), where each row opens the community page
-   - remediation by region, where selecting a region filters the whole dashboard
-3. **Where things stand:** communities audited, kitchens below 70, critical findings still open, CAPs missing, CAP status, scores by region and month, the top 5 issues, and the communities needing attention.
+- **Violations identified**, **Remediated** and the **Remediation rate**, with one bar showing the split by criticality (Critical, Major, Minor)
+- **Communities of focus** from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats); each opens the community page
+- **Top 5 issues** by kitchens cited
+- **Average score by region**; selecting a region filters the whole dashboard
 
 Every number and panel links to the page with the detail behind it. **Executive briefing** is one click away. It is written as an executive summary that can be read cold, without anyone there to explain it. Every line is built from the data:
 
