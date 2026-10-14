@@ -9,7 +9,7 @@ import { fileUrl, photoUrl } from './store';
 import { themeHeat } from './views-roles';
 import { fold, top } from './expand';
 import { communitySnap, photoStrip } from './views-brief';
-import { bigBox, critMix, isActivity, pestLabel, statusChip } from './views-common';
+import { bigBox, critMix, isActivity, pestLabel, shortOf, statusChip } from './views-common';
 import { PLAYBOOK } from './playbook';
 import { plainTitle } from './plain';
 import type { Crit } from './types';
@@ -51,8 +51,8 @@ function delta(cur: number | null, prev: number | null): string {
   return `<span class="delta ${d > 0 ? 'up' : d < 0 ? 'down' : 'flat'}">${d > 0 ? '+' : ''}${d}</span>`;
 }
 const head = (crumb: string, title: string, lede: string) => `<p class="crumb">${esc(crumb)}</p><h2 class="page">${esc(title)}</h2><p class="lede">${lede}</p>`;
-const kitchenLabel = (a: Audit, m: Model) => (m.bySlug.get(a.slug)?.c.kitchens.length ?? 1) > 1 || a.kitchen !== 'Main Kitchen' ? `${a.community}, ${a.kitchen}` : a.community;
-const shortName = (m: Model, name: string) => m.settings.roster.find((c) => c.name === name)?.short || name;
+const kitchenLabel = (a: Audit, m: Model) => { const n = shortOf(m, a.community); return (m.bySlug.get(a.slug)?.c.kitchens.length ?? 1) > 1 || a.kitchen !== 'Main Kitchen' ? `${n}, ${a.kitchen}` : n; };
+const shortName = shortOf;
 
 export function roundChips(m: Model, v: ViewState): string {
   const used = new Set(m.audits.map((a) => a.round));
@@ -97,7 +97,7 @@ export function community(m: Model, v: ViewState, slugKey: string, auditKey: str
   const scored = A.filter((a) => a.score != null);
   const score = avg(scored.map((a) => a.score));
 
-  const pageHead = `<div class="pagehead"><div><p class="crumb"><button class="linkbtn" data-go="dashboard">Executive dashboard</button> / ${esc([c.c.city, c.c.region].filter(Boolean).join(' · '))}</p><h2 class="page">${esc(c.c.name)}</h2></div><div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-community:${c.slug}">Copy as email</button></div></div>`;
+  const pageHead = `<div class="pagehead"><div><p class="crumb"><button class="linkbtn" data-go="dashboard">Executive dashboard</button> / ${esc([c.c.name, c.c.city, c.c.region].filter(Boolean).join(' · '))}</p><h2 class="page" title="${esc(c.c.name)}">${esc(c.c.short || c.c.name)}</h2></div><div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-community:${c.slug}">Copy as email</button></div></div>`;
   if (!A.length) return pageHead + `<div class="empty">${esc(auditWhy(c, m))}</div>`;
 
   // The same snapshot as the dashboard, for this community's audit.
@@ -204,7 +204,7 @@ export function findings(m: Model, v: ViewState): string {
   const moreActive = f.section !== 'all' || f.theme !== 'all' || f.cap !== 'all' || f.repeat || f.photos;
   return head('Findings', 'Findings and photos', 'Pick a community or an issue to narrow the list. The most common issues for your selection are at the top.') +
     `<div class="panel"><div class="form">
-      ${sel('f-community', 'Community', f.community.startsWith('band:') ? 'all' : f.community, [['all', 'All communities'], ...comms.map((c): [string, string] => [c, c])])}
+      ${sel('f-community', 'Community', f.community.startsWith('band:') ? 'all' : f.community, [['all', 'All communities'], ...comms.map((c): [string, string] => [c, shortOf(m, c)]).sort((a, b) => a[1].localeCompare(b[1]))])}
       ${sel('f-crit', 'Criticality', f.crit, [['all', 'All'], ['Critical', 'Critical'], ['Major', 'Major'], ['Minor', 'Minor'], ['Unrated', 'Unrated']])}
       <label class="field"><span class="lbl">Search</span><input type="search" id="f-q" data-filter="q" value="${esc(f.q)}" placeholder="ice machine, gaskets, sanitizer"></label>
     </div>
@@ -265,7 +265,7 @@ export function trends(m: Model, v: ViewState): string {
     <section class="block folds">
       ${fold('t-heat', 'Communities by area <span class="sm">lowest scores first</span>', themeHeat(m, LA, heat.shown) + heat.more)}
       ${fold('t-round', 'Average score by round', bars(roundRows.map((r) => ({ label: `${r.r} (${r.n} audits)`, value: r.s ?? 0, valueText: pct(r.s), act: 'round:' + r.r, segs: [{ v: r.s ?? 0, color: 'var(--bar)', title: '' }] })), 100) + (roundRows.length < 2 ? '<p class="axisnote">Round over round comparisons fill in once the next round\'s reports are imported.</p>' : ''))}
-      ${fold('t-moves', 'Biggest score changes', moves.length ? `<div class="tablewrap"><table><tbody>${moves.map((x) => `<tr class="rowlink" data-go="c-${x.c.slug}"><td>${esc(x.c.c.name)}</td><td class="num">${pct(x.c.prevScore)} to ${pct(x.c.score)}</td><td class="num">${delta(x.c.score, x.c.prevScore)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="note">Changes show up once communities have a second audit on file.</p>')}
+      ${fold('t-moves', 'Biggest score changes', moves.length ? `<div class="tablewrap"><table><tbody>${moves.map((x) => `<tr class="rowlink" data-go="c-${x.c.slug}"><td>${esc(x.c.c.short || x.c.c.name)}</td><td class="num">${pct(x.c.prevScore)} to ${pct(x.c.score)}</td><td class="num">${delta(x.c.score, x.c.prevScore)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="note">Changes show up once communities have a second audit on file.</p>')}
       ${fold('t-repeat', 'Repeat findings', repeats.length ? bars(repeats.slice(0, 5).map(([s, n]) => ({ label: s, value: n, act: 'repeat:' + s }))) : '<p class="note">No repeats yet. Repeats show up once a kitchen has two audits on file.</p>')}
       ${fold('t-section', 'Points lost by EcoSure section', bars(sec.slice(0, 5).map((s) => ({ label: s.s, value: s.total, act: 'section:' + s.s, segs: s.segs }))) + critLegend())}
       ${fold('t-stds', 'Standards by community heat map', comms.length ? `<div class="tablewrap"><table class="hm"><thead><tr><th>Standard</th>${comms.map((c) => `<th class="rot" data-go="c-${m.communities.find((x) => x.c.name === c)?.slug}">${esc(shortName(m, c))}</th>`).join('')}<th class="num">Total</th></tr></thead><tbody>

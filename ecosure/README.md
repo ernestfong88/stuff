@@ -10,7 +10,7 @@ The sidebar has:
 3. **More detail**, a folded section of reference pages
 4. **Manage**, a folded section only Editors see
 
-Every list starts with its top 5. Readers can expand it or open folded sections for more.
+Communities are listed by their short name (set in Settings) everywhere; the full name shows on hover and on the community page. Every list starts with its top 5. Readers can expand it or open folded sections for more.
 
 ### Executive dashboard
 
@@ -30,7 +30,12 @@ The page then shows, in order:
    - **Pest activity,** in red: a critical finding that needs action now
    - **Prevention gaps,** in yellow
 
-   Each row shows the community's short name, a photo, what was identified and its status. Expand a row for every photo, what was identified, what was remediated, and a link to those findings.
+   Each row shows the community's short name, a photo, the observation in bold, and a status:
+   - **Act now:** no corrective action yet
+   - **In remediation · verify:** a plan is in progress and needs confirming
+   - **Remediated**
+
+   Expand a row for every photo, what was identified, what was remediated, what to verify with the team, and a link to those findings.
 4. **Communities of focus:** the lowest five from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats). Each opens the community page.
 5. **Top 5 issues,** each with a photo. Expand one for why it matters, the fix and more photos.
 

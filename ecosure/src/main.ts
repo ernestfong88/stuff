@@ -9,6 +9,7 @@ import { csv, esc, fmtDate, pct, slug, todayIso } from './util';
 import { community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
 import { playbookView, prioritiesView } from './views-roles';
 import { briefingText, talkingText } from './views-brief';
+import { shortOf } from './views-common';
 import { dashboard, regionFilter, selectionAct, setPestTab, setSelQuery, toggleCommunities } from './views-dash';
 import { OPEN } from './expand';
 
@@ -70,7 +71,7 @@ function readHash(): void {
 
 function navHtml(): string {
   const q = ($('#q') as HTMLInputElement | null)?.value.toLowerCase() ?? '';
-  const list = model.communities.filter((c) => (c.c.active || c.audits.length) && (c.c.name + ' ' + c.c.city).toLowerCase().includes(q));
+  const list = model.communities.filter((c) => (c.c.active || c.audits.length) && (c.c.name + ' ' + (c.c.short ?? '') + ' ' + c.c.city).toLowerCase().includes(q)).sort((a, b) => (a.c.short || a.c.name).localeCompare(b.c.short || b.c.name));
   // Viewers never see the editing pages; editors (and local copies) do.
   const group = ([label, xs]: [string | null, [string, string][]]) => (label ? `<div class="navlabel">${label}</div>` : '') + xs.map(([k, l]) => `<button data-go="${k}" aria-current="${route === k}"><span>${l}</span></button>`).join('');
   $('#navMain').innerHTML = group(NAV[0]);
@@ -86,7 +87,7 @@ function navHtml(): string {
   $('#navComm').innerHTML = list.map((c) => {
     const miss = c.latest.some(capMissing);
     const flag = c.capState === 'overdue' || c.capState === 'open' ? 'warn' : '';
-    return `<button data-go="c-${c.slug}" aria-current="${route === 'c-' + c.slug}"><span>${esc(c.c.name)}</span><span class="navr">${miss ? '<span class="captag" title="CAP missing">CAP</span>' : flag ? `<span class="flag ${flag}" title="CAP open or past due"></span>` : ''}<span class="pill s-${scoreBand(c.score)}">${pct(c.score)}</span></span></button>`;
+    return `<button data-go="c-${c.slug}" aria-current="${route === 'c-' + c.slug}"><span title="${esc(c.c.name)}">${esc(c.c.short || c.c.name)}</span><span class="navr">${miss ? '<span class="captag" title="CAP missing">CAP</span>' : flag ? `<span class="flag ${flag}" title="CAP open or past due"></span>` : ''}<span class="pill s-${scoreBand(c.score)}">${pct(c.score)}</span></span></button>`;
   }).join('') || '<div class="note" style="color:#9DBAB5;padding:6px 10px">No match</div>';
   const m = $('#mode');
   m.className = 'mode ' + (V.mode === 'local' ? 'local' : '');
@@ -152,7 +153,7 @@ function bindPage(): void {
   dq?.addEventListener('input', () => {
     setSelQuery(dq.value);
     const q = dq.value.toLowerCase();
-    document.querySelectorAll<HTMLLabelElement>('.dselc').forEach((l) => { l.hidden = !!q && !l.textContent!.toLowerCase().includes(q); });
+    document.querySelectorAll<HTMLLabelElement>('.dselc').forEach((l) => { l.hidden = !!q && !(l.textContent! + ' ' + (l.querySelector('.nm')?.getAttribute('title') ?? '')).toLowerCase().includes(q); });
   });
 
   const drop = document.getElementById('drop');
@@ -282,7 +283,7 @@ let LB: { src: string; title: string; sub: string }[] = [];
 let LBi = 0;
 function openLB(key: string, n: number): void {
   const pool = route === 'findings' ? filterFindings(model, V) : model.findings.filter((f) => f.audit.slug === model.findings.find((x) => x.key === key)?.audit.slug);
-  LB = pool.flatMap((f) => f.photos.map((p) => ({ src: photoUrl(p), title: f.short, sub: `${f.audit.community}, ${f.audit.kitchen} · ${fmtDate(f.audit.date)} · ${f.criticality}${f.comment ? ' · ' + f.comment : ''}`, key: f.key })))
+  LB = pool.flatMap((f) => f.photos.map((p) => ({ src: photoUrl(p), title: f.short,  sub: `${shortOf(model, f.audit.community)}, ${f.audit.kitchen} · ${fmtDate(f.audit.date)} · ${f.criticality}${f.comment ? ' · ' + f.comment : ''}`, key: f.key })))
     .map((x) => x);
   const f = model.findings.find((x) => x.key === key);
   LBi = Math.max(0, LB.findIndex((x) => x.src === photoUrl(f?.photos[n] ?? '')));

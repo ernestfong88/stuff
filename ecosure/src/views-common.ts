@@ -3,7 +3,7 @@
  * remediation status, pest findings and the criticality bar.
  */
 import { CRIT_COLOR } from './charts';
-import type { Finding } from './model';
+import type { Finding, Model } from './model';
 
 export const SEVS = ['Critical', 'Major', 'Minor'] as const;
 export const pctOf = (x: number, n: number) => (n ? Math.round((x / n) * 100) : 0);
@@ -38,4 +38,13 @@ export function critMix(items: Finding[], go = 'findings'): string {
 export function bigBox(label: string, value: string, o: { tone?: string; sub?: string; go?: string; crit?: string; cap?: string; meter?: number } = {}): string {
   const inner = `<span class="dl">${label}</span><b>${value}</b>${o.sub ? `<span class="ds">${o.sub}</span>` : ''}${o.meter != null ? `<span class="dmeter"><span style="width:${o.meter}%"></span></span>` : ''}`;
   return o.go ? `<button class="${o.tone ?? ''}" data-go="${o.go}"${o.crit ? ` data-crit="${o.crit}"` : ''}${o.cap ? ` data-cap="${o.cap}"` : ''}>${inner}</button>` : `<div class="${o.tone ?? ''}">${inner}</div>`;
+}
+
+/** The community's short name (Settings, "Short name"), used everywhere a community is listed. */
+export const shortOf = (m: Model, name: string) => m.settings.roster.find((c) => c.name === name)?.short || name;
+
+/** Pest status in plain words: act now, in remediation (verify it), or remediated. */
+export function pestStatus(fs: Finding[]): [string, string] {
+  const [st] = status(fs);
+  return st === 'Remediated' ? ['Remediated', 'good'] : st === 'In progress' ? ['In remediation · verify', 'warn'] : ['Act now', 'bad'];
 }

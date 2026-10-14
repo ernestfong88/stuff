@@ -10,11 +10,10 @@ import { avg, esc, fmtDate, pct, plural } from './util';
 import { inRound, latestPerKitchen, type ViewState } from './views';
 import { communitiesOfFocus } from './views-roles';
 import { OPEN, top } from './expand';
-import { isActivity, isPest, isRemediated, remediated, status } from './views-common';
+import { isActivity, isPest, isRemediated, pestStatus, remediated, status } from './views-common';
 import { CAUTIONS } from './cautions';
 
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
-const list = (xs: string[]) => (xs.length <= 1 ? xs.join('') : xs.slice(0, -1).join(', ') + (xs.length > 2 ? ',' : '') + ' and ' + xs[xs.length - 1]);
 const rank = (c: string) => ['Critical', 'Major', 'Minor', 'Unrated'].indexOf(c);
 
 /** One representative photo for a set of findings: critical first, then most recent. */
@@ -163,14 +162,14 @@ export function briefingText(m: Model, v: ViewState, link = '', inReg: (name: st
     'TOP 3 CHALLENGES',
     ...sn.top.flatMap((t, i) => [`${i + 1}. ${t.title}: ${t.n} violations in ${t.kitchens} kitchens.`,
       `   What teams did: ${t.themes.length ? t.themes.map((x) => `${x.label} (${x.k} ${x.k === 1 ? 'kitchen' : 'kitchens'})`).join('; ') : 'corrective plans in progress'}.`,
-      ...(t.example ? [`   For example, ${t.example.who}: "${t.example.text}"`] : []),
+      ...(t.example ? [`   For example, ${m.settings.roster.find((c) => c.name === t.example!.who)?.short || t.example.who}: "${t.example.text}"`] : []),
       ...(t.cautions.length ? [`   Our SMEs will focus on these with teams: ${t.cautions.join(' ')}`] : [])]), '',
     ...(() => {
       const act = b.A.flatMap((a) => a.items).filter((f) => f.cid === '10.1.1' || f.short === 'No critical pest activity');
       const names = [...new Set(act.map((f) => f.audit.community))];
-      return ['PEST ACTIVITY', names.length ? `- Found at ${list(names.map((n) => { const fs = act.filter((f) => f.audit.community === n); const done = fs.every((f) => f.capItem && f.audit.capState === 'closed'); return `${n} (${done ? 'remediated' : 'not yet remediated'})`; }))}.` : '- No pest activity found.', ''];
+      return ['PEST ACTIVITY', ...(names.length ? names.map((n) => { const fs = act.filter((f) => f.audit.community === n); return `- ${m.settings.roster.find((c) => c.name === n)?.short || n} (${pestStatus(fs)[0].toLowerCase()}): ${[...new Set(fs.map((f) => f.comment).filter(Boolean))].join(' ')}`; }) : ['- No pest activity found.']), ''];
     })(),
-    'COMMUNITIES OF FOCUS', ...[...b.focus].sort((x, y) => (x.c.score ?? 101) - (y.c.score ?? 101)).slice(0, 5).map(({ c }) => `- ${c.c.name}: ${helpLine(c)}`), '',
+    'COMMUNITIES OF FOCUS', ...[...b.focus].sort((x, y) => (x.c.score ?? 101) - (y.c.score ?? 101)).slice(0, 5).map(({ c }) => `- ${c.c.short || c.c.name}: ${helpLine(c)}`), '',
     ...(!region ? ['AVERAGE SCORE BY REGION', ...b.regions.map((r) => `- ${r.name}: ${pct(r.s)}`), ''] : []),
     ...(link ? ['', `Full dashboard with photos: ${link}`] : [])].join('\n');
 }

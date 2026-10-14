@@ -11,7 +11,8 @@ import { OPEN, top } from './expand';
 import { photoUrl } from './store';
 import type { Finding } from './model';
 
-import { bigBox, critMix, isActivity, isPest, isRemediated, pestLabel, statusChip } from './views-common';
+import { bigBox, critMix, isActivity, isPest, isRemediated, pestLabel, pestStatus, shortOf, status } from './views-common';
+import { CAUTIONS } from './cautions';
 
 /* The communities the reader picked (null = all). A VP picks their set once; it is remembered in this browser. */
 const KEY = 'ecosure.dashCommunities';
@@ -53,7 +54,7 @@ export function regionFilter(m: Model): { inReg: (name: string) => boolean; regi
   if (SEL && names.length) {
     const rgs = [...new Set(act.map(regionOfC))].filter((rg) => { const r = act.filter((c) => regionOfC(c) === rg).map((c) => c.name); return r.every((n) => set.has(n)); });
     const covered = act.filter((c) => rgs.includes(regionOfC(c))).length;
-    if (names.length === 1) { label = names[0]; where = `at ${names[0]}`; }
+    if (names.length === 1) { label = shortOf(m, names[0]); where = `at ${label}`; }
     else if (rgs.length && covered === names.length) {
       label = rgs.length === 1 ? `${rgs[0]} region` : rgs.length === 2 ? `${rgs[0]} and ${rgs[1]} regions` : `${rgs.length} regions`;
       where = `in the ${label}`.replace('in the ' + rgs.length + ' regions', `in ${rgs.length} regions`);
@@ -74,7 +75,7 @@ function picker(m: Model, label: string): string {
       <div class="dselgroups">${regions.map((rg) => {
         const cs = act.filter((c) => regionOfC(c) === rg), k = cs.filter((c) => names.has(c.name)).length;
         return `<fieldset><legend><label><input type="checkbox" data-selreg="${esc(rg)}"${k === cs.length ? ' checked' : ''}${k && k < cs.length ? ' data-ind="1"' : ''}><b>${esc(rg)}</b><small>${k}/${cs.length}</small></label></legend>
-          ${cs.map((c) => `<label class="dselc"${q && !c.name.toLowerCase().includes(q) ? ' hidden' : ''}><input type="checkbox" data-sel="${esc(c.name)}"${names.has(c.name) ? ' checked' : ''}><span class="nm">${esc(c.name)}</span>${scorePill(score(c.name))}</label>`).join('')}</fieldset>`;
+          ${cs.map((c) => `<label class="dselc"${q && !(c.name + ' ' + (c.short ?? '')).toLowerCase().includes(q) ? ' hidden' : ''}><input type="checkbox" data-sel="${esc(c.name)}"${names.has(c.name) ? ' checked' : ''}><span class="nm" title="${esc(c.name)}">${esc(c.short || c.name)}</span>${scorePill(score(c.name))}</label>`).join('')}</fieldset>`;
       }).join('')}</div>
     </div>
   </details>`;
@@ -85,7 +86,7 @@ export const setPestTab = (t: string) => { PEST_TAB = t === 'prevention' ? 'prev
 
 /** Pest findings, one row per community: a photo, what was identified and what was remediated. Expand a row for the detail. */
 function pestTracker(m: Model, fs: Finding[]): string {
-  const short = (name: string) => m.settings.roster.find((c) => c.name === name)?.short || name;
+  const short = (name: string) => shortOf(m, name);
   const rows = (pick: (f: Finding) => boolean) => [...new Set(fs.filter((f) => isPest(f) && pick(f)).map((f) => f.audit.community))].map((name) => {
     const list = fs.filter((f) => isPest(f) && pick(f) && f.audit.community === name);
     return { name, slug: list[0].audit.slug, list, open: list.filter((f) => !isRemediated(f)).length };
@@ -94,6 +95,8 @@ function pestTracker(m: Model, fs: Finding[]): string {
   const cur = PEST_TAB === 'activity' ? act : prev;
   const t = top('dash-pest-' + PEST_TAB, cur, 5, 'communities');
   const join = (xs: string[]) => [...new Set(xs.filter(Boolean))].join(' ');
+  // What to confirm with the team: the SME questions for the standards cited.
+  const verify = (list: Finding[]) => [...new Set(list.flatMap((f) => CAUTIONS[f.short] ?? []))].slice(0, 3);
   const row = (r: (typeof cur)[number]) => {
     const found = join(r.list.map((f) => f.comment)) || join(r.list.map((f) => pestLabel(f)));
     const fixed = join(r.list.map((f) => f.capItem?.action ?? ''));
@@ -102,22 +105,23 @@ function pestTracker(m: Model, fs: Finding[]): string {
     const clip = (x: string, n: number) => (x.length > n ? x.slice(0, n - 3) + '...' : x);
     return `<details class="xrow prow ${PEST_TAB === 'activity' ? 'red' : 'yellow'}" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>
       ${photos[0] ? `<img src="${esc(photoUrl(photos[0].f.photos[0]))}" alt="" loading="lazy">` : '<span class="noimg"></span>'}
-      <span class="xt"><b>${esc(short(r.name))}</b><span class="xs">${esc(clip(found, 120))}</span></span>${statusChip(r.list)}<span class="chev" aria-hidden="true"></span></summary>
+      <span class="xt"><b>${esc(short(r.name))}</b><span class="obs">${esc(clip(found, 140))}</span></span>${(() => { const [st, tone] = pestStatus(r.list); return `<span class="chip t-${tone} pst">${st}</span>`; })()}<span class="chev" aria-hidden="true"></span></summary>
       <div class="xbody">
         ${photos.length ? `<div class="thumbs">${photos.slice(0, 6).map(({ f, n }) => `<button data-photo="${esc(f.key)}" data-n="${n}" aria-label="Open pest photo from ${esc(short(r.name))}"><img loading="lazy" src="${esc(photoUrl(f.photos[n]))}" alt=""></button>`).join('')}</div>` : ''}
         <p><b>Identified:</b> ${esc(found)}</p>
         <p><b>Remediated:</b> ${fixed ? esc(fixed) : 'No corrective action on file yet.'}</p>
+        ${verify(r.list) ? `<div class="pverify"><b>${status(r.list)[0] === 'Remediated' ? 'Verify it held' : 'Verify'}</b><ul>${verify(r.list).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
         <div class="toolbar" style="margin:0"><button class="btn ghost sm" data-go="findings" data-section="Insects/Rodents/Animals" data-community="${esc(r.name)}">See these findings</button><button class="linkbtn" data-go="c-${r.slug}">Open ${esc(short(r.name))}</button></div>
       </div></details>`;
   };
   return `<section class="dpanel span12 dpest${act.length ? ' alert' : ''}"><header><div><h3>Pest tracker</h3><p>Pest activity is a critical finding and needs a pest control visit right away.</p></div><button class="linkbtn" data-go="findings" data-section="Insects/Rodents/Animals">All pest findings</button></header>
-    <div class="ptabs" role="tablist"><button class="ptab red" role="tab" data-act="pest:activity" aria-pressed="${PEST_TAB === 'activity'}"><b>${act.length}</b><span>Pest activity<small>${act.length === 1 ? 'community' : 'communities'} · act now</small></span></button><button class="ptab yellow" role="tab" data-act="pest:prevention" aria-pressed="${PEST_TAB === 'prevention'}"><b>${prev.length}</b><span>Prevention gaps<small>${prev.length === 1 ? 'community' : 'communities'} · fix to keep pests out</small></span></button></div>
+    <div class="ptabs" role="tablist"><button class="ptab red" role="tab" data-act="pest:activity" aria-pressed="${PEST_TAB === 'activity'}"><b>${act.length}</b><span>Pest activity <em class="actnow">Act now</em><small>${act.length === 1 ? 'community' : 'communities'}</small></span></button><button class="ptab yellow" role="tab" data-act="pest:prevention" aria-pressed="${PEST_TAB === 'prevention'}"><b>${prev.length}</b><span>Prevention gaps<small>${prev.length === 1 ? 'community' : 'communities'} · fix to keep pests out</small></span></button></div>
     ${cur.length ? `<div class="xlist">${t.shown.map(row).join('')}</div>${t.more}` : `<div class="okbox">${PEST_TAB === 'activity' ? 'No pest activity found in the selected communities.' : 'No pest prevention gaps in the selected communities.'}</div>`}
   </section>`;
 }
 
 /** The top 3 challenges: the violation count up front; open one for what teams did and what our SMEs will focus on. */
-function challenges(top: Challenge[]): string {
+function challenges(m: Model, top: Challenge[]): string {
   if (!top.length) return '';
   return `<section class="chal" aria-label="Top 3 challenges"><header><h3>Top 3 challenges</h3><p>Ranked by impact on the score. Open one for what teams did and what our SMEs will focus on.</p></header>
     <div class="challist">${top.map((t, i) => {
@@ -130,7 +134,7 @@ function challenges(top: Challenge[]): string {
       <div class="chalbody">
         <div class="chsec">${t.why ? `<span class="dl">Why it matters</span><p class="chwhy">${esc(t.why)}</p>` : ''}
           <span class="dl">What teams did</span>${t.themes.length ? `<ul class="chdid">${t.themes.map((x) => `<li><span>${esc(x.label.charAt(0).toUpperCase() + x.label.slice(1))}</span><b>${x.k} ${x.k === 1 ? 'kitchen' : 'kitchens'}</b></li>`).join('')}</ul>` : '<p class="xs">Corrective plans in progress.</p>'}
-          ${t.example ? `<blockquote>“${esc(t.example.text)}”<cite>${esc(t.example.who)}</cite></blockquote>` : ''}</div>
+          ${t.example ? `<blockquote>“${esc(t.example.text)}”<cite>${esc(shortOf(m, t.example.who))}</cite></blockquote>` : ''}</div>
         ${t.cautions.length ? `<div class="chsec caution"><span class="dl">Our SMEs will focus on these with teams</span><ul>${t.cautions.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
         <button class="linkbtn" data-act="std-photos:${esc(t.short)}">See all ${t.n} findings</button>
       </div></details>`;
@@ -170,12 +174,12 @@ export function dashboard(m: Model, v: ViewState): string {
       ${critMix(items)}
     </section>
 
-    ${challenges(sn.top)}
+    ${challenges(m, sn.top)}
 
     <div class="dgrid">${pestTracker(m, items)}</div>
 
     <div class="dgrid">
-      ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ critical or 3+ repeats`, '', focus.length ? `<div class="tablewrap"><table class="dfocus"><tbody>${focus.map(({ c, why }) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.name)}</b><span class="sub">${esc([c.c.region ?? '', ...why].filter(Boolean).join(' · '))}</span></td><td class="num">${scorePill(c.score)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="okbox">None in this view.</div>')}
+      ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ critical or 3+ repeats`, '', focus.length ? `<div class="tablewrap"><table class="dfocus"><tbody>${focus.map(({ c, why }) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.short || c.c.name)}</b><span class="sub">${esc([c.c.region ?? '', ...why].filter(Boolean).join(' · '))}</span></td><td class="num">${scorePill(c.score)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="okbox">None in this view.</div>')}
     </div>
 
     ${fixCard(m, v, inReg)}
