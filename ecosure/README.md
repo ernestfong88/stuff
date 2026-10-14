@@ -8,17 +8,20 @@ Every screen starts with its top 5 and lets the reader expand ("Show all") or op
 
 The site opens on the **Executive dashboard**, built for a COO or VP of operations. It combines the dashboard and the executive briefing in one page:
 
+- **Communities picker** at the top: a dropdown of every community, grouped by region. Tick a whole region or single communities, or search. Everything on the page, and Copy as email, follows the selection. Each viewer's choice is remembered in their browser, so a VP picks their communities once.
+
 1. **Quarter snapshot:**
    - one line: violations found and the remediation rate
    - three numbers: violations identified, remediated and remediation rate
    - one bar showing the split by criticality
 2. **Top 3 challenges and what teams did:** for each, the kitchens cited and the most common actions in the teams' corrective action plans, such as cleaned and sanitized, retrained staff or repaired equipment. The action themes are keyword matches in `src/views-brief.ts` (`ACTION_THEMES`).
-3. **Communities of focus** from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats), lowest score first. Each opens the community page.
-4. **Average score by region.** Selecting a region filters the whole page, the snapshot included.
-5. **Top 5 issues** with a photo each. Expand one for why it matters, the fix and more photos.
-6. **Next steps** for regional and community teams.
+3. **Pest tracker:** every finding in EcoSure's Insects/Rodents/Animals section for the selected communities. Communities with pest activity (a critical finding) come first, marked in red, then prevention gaps (entry points not sealed, insect control devices). Each shows the kitchen, the auditor's note, a photo and whether it is remediated, in progress or has no CAP yet.
+4. **Communities of focus** from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats), lowest score first. Each opens the community page.
+5. **Average score by region.** Selecting a region shows only that region.
+6. **Top 5 issues** with a photo each. Expand one for why it matters, the fix and more photos.
+7. **Next steps** for regional and community teams.
 
-**Copy as email** produces the same content as plain text, with a link back, for the region you have selected.
+**Copy as email** produces the same content as plain text, with a link back, for the communities you have selected.
 
 Each **community page** opens with talking points (score, biggest issues in plain words, repeats, CAP status, what to check on the next visit) and up to 8 photos. A fix-first list, score history and every finding follow below.
 

@@ -161,6 +161,11 @@ export function briefingText(m: Model, v: ViewState, link = '', inReg: (name: st
     `This quarter EcoSure found ${sn.found} food safety violations across ${sn.kitchens} kitchens${region ? ` in ${region}` : ''}. Our teams have remediated ${sn.done} of them: a ${sn.rate}% remediation rate.`, '',
     'TOP 3 CHALLENGES AND WHAT TEAMS DID',
     ...sn.top.map((t, i) => `${i + 1}. ${t.title} (${t.kitchens} kitchens). ${didText(t.did)}`), '',
+    ...(() => {
+      const act = b.A.flatMap((a) => a.items).filter((f) => f.cid === '10.1.1' || f.short === 'No critical pest activity');
+      const names = [...new Set(act.map((f) => f.audit.community))];
+      return ['PEST ACTIVITY', names.length ? `- Found at ${list(names.map((n) => { const fs = act.filter((f) => f.audit.community === n); const done = fs.every((f) => f.capItem && f.audit.capState === 'closed'); return `${n} (${done ? 'remediated' : 'not yet remediated'})`; }))}.` : '- No pest activity found.', ''];
+    })(),
     'COMMUNITIES OF FOCUS', ...[...b.focus].sort((x, y) => (x.c.score ?? 101) - (y.c.score ?? 101)).slice(0, 5).map(({ c }) => `- ${c.c.name}: ${helpLine(c)}`), '',
     ...(!region ? ['AVERAGE SCORE BY REGION', ...b.regions.map((r) => `- ${r.name}: ${pct(r.s)}`), ''] : []),
     'NEXT STEPS', ...nextSteps(b).map((x, i) => `${i + 1}. ${x}`),

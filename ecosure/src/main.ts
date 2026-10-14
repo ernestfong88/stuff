@@ -9,7 +9,7 @@ import { csv, esc, fmtDate, pct, slug, todayIso } from './util';
 import { actions, communities, community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
 import { playbookView, prioritiesView, selfAuditForm, selfAuditsView, type SelfDraft } from './views-roles';
 import { briefingText, talkingText } from './views-brief';
-import { dashboard, regionFilter, setRegion } from './views-dash';
+import { dashboard, regionFilter, selectionAct, setSelQuery, toggleCommunities } from './views-dash';
 import { allStandards } from './catalog';
 import { OPEN } from './expand';
 
@@ -155,6 +155,22 @@ function bindPage(): void {
   }));
   const fq = document.getElementById('f-q') as HTMLInputElement | null;
   fq?.addEventListener('input', () => { clearTimeout(qTimer); qTimer = window.setTimeout(() => { V.f.q = fq.value; V.f.limit = 5; rerender(); }, 200); });
+
+  // Dashboard community picker: a community or a whole region on or off; the search box only hides rows.
+  document.querySelectorAll<HTMLInputElement>('input[data-sel]').forEach((el) => el.addEventListener('change', () => { toggleCommunities(model, [el.dataset.sel!], el.checked); rerender(); }));
+  document.querySelectorAll<HTMLInputElement>('input[data-selreg]').forEach((el) => {
+    if (el.dataset.ind) el.indeterminate = true;
+    el.addEventListener('change', () => {
+      const names = settings.roster.filter((c) => c.active && (c.region || 'No region set') === el.dataset.selreg).map((c) => c.name);
+      toggleCommunities(model, names, el.checked); rerender();
+    });
+  });
+  const dq = document.getElementById('dsel-q') as HTMLInputElement | null;
+  dq?.addEventListener('input', () => {
+    setSelQuery(dq.value);
+    const q = dq.value.toLowerCase();
+    document.querySelectorAll<HTMLLabelElement>('.dselc').forEach((l) => { l.hidden = !!q && !l.textContent!.toLowerCase().includes(q); });
+  });
 
   const drop = document.getElementById('drop');
   const file = document.getElementById('file') as HTMLInputElement | null;
@@ -312,6 +328,8 @@ const closeLB = () => { $('#lb').hidden = true; };
 /* ---------- clicks ---------- */
 document.addEventListener('click', (e) => {
   const t = e.target as HTMLElement;
+  const ds = document.querySelector<HTMLDetailsElement>('details.dsel[open]');
+  if (ds && !ds.contains(t)) ds.open = false; // a click outside closes the community picker
   const ph = t.closest<HTMLElement>('[data-photo]');
   if (ph) { openLB(ph.dataset.photo!, Number(ph.dataset.n)); return; }
   const rnd = t.closest<HTMLElement>('[data-round]');
@@ -364,7 +382,7 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'copy-summary') { const r = regionFilter(model); copyText(briefingText(model, V, SHARE_BASE || location.href.split('#')[0], r.inReg, r.region), 'Summary copied. Paste it into an email or Teams message.'); }
   else if (k === 'copy-community') copyText(communityText(arg), 'Summary copied. Paste it into an email or Teams message.');
   else if (k === 'scroll') document.getElementById(arg)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  else if (k === 'region') { setRegion(arg); rerender(); }
+  else if (k === 'sel') { selectionAct(model, arg); rerender(); }
   else if (k === 'expand') { if (OPEN.has(arg)) OPEN.delete(arg); else OPEN.add(arg); rerender(); }
   else if (k === 'std-photos') toFindings({ std: arg, photos: false });
   else if (k === 'pb-cited') { PB.cited = !PB.cited; rerender(); }
