@@ -3,14 +3,18 @@
  * Every tile links to the page with the detail behind it.
  */
 import { CRIT_COLOR, bars, scoreLine } from './charts';
-import { capMissing, priorities, scoreBand, type Finding, type Model } from './model';
+import { capMissing, priorities, type Finding, type Model } from './model';
 import { plainTitle } from './plain';
 import { avg, esc, fmtDate, pct, plural } from './util';
 import { inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
 import { communitiesOfFocus } from './views-roles';
+import { top } from './expand';
 
 let REGION = 'all';
 export const setRegion = (r: string) => { REGION = r; };
+let SORT: 'found' | 'rate' | 'open' = 'found';
+export const setDashSort = (x: string) => { SORT = x === 'rate' || x === 'open' ? x : 'found'; };
+const SEVS = ['Critical', 'Major', 'Minor'] as const;
 
 const pctOf = (x: number, n: number) => (n ? Math.round((x / n) * 100) : 0);
 
@@ -50,7 +54,7 @@ export function dashboard(m: Model, v: ViewState): string {
     overdue: cited.filter((a) => a.capState === 'overdue').length,
     missing: cited.filter(capMissing).length,
   };
-  const good = scored.filter((a) => a.score! >= 85).length, warn = scored.filter((a) => a.score! >= 70 && a.score! < 85).length, bad = scored.filter((a) => a.score! < 70).length;
+  const good = scored.filter((a) => a.score! >= 85).length, bad = scored.filter((a) => a.score! < 70).length;
   const P = priorities(A).slice(0, 5);
   const focus = communitiesOfFocus(m).filter(({ c }) => inReg(c.c.name)).slice(0, 5);
   const regionRows = regions.map((rg) => {
@@ -63,34 +67,77 @@ export function dashboard(m: Model, v: ViewState): string {
   const caps = m.audits.filter((a) => a.cap).length;
 
   const kpi = (val: string, label: string, sub: string, tone: string, go: string, extra = '') => `<button class="dkpi ${tone}" data-go="${go}"${extra}><span class="dl">${label}</span><b>${val}</b><span class="ds">${sub}</span></button>`;
-  const panel = (title: string, sub: string, go: string, body: string, span = 6) => `<section class="dpanel span${span}"><header><div><h3>${title}</h3>${sub ? `<p>${sub}</p>` : ''}</div>${go ? `<button class="linkbtn" data-go="${go}">Details</button>` : ''}</header>${body}</section>`;
+  const panel = (title: string, sub: string, go: string, body: string, span = 6, cls = '') => `<section class="dpanel span${span}${cls ? ' ' + cls : ''}"><header><div><h3>${title}</h3>${sub ? `<p>${sub}</p>` : ''}</div>${go ? `<button class="linkbtn" data-go="${go}">Details</button>` : ''}</header>${body}</section>`;
 
-  const sevRows = (['Critical', 'Major', 'Minor'] as const).map((x) => {
-    const t = remediation(items.filter((f) => f.criticality === x));
-    return `<div class="dsev"><span class="dsl"><i style="background:${CRIT_COLOR[x]}"></i>${x}<small>${t.n}</small></span>${bar([{ n: t.done, cls: 'done', label: 'remediated' }, { n: t.prog, cls: 'prog', label: 'in progress' }, { n: t.none, cls: 'none', label: 'no CAP yet' }], `${x}: ${t.done} of ${t.n} remediated`)}<span class="dsp">${pctOf(t.done, t.n)}%</span></div>`;
-  }).join('');
+  const meter = (done: number, n: number) => `<span class="dmeter"><span style="width:${pctOf(done, n)}%"></span></span>`;
+  const rateCell = (done: number, n: number) => `<td class="drate"><div>${meter(done, n)}<b>${n ? pctOf(done, n) + '%' : '–'}</b></div></td>`;
+
+  // Program impact: what EcoSure identified, by criticality, and how much is remediated.
+  const sevT = SEVS.map((x) => ({ x, ...remediation(items.filter((f) => f.criticality === x)) }));
+  const critT = sevT[0];
+  const fullyFixed = cited.filter((a) => a.capState === 'closed').length;
+  const actions = items.filter((f) => f.capItem?.action).length;
+  const sevTable = `<table class="dimpact"><thead><tr><th>Criticality</th><th class="num">Identified</th><th class="num">Remediated</th><th class="num hide-s">In progress</th><th class="num hide-s">No CAP yet</th><th>Remediation rate</th></tr></thead><tbody>
+    ${sevT.map((t) => `<tr class="rowlink" data-go="findings" data-crit="${t.x}"><td><span class="dsl"><i style="background:${CRIT_COLOR[t.x]}"></i>${t.x}</span></td><td class="num">${t.n}</td><td class="num good">${t.done}</td><td class="num hide-s">${t.prog}</td><td class="num hide-s">${t.none}</td>${rateCell(t.done, t.n)}</tr>`).join('')}
+    <tr class="total"><td>Total</td><td class="num">${r.n}</td><td class="num good">${r.done}</td><td class="num hide-s">${r.prog}</td><td class="num hide-s">${r.none}</td>${rateCell(r.done, r.n)}</tr></tbody></table>`;
+
+  // Drill-down: the same numbers for each community.
+  const byComm = [...new Set(A.map((a) => a.community))].map((name) => {
+    const CA = A.filter((a) => a.community === name), fs = CA.flatMap((a) => a.items), t = remediation(fs);
+    const cv = m.communities.find((c) => c.c.name === name);
+    return { name, slug: cv?.slug ?? '', region: cv?.c.region ?? '', kitchens: CA.length, crit: fs.filter((f) => f.criticality === 'Critical').length, maj: fs.filter((f) => f.criticality === 'Major').length, min: fs.filter((f) => f.criticality === 'Minor').length, ...t, miss: CA.some(capMissing) };
+  }).sort((a, b) => SORT === 'rate' ? pctOf(a.done, a.n) - pctOf(b.done, b.n) || b.n - a.n : SORT === 'open' ? (b.n - b.done) - (a.n - a.done) : b.n - a.n || a.name.localeCompare(b.name));
+  const { shown, more } = top('dash-comm', byComm, 5, 'communities');
+  const sortBtn = (k: string, l: string) => `<button class="fbtn" data-act="dsort:${k}" aria-pressed="${SORT === k}">${l}</button>`;
+  const commTable = `<div class="toolbar"><span class="lbl">Sort</span>${sortBtn('found', 'Most identified')}${sortBtn('open', 'Most still open')}${sortBtn('rate', 'Lowest rate')}</div>
+    <div class="tablewrap"><table class="dcomm"><thead><tr><th>Community</th><th class="num hide-s" title="Critical">Crit.</th><th class="num hide-s" title="Major">Major</th><th class="num hide-s" title="Minor">Minor</th><th class="num">Identified</th><th class="num">Remediated</th><th>Rate</th></tr></thead><tbody>
+    ${shown.map((c) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.name)}</b><span class="sub">${esc(c.region)}${c.kitchens > 1 ? ` · ${c.kitchens} kitchens` : ''}${c.miss ? ' · <span class="captag">CAP missing</span>' : ''}</span></td><td class="num hide-s">${c.crit}</td><td class="num hide-s">${c.maj}</td><td class="num hide-s">${c.min}</td><td class="num">${c.n}</td><td class="num good">${c.done}</td>${rateCell(c.done, c.n)}</tr>`).join('')}
+    </tbody></table></div>${more}`;
+  const regRem = regions.map((rg) => { const fs = all.filter((a) => (m.settings.roster.find((c) => c.name === a.community)?.region || 'No region set') === rg).flatMap((a) => a.items); return { rg, ...remediation(fs) }; })
+    .sort((a, b) => pctOf(b.done, b.n) - pctOf(a.done, a.n));
+  const regTable = `<div class="dregs">${regRem.map((x) => `<button class="dreg${REGION === x.rg ? ' on' : ''}" data-act="region:${esc(REGION === x.rg ? 'all' : x.rg)}"><span class="name">${esc(x.rg)}</span><span class="xs">${x.done} of ${x.n} remediated</span>${meter(x.done, x.n)}<b>${pctOf(x.done, x.n)}%</b></button>`).join('')}</div>`;
 
   return `<div class="dash">
     <div class="dhead">
       <div><p class="crumb">Kisco Senior Living · Culinary food safety</p><h2 class="page">EcoSure Food Safety Dashboard</h2>
-        <p class="note">Latest EcoSure audit of each kitchen${v.round !== 'all' ? ` in ${esc(v.round)}` : ''}. Data through ${fmtDate(latestDate)}: ${plural(m.audits.length, 'kitchen audit')}, ${plural(caps, 'corrective action plan')}. Scores are out of 100; 85 or better is strong, below 70 needs focus.</p></div>
+        <p class="note">EcoSure is the independent food safety audit of every Kisco kitchen. Latest audit of each kitchen${v.round !== 'all' ? ` in ${esc(v.round)}` : ''}, data through ${fmtDate(latestDate)} (${plural(m.audits.length, 'audit')}, ${plural(caps, 'corrective action plan')}).</p></div>
       <div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-go="home">Executive briefing</button></div>
     </div>
     <div class="dfilters"><span class="lbl">Region</span>${['all', ...regions].map((rg) => `<button class="fbtn" data-act="region:${esc(rg)}" aria-pressed="${REGION === rg}">${rg === 'all' ? 'All regions' : esc(rg)}</button>`).join('')}<span class="grow"></span>${roundChips(m, v).replace('<div class="toolbar">', '<span class="dround">').replace(/<\/div>$/, '</span>')}</div>
 
-    <div class="dkpis">
-      ${kpi(pct(s), 'Average score', `${good} kitchens at 85 or better`, scoreBand(s), 'communities')}
+    <section class="dhero" aria-label="Program impact">
+      <p class="dhl">EcoSure identified <b>${r.n}</b> food safety violations in ${plural(A.length, 'kitchen')}${REGION !== 'all' ? ` in ${esc(REGION)}` : ''}. Our teams have remediated <b class="good">${r.done} (${pctOf(r.done, r.n)}%)</b>, including <b>${critT.done} of ${critT.n}</b> critical.</p>
+      <div class="dbig">
+        <div><span class="dl">Violations identified</span><b>${r.n}</b><span class="ds">${sevT.map((t) => `<span class="dsl"><i style="background:${CRIT_COLOR[t.x]}"></i>${t.n} ${t.x.toLowerCase()}</span>`).join('')}</span></div>
+        <div class="good"><span class="dl">Remediated</span><b>${r.done}</b><span class="ds">verified closed by EcoSure</span></div>
+        <div class="${pctOf(r.done, r.n) >= 80 ? 'good' : 'warn'}"><span class="dl">Remediation rate</span><b>${pctOf(r.done, r.n)}%</b>${meter(r.done, r.n)}</div>
+        <div><span class="dl">Still open</span><b>${r.prog + r.none}</b><span class="ds">${r.prog} in progress · ${r.none} with no CAP yet</span></div>
+      </div>
+      ${sevTable}
+      <ul class="dwins">
+        <li><b>${critT.done}</b> critical violations fixed</li>
+        <li><b>${fullyFixed}</b> of ${cited.length} kitchens fully remediated</li>
+        <li><b>${actions}</b> corrective actions written by community teams</li>
+        <li><b>${pct(s)}</b> average score${scored.length ? `, ${good} kitchens at 85 or better` : ''}</li>
+      </ul>
+      <p class="xs dnote">Remediated means the violation is on a corrective action plan that EcoSure shows as approved or completed. Select a row to see the violations.</p>
+    </section>
+
+    <div class="dgrid">
+      ${panel('Remediation by community', 'Select a community for its findings, photos and plan.', 'communities', commTable, 8)}
+      ${panel('Remediation by region', 'Highest first. Select one to filter.', '', regTable, 4, 'dregp')}
+    </div>
+
+    <h3 class="dsect">Where things stand</h3>
+    <div class="dkpis four">
       ${kpi(`${auditedComms}<small>/${roster.length}</small>`, 'Communities audited', `${A.length} kitchens`, '', 'communities')}
       ${kpi(String(bad), 'Kitchens below 70', `of ${scored.length} scored`, bad ? 'bad' : 'good', 'communities', ' data-band="bad"')}
-      ${kpi(`${pctOf(r.done, r.n)}%`, 'Infractions remediated', `${r.done} of ${r.n}`, pctOf(r.done, r.n) >= 80 ? 'good' : 'warn', 'findings')}
-      ${kpi(String(critOpen), 'Critical still open', `of ${items.filter((f) => f.criticality === 'Critical').length} critical`, critOpen ? 'bad' : 'good', 'findings', ' data-crit="Critical"')}
+      ${kpi(String(critOpen), 'Critical still open', `of ${critT.n} critical`, critOpen ? 'bad' : 'good', 'findings', ' data-crit="Critical"')}
       ${kpi(String(cap.missing), 'CAPs missing', `${cap.closed} of ${cited.length} closed`, cap.missing ? 'bad' : 'good', 'actions', ' data-tab="caps"')}
     </div>
 
     <div class="dgrid">
-      ${panel('Remediation by severity', `${r.n} infractions; remediated means on a CAP EcoSure shows as approved or completed.`, 'findings', `<div class="dsevs">${sevRows}</div><div class="dlegend"><span><i class="done"></i>Remediated</span><span><i class="prog"></i>In progress</span><span><i class="none"></i>No CAP yet</span></div>`)}
-      ${panel('Corrective action plans', `${cited.length} kitchens with findings. Due ${m.settings.capDueDays} days after the audit.`, 'actions', stack([{ n: cap.closed, cls: 'done', label: 'Closed' }, { n: cap.open, cls: 'prog', label: 'In progress' }, { n: cap.overdue, cls: 'warn2', label: 'Items past due' }, { n: cap.missing, cls: 'none', label: 'Missing' }], 'CAP status'))}
-      ${panel('Score bands', `${scored.length} scored kitchens`, 'communities', stack([{ n: good, cls: 'done', label: '85 or better' }, { n: warn, cls: 'prog', label: '70 to 84' }, { n: bad, cls: 'none', label: 'Below 70' }], 'Score bands'), 4)}
+      ${panel('Corrective action plans', `${cited.length} kitchens with findings. Due ${m.settings.capDueDays} days after the audit.`, 'actions', stack([{ n: cap.closed, cls: 'done', label: 'Closed' }, { n: cap.open, cls: 'prog', label: 'In progress' }, { n: cap.overdue, cls: 'warn2', label: 'Items past due' }, { n: cap.missing, cls: 'none', label: 'Missing' }], 'CAP status'), 4)}
       ${panel('Average score by region', 'Lowest first. Select one to filter.', '', `<div class="bars">${regionRows.map((x) => `<button class="bar${REGION === x.rg ? ' on' : ''}" data-act="region:${esc(REGION === x.rg ? 'all' : x.rg)}" title="${esc(x.rg)}: ${pct(x.s)} across ${x.n} kitchens, ${x.miss} CAP missing"><span class="name">${esc(x.rg)}</span><span class="track"><span class="fill" style="width:${x.s ?? 0}%;background:${x.s == null ? 'var(--line)' : x.s >= 85 ? 'var(--good)' : x.s >= 70 ? 'var(--maj)' : 'var(--crit)'}"></span></span><span class="val">${pct(x.s)}</span></button>`).join('')}</div>`, 4)}
       ${panel('Average score by month', '', 'trends', scoreLine(months.map((mo) => { const ms = auditsInScope.filter((a) => a.date.startsWith(mo)); const a = avg(ms.map((x) => x.score)); return { x: fmtDate(mo + '-01', true).split(' ')[0], y: a == null ? null : Math.round(a), label: `${mo}, ${ms.length} audits` }; }), 420, 150), 4)}
       ${panel('Top 5 issues', 'By points lost', 'priorities', bars(P.map((p) => ({ label: plainTitle(p.short), value: p.kitchens, valueText: `${p.kitchens}`, act: 'std:' + p.short, title: `${plainTitle(p.short)}: ${p.kitchens} kitchens, ${p.points} points lost`, segs: [{ v: p.kitchens, color: CRIT_COLOR[p.crit], title: p.crit }] }))) + '<p class="axisnote">Kitchens cited</p>')}
