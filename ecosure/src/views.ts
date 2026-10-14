@@ -21,14 +21,16 @@ export interface Filters {
   section: string;
   theme: string;
   crit: string;
-  cap: string; // all | has | none | open
+  cap: string; // all | has | none | open | closed (remediated)
+  comms: string[] | null; // the dashboard's community selection, carried over when a reader drills in
+  commsLabel: string;
   std: string;
   q: string;
   repeat: boolean;
   photos: boolean;
   limit: number;
 }
-export const emptyFilters = (): Filters => ({ community: 'all', kitchen: 'all', section: 'all', theme: 'all', crit: 'all', cap: 'all', std: '', q: '', repeat: false, photos: false, limit: 5 });
+export const emptyFilters = (): Filters => ({ community: 'all', kitchen: 'all', section: 'all', theme: 'all', crit: 'all', cap: 'all', comms: null, commsLabel: '', std: '', q: '', repeat: false, photos: false, limit: 5 });
 
 export interface ViewState {
   round: string; // 'all' or a round name
@@ -181,11 +183,12 @@ export function filterFindings(m: Model, v: ViewState): Finding[] {
   const f = v.f, q = f.q.trim().toLowerCase();
   return inRound(m, v).flatMap((a) => a.items).filter((i) =>
     (f.community === 'all' || f.community.startsWith('band:') || i.audit.community === f.community) &&
+    (!f.comms || f.comms.includes(i.audit.community)) &&
     (f.section === 'all' || i.section === f.section) &&
     (f.theme === 'all' || themeOf(i.short) === f.theme) &&
     (f.crit === 'all' || i.criticality === f.crit) &&
     (!f.std || i.short === f.std) &&
-    (f.cap === 'all' || (f.cap === 'has' && !!i.capItem) || (f.cap === 'none' && !i.capItem) || (f.cap === 'open' && i.audit.capState !== 'closed')) &&
+    (f.cap === 'all' || (f.cap === 'has' && !!i.capItem) || (f.cap === 'none' && !i.capItem) || (f.cap === 'open' && i.audit.capState !== 'closed') || (f.cap === 'closed' && !!i.capItem && i.audit.capState === 'closed')) &&
     (!f.repeat || i.repeat) && (!f.photos || i.photos.length > 0) &&
     (!q || [i.short, i.question, i.comment, ...i.findings, i.capItem?.action ?? '', i.audit.community].join(' ').toLowerCase().includes(q)));
 }
@@ -197,7 +200,7 @@ export function findings(m: Model, v: ViewState): string {
   const sel = (id: string, label: string, val: string, opts: [string, string][]) => `<label class="field"><span class="lbl">${label}</span><select id="${id}" data-filter="${id.replace('f-', '')}">${opts.map(([k, t]) => `<option value="${esc(k)}"${k === val ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>`;
   const byStd = [...countBy(list, (i) => i.short)].sort((a, b) => b[1] - a[1]);
   const critOf = (s: string) => list.find((i) => i.short === s)?.criticality ?? 'Minor';
-  const active = f.community !== 'all' || f.section !== 'all' || f.theme !== 'all' || f.crit !== 'all' || f.cap !== 'all' || f.std || f.q || f.repeat || f.photos;
+  const active = !!f.comms || f.community !== 'all' || f.section !== 'all' || f.theme !== 'all' || f.crit !== 'all' || f.cap !== 'all' || f.std || f.q || f.repeat || f.photos;
   const moreActive = f.section !== 'all' || f.theme !== 'all' || f.cap !== 'all' || f.repeat || f.photos;
   return head('Findings', 'Findings and photos', 'Pick a community or an issue to narrow the list. The most common issues for your selection are at the top.') +
     `<div class="panel"><div class="form">
@@ -208,9 +211,9 @@ export function findings(m: Model, v: ViewState): string {
     ${fold('more-filters', 'More filters', `<div class="form">
       ${sel('f-section', 'Section', f.section, [['all', 'All sections'], ...[...new Set([...SECTIONS, ...m.findings.map((i) => i.section)])].map((s): [string, string] => [s, s])])}
       ${sel('f-theme', 'Theme', f.theme, [['all', 'All themes'], ...THEMES.map((t): [string, string] => [t.t, t.t])])}
-      ${sel('f-cap', 'CAP', f.cap, [['all', 'Any'], ['has', 'Has a CAP action'], ['none', 'No CAP action'], ['open', 'CAP not closed']])}
+      ${sel('f-cap', 'CAP', f.cap, [['all', 'Any'], ['closed', 'Remediated'], ['open', 'Not yet remediated'], ['has', 'Has a CAP action'], ['none', 'No CAP action']])}
     </div><div class="toolbar" style="margin:12px 0 0"><button class="fbtn" data-toggle="repeat" aria-pressed="${f.repeat}">Repeat findings only</button><button class="fbtn" data-toggle="photos" aria-pressed="${f.photos}">With photos</button></div>${roundChips(m, v)}`, moreActive)}
-    <div class="toolbar" style="margin:10px 0 0">${f.std ? `<button class="fbtn" aria-pressed="true" data-act="clear-std">${esc(f.std)} ✕</button>` : ''}
+    <div class="toolbar" style="margin:10px 0 0">${f.comms ? `<button class="fbtn" aria-pressed="true" data-act="clear-comms" title="Communities picked on the dashboard">${esc(f.commsLabel || plural(f.comms.length, 'community', 'communities'))} ✕</button>` : ''}${f.std ? `<button class="fbtn" aria-pressed="true" data-act="clear-std">${esc(plainTitle(f.std))} ✕</button>` : ''}
       <span class="grow"></span>${active ? '<button class="btn quiet sm" data-act="clear-filters">Clear filters</button>' : ''}<button class="btn ghost sm" data-act="csv-findings">Download CSV</button></div></div>
     <section class="block"><h3>${f.std ? esc(plainTitle(f.std)) : 'Top 5 issues'} <span class="sm">${plural(list.length, 'finding')} in ${plural(new Set(list.map((i) => i.audit.community)).size, 'community', 'communities')}</span></h3>
       ${f.std ? '' : bars(byStd.slice(0, 5).map(([s, n]) => ({ label: plainTitle(s), value: n, act: 'std:' + s, segs: [{ v: n, color: CRIT_COLOR[critOf(s)], title: critOf(s) }] })))}</section>

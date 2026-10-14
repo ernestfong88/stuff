@@ -94,15 +94,6 @@ function helpLine(c: CommunityView): string {
   return `${parts.join(', ')}.${top ? ` Biggest issue: ${lower(plainTitle(top.short))}.` : ''} ${cap}`;
 }
 
-function nextSteps(b: Brief): string[] {
-  const steps: string[] = [];
-  const focus = [...b.focus].sort((x, y) => (x.c.score ?? 101) - (y.c.score ?? 101));
-  if (focus.length) steps.push(`Visit or call the ${plural(focus.length, 'community', 'communities')} of focus, starting with ${focus[0].c.c.name}.`);
-  if (b.missing.length || b.pastDue.length) steps.push('Close the loop on every violation: each cited kitchen submits its corrective action plan in EcoSure within 10 days of the audit.');
-  const t = b.top[0];
-  if (t) steps.push(`Make "${plainTitle(t.short).toLowerCase()}" a portfolio focus${PLAYBOOK[t.short] ? `: ${lower(PLAYBOOK[t.short].have[0])}` : ''}.`);
-  return steps.slice(0, 3);
-}
 
 
 /** What teams wrote in their corrective action plans, sorted into a few plain themes. */
@@ -130,7 +121,7 @@ function example(fs: Finding[]): { text: string; who: string } | null {
   return { text: t.length > 220 ? t.slice(0, 217).replace(/\s+\S*$/, '') + '...' : t, who: pick.audit.community };
 }
 
-export interface Challenge { short: string; title: string; crit: string; kitchens: number; kitchensDone: number; n: number; themes: { label: string; k: number }[]; example: { text: string; who: string } | null; why: string; cautions: string[] }
+export interface Challenge { short: string; title: string; crit: string; kitchens: number; n: number; themes: { label: string; k: number }[]; example: { text: string; who: string } | null; why: string; cautions: string[] }
 export interface Snapshot { kitchens: number; found: number; done: number; rate: number; top: Challenge[] }
 function snapshotOf(b: Brief): Snapshot {
   const items = b.A.flatMap((a) => a.items);
@@ -138,10 +129,8 @@ function snapshotOf(b: Brief): Snapshot {
   return {
     kitchens: b.A.length, found: items.length, done, rate: items.length ? Math.round((done / items.length) * 100) : 0,
     top: b.top.slice(0, 3).map((p) => {
-      const byKitchen = [...new Set(p.findings.map((f) => f.audit.key))];
       return {
         short: p.short, title: plainTitle(p.short), crit: p.crit, kitchens: p.kitchens, n: p.findings.length,
-        kitchensDone: byKitchen.filter((k) => p.findings.filter((f) => f.audit.key === k).every(isRemediated)).length,
         themes: teamThemes(p.findings), example: example(p.findings),
         why: PLAIN[p.short]?.why ?? '', cautions: CAUTIONS[p.short] ?? (PLAYBOOK[p.short] ? [PLAYBOOK[p.short].check] : []),
       };
@@ -155,7 +144,7 @@ export function fixCard(m: Model, v: ViewState, inReg: (name: string) => boolean
   const b = compute(m, v, inReg);
   if (!b.top.length) return '';
   const row = (key: string, sumHtml: string, body: string) => `<details class="xrow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>${sumHtml}<span class="chev" aria-hidden="true"></span></summary><div class="xbody">${body}</div></details>`;
-  return `<section class="xcard wide"><header><div><h3>Top 5 issues</h3><p>Ranked by points lost. Select one for why it matters, the fix and photos.</p></div><button class="linkbtn" data-go="priorities">All priorities</button></header><div class="xlist">${b.top.map((p, i) => {
+  return `<section class="xcard wide"><header><div><h3>Top 5 issues</h3><p>Ranked by points lost. Select one for why it matters, the fix and photos.</p></div><button class="linkbtn" data-go="findings">All findings</button></header><div class="xlist">${b.top.map((p, i) => {
     const ph = bestPhoto(p.findings);
     return row('issue-' + i, `<span class="rank">${i + 1}</span>${ph ? `<img src="${esc(photoUrl(ph.f.photos[0]))}" alt="" loading="lazy">` : '<span class="noimg"></span>'}<span class="xt"><b>${esc(plainTitle(p.short))}</b><span class="meter" aria-hidden="true"><span style="width:${(p.kitchens / b.A.length) * 100}%"></span></span></span><span class="xn"><b>${p.kitchens}</b> of ${b.A.length} kitchens</span>`,
       `<p>${esc(PLAIN[p.short]?.why ?? '')}</p>${PLAYBOOK[p.short] ? `<p><b>The fix:</b> ${esc(PLAYBOOK[p.short].have[0])}.</p>` : ''}
@@ -164,10 +153,6 @@ export function fixCard(m: Model, v: ViewState, inReg: (name: string) => boolean
   }).join('')}</div></section>`;
 }
 
-export function stepsCard(m: Model, v: ViewState, inReg: (name: string) => boolean): string {
-  const steps = nextSteps(compute(m, v, inReg));
-  return steps.length ? `<section class="xcard wide"><header><div><h3>Next steps</h3><p>What we are asking regional and community teams to do this month.</p></div><button class="linkbtn" data-go="playbook">Readiness playbook</button></header><ol class="steps">${steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol></section>` : '';
-}
 
 /** The whole summary as a plain-text email, for executives who read it without the page. */
 export function briefingText(m: Model, v: ViewState, link = '', inReg: (name: string) => boolean = () => true, region = ''): string {
@@ -175,11 +160,11 @@ export function briefingText(m: Model, v: ViewState, link = '', inReg: (name: st
   const sn = snapshotOf(b);
   return [`Subject: EcoSure food safety snapshot, ${b.A[0]?.round ?? ''} round${region ? `, ${region}` : ''}`, '',
     `This quarter EcoSure found ${sn.found} food safety violations across ${sn.kitchens} kitchens${region ? ` in ${region}` : ''}. Our teams have remediated ${sn.done} of them: a ${sn.rate}% remediation rate.`, '',
-    'TOP 3 CHALLENGES AND WHAT TEAMS DID',
-    ...sn.top.flatMap((t, i) => [`${i + 1}. ${t.title}: found in ${t.kitchens} kitchens, ${t.kitchensDone} fully remediated.`,
+    'TOP 3 CHALLENGES',
+    ...sn.top.flatMap((t, i) => [`${i + 1}. ${t.title}: ${t.n} violations in ${t.kitchens} kitchens.`,
       `   What teams did: ${t.themes.length ? t.themes.map((x) => `${x.label} (${x.k} ${x.k === 1 ? 'kitchen' : 'kitchens'})`).join('; ') : 'corrective plans in progress'}.`,
       ...(t.example ? [`   For example, ${t.example.who}: "${t.example.text}"`] : []),
-      ...(t.cautions.length ? [`   Also check: ${t.cautions.join(' ')}`] : [])]), '',
+      ...(t.cautions.length ? [`   Our SMEs will focus on these with teams: ${t.cautions.join(' ')}`] : [])]), '',
     ...(() => {
       const act = b.A.flatMap((a) => a.items).filter((f) => f.cid === '10.1.1' || f.short === 'No critical pest activity');
       const names = [...new Set(act.map((f) => f.audit.community))];
@@ -187,7 +172,6 @@ export function briefingText(m: Model, v: ViewState, link = '', inReg: (name: st
     })(),
     'COMMUNITIES OF FOCUS', ...[...b.focus].sort((x, y) => (x.c.score ?? 101) - (y.c.score ?? 101)).slice(0, 5).map(({ c }) => `- ${c.c.name}: ${helpLine(c)}`), '',
     ...(!region ? ['AVERAGE SCORE BY REGION', ...b.regions.map((r) => `- ${r.name}: ${pct(r.s)}`), ''] : []),
-    'NEXT STEPS', ...nextSteps(b).map((x, i) => `${i + 1}. ${x}`),
     ...(link ? ['', `Full dashboard with photos: ${link}`] : [])].join('\n');
 }
 

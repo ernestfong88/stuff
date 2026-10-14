@@ -35,7 +35,7 @@ export function critMix(items: Finding[], go = 'findings'): string {
 }
 
 /** One big number. go makes it a link; meter adds a progress bar under it (0 to 100). */
-export function bigBox(label: string, value: string, o: { tone?: string; sub?: string; go?: string; crit?: string; meter?: number } = {}): string {
+export function bigBox(label: string, value: string, o: { tone?: string; sub?: string; go?: string; crit?: string; cap?: string; meter?: number } = {}): string {
   const inner = `<span class="dl">${label}</span><b>${value}</b>${o.sub ? `<span class="ds">${o.sub}</span>` : ''}${o.meter != null ? `<span class="dmeter"><span style="width:${o.meter}%"></span></span>` : ''}`;
-  return o.go ? `<button class="${o.tone ?? ''}" data-go="${o.go}"${o.crit ? ` data-crit="${o.crit}"` : ''}>${inner}</button>` : `<div class="${o.tone ?? ''}">${inner}</div>`;
+  return o.go ? `<button class="${o.tone ?? ''}" data-go="${o.go}"${o.crit ? ` data-crit="${o.crit}"` : ''}${o.cap ? ` data-cap="${o.cap}"` : ''}>${inner}</button>` : `<div class="${o.tone ?? ''}">${inner}</div>`;
 }

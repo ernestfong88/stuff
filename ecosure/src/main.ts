@@ -74,7 +74,15 @@ function navHtml(): string {
   // Viewers never see the editing pages; editors (and local copies) do.
   const group = ([label, xs]: [string | null, [string, string][]]) => (label ? `<div class="navlabel">${label}</div>` : '') + xs.map(([k, l]) => `<button data-go="${k}" aria-current="${route === k}"><span>${l}</span></button>`).join('');
   $('#navMain').innerHTML = group(NAV[0]);
-  $('#navMore').innerHTML = NAV.slice(1).filter(([label]) => label !== 'Manage' || V.canWrite).map(group).join('');
+  // More detail and Manage are folded; a fold opens on its own when the current page is inside it.
+  const fill = (fold: string, nav: string, i: number) => {
+    $(nav).innerHTML = group([null, NAV[i][1]]);
+    const d = $(fold) as HTMLDetailsElement;
+    if (NAV[i][1].some(([k]) => k === route)) d.open = true;
+  };
+  fill('#morefold', '#navMore', 1);
+  fill('#managefold', '#navManage', 2);
+  $('#managefold').hidden = !V.canWrite;
   $('#navComm').innerHTML = list.map((c) => {
     const miss = c.latest.some(capMissing);
     const flag = c.capState === 'overdue' || c.capState === 'open' ? 'warn' : '';
@@ -322,17 +330,26 @@ document.addEventListener('click', (e) => {
   if (act) { void doAct(act.dataset.act!); return; }
   const g = t.closest<HTMLElement>('[data-go]');
   if (g && !t.closest('a')) {
-    if (g.dataset.go === 'findings' && g.dataset.crit) { V.f = { ...emptyFilters(), crit: g.dataset.crit }; }
+    // Links into Findings start from a clean filter, carrying the dashboard's community selection and what was clicked.
+    if (g.dataset.go === 'findings' && route !== 'findings') V.f = { ...emptyFilters(), ...fromDash(), ...(g.dataset.crit ? { crit: g.dataset.crit } : {}), ...(g.dataset.cap ? { cap: g.dataset.cap } : {}), ...(g.dataset.section ? { section: g.dataset.section } : {}), ...(g.dataset.community ? { community: g.dataset.community } : {}) };
     $('#side').classList.remove('open');
     go(g.dataset.go!);
     window.scrollTo(0, 0);
   }
 });
 
+/** The dashboard's community selection, for links from the dashboard into Findings. */
+function fromDash(): Partial<ViewState['f']> {
+  if (route !== 'dashboard') return {};
+  const r = regionFilter(model);
+  if (!r.region) return {};
+  return { comms: model.settings.roster.filter((c) => c.active && r.inReg(c.name)).map((c) => c.name), commsLabel: r.region };
+}
+
 async function doAct(a: string): Promise<void> {
   const [k, ...rest] = a.split(':');
   const arg = rest.join(':');
-  const toFindings = (patch: Partial<typeof V.f>) => { V.f = { ...emptyFilters(), ...patch }; if (route === 'findings') rerender(); else { go('findings'); window.scrollTo(0, 0); } };
+  const toFindings = (patch: Partial<typeof V.f>) => { V.f = { ...emptyFilters(), ...(route === 'findings' ? { comms: V.f.comms, commsLabel: V.f.commsLabel } : fromDash()), ...patch }; if (route === 'findings') rerender(); else { go('findings'); window.scrollTo(0, 0); } };
   if (k === 'std') toFindings(route === 'findings' ? { ...V.f, std: arg, limit: 5 } : { std: arg });
   else if (k === 'crit') toFindings(route === 'findings' ? { ...V.f, crit: arg, limit: 5 } : { crit: arg });
   else if (k === 'section') toFindings(route === 'findings' ? { ...V.f, section: arg, limit: 5 } : { section: arg });
@@ -340,6 +357,7 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'repeat') toFindings({ std: arg, repeat: true });
   else if (k === 'round') { V.round = arg; rerender(); }
   else if (k === 'clear-std') { V.f.std = ''; rerender(); }
+  else if (k === 'clear-comms') { V.f.comms = null; V.f.commsLabel = ''; rerender(); }
   else if (k === 'share') copyText(shareUrl(), 'Link copied. Anyone you have shared the page with can open it.');
   else if (k === 'copy-summary') { const r = regionFilter(model); copyText(briefingText(model, V, SHARE_BASE || location.href.split('#')[0], r.inReg, r.region), 'Summary copied. Paste it into an email or Teams message.'); }
   else if (k === 'copy-community') copyText(communityText(arg), 'Summary copied. Paste it into an email or Teams message.');
@@ -410,7 +428,8 @@ function shell(): void {
         <input id="q" type="search" placeholder="Find a community" aria-label="Find a community">
         <nav class="nav" id="navComm" style="margin-top:6px" aria-label="Communities"></nav>
       </details>
-      <nav class="nav" id="navMore" aria-label="More pages"></nav>
+      <details class="navfold" id="morefold"><summary>More detail</summary><nav class="nav" id="navMore" aria-label="More detail"></nav></details>
+      <details class="navfold" id="managefold" hidden><summary>Manage</summary><nav class="nav" id="navManage" aria-label="Manage"></nav></details>
     </div>
   </aside>
   <main id="main" tabindex="-1"></main>

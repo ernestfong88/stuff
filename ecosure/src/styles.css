@@ -700,7 +700,18 @@ ul.plain { margin: 0; padding-left: 18px; } ul.plain li { margin: 0 0 6px; }
 @media (max-width: 560px) { .dpestt .pph { display: none; } .dpestt td:first-child { min-width: 110px; } }
 
 /* pest tracker rows and tabs */
-.ptabs { margin: 0; }
+.ptabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ptab { all: unset; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: var(--radius); border: 2px solid var(--line); background: var(--surface); }
+.ptab b { font-family: var(--display); font-size: 32px; line-height: 1; }
+.ptab span { display: flex; flex-direction: column; font-weight: 600; font-size: 15px; }
+.ptab small { font-weight: 400; font-size: 12.5px; color: var(--muted); }
+.ptab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ptab.red b { color: var(--crit); } .ptab.yellow b { color: var(--maj); }
+.ptab.red[aria-pressed="true"] { border-color: var(--crit); background: color-mix(in srgb, var(--crit) 10%, var(--surface)); }
+.ptab.yellow[aria-pressed="true"] { border-color: var(--maj); background: color-mix(in srgb, var(--maj) 10%, var(--surface)); }
+.prow.red { border-left: 4px solid var(--crit); }
+.prow.yellow { border-left: 4px solid var(--maj); }
+@media (max-width: 560px) { .ptabs { grid-template-columns: 1fr; } }
 .prow > summary img, .prow > summary .noimg { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; flex: none; }
 .prow > summary .chip { flex: none; }
 .prow .xbody p { margin: 0 0 8px; }
@@ -712,24 +723,30 @@ ul.plain { margin: 0; padding-left: 18px; } ul.plain li { margin: 0 0 6px; }
 .chal { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
 .chal > header h3 { margin: 0; font-size: 21px; }
 .chal > header p { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; max-width: 90ch; }
-.chalgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.chalcard { border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; background: var(--surface); }
-.chalcard .ch { display: flex; gap: 12px; align-items: flex-start; }
-.chalcard .rank { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 700; font-family: var(--display); }
-.chalcard h4 { margin: 0 0 6px; font-size: 17px; line-height: 1.3; }
-.chalcard .xs { color: var(--muted); }
-.chprog { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
-.chprog b { font-family: var(--display); font-size: 22px; color: var(--good); margin-right: 2px; }
-.chwhy { margin: 0; font-size: 14px; line-height: 1.5; }
-.chsec { display: flex; flex-direction: column; gap: 6px; }
-.chsec .dl { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-.chdid { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.chdid li { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; padding: 6px 10px; background: var(--sunk); border-radius: 6px; }
-.chdid li b { white-space: nowrap; color: var(--good); font-weight: 600; }
-.chalcard blockquote { margin: 2px 0 0; padding: 8px 12px; border-left: 3px solid var(--good); font-size: 13.5px; line-height: 1.5; color: var(--ink, inherit); background: var(--sunk); border-radius: 0 6px 6px 0; }
-.chalcard blockquote cite { display: block; font-style: normal; font-size: 12px; color: var(--muted); margin-top: 4px; }
-.chsec.caution { background: color-mix(in srgb, var(--maj) 10%, transparent); border-radius: 8px; padding: 10px 12px; }
-.chsec.caution .dl { color: var(--maj); }
-.chsec.caution ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; line-height: 1.45; }
-.chalcard .linkbtn { align-self: flex-start; margin-top: auto; }
-@media (max-width: 1100px) { .chalgrid { grid-template-columns: 1fr; } }
+.challist { display: flex; flex-direction: column; gap: 10px; }
+.chalrow { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--surface); }
+.chalrow > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 18px; gap: 14px; align-items: center; padding: 14px 16px; }
+.chalrow > summary::-webkit-details-marker { display: none; }
+.chalrow > summary:hover { background: var(--sunk); }
+.chalrow > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.chalrow .rank { width: 32px; height: 32px; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 700; font-family: var(--display); }
+.chalrow .ct { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.chalrow .ct b { font-size: 17px; }
+.chalrow .cn { text-align: right; font-size: 14px; color: var(--muted); line-height: 1.2; }
+.chalrow .cn b { font-family: var(--display); font-size: 30px; color: var(--ink, inherit); margin-right: 4px; }
+.chalrow .cn small { display: block; font-size: 12.5px; }
+.chalrow .chev { width: 9px; height: 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); justify-self: center; }
+.chalrow[open] .chev { transform: rotate(-135deg); }
+.chalbody { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 20px; padding: 4px 16px 16px 64px; }
+.chalbody .linkbtn { grid-column: 1 / -1; justify-self: start; }
+.chalbody blockquote { margin: 4px 0 0; padding: 8px 12px; border-left: 3px solid var(--good); font-size: 13.5px; line-height: 1.5; background: var(--sunk); border-radius: 0 6px 6px 0; }
+.chalbody blockquote cite { display: block; font-style: normal; font-size: 12px; color: var(--muted); margin-top: 4px; }
+.chalbody .chwhy { margin: 0 0 8px; }
+@media (max-width: 760px) {
+  .chalrow > summary { grid-template-columns: 30px minmax(0, 1fr) 14px; }
+  .chalrow .cn { grid-column: 2; grid-row: 2; text-align: left; }
+  .chalrow .cn b { font-size: 24px; }
+  .chalrow .chev { grid-column: 3; grid-row: 1; }
+  .chalbody { grid-template-columns: 1fr; padding-left: 16px; }
+}
+.prow > summary, .prow > .xbody { padding-left: 12px; }

@@ -4,10 +4,11 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 ## What it does
 
-The sidebar has three parts:
+The sidebar has:
 1. **Executive dashboard**
 2. **All communities**, a list to open any community
-3. **More detail** reference pages, plus **Manage** for Editors
+3. **More detail**, a folded section of reference pages
+4. **Manage**, a folded section only Editors see
 
 Every list starts with its top 5. Readers can expand it or open folded sections for more.
 
@@ -19,17 +20,28 @@ Built for a COO or VP of operations to scan in a minute.
 
 The page then shows, in order:
 1. **Quarter snapshot:** one line on violations found and the remediation rate. Below it are three numbers (violations identified, remediated, remediation rate) and one bar splitting violations by criticality.
-2. **Top 3 challenges and what teams did:** a card for each, ranked by points lost, with:
-   - how many kitchens fully remediated it
+2. **Top 3 challenges,** ranked by impact on the score. Each row shows the number of violations and kitchens. Open one to see:
    - why it matters
    - what teams did, as themes with kitchen counts plus one real action from a corrective action plan
-   - **Also check:** the follow-on risks leaders should still assess
+   - the questions **our SMEs will focus on with teams**
 
-   The themes are keyword matches in `src/views-brief.ts` (`ACTION_THEMES`). The Also check lines live in `src/cautions.ts`.
-3. **Pest tracker:** EcoSure's Insects/Rodents/Animals findings, split into two tabs: **Pest activity** (a critical finding) and **Prevention gaps**. Each row shows the community's short name, a photo, what was identified and its status. Expand a row for every photo, what was identified and what was remediated.
+   The themes are keyword matches in `src/views-brief.ts` (`ACTION_THEMES`). The SME questions live in `src/cautions.ts`.
+3. **Pest tracker,** with two tabs:
+   - **Pest activity,** in red: a critical finding that needs action now
+   - **Prevention gaps,** in yellow
+
+   Each row shows the community's short name, a photo, what was identified and its status. Expand a row for every photo, what was identified, what was remediated, and a link to those findings.
 4. **Communities of focus:** the lowest five from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats). Each opens the community page.
 5. **Top 5 issues,** each with a photo. Expand one for why it matters, the fix and more photos.
-6. **Next steps** for regional and community teams.
+
+**Every number and link opens the matching findings, already filtered:**
+- Violations identified opens all of them.
+- Remediated opens only remediated findings.
+- A criticality opens that criticality.
+- A challenge or issue opens that standard.
+- The pest tracker opens the pest findings.
+
+Findings also keep the communities picked on the dashboard, shown as a chip you can clear.
 
 **Copy as email** produces the same content as plain text, with a link back.
 
@@ -57,7 +69,7 @@ Copy as email sends the same snapshot.
 | Page | Use it to |
 | --- | --- |
 | Priorities | Rank every cited standard by points lost and the score gain from fixing it everywhere |
-| Findings and photos | Filter every finding by community, section, theme, criticality, CAP state, repeats, photos or text, then download a CSV |
+| Findings and photos | Filter every finding by community, section, theme, criticality, remediation, repeats, photos or text, then download a CSV |
 | Trends | See the portfolio by theme grid, scores by round and month, points lost by section, a standards heat map, repeat findings and the biggest score changes |
 | Readiness playbook | Review every cited standard: what EcoSure checks, what to have in place, a 30-second check, and the most common misses |
 
