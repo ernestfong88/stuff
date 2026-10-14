@@ -6,7 +6,7 @@ test('opens on the portfolio with the carried-over audits', async ({ page }) => 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
   await expect(page.locator('#navComm button')).toHaveCount(30);
-  for (const r of ['dashboard', 'priorities', 'actions', 'playbook', 'self', 'communities', 'findings', 'trends', 'import', 'settings', 'c-balfour-riverfront', 'self-crestavilla']) {
+  for (const r of ['dashboard', 'priorities', 'playbook', 'findings', 'trends', 'import', 'settings', 'c-balfour-riverfront']) {
     await page.evaluate((h) => (location.hash = h), r);
     await expect(page.locator('h2.page')).toBeVisible();
   }
@@ -31,11 +31,9 @@ test('imports a report and its CAP, then shows them on the community page', asyn
   await expect(page.locator('.find', { hasText: 'Cold food held too warm' })).toContainText('Reach-in gasket replaced');
   await expect(page.locator('.find .thumbs img')).toHaveCount(3);
 
-  // The CAP is still Pending, so the kitchen shows up on the action list.
-  await page.evaluate(() => (location.hash = 'actions'));
-  await page.getByRole('button', { name: /Needs a CAP/ }).click();
-  await page.locator('[data-act="expand:act-caps"]').click();
-  await expect(page.locator('tr', { hasText: 'Sample Terrace' })).toBeVisible();
+  // The CAP is still Pending, so nothing is remediated yet and the challenges show it in progress.
+  await expect(page.locator('.dhl')).toContainText('remediated 0%');
+  await expect(page.locator('.dtop3 .chip', { hasText: 'In progress' }).first()).toBeVisible();
 });
 
 test('rejects a PDF that is not from EcoSure', async ({ page }) => {

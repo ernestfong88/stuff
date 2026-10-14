@@ -1,8 +1,8 @@
 /**
- * The briefing: one page in plain sentences that a regional or national leader can
- * read out loud. Every sentence is built from the data; nothing here is typed by hand.
+ * The executive summary pieces on the dashboard and community pages (snapshot, top challenges,
+ * top 5 issues, next steps) and their plain-text email versions. Every line is built from the data.
  */
-import { CAP_LABEL, capMissing, needsCap, priorities, type Audit, type CommunityView, type Finding, type Model } from './model';
+import { capMissing, needsCap, priorities, type Audit, type CommunityView, type Finding, type Model } from './model';
 import { PLAIN, plainTitle } from './plain';
 import { PLAYBOOK } from './playbook';
 import { photoUrl } from './store';
@@ -10,6 +10,8 @@ import { avg, esc, fmtDate, pct, plural } from './util';
 import { inRound, latestPerKitchen, type ViewState } from './views';
 import { communitiesOfFocus } from './views-roles';
 import { OPEN, top } from './expand';
+import { isActivity, isPest, isRemediated, remediated, status } from './views-common';
+import { CAUTIONS } from './cautions';
 
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const list = (xs: string[]) => (xs.length <= 1 ? xs.join('') : xs.slice(0, -1).join(', ') + (xs.length > 2 ? ',' : '') + ' and ' + xs[xs.length - 1]);
@@ -102,8 +104,6 @@ function nextSteps(b: Brief): string[] {
   return steps.slice(0, 3);
 }
 
-/** Remediated: the finding is on a CAP that EcoSure shows as Approved or Completed. */
-const remediated = (fs: Finding[]) => fs.filter((f) => f.capItem && f.audit.capState === 'closed').length;
 
 /** What teams wrote in their corrective action plans, sorted into a few plain themes. */
 const ACTION_THEMES: [RegExp, string][] = [
@@ -115,24 +115,40 @@ const ACTION_THEMES: [RegExp, string][] = [
   [/thermometer|calibrat|temp/i, 'checked temperatures'],
   [/label|dated/i, 'labeled and dated items'],
 ];
-export function teamActions(fs: Finding[], n = 2): string[] {
-  const acts = fs.map((f) => f.capItem?.action ?? '').filter(Boolean);
-  return ACTION_THEMES.map(([re, label]) => ({ label, k: acts.filter((x) => re.test(x)).length }))
-    .filter((x) => x.k >= 2).sort((a, b) => b.k - a.k).slice(0, n).map((x) => x.label);
+
+/** Each theme with the number of kitchens whose plan mentions it. */
+export function teamThemes(fs: Finding[]): { label: string; k: number }[] {
+  return ACTION_THEMES.map(([re, label]) => ({ label, k: new Set(fs.filter((f) => re.test(f.capItem?.action ?? '')).map((f) => f.audit.key)).size }))
+    .filter((x) => x.k > 0).sort((a, b) => b.k - a.k).slice(0, 3);
+}
+/** One real corrective action, from a remediated plan when there is one, that reads well on its own. */
+function example(fs: Finding[]): { text: string; who: string } | null {
+  const good = (f: Finding) => (f.capItem?.action ?? '').length;
+  const pick = [...fs].filter((f) => good(f) >= 40).sort((a, b) => Number(isRemediated(b)) - Number(isRemediated(a)) || Math.abs(good(a) - 140) - Math.abs(good(b) - 140))[0];
+  if (!pick) return null;
+  const t = pick.capItem!.action;
+  return { text: t.length > 220 ? t.slice(0, 217).replace(/\s+\S*$/, '') + '...' : t, who: pick.audit.community };
 }
 
-export interface Snapshot { kitchens: number; found: number; done: number; rate: number; top: { title: string; kitchens: number; done: number; n: number; did: string[] }[] }
+export interface Challenge { short: string; title: string; crit: string; kitchens: number; kitchensDone: number; n: number; themes: { label: string; k: number }[]; example: { text: string; who: string } | null; why: string; cautions: string[] }
+export interface Snapshot { kitchens: number; found: number; done: number; rate: number; top: Challenge[] }
 function snapshotOf(b: Brief): Snapshot {
   const items = b.A.flatMap((a) => a.items);
   const done = remediated(items);
   return {
     kitchens: b.A.length, found: items.length, done, rate: items.length ? Math.round((done / items.length) * 100) : 0,
-    top: b.top.slice(0, 3).map((p) => ({ title: plainTitle(p.short), kitchens: p.kitchens, done: remediated(p.findings), n: p.findings.length, did: teamActions(p.findings) })),
+    top: b.top.slice(0, 3).map((p) => {
+      const byKitchen = [...new Set(p.findings.map((f) => f.audit.key))];
+      return {
+        short: p.short, title: plainTitle(p.short), crit: p.crit, kitchens: p.kitchens, n: p.findings.length,
+        kitchensDone: byKitchen.filter((k) => p.findings.filter((f) => f.audit.key === k).every(isRemediated)).length,
+        themes: teamThemes(p.findings), example: example(p.findings),
+        why: PLAIN[p.short]?.why ?? '', cautions: CAUTIONS[p.short] ?? (PLAYBOOK[p.short] ? [PLAYBOOK[p.short].check] : []),
+      };
+    }),
   };
 }
 export const snapshot = (m: Model, v: ViewState, inReg: (name: string) => boolean): Snapshot => snapshotOf(compute(m, v, inReg));
-const didText = (d: string[]) => (d.length ? d.join(', and ').replace(/^./, (c) => c.toUpperCase()) + '.' : 'Corrective plans in progress.');
-export const snapshotDid = didText;
 
 /** Top 5 issues with a photo each; expand one for why it matters and the fix. */
 export function fixCard(m: Model, v: ViewState, inReg: (name: string) => boolean): string {
@@ -160,7 +176,10 @@ export function briefingText(m: Model, v: ViewState, link = '', inReg: (name: st
   return [`Subject: EcoSure food safety snapshot, ${b.A[0]?.round ?? ''} round${region ? `, ${region}` : ''}`, '',
     `This quarter EcoSure found ${sn.found} food safety violations across ${sn.kitchens} kitchens${region ? ` in ${region}` : ''}. Our teams have remediated ${sn.done} of them: a ${sn.rate}% remediation rate.`, '',
     'TOP 3 CHALLENGES AND WHAT TEAMS DID',
-    ...sn.top.map((t, i) => `${i + 1}. ${t.title} (${t.kitchens} kitchens). ${didText(t.did)}`), '',
+    ...sn.top.flatMap((t, i) => [`${i + 1}. ${t.title}: found in ${t.kitchens} kitchens, ${t.kitchensDone} fully remediated.`,
+      `   What teams did: ${t.themes.length ? t.themes.map((x) => `${x.label} (${x.k} ${x.k === 1 ? 'kitchen' : 'kitchens'})`).join('; ') : 'corrective plans in progress'}.`,
+      ...(t.example ? [`   For example, ${t.example.who}: "${t.example.text}"`] : []),
+      ...(t.cautions.length ? [`   Also check: ${t.cautions.join(' ')}`] : [])]), '',
     ...(() => {
       const act = b.A.flatMap((a) => a.items).filter((f) => f.cid === '10.1.1' || f.short === 'No critical pest activity');
       const names = [...new Set(act.map((f) => f.audit.community))];
@@ -172,39 +191,45 @@ export function briefingText(m: Model, v: ViewState, link = '', inReg: (name: st
     ...(link ? ['', `Full dashboard with photos: ${link}`] : [])].join('\n');
 }
 
-/* ---------- community talking points ---------- */
-export function talkingPoints(c: CommunityView): string[] {
-  const A = c.latest;
-  if (!A.length) return [c.c.note || `${c.c.name} has no EcoSure audit on file yet.`];
-  const out: string[] = [];
-  const scored = A.filter((a) => a.score != null);
-  const band = (s: number) => (s >= 85 ? 'a strong result' : s >= 70 ? 'in the middle range (70 to 84)' : 'below our 70 line, which makes it a community of focus');
-  if (scored.length === 1 && A.length === 1) out.push(`${c.c.name} scored ${pct(scored[0].score)} on ${fmtDate(scored[0].date)}, ${band(scored[0].score!)}.`);
-  else if (scored.length) out.push(`${c.c.name}'s ${A.length} kitchens scored ${list(A.map((a) => `${pct(a.score)} (${a.kitchen})`))} on ${fmtDate(c.lastDate)}. The average of ${pct(c.score)} is ${band(c.score!)}.`);
-  else out.push(`${c.c.name} was audited on ${fmtDate(c.lastDate)}. The score is pending until the EcoSure report arrives.`);
-  if (c.score != null && c.prevScore != null) { const d = Math.round(c.score - c.prevScore); out[0] += d === 0 ? ' That is the same as the last audit.' : ` That is ${Math.abs(d)} points ${d > 0 ? 'better' : 'lower'} than the last audit.`; }
+/* ---------- community snapshot ---------- */
+export interface CommSnap {
+  items: Finding[]; found: number; done: number; rate: number; pests: Finding[];
+  top: { title: string; short: string; crit: string; kitchens: string[]; action: string; fs: Finding[] }[];
+}
+/** The same shape as the dashboard snapshot, for one community's audit. Top 3 are ranked by points lost. */
+export function communitySnap(A: Audit[]): CommSnap {
   const items = A.flatMap((a) => a.items);
-  const tops = [...new Map(items.sort((a, b) => b.points - a.points || rank(a.criticality) - rank(b.criticality)).map((f) => [f.short, f])).values()].slice(0, 3);
-  if (tops.length) out.push(`The biggest issues were ${list(tops.map((f) => lower(plainTitle(f.short))))}.${c.critLatest ? ` ${plural(c.critLatest, 'finding was', 'findings were')} critical.` : ''}`);
-  const reps = [...new Set(items.filter((f) => f.repeat).map((f) => lower(plainTitle(f.short))))];
-  if (reps.length) out[out.length - 1] += ` Repeated from the last audit: ${list(reps)}.`;
-  const withAction = items.filter((f) => f.capItem).length;
-  if (items.length) out.push(c.capState === 'closed' ? `The corrective action plan is closed: ${withAction} of ${items.length} findings have a written action.` : c.capState === 'late' ? `No CAP on file and it is late (was due ${fmtDate(A[0].capDue)}). Ask the team to submit it in EcoSure this week.` : c.capState === 'overdue' ? `The corrective action plan has items past their due date (${CAP_LABEL[c.capState].toLowerCase()}). ${withAction} of ${items.length} findings have a written action.` : c.capState === 'missing' ? `No CAP on file yet. It is due ${fmtDate(A[0].capDue)}.` : `The corrective action plan is in progress: ${withAction} of ${items.length} findings have a written action.`);
-  if (tops[0] && PLAYBOOK[tops[0].short]) out.push(`On your next visit: ${lower(PLAYBOOK[tops[0].short].check)}`);
-  if (out.length < 5) out.push(c.self ? `Last self-audit: ${fmtDate(c.self.date)}, readiness ${c.readiness == null ? 'n/a' : Math.round(c.readiness) + '%'}.` : 'No self-audit yet. Ask the team to complete one this month.');
-  return out.slice(0, 5);
+  const done = remediated(items);
+  const groups = new Map<string, Finding[]>();
+  for (const f of items) groups.set(f.short, [...(groups.get(f.short) ?? []), f]);
+  const pts = (fs: Finding[]) => fs.reduce((x, f) => x + f.points, 0);
+  const top = [...groups.values()].sort((a, b) => pts(b) - pts(a) || rank(a[0].criticality) - rank(b[0].criticality)).slice(0, 3).map((fs) => ({
+    title: plainTitle(fs[0].short), short: fs[0].short, crit: [...fs].sort((a, b) => rank(a.criticality) - rank(b.criticality))[0].criticality,
+    kitchens: [...new Set(fs.map((f) => f.audit.kitchen))], action: fs.find((f) => f.capItem?.action)?.capItem?.action ?? '', fs,
+  }));
+  return { items, found: items.length, done, rate: items.length ? Math.round((done / items.length) * 100) : 0, top, pests: items.filter(isPest) };
 }
 
-export function talkingBlock(c: CommunityView): string {
-  const pts = talkingPoints(c);
-  const fs = c.latest.flatMap((a) => a.items).filter((f) => f.photos.length).sort((a, b) => rank(a.criticality) - rank(b.criticality) || b.points - a.points);
-  const shots = top('photos-' + c.slug, fs, 5, 'photos');
-  return `<section class="talk"><h3>Talking points</h3>
-    <ul>${pts.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
-    ${fs.length ? `<div class="strip">${shots.shown.map((f) => `<figure>${photoBtn(f, 0)}<figcaption>${esc(plainTitle(f.short))}</figcaption></figure>`).join('')}</div>${shots.more}` : ''}</section>`;
+/** Up to five photos, critical first, with Show all. */
+export function photoStrip(key: string, A: Audit[]): string {
+  const fs = A.flatMap((a) => a.items).filter((f) => f.photos.length).sort((a, b) => rank(a.criticality) - rank(b.criticality) || b.points - a.points);
+  if (!fs.length) return '';
+  const shots = top('photos-' + key, fs, 5, 'photos');
+  return `<div class="strip">${shots.shown.map((f) => `<figure>${photoBtn(f, 0)}<figcaption>${esc(plainTitle(f.short))}</figcaption></figure>`).join('')}</div>${shots.more}`;
 }
 
+/** The community snapshot as a plain-text email. */
 export function talkingText(c: CommunityView, link: string): string {
-  return [`${c.c.name}: EcoSure food safety summary`, '', ...talkingPoints(c).map((p) => '- ' + p), '', `Full report: ${link}`].join('\n');
+  const A = c.latest;
+  if (!A.length) return [`${c.c.name}: EcoSure food safety snapshot`, '', c.c.note || 'No EcoSure audit on file yet.', '', `Full report: ${link}`].join('\n');
+  const sn = communitySnap(A);
+  const n = (x: string) => sn.items.filter((f) => f.criticality === x).length;
+  const act = sn.pests.filter(isActivity);
+  return [`${c.c.name}: EcoSure food safety snapshot, audit of ${fmtDate(c.lastDate)}`, '',
+    `EcoSure found ${sn.found} violations (${n('Critical')} critical, ${n('Major')} major, ${n('Minor')} minor). The team has remediated ${sn.done} of them: a ${sn.rate}% remediation rate.`,
+    `Score: ${pct(c.score)}${A.length > 1 ? ` (${A.map((a) => `${a.kitchen} ${pct(a.score)}`).join(', ')})` : ''}.`,
+    ...(act.length ? ['', `PEST ACTIVITY: ${act.map((f) => `${f.audit.kitchen}: ${f.comment || plainTitle(f.short)} (${status([f])[0].toLowerCase()})`).join('; ')}`] : []), '',
+    'TOP 3 CHALLENGES AND WHAT THE TEAM DID',
+    ...sn.top.map((t, i) => `${i + 1}. ${t.title} (${t.crit}${A.length > 1 ? `, ${t.kitchens.join(' and ')}` : ''}). ${t.action ? `Team's action: ${t.action.length > 200 ? t.action.slice(0, 197) + '...' : t.action}` : 'No corrective action written yet.'} Status: ${status(t.fs)[0].toLowerCase()}.`), '',
+    `Full report: ${link}`].join('\n');
 }
-

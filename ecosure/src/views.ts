@@ -2,16 +2,18 @@
 import { THEMES, SECTIONS, themeOf } from './catalog';
 import { CRIT_COLOR, bars, critLegend, scoreLine } from './charts';
 import {
-  AUDIT_LABEL, AUDIT_TONE, CAP_LABEL, CAP_ORDER, CAP_TONE, needsAudit, needsCap, scoreBand,
+  CAP_LABEL, CAP_TONE, scoreBand,
   type Audit, type CommunityView, type Finding, type Model, capMissing, capMissingText,
 } from './model';
 import { fileUrl, photoUrl } from './store';
-import { fixFirst, themeHeat } from './views-roles';
+import { themeHeat } from './views-roles';
 import { fold, top } from './expand';
-import { talkingBlock } from './views-brief';
+import { communitySnap, photoStrip } from './views-brief';
+import { bigBox, critMix, isActivity, pestLabel, statusChip } from './views-common';
+import { PLAYBOOK } from './playbook';
 import { plainTitle } from './plain';
 import type { Crit } from './types';
-import { avg, countBy, daysBetween, esc, fmtDate, pct, plural, todayIso } from './util';
+import { avg, countBy, esc, fmtDate, pct, plural, todayIso } from './util';
 
 export interface Filters {
   community: string;
@@ -31,9 +33,6 @@ export const emptyFilters = (): Filters => ({ community: 'all', kitchen: 'all', 
 export interface ViewState {
   round: string; // 'all' or a round name
   f: Filters;
-  sort: { key: string; dir: 1 | -1 };
-  commFilter: string;
-  actionTab: 'audits' | 'caps';
   canWrite: boolean;
   mode: 'shared' | 'local' | 'starting';
   capEdit: string | null; // audit key with the CAP form open
@@ -43,7 +42,6 @@ export interface ViewState {
 export const scorePill = (s: number | null) => `<span class="score s-${scoreBand(s)}">${pct(s)}</span>`;
 const chip = (tone: string, text: string, title = '') => `<span class="chip t-${tone}"${title ? ` title="${esc(title)}"` : ''}>${esc(text)}</span>`;
 export const capChip = (a: Audit, today = todayIso()) => capMissing(a) ? `<span class="chip t-bad capmiss">${esc(capMissingText(a, today))}</span>` : chip(CAP_TONE[a.capState], CAP_LABEL[a.capState], a.cap ? `EcoSure status: ${a.cap.status}` : '');
-const auditChip = (c: CommunityView) => chip(AUDIT_TONE[c.auditState], AUDIT_LABEL[c.auditState]);
 const critChip = (c: Crit) => `<span class="chip c-${c}">${c}</span>`;
 function delta(cur: number | null, prev: number | null): string {
   if (cur == null || prev == null) return '<span class="delta flat">no prior</span>';
@@ -73,47 +71,6 @@ export function latestPerKitchen(audits: Audit[]): Audit[] {
 }
 
 /* ---------- overview ---------- */
-export function overview(m: Model, v: ViewState): string {
-  const A = latestPerKitchen(inRound(m, v));
-  const scored = A.filter((a) => a.score != null);
-  const comms = new Set(A.map((a) => a.community));
-  const roster = m.communities.filter((c) => c.c.active);
-  const capNeeded = A.filter((a) => a.items.length);
-  const closed = capNeeded.filter((a) => a.capState === 'closed').length;
-  const na = needsAudit(m), nc = needsCap(m);
-  const cur = m.currentRound;
-  const range = A.length ? `${fmtDate(A.reduce((x, a) => (a.date < x ? a.date : x), A[0].date), true)} to ${fmtDate(A.reduce((x, a) => (a.date > x ? a.date : x), A[0].date))}` : '';
-  const f = A.flatMap((a) => a.items);
-  const byComm = [...comms].map((c) => ({ c, s: avg(A.filter((a) => a.community === c).map((a) => a.score)) })).sort((x, y) => (x.s ?? 101) - (y.s ?? 101));
-  const top = [...countBy(f, (i) => i.short)].sort((a, b) => b[1] - a[1]).slice(0, 10);
-  const critOf = (s: string) => f.find((i) => i.short === s)?.criticality ?? 'Minor';
-
-  return head('Portfolio', 'Portfolio at a glance',
-    `${plural(A.length, 'kitchen audit')} across ${plural(comms.size, 'community', 'communities')}${range ? `, ${range}` : ''}. ${cur ? `The current round is <b>${esc(cur.name)}</b> (${fmtDate(cur.start, true)} to ${fmtDate(cur.end)}).` : ''}`) +
-    roundChips(m, v) +
-    `<div class="grid kpis">
-      <div class="kpi ${scoreBand(avg(scored.map((a) => a.score)))}"><div class="v">${pct(avg(scored.map((a) => a.score)))}</div><div class="l">Average score (latest per kitchen)</div></div>
-      <button class="kpi" data-go="communities"><div class="v">${comms.size}<small> of ${roster.length}</small></div><div class="l">Communities audited</div></button>
-      <button class="kpi ${scored.filter((a) => (a.score ?? 100) < 70).length ? 'bad' : 'good'}" data-go="communities" data-band="bad"><div class="v">${scored.filter((a) => (a.score ?? 100) < 70).length}</div><div class="l">Kitchens below 70</div></button>
-      <button class="kpi ${f.some((i) => i.criticality === 'Critical') ? 'bad' : ''}" data-go="findings" data-crit="Critical"><div class="v">${f.filter((i) => i.criticality === 'Critical').length}</div><div class="l">Critical findings</div></button>
-      <button class="kpi ${closed === capNeeded.length ? 'good' : 'warn'}" data-go="actions" data-tab="caps"><div class="v">${closed}<small> of ${capNeeded.length}</small></div><div class="l">CAPs closed</div></button>
-    </div>
-    <section class="block grid two">
-      <div class="panel"><h3>Needs an audit <span class="sm">${na.length} of ${roster.length} communities</span></h3>${auditList(na.slice(0, 8), m)}${na.length > 8 ? `<p class="more"><button class="btn ghost sm" data-go="actions" data-tab="audits">See all ${na.length}</button></p>` : ''}</div>
-      <div class="panel"><h3>Needs a CAP or follow-up <span class="sm">${plural(nc.length, 'kitchen')}</span></h3>${capList(nc.slice(0, 8), m)}${nc.length > 8 ? `<p class="more"><button class="btn ghost sm" data-go="actions" data-tab="caps">See all ${nc.length}</button></p>` : ''}</div>
-    </section>
-    <section class="block grid two">
-      <div class="panel"><h3>Score by community <span class="sm">lowest first</span></h3>${bars(byComm.map(({ c, s }) => ({ label: shortName(m, c), value: s ?? 0, valueText: pct(s), go: 'c-' + (m.communities.find((x) => x.c.name === c)?.slug ?? ''), segs: [{ v: s ?? 0, color: s == null ? 'var(--line)' : s >= 85 ? 'var(--good)' : s >= 70 ? 'var(--maj)' : 'var(--crit)', title: '' }] })), 100)}
-        <div class="legend"><span><i style="background:var(--good)"></i>85 and up</span><span><i style="background:var(--maj)"></i>70 to 84</span><span><i style="background:var(--crit)"></i>Below 70</span></div></div>
-      <div class="panel"><h3>Most cited standards <span class="sm">kitchens cited</span></h3>${bars(top.map(([s, n]) => ({ label: s, value: n, act: 'std:' + s, segs: [{ v: n, color: CRIT_COLOR[critOf(s)], title: critOf(s) }] })))}${critLegend()}<p class="axisnote">Select a standard to see every finding behind it.</p></div>
-    </section>`;
-}
-
-function auditList(list: CommunityView[], m: Model): string {
-  if (!list.length) return '<div class="okbox">Every active community has been audited this round.</div>';
-  return `<div class="tablewrap"><table><tbody>${list.map((c) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.name)}</b><span class="sub">${esc(auditWhy(c, m))}</span></td><td class="num">${scorePill(c.score)}</td><td>${auditChip(c)}</td></tr>`).join('')}</tbody></table></div>`;
-}
-
 export function auditWhy(c: CommunityView, m: Model): string {
   if (c.c.note) return c.c.note;
   if (!c.lastDate) return 'No EcoSure audit on file.';
@@ -123,57 +80,10 @@ export function auditWhy(c: CommunityView, m: Model): string {
   return last + '.';
 }
 
-function capList(list: Audit[], m: Model): string {
-  if (!list.length) return '<div class="okbox">Every cited kitchen has a closed CAP.</div>';
-  return `<div class="tablewrap"><table><tbody>${list.map((a) => `<tr class="rowlink" data-go="c-${a.slug}"><td><b>${esc(kitchenLabel(a, m))}</b><span class="sub">${esc(capWhy(a, m))}</span></td><td class="num">${scorePill(a.score)}</td><td>${capChip(a)}</td></tr>`).join('')}</tbody></table></div>`;
-}
-
-export function capWhy(a: Audit, m: Model): string {
-  const n = plural(a.items.length, 'finding');
-  if (!a.cap) return `Audited ${fmtDate(a.date)}, ${n}. ${a.capState === 'late' ? `CAP was due ${fmtDate(a.capDue)} (${daysBetween(a.capDue, m.today)} days ago).` : `CAP due ${fmtDate(a.capDue)}.`}`;
-  const sub = a.cap.submitted ? `submitted ${fmtDate(a.cap.submitted)}` : 'not submitted';
-  const due = a.pastDueItems ? `; ${plural(a.pastDueItems, 'item')} past the due date` : '';
-  return `Audited ${fmtDate(a.date)}, ${n}. EcoSure status ${a.cap.status}, ${sub}${due}.`;
-}
-
-/* ---------- action list ---------- */
-export function actions(m: Model, v: ViewState): string {
-  const na = needsAudit(m), nc = needsCap(m);
-  const tab = v.actionTab;
-  const ta = top('act-audits', na, 5, 'communities'), tc = top('act-caps', nc, 5, 'kitchens');
-  const body = tab === 'audits'
-    ? (na.length ? `<div class="tablewrap"><table><thead><tr><th>Community</th><th class="num">Last score</th><th>Status</th><th>Why</th></tr></thead><tbody>${ta.shown.map((c) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.name)}</b></td><td class="num">${scorePill(c.score)}</td><td>${auditChip(c)}</td><td class="why">${esc(auditWhy(c, m))}</td></tr>`).join('')}</tbody></table></div>${ta.more}` : '<div class="okbox">Every active community has been audited this round.</div>')
-    : (nc.length ? `<div class="tablewrap"><table><thead><tr><th>Kitchen</th><th class="num">Score</th><th>CAP</th><th>Why</th></tr></thead><tbody>${tc.shown.map((a) => `<tr class="rowlink" data-go="c-${a.slug}"><td><b>${esc(kitchenLabel(a, m))}</b></td><td class="num">${scorePill(a.score)}</td><td>${capChip(a)}</td><td class="why">${esc(capWhy(a, m))}</td></tr>`).join('')}</tbody></table></div>${tc.more}` : '<div class="okbox">Every cited kitchen has a closed CAP.</div>');
-  return head('Action list', 'Who needs what', `Most urgent first. A CAP counts as closed when EcoSure shows Approved or Completed, and is expected within ${m.settings.capDueDays} days of the audit.`) +
-    `<div class="toolbar"><button class="fbtn" data-tab="caps" aria-pressed="${tab === 'caps'}">Needs a CAP or follow-up<span class="n">${nc.length}</span></button><button class="fbtn" data-tab="audits" aria-pressed="${tab === 'audits'}">Needs an audit<span class="n">${na.length}</span></button><span class="grow"></span><button class="btn ghost sm" data-act="csv-actions">Download CSV</button></div>` + body;
-}
-
-/* ---------- communities ---------- */
-export function communities(m: Model, v: ViewState): string {
-  const q = v.commFilter.toLowerCase();
-  type Row = { c: CommunityView; score: number | null; prev: number | null; crit: number };
-  let rows: Row[] = m.communities.filter((c) => c.c.active || c.audits.length).map((c) => {
-    const A = latestPerKitchen(v.round === 'all' ? c.audits : c.audits.filter((a) => a.round === v.round));
-    return { c, score: avg(A.map((a) => a.score)), prev: c.prevScore, crit: A.reduce((s, a) => s + a.crit, 0) };
-  });
-  if (q) rows = rows.filter((r) => (r.c.c.name + ' ' + r.c.c.city).toLowerCase().includes(q));
-  if (v.f.community === 'band:bad') rows = rows.filter((r) => r.score != null && r.score < 70);
-  const k = v.sort.key, d = v.sort.dir;
-  const val = (r: Row): string | number => ({ name: r.c.c.name, score: r.score ?? 999, delta: r.score != null && r.prev != null ? r.score - r.prev : -999, crit: r.crit, cap: CAP_ORDER.indexOf(r.c.capState) })[k] ?? (r.score ?? 999);
-  rows.sort((a, b) => { const x = val(a), y = val(b); return (x < y ? -1 : x > y ? 1 : 0) * d; });
-  const t = q ? { shown: rows, more: '' } : top('comms', rows, 5, 'communities');
-  const th = (key: string, label: string, cls = '') => `<th class="${cls}" data-sort="${key}">${label}${v.sort.key === key ? ` <span class="arr">${v.sort.dir === 1 ? '▲' : '▼'}</span>` : ''}</th>`;
-  return head('Communities', 'Communities', 'Lowest scores first. Select a column to sort, or a community to open its page.') +
-    `<div class="toolbar"><input type="search" id="commq" placeholder="Find a community" value="${esc(v.commFilter)}" aria-label="Find a community">${v.f.community === 'band:bad' ? '<button class="fbtn" aria-pressed="true" data-act="clear-band">Below 70 only ✕</button>' : ''}<span class="grow"></span><button class="btn ghost sm" data-act="csv-communities">Download CSV</button></div>
-    <div class="tablewrap"><table><thead><tr>${th('name', 'Community')}${th('score', 'Score', 'num')}${th('delta', 'Change', 'num')}${th('crit', 'Critical', 'num')}${th('cap', 'CAP')}</tr></thead><tbody>
-    ${t.shown.map((r) => `<tr class="rowlink" data-go="c-${r.c.slug}"><td><b>${esc(r.c.c.name)}</b><span class="sub">${esc(r.c.c.city)}${r.c.lastDate ? ' · ' + fmtDate(r.c.lastDate) : ' · not audited yet'}</span></td><td class="num">${scorePill(r.score)}</td><td class="num">${delta(r.score, r.prev)}</td><td class="num">${r.crit || ''}</td><td>${r.c.latest.some((a) => a.items.length) ? chip(CAP_TONE[r.c.capState], CAP_LABEL[r.c.capState]) : ''}</td></tr>`).join('')}
-    </tbody></table></div>${t.more}`;
-}
-
-/* ---------- one community ---------- */
+/* ---------- community page ---------- */
 export function community(m: Model, v: ViewState, slugKey: string, auditKey: string | null): string {
   const c = m.bySlug.get(slugKey);
-  if (!c) return head('Community', 'Not found', 'This community is not in the data. <button class="linkbtn" data-go="communities">Back to communities</button>');
+  if (!c) return head('Community', 'Not found', 'This community is not in the data. <button class="linkbtn" data-go="dashboard">Back to the dashboard</button>');
   const dates = [...new Set(c.audits.map((a) => a.date))].sort().reverse();
   const selDate = auditKey && dates.includes(auditKey) ? auditKey : dates[0];
   const A = c.audits.filter((a) => a.date === selDate).sort((x, y) => x.kitchen.localeCompare(y.kitchen));
@@ -181,42 +91,54 @@ export function community(m: Model, v: ViewState, slugKey: string, auditKey: str
   const items = A.flatMap((a) => a.items);
   const fil = v.f;
   const shown = items.filter((i) => (fil.crit === 'all' || i.criticality === fil.crit) && (fil.kitchen === 'all' || i.audit.kitchen === fil.kitchen));
+  const sn = communitySnap(A);
+  const scored = A.filter((a) => a.score != null);
+  const score = avg(scored.map((a) => a.score));
 
-  const tiles = c.latest.length ? `<div class="tiles">${A.map((a) => `<div class="tile"><span class="l">${esc(a.kitchen)}</span><span class="v ${scoreBand(a.score)}">${a.score == null ? 'Pending' : pct(a.score)}</span><span class="l">${fmtDate(a.date)} · ${plural(a.items.length, 'finding')}</span>${a.items.length ? capChip(a) : ''}</div>`).join('')}
-    <div class="tile"><span class="l">Audit status</span>${auditChip(c)}<span class="l">${esc(auditWhy(c, m))}</span></div></div>` : `<div class="empty">${esc(auditWhy(c, m))}</div>`;
+  const pageHead = `<div class="pagehead"><div><p class="crumb"><button class="linkbtn" data-go="dashboard">Executive dashboard</button> / ${esc([c.c.city, c.c.region].filter(Boolean).join(' · '))}</p><h2 class="page">${esc(c.c.name)}</h2></div><div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-community:${c.slug}">Copy as email</button></div></div>`;
+  if (!A.length) return pageHead + `<div class="empty">${esc(auditWhy(c, m))}</div>`;
+
+  // The same snapshot as the dashboard, for this community's audit.
+  const pestAct = sn.pests.filter(isActivity);
+  const hero = `<section class="dhero" aria-label="Audit snapshot">
+    <p class="dhl">EcoSure found <b>${sn.found} violations</b> on ${fmtDate(selDate)}. The team has remediated <b class="good">${sn.rate}%</b> of them.</p>
+    <div class="dbig">
+      ${bigBox('Score', score == null ? 'Pending' : pct(score), { tone: score == null ? '' : scoreBand(score), sub: multiK || A.length > 1 ? esc(A.map((a) => `${a.kitchen} ${a.score == null ? 'pending' : pct(a.score)}`).join(' · ')) : '' })}
+      ${bigBox('Violations identified', String(sn.found), { sub: plural(sn.top.length ? new Set(items.map((f) => f.short)).size : 0, 'issue') })}
+      ${bigBox('Remediation rate', sn.rate + '%', { tone: 'good', meter: sn.rate, sub: `${sn.done} of ${sn.found} remediated` })}
+    </div>
+    ${items.length ? critMix(items, '') : ''}
+    ${sn.top.length ? `<div class="dtop3"><span class="dl">Top 3 challenges and what the team did</span><ol>${sn.top.map((t) => `<li><b>${esc(t.title)}</b><span class="xs">${t.crit}${multiK ? ` · ${esc(t.kitchens.join(', '))}` : ''}</span>${statusChip(t.fs)}<span class="did">${t.action ? esc(t.action.length > 160 ? t.action.slice(0, 157) + '...' : t.action) : 'No corrective action written yet.'}</span>${PLAYBOOK[t.short] ? `<span class="xs have">What to have in place: ${esc(PLAYBOOK[t.short].have[0])}</span>` : ''}</li>`).join('')}</ol></div>` : ''}
+  </section>`;
+
+  const alerts = (pestAct.length ? `<div class="capbanner pestbanner" role="status"><b>Pest activity</b><span>${pestAct.map((f) => `${multiK ? esc(f.audit.kitchen) + ': ' : ''}${esc(f.comment || pestLabel(f))}`).join(' · ')} ${statusChip(pestAct)}</span></div>` : '') +
+    (A.some(capMissing) ? `<div class="capbanner" role="status"><b>CAP missing</b><span>${A.filter(capMissing).map((a) => `${esc(a.kitchen)}: ${esc(capMissingText(a, m.today).replace('CAP missing · ', ''))}`).join(' · ')}. Ask the team to submit the corrective action plan in EcoSure.</span></div>` : '');
 
   const history = c.audits.filter((a) => a.score != null);
   const kitchens = [...new Set(history.map((a) => a.kitchen))];
-  const histChart = kitchens.some((k) => history.filter((a) => a.kitchen === k).length > 1) ? `<section class="block"><h3>Score history</h3><div class="grid two">${kitchens.map((k) => `<div class="panel"><b>${esc(k)}</b>${scoreLine(history.filter((a) => a.kitchen === k).map((a) => ({ x: fmtDate(a.date, true), y: a.score, label: `${k}, ${fmtDate(a.date)}` })))}</div>`).join('')}</div></section>` : '';
-
-  const themeCards = items.length ? `<section class="block"><h3>What to look for on your visit</h3><div class="grid themes">${THEMES.map((t) => {
+  const histBody = kitchens.some((k) => history.filter((a) => a.kitchen === k).length > 1) ? `<div class="grid two">${kitchens.map((k) => `<div class="panel"><b>${esc(k)}</b>${scoreLine(history.filter((a) => a.kitchen === k).map((a) => ({ x: fmtDate(a.date, true), y: a.score, label: `${k}, ${fmtDate(a.date)}` })))}</div>`).join('')}</div>` : '';
+  const lookBody = items.length ? `<div class="grid themes">${THEMES.map((t) => {
     const it = items.filter((i) => themeOf(i.short) === t.t);
     if (!it.length) return '';
     const cls = it.some((i) => i.criticality === 'Critical') ? 'p0' : it.some((i) => i.criticality === 'Major') ? 'p1' : '';
-    const sh = [...countBy(it, (i) => i.short)];
-    return `<div class="theme ${cls}"><b>${esc(t.t)}</b><p>${esc(t.look)}</p><ul>${sh.map(([s, n]) => `<li><span>${esc(s)}</span><span>${n > 1 ? n + 'x' : ''}</span></li>`).join('')}</ul></div>`;
-  }).join('')}</div></section>` : '';
-
-  const capForms = v.canWrite ? A.filter((a) => a.items.length || a.cap).map((a) => capForm(a, v)).join('') : '';
-  const unmatched = A.filter((a) => a.capUnmatched.length);
-
-  const sources = A.flatMap((a) => [a.report && { what: `${a.kitchen} report`, file: a.report.file, ref: a.report.fileRef, src: a.report.source }, a.cap && { what: `${a.kitchen} CAP (${a.cap.status})`, file: a.cap.file, ref: a.cap.fileRef, src: a.cap.source }]).filter(Boolean) as { what: string; file: string; ref?: string; src: string }[];
-
-  const ready = `<div class="tile"><span class="l">Self-audit readiness</span><span class="v ${c.readiness == null ? 'none' : c.readiness >= 90 ? 'good' : c.readiness >= 75 ? 'warn' : 'bad'}">${c.readiness == null ? 'None yet' : Math.round(c.readiness) + '%'}</span><span class="l">${c.self ? `${fmtDate(c.self.date)} by ${esc(c.self.by)}` : 'No self-audit on file'}</span><button class="btn ghost sm" data-go="self-${c.slug}">${c.self ? 'New self-audit' : 'Start self-audit'}</button></div>`;
+    return `<div class="theme ${cls}"><b>${esc(t.t)}</b><p>${esc(t.look)}</p><ul>${[...countBy(it, (i) => i.short)].map(([s, n]) => `<li><span>${esc(plainTitle(s))}</span><span>${n > 1 ? n + 'x' : ''}</span></li>`).join('')}</ul></div>`;
+  }).join('')}</div>` : '';
   const findingsBody = items.length ? `<div class="toolbar"><span class="lbl">Show</span>${['all', 'Critical', 'Major', 'Minor'].map((k) => `<button class="fbtn" data-crit="${k}" aria-pressed="${fil.crit === k}">${k === 'all' ? 'All' : k}<span class="n">${k === 'all' ? items.length : items.filter((i) => i.criticality === k).length}</span></button>`).join('')}
       ${multiK ? `<span class="lbl" style="margin-left:8px">Kitchen</span>${['all', ...A.map((a) => a.kitchen)].map((k) => `<button class="fbtn" data-kitchen="${esc(k)}" aria-pressed="${fil.kitchen === k}">${k === 'all' ? 'All' : esc(k)}</button>`).join('')}` : ''}</div>
       <div class="finds">${shown.map((i) => findingCard(i, m, multiK, false)).join('') || '<div class="empty">No findings match.</div>'}</div>` : '';
-  const strip = (html: string) => html.replace(/^<section class="block"><h3>[^<]*<\/h3>/, '').replace(/<\/section>$/, '');
-  return `<div class="pagehead"><div><p class="crumb"><button class="linkbtn" data-go="communities">Communities</button> / ${esc(c.c.city)}</p><h2 class="page">${esc(c.c.name)}</h2></div><div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn ghost sm" data-act="copy-community:${c.slug}">Copy as email</button></div></div>` +
+  const capForms = v.canWrite ? A.filter((a) => a.items.length || a.cap).map((a) => capForm(a, v)).join('') : '';
+  const unmatched = A.filter((a) => a.capUnmatched.length);
+  const sources = A.flatMap((a) => [a.report && { what: `${a.kitchen} report`, file: a.report.file, ref: a.report.fileRef, src: a.report.source }, a.cap && { what: `${a.kitchen} CAP (${a.cap.status})`, file: a.cap.file, ref: a.cap.fileRef, src: a.cap.source }]).filter(Boolean) as { what: string; file: string; ref?: string; src: string }[];
+  const photos = photoStrip(c.slug + '-' + selDate, A);
+
+  return pageHead +
     (dates.length > 1 ? `<div class="toolbar"><span class="lbl">Audit</span>${dates.map((d) => `<button class="fbtn" data-audit="${d}" aria-pressed="${d === selDate}">${fmtDate(d)}</button>`).join('')}</div>` : '') +
-    (A.some(capMissing) ? `<div class="capbanner" role="status"><b>CAP missing</b><span>${A.filter(capMissing).map((a) => `${esc(a.kitchen)}: ${esc(capMissingText(a, m.today).replace('CAP missing · ', ''))}`).join(' · ')}. Ask the team to submit the corrective action plan in EcoSure.</span></div>` : '') +
-    talkingBlock(c) +
-    (c.latest.length ? tiles.replace(/<\/div>$/, ready + '</div>') : tiles + `<div class="tiles" style="margin-top:12px">${ready}</div>`) +
-    fixFirst(A) +
+    alerts + hero +
+    (photos ? `<section class="block"><h3>Photos</h3>${photos}</section>` : '') +
     `<section class="block folds">` +
     fold('findings', `All findings and photos <span class="sm">${plural(items.length, 'finding')}</span>`, findingsBody) +
-    fold('history', 'Score history', histChart ? strip(histChart) : '') +
-    fold('look', 'What to look for on a visit', themeCards ? strip(themeCards) : '') +
+    fold('look', 'What to look for on a visit', lookBody) +
+    fold('history', 'Score history', histBody) +
     fold('well', 'What went well', A.some((a) => a.positive.length) ? `<ul class="plain">${[...new Set(A.flatMap((a) => a.positive))].map((p) => `<li>${esc(p)}</li>`).join('')}</ul>` : '') +
     fold('details', 'Manager and health inspection', `<div class="meta">${A[0]?.manager ? `<span>Manager: ${esc(A[0].manager)}</span>` : ''}${A[0]?.hdResult ? `<span>Last health inspection: ${esc(A[0].hdResult)}${A[0].hdDate ? ' on ' + esc(fmtDate(A[0].hdDate) || A[0].hdDate) : ''}</span>` : ''}<span>${plural(c.audits.length, 'kitchen audit')} on file</span></div>`) +
     fold('capform', 'Update CAP status', capForms ? `<p class="note">Use this when a CAP update arrives by email or in EcoSure before you have the PDF. Importing the CAP PDF later replaces it.</p><div class="grid">${capForms}</div>` : '', !!v.capEdit) +

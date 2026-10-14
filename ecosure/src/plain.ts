@@ -1,5 +1,5 @@
 /**
- * Plain-language wording for each standard, for briefings and talking points:
+ * Plain-language wording for each standard, for the dashboard, community pages and emails:
  * the problem as someone would say it out loud, and why it matters to residents.
  */
 export interface Plain { title: string; why: string }

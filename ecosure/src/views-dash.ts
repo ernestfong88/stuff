@@ -2,18 +2,16 @@
  * Enterprise dashboard: the program's impact at a glance for the communities the reader picks.
  * Every number and panel links to the page with the detail behind it.
  */
-import { CRIT_COLOR } from './charts';
 import { type Model } from './model';
-import { avg, esc, fmtDate, pct } from './util';
+import { esc, fmtDate } from './util';
 import { inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
 import { communitiesOfFocus } from './views-roles';
-import { fixCard, snapshot, snapshotDid, stepsCard } from './views-brief';
+import { fixCard, snapshot, stepsCard, type Challenge } from './views-brief';
 import { OPEN, top } from './expand';
 import { photoUrl } from './store';
 import type { Finding } from './model';
 
-const SEVS = ['Critical', 'Major', 'Minor'] as const;
-const pctOf = (x: number, n: number) => (n ? Math.round((x / n) * 100) : 0);
+import { bigBox, critMix, isActivity, isPest, isRemediated, pctOf, pestLabel, statusChip } from './views-common';
 
 /* The communities the reader picked (null = all). A VP picks their set once; it is remembered in this browser. */
 const KEY = 'ecosure.dashCommunities';
@@ -82,33 +80,59 @@ function picker(m: Model, label: string): string {
   </details>`;
 }
 
-/** EcoSure's Insects/Rodents/Animals section. 10.1.1 is pest activity seen at the visit, a critical finding. */
-const isPest = (f: Finding) => f.section === 'Insects/Rodents/Animals' || f.cid.startsWith('10.');
-const isActivity = (f: Finding) => f.cid === '10.1.1' || f.short === 'No critical pest activity';
-const pestStatus = (f: Finding): [string, string] => f.capItem && f.audit.capState === 'closed' ? ['Remediated', 'good'] : f.capItem ? ['In progress', 'warn'] : ['No CAP yet', 'bad'];
+let PEST_TAB: 'activity' | 'prevention' = 'activity';
+export const setPestTab = (t: string) => { PEST_TAB = t === 'prevention' ? 'prevention' : 'activity'; };
 
-function pestTracker(fs: Finding[], regionOf: (name: string) => string): string {
-  const pests = fs.filter(isPest);
-  const byComm = [...new Set(pests.map((f) => f.audit.community))].map((name) => {
-    const list = pests.filter((f) => f.audit.community === name).sort((a, b) => Number(isActivity(b)) - Number(isActivity(a)));
-    const open = list.filter((f) => pestStatus(f)[0] !== 'Remediated').length;
-    return { name, slug: list[0].audit.slug, list, activity: list.some(isActivity), open, date: list.reduce((x, f) => (f.audit.date > x ? f.audit.date : x), '') };
-  }).sort((a, b) => Number(b.activity) - Number(a.activity) || b.open - a.open || b.date.localeCompare(a.date));
-  const act = byComm.filter((c) => c.activity).length;
-  const { shown, more } = top('dash-pest', byComm, 5, 'communities');
-  const label = (f: Finding) => (isActivity(f) ? 'Pest activity' : f.cid === '10.2.1' || /outer openings/i.test(f.short) ? 'Pest entry points not sealed' : f.cid === '10.1.2' || /insect control/i.test(f.short) ? 'Insect control devices' : 'Pest prevention');
-  return `<section class="dpanel span12 dpest${act ? ' alert' : ''}"><header><div><h3>Pest tracker</h3><p>Pest activity is a critical finding and needs a pest control visit right away.</p></div><button class="linkbtn" data-act="section:Insects/Rodents/Animals">All pest findings</button></header>
-    <div class="dpestsum"><span class="${act ? 'bad' : 'good'}"><b>${act}</b> ${act === 1 ? 'community' : 'communities'} with pest activity</span><span class="${byComm.length - act ? 'warn' : 'good'}"><b>${byComm.length - act}</b> with prevention gaps only</span></div>
-    ${byComm.length ? `<div class="tablewrap"><table class="dpestt"><tbody>${shown.map((c) => `<tr class="rowlink${c.activity ? ' act' : ''}" data-go="c-${c.slug}">
-      <td><b>${esc(c.name)}</b><span class="sub">${esc(regionOf(c.name))} · ${fmtDate(c.date)}</span></td>
-      <td>${c.list.map((f) => { const [st, tone] = pestStatus(f); return `<div class="pf"><span class="chip ${isActivity(f) ? 't-bad' : 't-warn'}">${label(f)}</span>${f.audit.kitchen !== 'Main Kitchen' ? `<span class="xs">${esc(f.audit.kitchen)}</span>` : ''}<span class="chip t-${tone} plain">${st}</span>${f.comment ? `<span class="xs pc">${esc(f.comment.length > 110 ? f.comment.slice(0, 107) + '...' : f.comment)}</span>` : ''}</div>`; }).join('')}</td>
-      <td class="pph">${(() => { const f = c.list.find((x) => x.photos.length); return f ? `<button class="ph" data-photo="${esc(f.key)}" data-n="0" aria-label="Open pest photo from ${esc(c.name)}"><img loading="lazy" src="${esc(photoUrl(f.photos[0]))}" alt=""></button>` : ''; })()}</td></tr>`).join('')}</tbody></table></div>${more}` : '<div class="okbox">No pest findings in the selected communities.</div>'}
+/** Pest findings, one row per community: a photo, what was identified and what was remediated. Expand a row for the detail. */
+function pestTracker(m: Model, fs: Finding[]): string {
+  const short = (name: string) => m.settings.roster.find((c) => c.name === name)?.short || name;
+  const rows = (pick: (f: Finding) => boolean) => [...new Set(fs.filter((f) => isPest(f) && pick(f)).map((f) => f.audit.community))].map((name) => {
+    const list = fs.filter((f) => isPest(f) && pick(f) && f.audit.community === name);
+    return { name, slug: list[0].audit.slug, list, open: list.filter((f) => !isRemediated(f)).length };
+  }).sort((a, b) => b.open - a.open || a.name.localeCompare(b.name));
+  const act = rows(isActivity), prev = rows((f) => !isActivity(f));
+  const cur = PEST_TAB === 'activity' ? act : prev;
+  const t = top('dash-pest-' + PEST_TAB, cur, 5, 'communities');
+  const join = (xs: string[]) => [...new Set(xs.filter(Boolean))].join(' ');
+  const row = (r: (typeof cur)[number]) => {
+    const found = join(r.list.map((f) => f.comment)) || join(r.list.map((f) => pestLabel(f)));
+    const fixed = join(r.list.map((f) => f.capItem?.action ?? ''));
+    const photos = r.list.flatMap((f) => f.photos.map((_, n) => ({ f, n })));
+    const key = `pest-${r.slug}-${PEST_TAB}`;
+    const clip = (x: string, n: number) => (x.length > n ? x.slice(0, n - 3) + '...' : x);
+    return `<details class="xrow prow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>
+      ${photos[0] ? `<img src="${esc(photoUrl(photos[0].f.photos[0]))}" alt="" loading="lazy">` : '<span class="noimg"></span>'}
+      <span class="xt"><b>${esc(short(r.name))}</b><span class="xs">${esc(clip(found, 120))}</span></span>${statusChip(r.list)}<span class="chev" aria-hidden="true"></span></summary>
+      <div class="xbody">
+        ${photos.length ? `<div class="thumbs">${photos.slice(0, 6).map(({ f, n }) => `<button data-photo="${esc(f.key)}" data-n="${n}" aria-label="Open pest photo from ${esc(short(r.name))}"><img loading="lazy" src="${esc(photoUrl(f.photos[n]))}" alt=""></button>`).join('')}</div>` : ''}
+        <p><b>Identified:</b> ${esc(found)}</p>
+        <p><b>Remediated:</b> ${fixed ? esc(fixed) : 'No corrective action on file yet.'}</p>
+        <button class="linkbtn" data-go="c-${r.slug}">Open ${esc(short(r.name))}</button>
+      </div></details>`;
+  };
+  return `<section class="dpanel span12 dpest${act.length ? ' alert' : ''}"><header><div><h3>Pest tracker</h3><p>Pest activity is a critical finding and needs a pest control visit right away.</p></div></header>
+    <div class="toolbar ptabs" role="tablist"><button class="fbtn" role="tab" data-act="pest:activity" aria-pressed="${PEST_TAB === 'activity'}">Pest activity<span class="n">${act.length}</span></button><button class="fbtn" role="tab" data-act="pest:prevention" aria-pressed="${PEST_TAB === 'prevention'}">Prevention gaps<span class="n">${prev.length}</span></button></div>
+    ${cur.length ? `<div class="xlist">${t.shown.map(row).join('')}</div>${t.more}` : `<div class="okbox">${PEST_TAB === 'activity' ? 'No pest activity found in the selected communities.' : 'No pest prevention gaps in the selected communities.'}</div>`}
   </section>`;
 }
 
+/** The top 3 challenges, with how far remediation has got, what teams did, and what else to check. */
+function challenges(top: Challenge[]): string {
+  if (!top.length) return '';
+  return `<section class="chal" aria-label="Top 3 challenges"><header><h3>Top 3 challenges and what teams did</h3><p>Ranked by points lost. What teams wrote in their corrective action plans, and what leaders should still check.</p></header>
+    <div class="chalgrid">${top.map((t, i) => { const r = pctOf(t.kitchensDone, t.kitchens); return `<article class="chalcard">
+      <div class="ch"><span class="rank">${i + 1}</span><div><h4>${esc(t.title)}</h4><span class="chip c-${t.crit}">${t.crit}</span> <span class="xs">Found in ${t.kitchens} kitchens</span></div></div>
+      <div class="chprog"><span><b>${t.kitchensDone}</b> of ${t.kitchens} kitchens fully remediated</span><span class="dmeter"><span style="width:${r}%"></span></span></div>
+      ${t.why ? `<p class="chwhy">${esc(t.why)}</p>` : ''}
+      <div class="chsec"><span class="dl">What teams did</span>${t.themes.length ? `<ul class="chdid">${t.themes.map((x) => `<li><span>${esc(x.label.charAt(0).toUpperCase() + x.label.slice(1))}</span><b>${x.k} ${x.k === 1 ? 'kitchen' : 'kitchens'}</b></li>`).join('')}</ul>` : '<p class="xs">Corrective plans in progress.</p>'}
+        ${t.example ? `<blockquote>“${esc(t.example.text)}”<cite>${esc(t.example.who)}</cite></blockquote>` : ''}</div>
+      ${t.cautions.length ? `<div class="chsec caution"><span class="dl">Also check</span><ul>${t.cautions.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
+      <button class="linkbtn" data-act="std-photos:${esc(t.short)}">See all ${t.n} findings</button>
+    </article>`; }).join('')}</div></section>`;
+}
+
 export function dashboard(m: Model, v: ViewState): string {
-  const { inReg, regionOf, region: selLabel, where } = regionFilter(m);
-  const regions = [...new Set(active(m).map(regionOfC))].sort();
+  const { inReg, region: selLabel, where } = regionFilter(m);
   const all = latestPerKitchen(inRound(m, v));
   const A = all.filter((a) => inReg(a.community));
   const items = A.flatMap((a) => a.items);
@@ -118,11 +142,8 @@ export function dashboard(m: Model, v: ViewState): string {
   // Communities of focus: the qualifying reasons from the latest quarterly audit, without status detail.
   const focusAll = communitiesOfFocus(m).filter(({ c }) => inReg(c.c.name)).sort((a, b) => (a.c.score ?? 101) - (b.c.score ?? 101));
   const focus = focusAll.slice(0, 5).map(({ c, why }) => ({ c, why: why.filter((w) => /critical|repeat/.test(w)) }));
-  const regionRows = regions.filter((rg) => A.some((a) => regionOf(a.community) === rg)).map((rg) => ({ rg, s: avg(A.filter((a) => regionOf(a.community) === rg).map((a) => a.score)) }))
-    .sort((x, y) => (x.s ?? 101) - (y.s ?? 101));
 
-  const panel = (title: string, sub: string, go: string, body: string) => `<section class="dpanel span6"><header><div><h3>${title}</h3>${sub ? `<p>${sub}</p>` : ''}</div>${go ? `<button class="linkbtn" data-go="${go}">Details</button>` : ''}</header>${body}</section>`;
-  const sev = SEVS.map((x) => ({ x, n: items.filter((f) => f.criticality === x).length }));
+  const panel = (title: string, sub: string, go: string, body: string) => `<section class="dpanel span12"><header><div><h3>${title}</h3>${sub ? `<p>${sub}</p>` : ''}</div>${go ? `<button class="linkbtn" data-go="${go}">Details</button>` : ''}</header>${body}</section>`;
 
   return `<div class="dash">
     <div class="dhead">
@@ -136,22 +157,19 @@ export function dashboard(m: Model, v: ViewState): string {
     <section class="dhero" aria-label="Quarter snapshot">
       <p class="dhl">This quarter EcoSure found <b>${sn.found} violations</b> across ${sn.kitchens} kitchens${where ? ` ${esc(where)}` : ''}. Our teams have remediated <b class="good">${sn.rate}%</b> of them.</p>
       <div class="dbig">
-        <button data-go="findings"><span class="dl">Violations identified</span><b>${sn.found}</b></button>
-        <button class="good" data-go="findings"><span class="dl">Remediated</span><b>${sn.done}</b></button>
-        <div class="good"><span class="dl">Remediation rate</span><b>${sn.rate}%</b><span class="dmeter"><span style="width:${sn.rate}%"></span></span></div>
+        ${bigBox('Violations identified', String(sn.found), { go: 'findings' })}
+        ${bigBox('Remediated', String(sn.done), { tone: 'good', go: 'findings' })}
+        ${bigBox('Remediation rate', sn.rate + '%', { tone: 'good', meter: sn.rate })}
       </div>
-      <div class="dmix"><span class="dl">Violations by criticality</span>
-        <div class="dmixbar" role="img" aria-label="${sev.map((t) => `${t.n} ${t.x}`).join(', ')}">${sev.filter((t) => t.n).map((t) => `<button style="flex:${t.n};background:${CRIT_COLOR[t.x]}" data-go="findings" data-crit="${t.x}" title="${t.n} ${t.x.toLowerCase()} (${pctOf(t.n, sn.found)}%)"></button>`).join('')}</div>
-        <div class="dmixlab">${sev.map((t) => `<button data-go="findings" data-crit="${t.x}"><i style="background:${CRIT_COLOR[t.x]}"></i>${t.x} <b>${t.n}</b> <span>${pctOf(t.n, sn.found)}%</span></button>`).join('')}</div>
-      </div>
-      ${sn.top.length ? `<div class="dtop3"><span class="dl">Top 3 challenges and what teams did</span><ol>${sn.top.map((t) => `<li><b>${esc(t.title)}</b><span class="xs">${t.kitchens} kitchens</span><span class="did">${esc(snapshotDid(t.did))}</span></li>`).join('')}</ol></div>` : ''}
+      ${critMix(items)}
     </section>
 
-    <div class="dgrid">${pestTracker(items, regionOf)}</div>
+    ${challenges(sn.top)}
+
+    <div class="dgrid">${pestTracker(m, items)}</div>
 
     <div class="dgrid">
-      ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ critical or 3+ repeats`, 'communities', focus.length ? `<div class="tablewrap"><table class="dfocus"><tbody>${focus.map(({ c, why }) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.name)}</b><span class="sub">${esc([c.c.region ?? '', ...why].filter(Boolean).join(' · '))}</span></td><td class="num">${scorePill(c.score)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="okbox">None in this view.</div>')}
-      ${panel('Average score by region', 'Select one to show only that region', '', `<div class="bars">${regionRows.map((x) => ` <button class="bar${selLabel === x.rg + ' region' ? ' on' : ''}" data-act="sel:region:${esc(x.rg)}"><span class="name">${esc(x.rg)}</span><span class="track"><span class="fill" style="width:${x.s ?? 0}%;background:${x.s == null ? 'var(--line)' : x.s >= 85 ? 'var(--good)' : x.s >= 70 ? 'var(--maj)' : 'var(--crit)'}"></span></span><span class="val">${pct(x.s)}</span></button>`).join('')}</div>`)}
+      ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ critical or 3+ repeats`, '', focus.length ? `<div class="tablewrap"><table class="dfocus"><tbody>${focus.map(({ c, why }) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.name)}</b><span class="sub">${esc([c.c.region ?? '', ...why].filter(Boolean).join(' · '))}</span></td><td class="num">${scorePill(c.score)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="okbox">None in this view.</div>')}
     </div>
 
     ${fixCard(m, v, inReg)}

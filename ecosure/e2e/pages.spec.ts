@@ -4,14 +4,23 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
   await expect(page.locator('.dhl')).toContainText('violations');
-  await expect(page.locator('.dtop3 li')).toHaveCount(3);
-  await expect(page.locator('.dtop3 .did').first()).not.toBeEmpty();
+  await expect(page.locator('.chalcard')).toHaveCount(3);
+  await expect(page.locator('.chalcard .chdid li').first()).toContainText('kitchen');
+  await expect(page.locator('.chalcard .caution li').first()).not.toBeEmpty();
+  const pest = page.locator('.dpest');
+  await expect(pest.locator('[data-act="pest:activity"]')).toHaveAttribute('aria-pressed', 'true');
+  await pest.locator('.prow summary').first().click();
+  await expect(pest.locator('.prow').first()).toContainText('Remediated:');
+  await pest.locator('[data-act="pest:prevention"]').click();
+  await expect(pest.locator('[data-act="pest:prevention"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#navMain button')).toHaveCount(1);
+  await expect(page.locator('#navMore')).not.toContainText('Self-audits');
   await expect(page.locator('.dbig > *')).toHaveCount(3);
   await expect(page.locator('.dmixlab button')).toHaveCount(3);
   await expect(page.locator('.dfocus tbody tr')).toHaveCount(5);
   const ident = page.locator('.dbig > *').first();
   const before = await ident.textContent();
-  await expect(page.locator('.dpest')).toContainText('pest activity');
+  await expect(page.locator('.dpest')).toContainText('Pest activity');
   await page.locator('.dsel > summary').click();
   await page.locator('[data-act="sel:none"]').click();
   await page.locator('input[data-selreg="Mountain"]').check();
@@ -27,7 +36,7 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(page.locator('.dsel > summary b')).toContainText('All communities');
   await page.locator('[data-act="sel:done"]').click();
   await page.locator('.dfocus tbody tr').first().click();
-  await expect(page.getByRole('heading', { name: 'Talking points' })).toBeVisible();
+  await expect(page.locator('.dhl')).toContainText('The team has remediated');
   await page.goto('/');
   await expect(page.locator('.dhl')).toContainText('remediated');
 });
@@ -43,28 +52,13 @@ test('the dashboard keeps the briefing: issues with photos, next steps, talking 
   await expect(page.locator('.steps li')).toHaveCount(3);
   await expect(page.locator('#navComm .captag').first()).toBeAttached();
   await page.locator('.dfocus tbody tr').first().click();
-  await expect(page.getByRole('heading', { name: 'Talking points' })).toBeVisible();
-  await expect(page.locator('.talk li').first()).toContainText('scored');
-  await expect(page.getByRole('heading', { name: 'Fix first' })).toBeVisible();
+  await expect(page.locator('.dhl')).toContainText('violations');
+  await expect(page.locator('.dtop3 li')).toHaveCount(3);
+  await page.locator('.dmixlab [data-crit="Critical"]').click();
+  await expect(page.locator('[data-fold="findings"]')).toHaveAttribute('open', '');
+  await expect(page.locator('.finds .find').first()).toContainText('Critical');
 });
 
-
-test('a community submits a self-audit and readiness shows up', async ({ page }) => {
-  await page.goto('/#self-drake-terrace');
-  await expect(page.locator('.citem').first()).toBeVisible();
-  await page.locator('[data-act="self-pass-rest"]').click();
-  await page.locator('.citem', { hasText: 'Hood system clean/in repair' }).locator('.seg.fail').click();
-  await page.locator('input[data-note="Hood system clean/in repair"]').fill('Filters greasy; cleaned today');
-  await page.fill('#sa-by', 'Test Person');
-  await page.locator('[data-act="self-submit"]').click();
-  await expect(page.locator('h2.page')).toHaveText('Drake Terrace');
-  await expect(page.locator('.tile', { hasText: 'Self-audit readiness' })).toContainText('%');
-  await page.evaluate(() => (location.hash = 'self'));
-  // Current self-audits sort to the end, past the top 5.
-  await expect(page.locator('tr', { hasText: 'Drake Terrace' })).toHaveCount(0);
-  await page.locator('[data-act="expand:self"]').click();
-  await expect(page.locator('tr', { hasText: 'Drake Terrace' })).toContainText('Self-audit current');
-});
 
 test('playbook deep link highlights the standard', async ({ page }) => {
   await page.goto('/#playbook.cold-holding-at-41-f-or-below');

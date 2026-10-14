@@ -4,28 +4,55 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 ## What it does
 
-Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more.
+The sidebar has three parts:
+1. **Executive dashboard**
+2. **All communities**, a list to open any community
+3. **More detail** reference pages, plus **Manage** for Editors
 
-The site opens on the **Executive dashboard**, built for a COO or VP of operations. It combines the dashboard and the executive briefing in one page:
+Every list starts with its top 5. Readers can expand it or open folded sections for more.
 
-- **Communities picker** at the top: a dropdown of every community, grouped by region. Tick a whole region or single communities, or search. Everything on the page, and Copy as email, follows the selection. Each viewer's choice is remembered in their browser, so a VP picks their communities once.
+### Executive dashboard
 
-1. **Quarter snapshot:**
-   - one line: violations found and the remediation rate
-   - three numbers: violations identified, remediated and remediation rate
-   - one bar showing the split by criticality
-2. **Top 3 challenges and what teams did:** for each, the kitchens cited and the most common actions in the teams' corrective action plans, such as cleaned and sanitized, retrained staff or repaired equipment. The action themes are keyword matches in `src/views-brief.ts` (`ACTION_THEMES`).
-3. **Pest tracker:** every finding in EcoSure's Insects/Rodents/Animals section for the selected communities. Communities with pest activity (a critical finding) come first, marked in red, then prevention gaps (entry points not sealed, insect control devices). Each shows the kitchen, the auditor's note, a photo and whether it is remediated, in progress or has no CAP yet.
-4. **Communities of focus** from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats), lowest score first. Each opens the community page.
-5. **Average score by region.** Selecting a region shows only that region.
-6. **Top 5 issues** with a photo each. Expand one for why it matters, the fix and more photos.
-7. **Next steps** for regional and community teams.
+Built for a COO or VP of operations to scan in a minute.
 
-**Copy as email** produces the same content as plain text, with a link back, for the communities you have selected.
+- **Communities picker:** a dropdown of every community, grouped by region. Tick a whole region or single communities, or search. Everything on the page, and Copy as email, follows the selection. Each viewer's choice is remembered in their browser, so a VP picks their communities once.
 
-Each **community page** opens with talking points (score, biggest issues in plain words, repeats, CAP status, what to check on the next visit) and up to 8 photos. A fix-first list, score history and every finding follow below.
+The page then shows, in order:
+1. **Quarter snapshot:** one line on violations found and the remediation rate. Below it are three numbers (violations identified, remediated, remediation rate) and one bar splitting violations by criticality.
+2. **Top 3 challenges and what teams did:** a card for each, ranked by points lost, with:
+   - how many kitchens fully remediated it
+   - why it matters
+   - what teams did, as themes with kitchen counts plus one real action from a corrective action plan
+   - **Also check:** the follow-on risks leaders should still assess
 
-Under **More detail**:
+   The themes are keyword matches in `src/views-brief.ts` (`ACTION_THEMES`). The Also check lines live in `src/cautions.ts`.
+3. **Pest tracker:** EcoSure's Insects/Rodents/Animals findings, split into two tabs: **Pest activity** (a critical finding) and **Prevention gaps**. Each row shows the community's short name, a photo, what was identified and its status. Expand a row for every photo, what was identified and what was remediated.
+4. **Communities of focus:** the lowest five from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats). Each opens the community page.
+5. **Top 5 issues,** each with a photo. Expand one for why it matters, the fix and more photos.
+6. **Next steps** for regional and community teams.
+
+**Copy as email** produces the same content as plain text, with a link back.
+
+### Community page
+
+The community page uses the same layout as the dashboard:
+- alerts first: **Pest activity** and **CAP missing**
+- the snapshot: score (with each kitchen), violations identified, remediation rate and the criticality bar
+- the top 3 challenges with the team's own corrective action, its status and what to have in place
+- photos
+
+Select a criticality in the bar to open the findings list filtered to it. Everything else is folded below:
+- all findings and photos
+- what to look for on a visit
+- score history
+- what went well
+- manager and health inspection
+- CAP updates (Editors only)
+- source files
+
+Copy as email sends the same snapshot.
+
+### More detail
 
 | Page | Use it to |
 | --- | --- |
@@ -33,9 +60,6 @@ Under **More detail**:
 | Findings and photos | Filter every finding by community, section, theme, criticality, CAP state, repeats, photos or text, then download a CSV |
 | Trends | See the portfolio by theme grid, scores by round and month, points lost by section, a standards heat map, repeat findings and the biggest score changes |
 | Readiness playbook | Review every cited standard: what EcoSure checks, what to have in place, a 30-second check, and the most common misses |
-| Self-audits | Track each community's monthly walk-through against the playbook. Readiness is the points-weighted pass rate |
-
-Also available: **Action list** (who needs an audit or a CAP), **Communities** (sortable scorecard), **Import files** and **Settings**.
 
 Plain-language titles and "why it matters" lines live in `src/plain.ts`; the playbook text lives in `src/playbook.ts`. Edit either file to match Kisco's own wording.
 
@@ -43,7 +67,7 @@ Plain-language titles and "why it matters" lines live in `src/plain.ts`; the pla
 
 - Share the page from claude.ai's Share menu.
 - Give **Viewer** access to people who only read it.
-- Give **Editor** access to anyone who imports files, changes settings, or submits self-audits. Only Editors can write to the shared data, and the Import and Settings pages are hidden from everyone else.
+- Give **Editor** access to anyone who imports files or changes settings. Only Editors can write to the shared data, and the Import and Settings pages are hidden from everyone else.
 - Links to a community or a playbook entry (for example `#c-balfour-riverfront`) open straight to that page.
 
 ## Adding new files
@@ -63,7 +87,7 @@ A CAP attaches to the report with the same kitchen and audit date (EcoSure's "An
 ## Rules the site applies
 
 - **Score bands:** 85 and up is good, 70 to 84 is a warning, below 70 is a community of focus. Critical findings cost 5 points, Major 3, Minor 1.
-- **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP** tag in the sidebar, a banner on the community page, "CAP missing · due Oct 17" or "CAP missing · 6 days late" in lists, and on the Action list.
+- **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP** tag in the sidebar, and a banner on the community page.
 - **CAP status:**
   - closed when EcoSure shows Approved or Completed
   - past due when an open CAP has an item past its due date
@@ -103,9 +127,11 @@ To publish an update, rebuild and republish `dist/artifact.html` to the same art
 | `src/catalog.ts`, `src/data/standards.json` | The 65 standards with short labels, sections, criticality, client ids and visit themes |
 | `src/model.ts` | Joins reports and CAPs into audits and works out every status |
 | `src/store.ts` | Shared (claude.ai) or local (IndexedDB) storage |
-| `src/views-dash.ts` | The executive dashboard |
-| `src/views-brief.ts` | The quarter snapshot, top issues, next steps, the email text and community talking points |
-| `src/views-roles.ts` | Communities of focus, priorities, playbook and self-audit pages |
+| `src/views-dash.ts` | The executive dashboard, community picker and pest tracker |
+| `src/views-common.ts` | Pieces the dashboard and community page share (remediation status, pest findings, criticality bar) |
+| `src/cautions.ts` | The Also check lines for each standard |
+| `src/views-brief.ts` | The quarter snapshot, top challenges, top 5 issues, next steps, the community snapshot and the email text |
+| `src/views-roles.ts` | Communities of focus, priorities and the playbook |
 | `src/plain.ts` | Plain-language title and why it matters for each standard |
 | `src/playbook.ts` | What to have in place and a quick check for each standard |
 | `src/views*.ts`, `src/charts.ts` | Other pages and charts |
