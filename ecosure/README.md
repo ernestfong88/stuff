@@ -141,8 +141,8 @@ To publish an update, rebuild and republish `dist/artifact.html` to the same art
 | `src/store.ts` | Shared (claude.ai) or local (IndexedDB) storage |
 | `src/views-dash.ts` | The executive dashboard, community picker and pest tracker |
 | `src/views-common.ts` | Pieces the dashboard and community page share (remediation status, pest findings, criticality bar) |
-| `src/cautions.ts` | The Also check lines for each standard |
-| `src/views-brief.ts` | The quarter snapshot, top challenges, top 5 issues, next steps, the community snapshot and the email text |
+| `src/cautions.ts` | The questions our SMEs focus on with teams, for each standard |
+| `src/views-brief.ts` | The quarter snapshot, top challenges, top 5 issues, the community snapshot and the email text |
 | `src/views-roles.ts` | Communities of focus, priorities and the playbook |
 | `src/plain.ts` | Plain-language title and why it matters for each standard |
 | `src/playbook.ts` | What to have in place and a quick check for each standard |
