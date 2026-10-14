@@ -8,8 +8,11 @@ Every screen starts with its top 5 and lets the reader expand ("Show all") or op
 
 The site opens on the **Executive dashboard**, built for a COO or VP of operations. It combines the dashboard and the executive briefing in one page:
 
-1. **Quarter snapshot:** one paragraph that reads cold. It covers what was audited, the average score, violations by criticality and how many are remediated, the most common issues, the communities of focus, and the lowest and highest regions. Every number is built from the data.
-2. **Violations identified**, **Remediated** and the **Remediation rate**, with one bar showing the split by criticality.
+1. **Quarter snapshot:**
+   - one line: violations found and the remediation rate
+   - three numbers: violations identified, remediated and remediation rate
+   - one bar showing the split by criticality
+2. **Top 3 challenges and what teams did:** for each, the kitchens cited and the most common actions in the teams' corrective action plans, such as cleaned and sanitized, retrained staff or repaired equipment. The action themes are keyword matches in `src/views-brief.ts` (`ACTION_THEMES`).
 3. **Communities of focus** from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats), lowest score first. Each opens the community page.
 4. **Average score by region.** Selecting a region filters the whole page, the snapshot included.
 5. **Top 5 issues** with a photo each. Expand one for why it matters, the fix and more photos.

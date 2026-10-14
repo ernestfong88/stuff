@@ -105,34 +105,34 @@ function nextSteps(b: Brief): string[] {
 /** Remediated: the finding is on a CAP that EcoSure shows as Approved or Completed. */
 const remediated = (fs: Finding[]) => fs.filter((f) => f.capItem && f.audit.capState === 'closed').length;
 
-/** The quarter in one paragraph, for executives reading cold. Every number comes from the data. */
-function snapshotSentences(b: Brief, region: string): string[] {
-  if (!b.A.length) return ['No EcoSure audits are on file yet.'];
-  const items = b.A.flatMap((a) => a.items);
-  const n = (x: string) => items.filter((f) => f.criticality === x).length;
-  const done = remediated(items);
-  const out = [
-    `In the ${b.A[0].round} round (${fmtDate(b.start, true)} to ${fmtDate(b.end)}), EcoSure audited ${plural(b.A.length, 'kitchen')} at ${plural(b.comms, 'community', 'communities')}${region ? ` in ${region}` : ''}.`,
-    `Kitchens averaged ${pct(b.s)} out of 100: ${b.good} scored 85 or better and ${b.bad} fell below 70${b.prev?.s != null && b.s != null ? `, ${b.s >= b.prev.s ? 'up' : 'down'} from ${pct(b.prev.s)} in ${b.prev.name}` : ''}.`,
-    `Auditors identified ${items.length} violations (${n('Critical')} critical, ${n('Major')} major and ${n('Minor')} minor), and our teams have remediated ${done} of them (${items.length ? Math.round((done / items.length) * 100) : 0}%).`,
-  ];
-  const common = [...b.top].sort((x, y) => y.kitchens - x.kitchens).slice(0, 3);
-  if (common.length) out.push(`The most common issues were ${list(common.map((p) => `${lower(plainTitle(p.short))} (${p.kitchens} kitchens)`))}.`);
-  if (b.focus.length) {
-    const lead = [...b.focus].sort((x, y) => (x.c.score ?? 101) - (y.c.score ?? 101)).slice(0, 2);
-    out.push(`${plural(b.focus.length, 'community needs', 'communities need')} focused support, led by ${list(lead.map(({ c }) => `${c.c.name} (${pct(c.score)})`))}.`);
-  }
-  if (!region && b.regions.length > 1) {
-    const r = b.regions.filter((x) => x.s != null);
-    if (r.length > 1) out.push(`${r[0].name} is the lowest-scoring region at ${pct(r[0].s)}; ${r[r.length - 1].name} is the highest at ${pct(r[r.length - 1].s)}.`);
-  }
-  if (!b.prev) out.push('This round is the program baseline; the next round will show the improvement.');
-  return out;
+/** What teams wrote in their corrective action plans, sorted into a few plain themes. */
+const ACTION_THEMES: [RegExp, string][] = [
+  [/clean|saniti|wash|delim|scrub|wipe/i, 'cleaned and sanitized'],
+  [/replac|repair|work order|ordered|purchas|maintenance|new /i, 'repaired or replaced equipment'],
+  [/train|in-?servic|expectation|educat|huddle|coach/i, 'retrained staff'],
+  [/schedule|checklist|check list|closing dut|routine|daily|weekly|monthly/i, 'added it to a daily or weekly checklist'],
+  [/discard|threw|thrown|toss|dispos/i, 'discarded unsafe food or items'],
+  [/thermometer|calibrat|temp/i, 'checked temperatures'],
+  [/label|dated/i, 'labeled and dated items'],
+];
+export function teamActions(fs: Finding[], n = 2): string[] {
+  const acts = fs.map((f) => f.capItem?.action ?? '').filter(Boolean);
+  return ACTION_THEMES.map(([re, label]) => ({ label, k: acts.filter((x) => re.test(x)).length }))
+    .filter((x) => x.k >= 2).sort((a, b) => b.k - a.k).slice(0, n).map((x) => x.label);
 }
 
-export function snapshot(m: Model, v: ViewState, inReg: (name: string) => boolean, region: string): string {
-  return `<section class="snapshot"><span class="lbl">Quarter snapshot</span><p>${esc(snapshotSentences(compute(m, v, inReg), region).join(' '))}</p></section>`;
+export interface Snapshot { kitchens: number; found: number; done: number; rate: number; top: { title: string; kitchens: number; done: number; n: number; did: string[] }[] }
+function snapshotOf(b: Brief): Snapshot {
+  const items = b.A.flatMap((a) => a.items);
+  const done = remediated(items);
+  return {
+    kitchens: b.A.length, found: items.length, done, rate: items.length ? Math.round((done / items.length) * 100) : 0,
+    top: b.top.slice(0, 3).map((p) => ({ title: plainTitle(p.short), kitchens: p.kitchens, done: remediated(p.findings), n: p.findings.length, did: teamActions(p.findings) })),
+  };
 }
+export const snapshot = (m: Model, v: ViewState, inReg: (name: string) => boolean): Snapshot => snapshotOf(compute(m, v, inReg));
+const didText = (d: string[]) => (d.length ? d.join(', and ').replace(/^./, (c) => c.toUpperCase()) + '.' : 'Corrective plans in progress.');
+export const snapshotDid = didText;
 
 /** Top 5 issues with a photo each; expand one for why it matters and the fix. */
 export function fixCard(m: Model, v: ViewState, inReg: (name: string) => boolean): string {
@@ -156,17 +156,12 @@ export function stepsCard(m: Model, v: ViewState, inReg: (name: string) => boole
 /** The whole summary as a plain-text email, for executives who read it without the page. */
 export function briefingText(m: Model, v: ViewState, link = '', inReg: (name: string) => boolean = () => true, region = ''): string {
   const b = compute(m, v, inReg);
-  const items = b.A.flatMap((a) => a.items);
-  const done = remediated(items);
-  const n = (x: string) => items.filter((f) => f.criticality === x).length;
+  const sn = snapshotOf(b);
   return [`Subject: EcoSure food safety snapshot, ${b.A[0]?.round ?? ''} round${region ? `, ${region}` : ''}`, '',
-    snapshotSentences(b, region).join(' '), '',
-    'KEY NUMBERS',
-    `- Violations identified: ${items.length} (${n('Critical')} critical, ${n('Major')} major, ${n('Minor')} minor)`,
-    `- Remediated: ${done}`,
-    `- Remediation rate: ${items.length ? Math.round((done / items.length) * 100) : 0}%`, '',
+    `This quarter EcoSure found ${sn.found} food safety violations across ${sn.kitchens} kitchens${region ? ` in ${region}` : ''}. Our teams have remediated ${sn.done} of them: a ${sn.rate}% remediation rate.`, '',
+    'TOP 3 CHALLENGES AND WHAT TEAMS DID',
+    ...sn.top.map((t, i) => `${i + 1}. ${t.title} (${t.kitchens} kitchens). ${didText(t.did)}`), '',
     'COMMUNITIES OF FOCUS', ...[...b.focus].sort((x, y) => (x.c.score ?? 101) - (y.c.score ?? 101)).slice(0, 5).map(({ c }) => `- ${c.c.name}: ${helpLine(c)}`), '',
-    'TOP 5 ISSUES', ...b.top.map((p, i) => `${i + 1}. ${plainTitle(p.short)}: ${p.kitchens} of ${b.A.length} kitchens. ${PLAIN[p.short]?.why ?? ''}`), '',
     ...(!region ? ['AVERAGE SCORE BY REGION', ...b.regions.map((r) => `- ${r.name}: ${pct(r.s)}`), ''] : []),
     'NEXT STEPS', ...nextSteps(b).map((x, i) => `${i + 1}. ${x}`),
     ...(link ? ['', `Full dashboard with photos: ${link}`] : [])].join('\n');

@@ -643,9 +643,15 @@ ul.plain { margin: 0; padding-left: 18px; } ul.plain li { margin: 0 0 6px; }
 .dpanel.span4 .bar { grid-template-columns: minmax(0, 1.4fr) minmax(50px, 1fr) 30px; }
 .dpanel.span4 .bar .name { white-space: normal; line-height: 1.25; }
 
-/* quarter snapshot: one paragraph that reads cold */
-.snapshot { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 16px 20px; }
-.snapshot .lbl { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
-.snapshot p { margin: 0; font-size: 17px; line-height: 1.6; max-width: 95ch; }
 .dash .xcard { margin: 0; }
-@media (max-width: 560px) { .snapshot p { font-size: 15.5px; } }
+
+/* snapshot: top 3 challenges and what teams did */
+.dtop3 { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.dtop3 .dl { font-size: 12.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.dtop3 ol { margin: 0; padding: 0; list-style: none; counter-reset: t; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.dtop3 li { counter-increment: t; background: var(--sunk); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.dtop3 li::before { content: counter(t); font-family: var(--display); font-weight: 700; color: var(--muted); font-size: 14px; }
+.dtop3 li b { font-size: 15.5px; line-height: 1.3; }
+.dtop3 .xs { color: var(--muted); }
+.dtop3 .did { font-size: 14px; color: var(--good); }
+@media (max-width: 900px) { .dtop3 ol { grid-template-columns: 1fr; } }

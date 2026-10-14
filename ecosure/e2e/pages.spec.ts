@@ -3,7 +3,9 @@ import { expect, test } from '@playwright/test';
 test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
-  await expect(page.locator('.snapshot p')).toContainText('EcoSure audited');
+  await expect(page.locator('.dhl')).toContainText('violations');
+  await expect(page.locator('.dtop3 li')).toHaveCount(3);
+  await expect(page.locator('.dtop3 .did').first()).not.toBeEmpty();
   await expect(page.locator('.dbig > *')).toHaveCount(3);
   await expect(page.locator('.dmixlab button')).toHaveCount(3);
   await expect(page.locator('.dfocus tbody tr')).toHaveCount(5);
@@ -15,7 +17,7 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.locator('.dfocus tbody tr').first().click();
   await expect(page.getByRole('heading', { name: 'Talking points' })).toBeVisible();
   await page.goto('/');
-  await expect(page.locator('.snapshot p')).toContainText('violations');
+  await expect(page.locator('.dhl')).toContainText('remediated');
 });
 
 test('the dashboard keeps the briefing: issues with photos, next steps, talking points', async ({ page }) => {
