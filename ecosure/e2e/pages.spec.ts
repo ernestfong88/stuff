@@ -14,6 +14,7 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(pest.locator('[data-act="pest:activity"]')).toHaveAttribute('aria-pressed', 'true');
   await pest.locator('.prow summary').first().click();
   await expect(pest.locator('.prow').first()).toContainText('Remediated:');
+  await expect(pest.locator('.prow .obs').first()).not.toContainText('...');
   await pest.locator('[data-act="pest:prevention"]').click();
   await expect(pest.locator('[data-act="pest:prevention"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#navMain button')).toHaveCount(1);

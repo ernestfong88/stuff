@@ -102,13 +102,11 @@ function pestTracker(m: Model, fs: Finding[]): string {
     const fixed = join(r.list.map((f) => f.capItem?.action ?? ''));
     const photos = r.list.flatMap((f) => f.photos.map((_, n) => ({ f, n })));
     const key = `pest-${r.slug}-${PEST_TAB}`;
-    const clip = (x: string, n: number) => (x.length > n ? x.slice(0, n - 3) + '...' : x);
     return `<details class="xrow prow ${PEST_TAB === 'activity' ? 'red' : 'yellow'}" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>
       ${photos[0] ? `<img src="${esc(photoUrl(photos[0].f.photos[0]))}" alt="" loading="lazy">` : '<span class="noimg"></span>'}
-      <span class="xt"><b>${esc(short(r.name))}</b><span class="obs">${esc(clip(found, 140))}</span></span>${(() => { const [st, tone] = pestStatus(r.list); return `<span class="chip t-${tone} pst">${st}</span>`; })()}<span class="chev" aria-hidden="true"></span></summary>
+      <span class="xt"><b>${esc(short(r.name))}</b><span class="obs">${esc(found)}</span></span>${(() => { const [st, tone] = pestStatus(r.list); return `<span class="chip t-${tone} pst">${st}</span>`; })()}<span class="chev" aria-hidden="true"></span></summary>
       <div class="xbody">
         ${photos.length ? `<div class="thumbs">${photos.slice(0, 6).map(({ f, n }) => `<button data-photo="${esc(f.key)}" data-n="${n}" aria-label="Open pest photo from ${esc(short(r.name))}"><img loading="lazy" src="${esc(photoUrl(f.photos[n]))}" alt=""></button>`).join('')}</div>` : ''}
-        <p><b>Identified:</b> ${esc(found)}</p>
         <p><b>Remediated:</b> ${fixed ? esc(fixed) : 'No corrective action on file yet.'}</p>
         ${verify(r.list) ? `<div class="pverify"><b>${status(r.list)[0] === 'Remediated' ? 'Verify it held' : 'Verify'}</b><ul>${verify(r.list).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
         <div class="toolbar" style="margin:0"><button class="btn ghost sm" data-go="findings" data-section="Insects/Rodents/Animals" data-community="${esc(r.name)}">See these findings</button><button class="linkbtn" data-go="c-${r.slug}">Open ${esc(short(r.name))}</button></div>
