@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
+  await expect(page.locator('.snapshot p')).toContainText('EcoSure audited');
   await expect(page.locator('.dbig > *')).toHaveCount(3);
   await expect(page.locator('.dmixlab button')).toHaveCount(3);
   await expect(page.locator('.dfocus tbody tr')).toHaveCount(5);
@@ -14,38 +15,25 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.locator('.dfocus tbody tr').first().click();
   await expect(page.getByRole('heading', { name: 'Talking points' })).toBeVisible();
   await page.goto('/');
-  await page.locator('.dhead [data-go="home"]').click();
-  await expect(page.getByRole('heading', { name: 'Food safety briefing' })).toBeVisible();
+  await expect(page.locator('.snapshot p')).toContainText('violations');
 });
 
-test('the executive briefing has photos and talking points', async ({ page }) => {
+test('the dashboard keeps the briefing: issues with photos, next steps, talking points', async ({ page }) => {
   await page.goto('/#home');
-  await expect(page.getByRole('heading', { name: 'Food safety briefing' })).toBeVisible();
-  await expect(page.locator('.bottomline li')).toHaveCount(3);
-  const fix = page.locator('.xcard', { hasText: 'What to fix' }).locator('.xrow');
+  await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
+  const fix = page.locator('.xcard', { hasText: 'Top 5 issues' }).locator('.xrow');
   await expect(fix).toHaveCount(5);
   await expect(fix.first().locator('summary img')).toHaveAttribute('src', /^data:image/);
   await fix.first().locator('summary').click();
   await expect(fix.first()).toContainText('The fix');
-  const help = page.locator('.xcard', { hasText: 'Who needs help' }).locator('.xrow');
-  await expect(help).toHaveCount(5);
-  await page.locator('[data-act="expand:brief-help"]').click();
-  await expect(fix.first()).toHaveAttribute('open', '');
   await expect(page.locator('.steps li')).toHaveCount(3);
-  await expect(page.locator('.xkpi', { hasText: 'CAPs missing' })).toBeVisible();
   await expect(page.locator('#navComm .captag').first()).toBeAttached();
-  await expect(page.locator('.xcard', { hasText: 'By region' }).locator('.xrow')).toHaveCount(4);
-  const impact = page.locator('.impact');
-  await expect(impact.locator('.ihead')).toContainText('infractions found');
-  await impact.locator('[data-act="sev:Critical"]').first().click();
-  await expect(impact.locator('.ihead')).toContainText('critical infractions found');
-  await expect(impact.locator('.sevtile')).toHaveCount(3);
-  await help.first().locator('summary').click();
-  await help.first().locator('.btn').click();
+  await page.locator('.dfocus tbody tr').first().click();
   await expect(page.getByRole('heading', { name: 'Talking points' })).toBeVisible();
   await expect(page.locator('.talk li').first()).toContainText('scored');
   await expect(page.getByRole('heading', { name: 'Fix first' })).toBeVisible();
 });
+
 
 test('a community submits a self-audit and readiness shows up', async ({ page }) => {
   await page.goto('/#self-drake-terrace');

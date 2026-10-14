@@ -6,7 +6,7 @@ test('opens on the portfolio with the carried-over audits', async ({ page }) => 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
   await expect(page.locator('#navComm button')).toHaveCount(30);
-  for (const r of ['home', 'dashboard', 'priorities', 'actions', 'playbook', 'self', 'communities', 'findings', 'trends', 'import', 'settings', 'c-balfour-riverfront', 'self-crestavilla']) {
+  for (const r of ['dashboard', 'priorities', 'actions', 'playbook', 'self', 'communities', 'findings', 'trends', 'import', 'settings', 'c-balfour-riverfront', 'self-crestavilla']) {
     await page.evaluate((h) => (location.hash = h), r);
     await expect(page.locator('h2.page')).toBeVisible();
   }

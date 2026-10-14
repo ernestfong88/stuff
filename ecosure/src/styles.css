@@ -642,3 +642,10 @@ ul.plain { margin: 0; padding-left: 18px; } ul.plain li { margin: 0 0 6px; }
 .dmix .dl { font-size: 12.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .dpanel.span4 .bar { grid-template-columns: minmax(0, 1.4fr) minmax(50px, 1fr) 30px; }
 .dpanel.span4 .bar .name { white-space: normal; line-height: 1.25; }
+
+/* quarter snapshot: one paragraph that reads cold */
+.snapshot { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 16px 20px; }
+.snapshot .lbl { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.snapshot p { margin: 0; font-size: 17px; line-height: 1.6; max-width: 95ch; }
+.dash .xcard { margin: 0; }
+@media (max-width: 560px) { .snapshot p { font-size: 15.5px; } }

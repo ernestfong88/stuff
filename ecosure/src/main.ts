@@ -8,8 +8,8 @@ import type { Cap, Community, Rec, SelfAudit, SelfResult, Settings } from './typ
 import { csv, esc, fmtDate, pct, slug, todayIso } from './util';
 import { actions, communities, community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
 import { playbookView, prioritiesView, selfAuditForm, selfAuditsView, type SelfDraft } from './views-roles';
-import { briefing, briefingText, setSeverity, talkingText } from './views-brief';
-import { dashboard, setRegion } from './views-dash';
+import { briefingText, talkingText } from './views-brief';
+import { dashboard, regionFilter, setRegion } from './views-dash';
 import { allStandards } from './catalog';
 import { OPEN } from './expand';
 
@@ -32,7 +32,7 @@ let model: Model = buildModel(seed, settings);
 const queue: QItem[] = [];
 const thumbs = new Map<string, string>();
 const V: ViewState = { round: 'all', f: emptyFilters(), sort: { key: 'score', dir: 1 }, commFilter: '', actionTab: 'caps', canWrite: false, mode: 'starting', capEdit: null };
-let route = 'home';
+let route = 'dashboard';
 
 /* Per-viewer conveniences (self-audit drafts, the person's name) live in this browser only. */
 const LS = {
@@ -63,7 +63,7 @@ function rebuild(): void {
 
 /* ---------- routing ---------- */
 const NAV: [string | null, [string, string][]][] = [
-  [null, [['dashboard', 'Dashboard'], ['home', 'Executive briefing'], ['communities', 'Communities'], ['actions', 'Action list']]],
+  [null, [['dashboard', 'Executive dashboard'], ['communities', 'Communities'], ['actions', 'Action list']]],
   ['More detail', [['priorities', 'Priorities'], ['findings', 'Findings and photos'], ['trends', 'Trends'], ['playbook', 'Readiness playbook'], ['self', 'Self-audits']]],
   ['Manage', [['import', 'Import files'], ['settings', 'Settings']]],
 ];
@@ -75,7 +75,7 @@ function go(to: string): void {
 }
 function readHash(): void {
   let h = decodeURIComponent(location.hash.slice(1)) || 'dashboard';
-  if (h === 'overview') h = 'home';
+  if (h === 'overview' || h === 'home') h = 'dashboard'; // the briefing now lives on the dashboard
   if (h.startsWith('playbook.')) { route = 'playbook'; routeArg = h.slice(9); return; }
   if (h.startsWith('self-')) { route = h; routeArg = null; return; }
   if (h.startsWith('c-')) {
@@ -111,9 +111,6 @@ function render(): void {
   const main = $('#main');
   let html = '';
   if (route === 'dashboard') html = dashboard(model, V);
-  else if (route === 'home') {
-    html = briefing(model, V);
-  }
   else if (route === 'priorities') html = prioritiesView(model, V);
   else if (route === 'playbook') html = playbookView(model, routeArg, PB);
   else if (route === 'self') html = selfAuditsView(model);
@@ -364,11 +361,10 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'round') { V.round = arg; rerender(); }
   else if (k === 'clear-std') { V.f.std = ''; rerender(); }
   else if (k === 'share') copyText(shareUrl(), 'Link copied. Anyone you have shared the page with can open it.');
-  else if (k === 'copy-summary') copyText(briefingText(model, V, SHARE_BASE || location.href.split('#')[0]), 'Briefing copied. Paste it into an email or Teams message.');
+  else if (k === 'copy-summary') { const r = regionFilter(model); copyText(briefingText(model, V, SHARE_BASE || location.href.split('#')[0], r.inReg, r.region), 'Summary copied. Paste it into an email or Teams message.'); }
   else if (k === 'copy-community') copyText(communityText(arg), 'Summary copied. Paste it into an email or Teams message.');
   else if (k === 'scroll') document.getElementById(arg)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   else if (k === 'region') { setRegion(arg); rerender(); }
-  else if (k === 'sev') { setSeverity(arg); rerender(); }
   else if (k === 'expand') { if (OPEN.has(arg)) OPEN.delete(arg); else OPEN.add(arg); rerender(); }
   else if (k === 'std-photos') toFindings({ std: arg, photos: false });
   else if (k === 'pb-cited') { PB.cited = !PB.cited; rerender(); }

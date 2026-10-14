@@ -6,30 +6,16 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 
 Every screen starts with its top 5 and lets the reader expand ("Show all") or open folded sections for more.
 
-The site opens on the **Dashboard**, built for a COO or VP of operations to scan in seconds:
+The site opens on the **Executive dashboard**, built for a COO or VP of operations. It combines the dashboard and the executive briefing in one page:
 
-- **Violations identified**, **Remediated** and the **Remediation rate**, with one bar showing the split by criticality (Critical, Major, Minor)
-- **Communities of focus** from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats); each opens the community page
-- **Top 5 issues** by kitchens cited
-- **Average score by region**; selecting a region filters the whole dashboard
+1. **Quarter snapshot:** one paragraph that reads cold. It covers what was audited, the average score, violations by criticality and how many are remediated, the most common issues, the communities of focus, and the lowest and highest regions. Every number is built from the data.
+2. **Violations identified**, **Remediated** and the **Remediation rate**, with one bar showing the split by criticality.
+3. **Communities of focus** from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats), lowest score first. Each opens the community page.
+4. **Average score by region.** Selecting a region filters the whole page, the snapshot included.
+5. **Top 5 issues** with a photo each. Expand one for why it matters, the fix and more photos.
+6. **Next steps** for regional and community teams.
 
-Every number and panel links to the page with the detail behind it. **Executive briefing** is one click away. It is written as an executive summary that can be read cold, without anyone there to explain it. Every line is built from the data:
-
-1. **Context:** one line on what EcoSure is and what the scores mean.
-2. **The bottom line:** three sentences covering the overall result, the biggest issue, and corrective action plans.
-3. **Four key numbers:** average score, kitchens below 70, critical findings, and plans closed.
-4. **What to fix:** the top 5 issues with a photo each. Expand one for why it matters, the fix, and more photos.
-5. **Who needs help and Follow-through:** the top 5 communities and the top 5 overdue plans, each expandable.
-6. **By region:** average score, kitchens below 70 and plans closed for each region, lowest first. Expand a region to see its communities. Regions are set per community in Settings.
-7. **Program impact** (sits right after the key numbers):
-   - total infractions, filterable by severity
-   - how many are remediated (on a CAP EcoSure shows as approved or completed), in progress, or have no CAP yet
-   - a tile for each severity
-   - the score baseline or change since the last round
-   - a folded "Found and fixed" set of critical examples with photos
-8. **Next steps:** three asks for regional and community teams.
-
-**Copy as email** produces a complete email (subject, context, every section and a link back) for executives who read it without the page.
+**Copy as email** produces the same content as plain text, with a link back, for the region you have selected.
 
 Each **community page** opens with talking points (score, biggest issues in plain words, repeats, CAP status, what to check on the next visit) and up to 8 photos. A fix-first list, score history and every finding follow below.
 
@@ -71,7 +57,7 @@ A CAP attaches to the report with the same kitchen and audit date (EcoSure's "An
 ## Rules the site applies
 
 - **Score bands:** 85 and up is good, 70 to 84 is a warning, below 70 is a community of focus. Critical findings cost 5 points, Major 3, Minor 1.
-- **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP** tag in the sidebar, a banner on the community page, "CAP missing · due Oct 17" or "CAP missing · 6 days late" in lists, and a CAPs missing count on the dashboard and briefing.
+- **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP** tag in the sidebar, a banner on the community page, "CAP missing · due Oct 17" or "CAP missing · 6 days late" in lists, and on the Action list.
 - **CAP status:**
   - closed when EcoSure shows Approved or Completed
   - past due when an open CAP has an item past its due date
@@ -111,8 +97,8 @@ To publish an update, rebuild and republish `dist/artifact.html` to the same art
 | `src/catalog.ts`, `src/data/standards.json` | The 65 standards with short labels, sections, criticality, client ids and visit themes |
 | `src/model.ts` | Joins reports and CAPs into audits and works out every status |
 | `src/store.ts` | Shared (claude.ai) or local (IndexedDB) storage |
-| `src/views-dash.ts` | The enterprise dashboard |
-| `src/views-brief.ts` | The briefing and community talking points |
+| `src/views-dash.ts` | The executive dashboard |
+| `src/views-brief.ts` | The quarter snapshot, top issues, next steps, the email text and community talking points |
 | `src/views-roles.ts` | Communities of focus, priorities, playbook and self-audit pages |
 | `src/plain.ts` | Plain-language title and why it matters for each standard |
 | `src/playbook.ts` | What to have in place and a quick check for each standard |
