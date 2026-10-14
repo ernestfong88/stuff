@@ -1,7 +1,7 @@
 [
  {
   "name": "Abbotswood of Irving Park",
-  "short": "Abbotswood",
+  "short": "AIP",
   "city": "Greensboro",
   "kitchens": [
    "Main Kitchen"
@@ -13,7 +13,7 @@
  },
  {
   "name": "Abbotswood of Stonehenge",
-  "short": "Stonehenge",
+  "short": "ASH",
   "city": "Raleigh",
   "kitchens": [
    "Main Kitchen"
@@ -25,7 +25,7 @@
  },
  {
   "name": "Balfour Central Park",
-  "short": "Central Park",
+  "short": "BCP",
   "city": "Denver",
   "kitchens": [
    "Main Kitchen"
@@ -37,7 +37,7 @@
  },
  {
   "name": "Balfour Cherrywood",
-  "short": "Cherrywood",
+  "short": "CW",
   "city": "Louisville",
   "kitchens": [
    "Main Kitchen"
@@ -49,7 +49,7 @@
  },
  {
   "name": "Balfour Littleton",
-  "short": "Littleton",
+  "short": "LIT",
   "city": "Littleton",
   "kitchens": [
    "Main Kitchen"
@@ -61,7 +61,7 @@
  },
  {
   "name": "Balfour Louisville",
-  "short": "Bal. Louisville",
+  "short": "LSV",
   "city": "Louisville",
   "kitchens": [
    "Kitchen 1",
@@ -76,7 +76,7 @@
  },
  {
   "name": "Balfour Riverfront",
-  "short": "Riverfront",
+  "short": "RIV",
   "city": "Denver",
   "kitchens": [
    "Kitchen 1",
@@ -89,7 +89,7 @@
  },
  {
   "name": "Bridgepoint at Los Altos",
-  "short": "Bridgepoint",
+  "short": "BLA",
   "city": "Los Altos",
   "kitchens": [
    "Main Kitchen"
@@ -101,7 +101,7 @@
  },
  {
   "name": "Byron Park",
-  "short": "Byron Park",
+  "short": "BP",
   "city": "Walnut Creek",
   "kitchens": [
    "Main Kitchen"
@@ -113,7 +113,7 @@
  },
  {
   "name": "Cedarwood at Sandy",
-  "short": "Cedarwood",
+  "short": "CWD",
   "city": "Sandy",
   "kitchens": [
    "Main Kitchen"
@@ -125,7 +125,7 @@
  },
  {
   "name": "Crestavilla",
-  "short": "Crestavilla",
+  "short": "CV",
   "city": "Laguna Niguel",
   "kitchens": [
    "Main Kitchen"
@@ -137,7 +137,7 @@
  },
  {
   "name": "Drake Terrace",
-  "short": "Drake Terrace",
+  "short": "DT",
   "city": "San Rafael",
   "kitchens": [
    "Main Kitchen"
@@ -149,7 +149,7 @@
  },
  {
   "name": "Emerald Court",
-  "short": "Emerald Court",
+  "short": "EC",
   "city": "Anaheim",
   "kitchens": [
    "Main Kitchen"
@@ -161,7 +161,7 @@
  },
  {
   "name": "First Colonial Inn",
-  "short": "First Colonial",
+  "short": "FCI",
   "city": "Virginia Beach",
   "kitchens": [
    "Main Kitchen"
@@ -173,7 +173,7 @@
  },
  {
   "name": "Heritage Greens",
-  "short": "Heritage Greens",
+  "short": "HG",
   "city": "Greensboro",
   "kitchens": [
    "Main Kitchen"
@@ -185,7 +185,7 @@
  },
  {
   "name": "Ilima At Leihano",
-  "short": "Ilima",
+  "short": "IAL",
   "city": "Kapolei",
   "kitchens": [
    "Main Kitchen"
@@ -197,7 +197,7 @@
  },
  {
   "name": "La Posada",
-  "short": "La Posada",
+  "short": "LP",
   "city": "Palm Beach Gardens",
   "kitchens": [
    "Kitchen 1",
@@ -211,7 +211,7 @@
  },
  {
   "name": "Magnolia Glen",
-  "short": "Magnolia Glen",
+  "short": "MG",
   "city": "Raleigh",
   "kitchens": [
    "Kitchen 1",
@@ -224,7 +224,7 @@
  },
  {
   "name": "Park Terrace",
-  "short": "Park Terrace",
+  "short": "PT",
   "city": "Rancho Santa Margarita",
   "kitchens": [
    "Main Kitchen"
@@ -236,7 +236,7 @@
  },
  {
   "name": "Sagewood at Daybreak",
-  "short": "Sagewood",
+  "short": "SW",
   "city": "South Jordan",
   "kitchens": [
    "Main Kitchen"
@@ -248,7 +248,7 @@
  },
  {
   "name": "The Cardinal of North Hills",
-  "short": "Cardinal",
+  "short": "CNH",
   "city": "Raleigh",
   "kitchens": [
    "Kitchen 1",
@@ -263,7 +263,7 @@
  },
  {
   "name": "The Carnegie at Washingtonian",
-  "short": "Carnegie",
+  "short": "CAR",
   "city": "Gaithersburg",
   "kitchens": [
    "Kitchen 1",
@@ -276,7 +276,7 @@
  },
  {
   "name": "The Fitzgerald",
-  "short": "Fitzgerald",
+  "short": "FTZ",
   "city": "Washington",
   "kitchens": [
    "Main Kitchen"
@@ -288,7 +288,7 @@
  },
  {
   "name": "The Fountains",
-  "short": "Fountains",
+  "short": "TF",
   "city": "Melbourne",
   "kitchens": [
    "Main Kitchen"
@@ -300,7 +300,7 @@
  },
  {
   "name": "The Kensington",
-  "short": "Kensington",
+  "short": "TK",
   "city": "Walnut Creek",
   "kitchens": [
    "Main Kitchen"
@@ -312,7 +312,7 @@
  },
  {
   "name": "The Newbury at Brookline",
-  "short": "Newbury",
+  "short": "NWB",
   "city": "Brookline",
   "kitchens": [
    "Main Kitchen"
@@ -324,7 +324,7 @@
  },
  {
   "name": "The Preston of Rockville",
-  "short": "Preston",
+  "short": "PRS",
   "city": "Rockville",
   "kitchens": [
    "Kitchen 1",
@@ -337,7 +337,7 @@
  },
  {
   "name": "Valencia Terrace",
-  "short": "Valencia Terrace",
+  "short": "VT",
   "city": "Corona",
   "kitchens": [
    "Main Kitchen"
@@ -349,7 +349,7 @@
  },
  {
   "name": "Woodbridge Terrace of Irvine",
-  "short": "Woodbridge",
+  "short": "WB",
   "city": "Irvine",
   "kitchens": [
    "Main Kitchen"
@@ -363,7 +363,7 @@
  },
  {
   "name": "Woodland Terrace",
-  "short": "Woodland Terrace",
+  "short": "WT",
   "city": "Cary",
   "kitchens": [
    "Kitchen 1",

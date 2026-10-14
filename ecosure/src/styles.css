@@ -759,3 +759,4 @@ ul.plain { margin: 0; padding-left: 18px; } ul.plain li { margin: 0 0 6px; }
 .actnow { font-style: normal; display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--crit); color: #fff; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; vertical-align: 2px; }
 .ptab span { display: block; }
 .ptab small { display: block; }
+.fullname { font-size: .55em; font-weight: 500; color: var(--muted); margin-left: 8px; }

@@ -9,7 +9,7 @@ import { fileUrl, photoUrl } from './store';
 import { themeHeat } from './views-roles';
 import { fold, top } from './expand';
 import { communitySnap, photoStrip } from './views-brief';
-import { bigBox, critMix, isActivity, pestLabel, shortOf, statusChip } from './views-common';
+import { bigBox, critMix, isActivity, pestLabel, pestStatus, shortOf, statusChip } from './views-common';
 import { PLAYBOOK } from './playbook';
 import { plainTitle } from './plain';
 import type { Crit } from './types';
@@ -97,7 +97,7 @@ export function community(m: Model, v: ViewState, slugKey: string, auditKey: str
   const scored = A.filter((a) => a.score != null);
   const score = avg(scored.map((a) => a.score));
 
-  const pageHead = `<div class="pagehead"><div><p class="crumb"><button class="linkbtn" data-go="dashboard">Executive dashboard</button> / ${esc([c.c.name, c.c.city, c.c.region].filter(Boolean).join(' · '))}</p><h2 class="page" title="${esc(c.c.name)}">${esc(c.c.short || c.c.name)}</h2></div><div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-community:${c.slug}">Copy as email</button></div></div>`;
+  const pageHead = `<div class="pagehead"><div><p class="crumb"><button class="linkbtn" data-go="dashboard">Executive dashboard</button> / ${esc([c.c.city, c.c.region].filter(Boolean).join(' · '))}</p><h2 class="page">${esc(c.c.short || c.c.name)}${c.c.short && c.c.short !== c.c.name ? ` <span class="fullname">${esc(c.c.name)}</span>` : ''}</h2></div><div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-community:${c.slug}">Copy as email</button></div></div>`;
   if (!A.length) return pageHead + `<div class="empty">${esc(auditWhy(c, m))}</div>`;
 
   // The same snapshot as the dashboard, for this community's audit.
@@ -113,7 +113,7 @@ export function community(m: Model, v: ViewState, slugKey: string, auditKey: str
     ${sn.top.length ? `<div class="dtop3"><span class="dl">Top 3 challenges and what the team did</span><ol>${sn.top.map((t) => `<li><b>${esc(t.title)}</b><span class="xs">${t.crit}${multiK ? ` · ${esc(t.kitchens.join(', '))}` : ''}</span>${statusChip(t.fs)}<span class="did">${t.action ? esc(t.action.length > 160 ? t.action.slice(0, 157) + '...' : t.action) : 'No corrective action written yet.'}</span>${PLAYBOOK[t.short] ? `<span class="xs have">What to have in place: ${esc(PLAYBOOK[t.short].have[0])}</span>` : ''}</li>`).join('')}</ol></div>` : ''}
   </section>`;
 
-  const alerts = (pestAct.length ? `<div class="capbanner pestbanner" role="status"><b>Pest activity</b><span>${pestAct.map((f) => `${multiK ? esc(f.audit.kitchen) + ': ' : ''}${esc(f.comment || pestLabel(f))}`).join(' · ')} ${statusChip(pestAct)}</span></div>` : '') +
+  const alerts = (pestAct.length ? `<div class="capbanner pestbanner" role="status"><b>Pest activity</b><span>${pestAct.map((f) => `${multiK ? esc(f.audit.kitchen) + ': ' : ''}${esc(f.comment || pestLabel(f))}`).join(' · ')} ${(() => { const [st, tone] = pestStatus(pestAct); return `<span class="chip t-${tone} plain">${st}</span>`; })()}</span></div>` : '') +
     (A.some(capMissing) ? `<div class="capbanner" role="status"><b>CAP missing</b><span>${A.filter(capMissing).map((a) => `${esc(a.kitchen)}: ${esc(capMissingText(a, m.today).replace('CAP missing · ', ''))}`).join(' · ')}. Ask the team to submit the corrective action plan in EcoSure.</span></div>` : '');
 
   const history = c.audits.filter((a) => a.score != null);
