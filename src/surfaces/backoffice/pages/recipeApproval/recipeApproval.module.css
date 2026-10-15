@@ -66,6 +66,80 @@
   color: var(--s400);
 }
 
+/* Split: the queue on the left, the recipe beside it (1200px and up) */
+.split {
+  display: grid;
+  grid-template-columns: minmax(300px, 30%) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.master {
+  position: sticky;
+  top: 72px;
+  max-height: calc(100vh - 88px);
+  overflow-y: auto;
+  min-width: 0;
+  padding: 6px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+.detail {
+  min-width: 0;
+}
+.queueList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.queueItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--r-lg);
+  text-align: left;
+}
+.queueItem:hover {
+  background: var(--paper);
+}
+.queueItemOn,
+.queueItemOn:hover {
+  background: var(--bo-accent-soft, var(--ocean-100));
+  box-shadow: inset 3px 0 0 var(--bo-accent, var(--ocean));
+}
+.queueName {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.queueFrom {
+  font-size: 12px;
+  color: var(--s500);
+}
+.queueFrom strong {
+  font-weight: 650;
+  color: var(--s700);
+}
+.queueEmpty,
+.paneEmpty {
+  margin: 0;
+  padding: 18px 14px;
+  font-size: 13px;
+  color: var(--s500);
+}
+.paneEmpty {
+  padding: 40px 20px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  text-align: center;
+}
+
 /* Review */
 .review {
   display: flex;
@@ -73,12 +147,25 @@
   gap: 12px;
   max-width: 1120px;
 }
+/* The decision buttons stay in view while the reviewer reads; the page colour around them hides what scrolls under. */
+.barWrap {
+  position: sticky;
+  top: 56px;
+  z-index: 5;
+  margin: -8px -8px 0;
+  padding: 8px 8px 4px;
+  background: var(--paper);
+}
 .bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 10px 14px;
   flex-wrap: wrap;
+  padding: 10px 12px 10px 14px;
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+  border-top: 3px solid var(--bo-accent, var(--ocean));
 }
 .back {
   display: inline-flex;
@@ -94,9 +181,29 @@
 .back:hover {
   color: var(--ink);
 }
+.barTitle {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.barTitle strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.barFrom {
+  font-size: 12px;
+  color: var(--s500);
+}
 .barEnd {
   display: inline-flex;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 .head {
   display: flex;
@@ -149,7 +256,7 @@
 .quote {
   margin: 2px 0 0;
   padding: 10px 14px;
-  border-left: 3px solid var(--ocean);
+  border-left: 3px solid var(--bo-accent, var(--ocean));
   border-radius: 0 var(--r-md) var(--r-md) 0;
   background: var(--paper);
   font-size: 13.5px;
@@ -167,8 +274,8 @@
 }
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px 18px;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: 12px 14px;
   padding: 14px 20px;
   border-radius: var(--r-xl);
   background: var(--surface);
@@ -178,10 +285,15 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
 }
-.statLabel,
-.nutLabel,
-.lineLabel {
+.statChanged {
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border-radius: var(--r-md);
+  background: var(--amber-100);
+}
+.statLabel {
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -193,11 +305,9 @@
   font-weight: 700;
   color: var(--ink);
 }
-.chips {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+.statSub {
+  font-size: 11.5px;
+  color: var(--s500);
 }
 .twoCol {
   display: grid;
@@ -205,88 +315,37 @@
   gap: 12px;
   align-items: start;
 }
-.list {
-  display: flex;
-  flex-direction: column;
-}
-.ing {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--hair);
-  font-size: 13.5px;
-}
-.qty {
-  width: 76px;
-  flex-shrink: 0;
-  text-align: right;
-  font-weight: 700;
-  color: var(--ink);
-}
-.steps {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.step {
-  display: flex;
-  gap: 10px;
-  font-size: 13.5px;
-  line-height: 1.5;
-}
-.stepNo,
-.stepNoClay {
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-  border-radius: var(--r-pill);
-  background: var(--ink);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-}
-.stepNoClay {
-  border-radius: var(--r-xs);
-  background: var(--clay-100);
-  color: var(--clay-600);
-}
-.equipment {
-  margin: 12px 0 0;
-  font-size: 12.5px;
-  color: var(--s500);
-}
 .line {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 13.5px;
   line-height: 1.5;
   color: var(--ink);
 }
-.nutrition {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 10px;
+/* A part that changed since the version approved before. */
+.changedPart {
+  position: relative;
+  min-width: 0;
+  border-radius: var(--r-xl);
+  box-shadow: 0 0 0 2px var(--amber);
 }
-.nut {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 8px 10px;
-  border-radius: var(--r-md);
-  background: var(--paper);
+.changedTag {
+  position: absolute;
+  top: -9px;
+  left: 16px;
+  z-index: 1;
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  background: var(--amber);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
-.nutValue {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--ink);
+.whatChanged {
+  box-shadow:
+    inset 0 0 0 1px var(--hair),
+    inset 4px 0 0 var(--amber);
 }
 .changes {
   display: flex;
@@ -359,4 +418,24 @@
   font-size: 12.5px;
   font-weight: 650;
   color: var(--danger);
+}
+
+/* A phone: the recipe's name is just below, so the bar keeps only Back and the three buttons. */
+@media (max-width: 640px) {
+  .bar {
+    gap: 6px;
+    padding: 8px;
+  }
+  .barTitle {
+    display: none;
+  }
+  .barEnd {
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .barEnd > button {
+    flex: 1 1 auto;
+    padding-inline: 8px;
+  }
 }

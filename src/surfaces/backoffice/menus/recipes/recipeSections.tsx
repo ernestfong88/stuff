@@ -283,10 +283,10 @@ export function PlatingSection({ r, update, readOnly, draft }: P) {
     <RecipeSection id="plating" title="Plating and presentation" hint="How it should look when it reaches the resident.">
       <div className={s.grid}>
         <Field label="Portion">
-          <Input disabled={readOnly} placeholder="e.g. 6 oz fillet, or 1 cup (8 fl oz)" {...portion} />
+          <Input disabled={readOnly} placeholder={readOnly ? 'None given' : 'e.g. 6 oz fillet, or 1 cup (8 fl oz)'} {...portion} />
         </Field>
         <Field label="Garnish">
-          <Input disabled={readOnly} placeholder="e.g. Thyme sprig and sliced peaches" {...garnish} />
+          <Input disabled={readOnly} placeholder={readOnly ? 'None' : 'e.g. Thyme sprig and sliced peaches'} {...garnish} />
         </Field>
       </div>
       <Field label="Plating steps">
@@ -307,7 +307,7 @@ export function PlatingSection({ r, update, readOnly, draft }: P) {
           className={s.area}
           disabled={readOnly}
           rows={2}
-          placeholder="e.g. Rest 4 min. Sauce under, not over."
+          placeholder={readOnly ? 'None' : 'e.g. Rest 4 min. Sauce under, not over.'}
           {...cookNotes}
         />
       </Field>

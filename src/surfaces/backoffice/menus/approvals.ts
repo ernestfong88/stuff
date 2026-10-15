@@ -21,6 +21,8 @@ interface SeedSubmission extends Omit<RecipeSubmission, 'sentAt' | 'decidedAt' |
   recipe?: RecipeSnapshot;
   /** Take the recipe from the Recipe Book seed (this community's own). */
   fromSeedRecipe?: boolean;
+  /** With fromSeedRecipe: how this copy differed from the Recipe Book's (an older version). */
+  seedPatch?: Partial<RecipeSnapshot>;
   sentDaysAgo?: number;
   sentHoursAgo?: number;
   decidedDaysAgo?: number;
@@ -29,18 +31,21 @@ interface SeedSubmission extends Omit<RecipeSubmission, 'sentAt' | 'decidedAt' |
 /** Seeded submissions, dated relative to today so the queue always looks current. */
 function seedSubmissions(at: number): RecipeSubmission[] {
   const recipes = SHIPPED_RECIPES;
-  return (approvalsJson as unknown as SeedSubmission[]).flatMap(({ fromSeedRecipe, sentDaysAgo, sentHoursAgo, decidedDaysAgo, recipe, ...s }) => {
-    const r = fromSeedRecipe ? recipes.find((x) => x.id === s.recipeId) : recipe;
-    if (!r) return [];
-    return [
-      {
-        ...s,
-        recipe: snapshotOf(r),
-        sentAt: at - (sentDaysAgo ?? 0) * DAY - (sentHoursAgo ?? 0) * HOUR,
-        ...(decidedDaysAgo != null ? { decidedAt: at - decidedDaysAgo * DAY } : {}),
-      },
-    ];
-  });
+  return (approvalsJson as unknown as SeedSubmission[]).flatMap(
+    ({ fromSeedRecipe, seedPatch, sentDaysAgo, sentHoursAgo, decidedDaysAgo, recipe, ...s }) => {
+      const shipped = fromSeedRecipe ? recipes.find((x) => x.id === s.recipeId) : undefined;
+      const r = shipped ? { ...shipped, ...seedPatch } : recipe;
+      if (!r) return [];
+      return [
+        {
+          ...s,
+          recipe: snapshotOf(r),
+          sentAt: at - (sentDaysAgo ?? 0) * DAY - (sentHoursAgo ?? 0) * HOUR,
+          ...(decidedDaysAgo != null ? { decidedAt: at - decidedDaysAgo * DAY } : {}),
+        },
+      ];
+    },
+  );
 }
 
 export const SEED_SUBMISSIONS: RecipeSubmission[] = seedSubmissions(now());
@@ -82,11 +87,16 @@ export function approveSubmission(id: string, comment: string): void {
   change((subs) => decide(subs, id, { status: 'approved', by: backOfficeUser().name, at: now(), comment }));
 }
 
+/** Send it back to the team with what to change; they fix it and send it again. */
+export function askForChanges(id: string, note: string): void {
+  change((subs) => decide(subs, id, { status: 'changes', by: backOfficeUser().name, at: now(), comment: note }));
+}
+
 export function denySubmission(id: string, reason: string): void {
   change((subs) => decide(subs, id, { status: 'denied', by: backOfficeUser().name, at: now(), comment: reason }));
 }
 
-/** Undo an approval or a denial. */
+/** Undo a decision. */
 export function reopenSubmission(id: string): void {
   change((subs) => reopen(subs, id));
 }

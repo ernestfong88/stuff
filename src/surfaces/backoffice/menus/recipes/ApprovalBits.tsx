@@ -3,7 +3,7 @@
  * Office" dialog, and the note on the recipe page saying where it stands.
  */
 import { useState } from 'react';
-import { BadgeCheck, CircleAlert, Clock, PencilLine, Send, Undo2 } from 'lucide-react';
+import { BadgeCheck, CircleAlert, Clock, MessageSquareWarning, PencilLine, Send, Undo2 } from 'lucide-react';
 import { now } from '../../../../lib/clock';
 import type { Recipe } from '../../../../store/menuEdits';
 import { Button, Chip, Modal, TextArea, toast } from '../../../../ui';
@@ -24,10 +24,11 @@ const ICONS: Record<Exclude<RecipeApprovalStep, 'none'>, typeof Clock> = {
   waiting: Clock,
   approved: BadgeCheck,
   edited: PencilLine,
+  changes: MessageSquareWarning,
   denied: CircleAlert,
 };
 
-/** "Pending approval", "Approved", "Edited since approval" or "Denied"; nothing for a recipe never sent. */
+/** "Pending approval", "Approved", "Edited since approval", "Changes requested" or "Denied"; nothing for a recipe never sent. */
 export function ApprovalChip({ info, size = 'sm' }: { info: RecipeApprovalInfo; size?: 'xs' | 'sm' }) {
   if (info.step === 'none') return null;
   const Icon = ICONS[info.step];
@@ -49,7 +50,7 @@ export function withdrawWithUndo(info: RecipeApprovalInfo) {
 /** "What changed / why", then send. */
 export function SendForApprovalDialog({ r, info, onClose }: { r: Recipe; info: RecipeApprovalInfo; onClose: () => void }) {
   const [note, setNote] = useState('');
-  const again = info.step === 'edited' || info.step === 'denied';
+  const again = info.step === 'edited' || info.step === 'changes' || info.step === 'denied';
   const send = () => {
     sendRecipe(r, note);
     toast(`${r.name} sent to Home Office. It shows as Pending approval until they decide.`, { tone: 'success' });
@@ -77,7 +78,7 @@ export function SendForApprovalDialog({ r, info, onClose }: { r: Recipe; info: R
           Home Office reviews the recipe as it is now and approves it or asks for changes. You can keep using it meanwhile, and withdraw it until they
           decide.
         </p>
-        {info.step === 'denied' && info.sub?.comment && (
+        {(info.step === 'changes' || info.step === 'denied') && info.sub?.comment && (
           <BoCallout tone="danger" title="Home Office asked for">
             {info.sub.comment}
           </BoCallout>
@@ -135,6 +136,14 @@ export function ApprovalBanner({ r, info }: { r: Recipe; info: RecipeApprovalInf
         <BoCallout tone="warning" title="Edited since approval">
           <div className={s.banner}>
             <span>Approved by {decided}, then changed here. Send it again so Home Office can approve the new version.</span>
+            {sendBtn}
+          </div>
+        </BoCallout>
+      )}
+      {info.step === 'changes' && (
+        <BoCallout tone="warning" title={`Changes requested by ${decided}`}>
+          <div className={s.banner}>
+            <span>“{sub.comment}” Make the changes, then send it again.</span>
             {sendBtn}
           </div>
         </BoCallout>

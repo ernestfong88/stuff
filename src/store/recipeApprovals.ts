@@ -1,6 +1,7 @@
 /**
  * Recipe Approval: recipes communities send to Home Office, and what Home
- * Office decided. Persisted and shared across tabs.
+ * Office decided (approved, changes asked for, or denied). Persisted and
+ * shared across tabs.
  *
  * `subs` missing means "still the seed"; Back Office merges it with its seed
  * (src/surfaces/backoffice/menus/approvals.ts), like the menu edits.
@@ -31,7 +32,8 @@ export type RecipeSnapshot = Pick<
   | 'variations'
 >;
 
-export type SubmissionStatus = 'waiting' | 'approved' | 'denied';
+/** changes: Home Office asked for changes, so the team fixes it and sends it again; denied: not approved. */
+export type SubmissionStatus = 'waiting' | 'approved' | 'changes' | 'denied';
 
 /** One recipe sent for approval, as it was when sent, and the decision. */
 export interface RecipeSubmission {
@@ -47,7 +49,7 @@ export interface RecipeSubmission {
   status: SubmissionStatus;
   decidedBy?: string;
   decidedAt?: number;
-  /** The approval comment, or the reason it was denied. */
+  /** The approval comment, the changes asked for, or the reason it was denied. */
   comment?: string;
 }
 

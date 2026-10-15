@@ -46,7 +46,8 @@
       "equipment": ["Hotel pans", "Combi oven", "Probe thermometer"],
       "nutrition": { "calories": 520, "protein": 29, "carbs": 24, "fat": 32, "sodium": 840 },
       "allergens": ["Egg", "Wheat"],
-      "cookNotes": "Glaze in the last 10 minutes only. 160°F internal before resting."
+      "cookNotes": "Glaze in the last 10 minutes only. 160°F internal before resting.",
+      "variations": "Mechanical soft: chop the slice and serve the glaze on the side. Lower sodium: halve the BBQ sauce and add apple cider vinegar."
     }
   },
   {
@@ -132,6 +133,52 @@
     }
   },
   {
+    "id": "ap_cnh_crisp",
+    "recipeId": "oc4",
+    "community": "Cardinal at North Hills",
+    "sentBy": "Marcus Bell",
+    "sentDaysAgo": 2,
+    "sentHoursAgo": 4,
+    "note": "A no-sugar-added dessert so residents watching their blood sugar have a warm choice. Tested with our diabetic residents' council.",
+    "status": "waiting",
+    "recipe": {
+      "name": "No Sugar Added Apple Crisp",
+      "cat": "Desserts",
+      "sub": "Hot Dessert",
+      "desc": "Cinnamon apples, oat and pecan topping",
+      "menuDescriptor": "Warm cinnamon apple crisp with an oat and pecan topping, sweetened with fruit only",
+      "servingDesc": "4 oz square",
+      "garnish": "Dollop of whipped topping, sugar free",
+      "prepMin": 25,
+      "cookMin": 40,
+      "ingredients": [
+        { "qty": 4, "unit": "oz", "name": "Granny Smith apples, peeled and sliced" },
+        { "qty": 1, "unit": "tbsp", "name": "unsweetened apple juice concentrate" },
+        { "qty": 0.25, "unit": "tsp", "name": "ground cinnamon" },
+        { "qty": 0.5, "unit": "tsp", "name": "lemon juice" },
+        { "qty": 2, "unit": "tbsp", "name": "rolled oats" },
+        { "qty": 1, "unit": "tbsp", "name": "whole wheat flour" },
+        { "qty": 1, "unit": "tbsp", "name": "pecans, chopped" },
+        { "qty": 2, "unit": "tsp", "name": "butter, cold, diced" },
+        { "qty": 1, "unit": "tbsp", "name": "whipped topping, sugar free" }
+      ],
+      "method": [
+        "Heat the oven to 350°F.",
+        "Toss the apples with the juice concentrate, cinnamon and lemon. Spread in a buttered half hotel pan.",
+        "Rub the oats, flour, pecans and butter together to coarse crumbs. Scatter over the apples.",
+        "Bake 40 minutes until the apples are tender and the top is golden.",
+        "Cool 10 minutes, then cut 4 x 3. Hold warm at 140°F or above."
+      ],
+      "plating": ["Square in the center of a small warm plate.", "Whipped topping on the corner, not on top, so the crumble stays crisp."],
+      "equipment": ["Half hotel pan", "Convection oven"],
+      "nutrition": { "calories": 210, "protein": 3, "carbs": 28, "fat": 10, "sodium": 45, "fiber": 4 },
+      "allergens": ["Milk", "Wheat", "Tree nuts"],
+      "dietFlags": ["Vegetarian"],
+      "cookNotes": "Pureed diet: blend the apples and serve the topping on the side.",
+      "variations": "Nut free: leave out the pecans and add 1 more tbsp of oats."
+    }
+  },
+  {
     "id": "ap_lp_meatloaf_1",
     "recipeId": "oc2",
     "community": "La Posada",
@@ -187,6 +234,44 @@
     "comment": "Approved as written. Clear plating notes."
   },
   {
+    "id": "ap_vt_soup_1",
+    "recipeId": "l_cbsoup",
+    "community": "Valencia Terrace",
+    "fromSeedRecipe": true,
+    "seedPatch": {
+      "ingredients": [
+        { "qty": 2, "unit": "oz", "name": "ground beef 80/20" },
+        { "qty": 2, "unit": "tbsp", "name": "onion, diced" },
+        { "qty": 1, "unit": "tbsp", "name": "carrot, diced" },
+        { "qty": 1, "unit": "tbsp", "name": "celery, diced" },
+        { "qty": 2.5, "unit": "oz", "name": "potatoes, diced" },
+        { "qty": 6, "unit": "fl oz", "name": "beef stock" },
+        { "qty": 1, "unit": "tsp", "name": "flour" },
+        { "qty": 1, "unit": "tsp", "name": "butter" },
+        { "qty": 1.5, "unit": "fl oz", "name": "whole milk" },
+        { "qty": 1.5, "unit": "oz", "name": "American and cheddar cheese, shredded" },
+        { "qty": 0.25, "unit": "tsp", "name": "kosher salt" }
+      ],
+      "method": [
+        "Brown the beef and drain. Set aside.",
+        "Sweat the onion, carrot and celery in butter 6 minutes.",
+        "Add the flour and cook 2 minutes for a blond roux.",
+        "Whisk in the stock. Add the potatoes and simmer until tender, about 20 minutes.",
+        "Return the beef. Stir in the milk, then the cheese a handful at a time, below a boil.",
+        "Season with the salt. Hold hot at 140°F or above."
+      ],
+      "nutrition": { "calories": 360, "protein": 19, "carbs": 18, "fat": 23, "sodium": 1120 },
+      "variations": ""
+    },
+    "sentBy": "Dana Whitaker",
+    "sentDaysAgo": 330,
+    "note": "Winter soup rotation.",
+    "status": "approved",
+    "decidedBy": "Ernest Fong",
+    "decidedDaysAgo": 328,
+    "comment": "Approved. Watch the sodium: it is close to the soup cap."
+  },
+  {
     "id": "ap_carnegie_teriyaki",
     "recipeId": "carn_teriyaki",
     "community": "The Carnegie",
@@ -224,7 +309,52 @@
       "plating": ["Jasmine rice at 10 o'clock.", "Slice at 6 o'clock, sesame and scallion on top."],
       "equipment": ["Hotel pans", "Probe thermometer"],
       "nutrition": { "calories": 380, "protein": 31, "carbs": 22, "fat": 16, "sodium": 1450 },
-      "allergens": ["Egg", "Wheat", "Soy", "Sesame"]
+      "allergens": ["Egg", "Wheat", "Soy", "Sesame"],
+      "cookNotes": "Glaze in the last 10 minutes. 165°F internal before resting."
+    }
+  },
+  {
+    "id": "ap_cnh_grits",
+    "recipeId": "oc3",
+    "community": "Cardinal at North Hills",
+    "sentBy": "Marcus Bell",
+    "sentDaysAgo": 6,
+    "note": "Sunday brunch special. Soft grits so residents on a mechanical soft diet can have it with the shrimp chopped.",
+    "status": "changes",
+    "decidedBy": "Ernest Fong",
+    "decidedDaysAgo": 4,
+    "comment": "Shrimp is a shellfish allergen: tick Shellfish so the servers and the kitchen ticket warn. Add a hold temperature for the grits, then send it again.",
+    "recipe": {
+      "name": "Shrimp and Pimento Cheese Grits",
+      "cat": "Entrees",
+      "sub": "Plates",
+      "desc": "Gulf shrimp, stone-ground grits",
+      "menuDescriptor": "Sautéed Gulf shrimp over creamy pimento cheese grits with a little smoked tomato gravy",
+      "servingDesc": "4 oz shrimp over 6 oz grits",
+      "garnish": "Sliced scallion",
+      "prepMin": 15,
+      "cookMin": 40,
+      "ingredients": [
+        { "qty": 4, "unit": "oz", "name": "shrimp 26/30, peeled and deveined" },
+        { "qty": 1.5, "unit": "oz", "name": "stone-ground grits" },
+        { "qty": 6, "unit": "fl oz", "name": "water" },
+        { "qty": 2, "unit": "fl oz", "name": "whole milk" },
+        { "qty": 1, "unit": "oz", "name": "pimento cheese" },
+        { "qty": 1, "unit": "tsp", "name": "butter" },
+        { "qty": 2, "unit": "fl oz", "name": "smoked tomato gravy" },
+        { "qty": 0.25, "unit": "tsp", "name": "Cajun seasoning, low sodium" }
+      ],
+      "method": [
+        "Bring the water and milk to a simmer. Whisk in the grits and cook low 35 minutes, stirring often.",
+        "Stir in the pimento cheese and butter off the heat.",
+        "Season the shrimp and sauté 2 minutes a side, to 145°F.",
+        "Warm the tomato gravy."
+      ],
+      "plating": ["Grits in the center of a warm shallow bowl.", "Shrimp fanned on top, gravy spooned around.", "Scallion over the shrimp."],
+      "equipment": ["Heavy saucepan", "Sauté pan", "Probe thermometer"],
+      "nutrition": { "calories": 430, "protein": 30, "carbs": 34, "fat": 18, "sodium": 760, "calcium": 220 },
+      "allergens": ["Milk"],
+      "cookNotes": "Mechanical soft: chop the shrimp to 1/4 inch."
     }
   }
 ]

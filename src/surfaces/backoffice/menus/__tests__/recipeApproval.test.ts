@@ -5,7 +5,10 @@ import { attentionItems } from '../../pages/dashboard/model/attention';
 import { SEED_SUBMISSIONS } from '../approvals';
 import {
   approvalStatus,
+  changedKeys,
+  changedParts,
   decide,
+  needsNote,
   previousApproved,
   queueCounts,
   queueOf,
@@ -62,6 +65,35 @@ describe('recipe approval', () => {
     expect(decide(no, 's1', { status: 'approved', by: 'X', at: 300 })[0].status).toBe('denied');
   });
 
+  it('asks for changes only with a note; the team can send it again', () => {
+    const subs = send([], soup, 's1', 100);
+    expect(needsNote('approved')).toBe(false);
+    expect(needsNote('changes')).toBe(true);
+    expect(needsNote('denied')).toBe(true);
+    expect(decide(subs, 's1', { status: 'changes', by: 'E', at: 200 })).toBe(subs);
+    const back = decide(subs, 's1', { status: 'changes', by: 'E', at: 200, comment: ' Tick Milk ' });
+    expect(back[0]).toMatchObject({ status: 'changes', comment: 'Tick Milk', decidedBy: 'E' });
+    expect(approvalStatus(back, VT, soup)).toMatchObject({ step: 'changes', label: 'Changes requested', tone: 'warning', canSend: true });
+    expect(queueCounts(back)).toEqual({ waiting: 0, approved: 0, changes: 1, denied: 0 });
+    expect(queueOf(back, 'changes').map((x) => x.id)).toEqual(['s1']);
+    // Sent again: it waits, and the earlier copy stays on record.
+    const again = send(back, { ...soup, allergens: ['Milk', 'Wheat'] }, 's2', 300);
+    expect(again.map((x) => x.status)).toEqual(['waiting', 'changes']);
+    expect(reopen(back, 's1')[0].status).toBe('waiting');
+    expect(reopen(back, 's1')[0].comment).toBeUndefined();
+  });
+
+  it('marks the parts of the review that changed since the version approved before', () => {
+    const before = snapshotOf(soup);
+    expect(changedParts(undefined, before).size).toBe(0);
+    expect(changedParts(before, before).size).toBe(0);
+    const after = snapshotOf({ ...soup, name: 'Tomato Soup', cookMin: 30, equipment: ['Blender'], nutrition: { calories: 210, sodium: 600 } });
+    expect(changedKeys(before, after)).toEqual(['name', 'cookMin', 'equipment', 'nutrition']);
+    expect([...changedParts(before, after)].sort()).toEqual(['about', 'method', 'numbers', 'nutrition']);
+    const plated = snapshotOf({ ...soup, garnish: 'Basil', variations: 'Dairy free: no cream' });
+    expect([...changedParts(before, plated)].sort()).toEqual(['notes', 'plating']);
+  });
+
   it('withdraws only while waiting, and undo puts a decision back to waiting', () => {
     const subs = send([], soup, 's1', 100);
     expect(withdraw(subs, 's1')).toEqual([]);
@@ -102,7 +134,7 @@ describe('recipe approval', () => {
     subs = send(subs, { ...soup, id: 'r2' }, 'b', 100);
     subs = send(subs, { ...soup, id: 'r3' }, 'c', 200);
     subs = decide(subs, 'c', { status: 'denied', by: 'E', at: 400, comment: 'No' });
-    expect(queueCounts(subs)).toEqual({ waiting: 2, approved: 0, denied: 1 });
+    expect(queueCounts(subs)).toEqual({ waiting: 2, approved: 0, changes: 0, denied: 1 });
     expect(queueOf(subs, 'waiting').map((x) => x.id)).toEqual(['b', 'a']);
     expect(queueOf(subs, 'denied').map((x) => x.id)).toEqual(['c']);
   });
@@ -136,11 +168,24 @@ describe('recipe approval', () => {
     expect(whenText(new Date('2026-09-12T12:00:00').getTime(), at)).toBe('Sep 12');
   });
 
-  it('seeds 4 waiting, 2 approved and 1 denied, with a re-submission to compare', () => {
-    expect(queueCounts(SEED_SUBMISSIONS)).toEqual({ waiting: 4, approved: 2, denied: 1 });
+  it('seeds 5 waiting, 3 approved, 1 with changes requested and 1 denied, with re-submissions to compare', () => {
+    expect(queueCounts(SEED_SUBMISSIONS)).toEqual({ waiting: 5, approved: 3, changes: 1, denied: 1 });
+    expect(SEED_SUBMISSIONS.find((x) => x.status === 'changes')?.comment).toBeTruthy();
+    // Every recipe sent has enough to judge it: ingredients, method, plating and nutrition.
+    for (const x of SEED_SUBMISSIONS) {
+      expect(x.recipe.ingredients?.length, x.id).toBeGreaterThanOrEqual(4);
+      expect(x.recipe.method?.length, x.id).toBeGreaterThanOrEqual(4);
+      expect(x.recipe.plating?.length, x.id).toBeGreaterThanOrEqual(2);
+      expect(x.recipe.nutrition?.sodium, x.id).toBeGreaterThan(0);
+    }
+    // The soup re-submission is compared with the version approved last winter: lower sodium stock.
+    const soupNow = SEED_SUBMISSIONS.find((x) => x.id === 'ap_vt_soup')!;
+    expect(previousApproved(SEED_SUBMISSIONS, soupNow)?.id).toBe('ap_vt_soup_1');
+    expect(changedParts(previousApproved(SEED_SUBMISSIONS, soupNow)!.recipe, soupNow.recipe).has('ingredients')).toBe(true);
     expect(SEED_SUBMISSIONS.find((x) => x.status === 'denied')?.comment).toBeTruthy();
-    const resub = SEED_SUBMISSIONS.find((x) => x.status === 'waiting' && previousApproved(SEED_SUBMISSIONS, x));
-    expect(resub?.community).toBe('La Posada');
+    const resubs = SEED_SUBMISSIONS.filter((x) => x.status === 'waiting' && previousApproved(SEED_SUBMISSIONS, x));
+    expect(resubs.map((x) => x.community).sort()).toEqual(['La Posada', VT]);
+    const resub = resubs.find((x) => x.community === 'La Posada');
     expect(recipeChanges(previousApproved(SEED_SUBMISSIONS, resub!)!.recipe, resub!.recipe).length).toBeGreaterThan(2);
     expect(SEED_SUBMISSIONS.some((x) => x.community === VT && x.status === 'waiting')).toBe(true);
   });

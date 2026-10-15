@@ -220,6 +220,11 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Recipe Approval shows the whole recipe
+- Opening a recipe sent for approval now shows all of it: who sent it and why, yield, portion and times, ingredients, method, plating, allergens and nutrition. On a wide screen the list stays on the left and the next waiting recipe opens after each decision.
+- When a recipe changes one that was approved before, the changed parts are marked and a list shows what came out and what went in.
+- New **Ask for changes** next to Approve and Deny. Asking for changes and denying both need a note, which the community sees on its recipe with a Send again button.
+
 ### Production counts and Steps of Service
 - The Manager tablet's "Metrics" tab is now called **Steps of Service**, matching the policy name.
 - Production counts have **+25, +50 and +100** buttons that add to the count (tap 100 then 25 for 125), plus **Clear**. Typing a number still works. On a touch screen the buttons are 44px tall.
