@@ -843,3 +843,8 @@ details.chalrow .chev { margin-top: 10px; }
 .chdid li b { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .chalbody .chsec > .dl { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
 .chalbody .chsec.caution .dl { color: var(--maj); }
+/* The quarter's win, on its own above the numbers. */
+.dwin { background: var(--good-bg); border-left: 6px solid var(--good); border-radius: var(--radius); padding: 22px 26px; }
+.dwin .dhl { font-size: 28px; line-height: 1.3; display: flex; flex-direction: column; gap: 8px; max-width: 46ch; }
+.dwin .dwsub { font-family: var(--body); font-size: 15px; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
+@media (max-width: 560px) { .dwin { padding: 16px 18px; } .dwin .dhl { font-size: 22px; } }

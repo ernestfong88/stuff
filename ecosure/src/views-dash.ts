@@ -124,7 +124,7 @@ function challenges(m: Model, top: Challenge[], total: number): string {
   if (!top.length) return '';
   const sec = (label: string, body: string) => (body ? `<div class="chsec"><span class="dl">${label}</span>${body}</div>` : '');
   const list = (xs: string[]) => (xs.length ? `<ul>${xs.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '');
-  return `<section class="chal" aria-label="Top three challenges"><header><h3>Top three challenges</h3></header>
+  return `<section class="chal" aria-label="Top Three Challenges"><header><h3>Top Three Challenges</h3></header>
     <div class="challist">${top.map((t, i) => {
       const key = 'chal-' + i;
       return `<details class="chalrow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>
@@ -176,8 +176,9 @@ function headline(m: Model, A: Audit[], where: string): { tiles: string; line: s
   // One line: what was found, over which audit window, and the result.
   const ds = A.map((a) => a.date).sort(), d0 = ds[0] ?? '', d1 = ds[ds.length - 1] ?? '';
   const span = !d0 ? '' : d0 === d1 ? fmtDate(d0) : d0.slice(0, 4) === d1.slice(0, 4) ? `${fmtDate(d0, true)} – ${fmtDate(d1)}` : `${fmtDate(d0)} – ${fmtDate(d1)}`;
-  const line = `<b>${items.length} issues</b> across ${A.length} kitchen audits${where ? ` ${esc(where)}` : ''}${span ? ` <span class="dspan">(${span})</span>` : ''} · <b class="good">${rate}% resolved</b> · ` +
-    (raw.length ? `<b class="bad">${raw.length} of ${crit.length} high-risk issues still open</b>` : `<b class="good">${crit.length} high-risk issues identified and remediated</b>`);
+  const line = `<span class="dwmain">Teams resolved <b class="good">${rate}%</b> of the <b>${items.length}</b> issues found${where ? ` ${esc(where)}` : ''}. ` +
+    (raw.length ? `<b class="bad">${raw.length} of ${crit.length} high-risk issues are still open.</b>` : `<b class="good">${crit.length === 1 ? 'The 1 high-risk issue was' : `All ${crit.length} high-risk issues were`} identified and remediated.</b>`) +
+    `</span><span class="dwsub">${A.length} kitchen audits${span ? ` · ${span}` : ''}</span>`;
   // The auditor's own note confirms each one was made safe on site.
   const mitNote = !OPEN.has('hr') ? '' : `<div class="dmit"><span class="dl">${critDone} of ${crit.length} resolved on a filed action plan${mit.length ? ` · ${mit.length} waiting for a full solution, immediate risk remediated on site` : ''}</span>${mit.length ? `<ul>${mit.map((f) => `<li><button class="linkbtn strong" data-go="c-${f.audit.slug}">${esc(shortOf(m, f.audit.community))}</button> <b>${esc(plainTitle(f.short))}.</b> <span class="aud">Auditor's note: “${esc(f.comment)}”</span></li>`).join('')}</ul>` : ''}${raw.length ? `<p class="rawg">${raw.length} still open with no plan: ${esc([...new Set(raw.map((f) => shortOf(m, f.audit.community)))].join(', '))}.</p>` : ''}<button class="btn ghost sm" data-go="findings" data-crit="Critical">See all ${crit.length} high-risk findings</button></div>`;
   return { tiles, line, mitNote };
@@ -197,7 +198,6 @@ export function dashboard(m: Model, v: ViewState): string {
   const items = A.flatMap((a) => a.items);
   const sn = snapshot(m, v, inReg);
   const hl = headline(m, A, where);
-  const latestDate = m.audits.reduce((x, a) => (a.date > x ? a.date : x), '');
 
   // Communities of focus: the qualifying reasons from the latest quarterly audit, without status detail.
   const focusAll = communitiesOfFocus(m).filter(({ c }) => inReg(c.c.name)).sort((a, b) => (a.c.score ?? 101) - (b.c.score ?? 101));
@@ -207,16 +207,15 @@ export function dashboard(m: Model, v: ViewState): string {
 
   const html = `<div class="dash">
     <div class="dhead">
-      <div><p class="crumb">Kisco Senior Living · Culinary food safety</p><h2 class="page">EcoSure Food Safety Dashboard</h2>
-        <p class="note">Latest EcoSure audit of each kitchen · data through ${fmtDate(latestDate)}</p></div>
+      <div><h2 class="page">EcoSure Food Safety Dashboard</h2></div>
       <div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-summary">Copy as email</button></div>
     </div>
     <div class="dfilters">${picker(m, selLabel)}<span class="grow"></span>${roundSelect(m, v)}</div>
     ${chosen(m).length ? '' : '<div class="okbox">No communities selected. Open the Communities list above and pick at least one.</div>'}
     ${all.length ? '' : `<div class="dfuture"><b>${esc(v.round)}: no EcoSure audits yet</b><p>${(() => { const r = m.settings.rounds.find((x) => x.name === v.round); return r ? `This round runs ${fmtDate(r.start)} to ${fmtDate(r.end)}. ` : ''; })()}Results will appear here as audits come in. Pick another round to see past results.</p><button class="btn sm" data-round="all">Show all rounds</button></div></div>`}
 
-    ${all.length ? '' : '<!--end-->'}<section class="dhero" aria-label="Quarter snapshot">
-      <p class="dhl">${hl.line}</p>
+    ${all.length ? '' : '<!--end-->'}<section class="dwin" aria-label="Quarter snapshot"><p class="dhl">${hl.line}</p></section>
+    <section class="dhero" aria-label="Quarter numbers">
       ${hl.tiles}
       ${hl.mitNote}
     </section>
