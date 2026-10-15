@@ -29,12 +29,13 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(page.locator('.dpanel .theme-hm tbody tr')).toHaveCount(5);
   const ident = page.locator('.dhero > .dbig > *').first();
   const before = await ident.textContent();
+  const line = await page.locator('.dwin .dhl').textContent();
   await expect(page.locator('.dpest')).toContainText('Pest activity');
   await page.locator('.dsel > summary').click();
   await page.locator('[data-act="sel:none"]').click();
   await page.locator('input[data-selreg="Mountain"]').check();
   await expect(page.locator('.dsel > summary b')).toHaveText('Mountain region');
-  await expect(page.locator('.dhl')).toContainText('in the Mountain region');
+  await expect(page.locator('.dwin .dhl')).not.toHaveText(line!);
   await expect(ident).not.toHaveText(before!);
   await page.locator('[data-act="sel:done"]').click();
   await expect(page.locator('.dselpanel')).toBeHidden();
@@ -126,7 +127,7 @@ test('the dashboard round picker lists upcoming rounds and shows an empty state 
   await page.goto('/');
   const sel = page.locator('select[data-dround]');
   await expect(sel.locator('option')).toContainText(['All rounds', 'Q3 2026', 'Q4 2026 (upcoming)', 'Q1 2027 (upcoming)', 'Q2 2027 (upcoming)', 'Q3 2027 (upcoming)', 'Q4 2027 (upcoming)']);
-  await expect(page.locator('.dwin .dwmain')).toContainText(/audits in \d+ days/);
+  await expect(page.locator('.dwin .dhl')).toHaveText(/^\d+ audits in \d+ days\. \d+% of \d+ issues found and remediated\.$/);
   await expect(page.locator('.crumb')).toHaveCount(0);
   await sel.selectOption('Q1 2027');
   await expect(page.locator('.dfuture')).toContainText('no EcoSure audits yet');

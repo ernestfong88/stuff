@@ -863,3 +863,7 @@ details.chalrow .chev { margin-top: 10px; }
 /* The three dashboard sections share one heading size. */
 .dash .chal > header h3, .dash .dpanel > header h3 { font-family: var(--display); font-size: 26px; line-height: 1.2; margin: 0; }
 @media (max-width: 560px) { .dash .chal > header h3, .dash .dpanel > header h3 { font-size: 22px; } }
+/* The quarter in one plain sentence. */
+.dwin { background: none; border: 0; padding: 6px 0 2px; }
+.dwin .dhl { display: block; font-size: 26px; font-weight: 400; line-height: 1.35; max-width: none; }
+@media (max-width: 560px) { .dwin .dhl { font-size: 20px; } }
