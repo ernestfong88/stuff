@@ -87,7 +87,7 @@ function navHtml(): string {
   $('#navComm').innerHTML = list.map((c) => {
     const miss = c.latest.some(capMissing);
     const flag = c.capState === 'overdue' || c.capState === 'open' ? 'warn' : '';
-    return `<button data-go="c-${c.slug}" aria-current="${route === 'c-' + c.slug}"><span title="${esc(c.c.name)}">${esc(c.c.short || c.c.name)}</span><span class="navr">${miss ? '<span class="captag" title="CAP missing">CAP</span>' : flag ? `<span class="flag ${flag}" title="CAP open or past due"></span>` : ''}<span class="pill s-${scoreBand(c.score)}">${pct(c.score)}</span></span></button>`;
+    return `<button data-go="c-${c.slug}" aria-current="${route === 'c-' + c.slug}"><span title="${esc(c.c.name)}">${esc(c.c.short || c.c.name)}</span><span class="navr">${miss ? '<span class="captag" title="No corrective action plan filed">CAP needed</span>' : flag ? `<span class="flag ${flag}" title="Action plan filed, not yet approved by EcoSure"></span>` : ''}<span class="pill s-${scoreBand(c.score)}">${pct(c.score)}</span></span></button>`;
   }).join('') || '<div class="note" style="color:#9DBAB5;padding:6px 10px">No match</div>';
   const m = $('#mode');
   m.className = 'mode ' + (V.mode === 'local' ? 'local' : '');
@@ -427,6 +427,11 @@ function shell(): void {
       <nav class="nav" id="navMain" aria-label="Dashboard"></nav>
       <details class="navfold" id="commfold"><summary>All communities</summary>
         <input id="q" type="search" placeholder="Find a community" aria-label="Find a community">
+        <div class="navlegend" aria-label="Key">
+          <span><span class="captag">CAP needed</span>No action plan filed</span>
+          <span><span class="flag warn"></span>Plan filed, awaiting approval</span>
+          <span><span class="pill s-good">85+</span><span class="pill s-warn">70</span><span class="pill s-bad">&lt;70</span>Score</span>
+        </div>
         <nav class="nav" id="navComm" style="margin-top:6px" aria-label="Communities"></nav>
       </details>
       <details class="navfold" id="morefold"><summary>More detail</summary><nav class="nav" id="navMore" aria-label="More detail"></nav></details>

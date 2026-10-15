@@ -105,7 +105,7 @@ A CAP attaches to the report with the same kitchen and audit date (EcoSure's "An
 ## Rules the site applies
 
 - **Score bands:** 85 and up is good, 70 to 84 is a warning, below 70 is a community of focus. Critical findings cost 5 points, Major 3, Minor 1.
-- **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP** tag in the sidebar, and a banner on the community page.
+- **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP needed** tag in the sidebar community list (a yellow dot means a plan is filed but not yet approved; a key sits under the search box), and as a banner on the community page.
 - **CAP status:**
   - closed when EcoSure shows Approved or Completed
   - past due when an open CAP has an item past its due date
