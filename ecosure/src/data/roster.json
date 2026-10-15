@@ -37,7 +37,7 @@
  },
  {
   "name": "Balfour Cherrywood",
-  "short": "CW",
+  "short": "CWD",
   "city": "Louisville",
   "kitchens": [
    "Main Kitchen"
@@ -113,7 +113,7 @@
  },
  {
   "name": "Cedarwood at Sandy",
-  "short": "CWD",
+  "short": "CW",
   "city": "Sandy",
   "kitchens": [
    "Main Kitchen"
