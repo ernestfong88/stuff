@@ -220,6 +220,12 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Production counts and Steps of Service
+- The Manager tablet's "Metrics" tab is now called **Steps of Service**, matching the policy name.
+- Production counts have **+25, +50 and +100** buttons that add to the count (tap 100 then 25 for 125), plus **Clear**. Typing a number still works. On a touch screen the buttons are 44px tall.
+- Week at a glance now picks the day and shows each day's confirmed count, so the narrow day boxes are gone and the columns have more room. Next week shows all seven days, Sunday to Saturday, and its button reads "Confirm all next week".
+- Two Temperature Log tests only passed on Oct 8; they now pin the clock to today, so they pass on any date.
+
 ### Docs: the demo clock
 - The README and the handoff note now say the app runs on the device's real time by default. They said it was pinned to 5:45 PM, which is no longer the case.
 

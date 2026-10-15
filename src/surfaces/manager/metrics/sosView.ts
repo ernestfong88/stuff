@@ -1,5 +1,5 @@
 /**
- * What the manager's Metrics tab shows for Steps of Service, worked out from
+ * What the manager's Steps of Service tab shows for Steps of Service, worked out from
  * the existing measures: each timed table's steps in the order they happen,
  * the shift's average for each step against its goal, one row per server,
  * and the one thing to do next.

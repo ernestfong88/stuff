@@ -333,7 +333,7 @@
 
 .glance {
   width: 100%;
-  min-width: 900px;
+  min-width: 840px;
   border-collapse: collapse;
   table-layout: fixed;
   font-size: 12.5px;
@@ -351,29 +351,67 @@
 .glance td:hover {
   background: #f7f9fb;
 }
-.glanceMeal {
-  width: 92px;
+.glance thead th {
+  padding: 0;
+  vertical-align: top;
+}
+.glance tbody th.glanceMeal {
+  padding: 8px 10px 4px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--s500);
+  background: #f7f8fa;
+}
+.glance tbody td {
+  border-top: none;
+  padding-top: 6px;
+  padding-bottom: 10px;
+}
+.glance tbody td + td,
+.glance thead th + th {
+  border-left: 1px solid var(--hair);
 }
 .glanceDay {
-  font-size: 12px;
-  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  min-height: 100%;
+  padding: 9px 10px;
+  text-align: left;
   color: var(--s700);
-  padding: 2px 4px;
-  margin: -2px -4px;
-  border-radius: var(--r-xs);
+}
+.glanceDay:hover {
+  background: #f7f9fb;
+}
+.glanceDayName {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.glanceDayMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--s500);
+}
+.glanceDayAll {
+  color: var(--green);
+  font-weight: 750;
 }
 .glanceOn {
   background: var(--ocean-100);
 }
-.glance td.glanceOn:hover {
+.glance td.glanceOn:hover,
+.glanceOn .glanceDay:hover {
   background: var(--ocean-100);
 }
-.glanceOn .glanceDay {
+.glanceOn .glanceDayName {
   color: var(--ocean-700);
 }
 .glanceItem {
@@ -408,4 +446,60 @@
 .glanceNone {
   font-size: 11.5px;
   color: var(--s400);
+}
+
+/* ── Quick-add counts ─────────────────────────────────────────────────── */
+
+.makeEdit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.quick {
+  display: inline-flex;
+  gap: 4px;
+}
+.quickBtn {
+  min-width: 40px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--ocean-700);
+  background: var(--ocean-100);
+}
+.quickBtn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ocean) 14%, var(--ocean-100));
+}
+.quickClear {
+  color: var(--s700);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+.quickClear:hover:not(:disabled) {
+  background: var(--paper);
+}
+.quickBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+/* A touch screen: big enough to hit with a gloved finger. */
+@media (pointer: coarse) {
+  .makeEdit {
+    flex-wrap: wrap;
+  }
+  .makeEdit :global(input) {
+    height: 44px;
+  }
+  .quick {
+    gap: 6px;
+  }
+  .quickBtn {
+    min-width: 52px;
+    height: 44px;
+    font-size: 14px;
+  }
 }
