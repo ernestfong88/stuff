@@ -22,7 +22,7 @@ The page then shows, in order:
 1. **Quarter snapshot:** one sentence and four numbers.
    - **Issues found,** split by criticality
    - **Resolved,** as a percentage
-   - **High-risk (critical) issues identified,** with how many are resolved, how many have the immediate risk remediated while the full solution is in progress (yellow), and how many are still open (red)
+   - **High-risk (critical) issues remediated,** with how many were identified this quarter, how many are waiting for the full solution (yellow) and any still open (red)
    - **Median days from audit to an action plan on file,** against a target of 10
 
    Each number opens the matching findings.
@@ -76,8 +76,7 @@ Copy as email sends the same snapshot.
 
 | Page | Use it to |
 | --- | --- |
-| Priorities | Rank every cited standard by points lost and the score gain from fixing it everywhere |
-| Findings and photos | Filter every finding by community, section, theme, criticality, remediation, repeats, photos or text, then download a CSV |
+| Findings and photos | Start with **What to fix first**: the issues in your selection ranked by points lost, with the score gain from fixing each one everywhere. Below it, filter every finding by community, section, theme, criticality, remediation, repeats, photos or text, then download a CSV |
 | Trends | See the portfolio by theme grid, scores by round and month, points lost by section, a standards heat map, repeat findings and the biggest score changes |
 | Readiness playbook | Review every cited standard: what EcoSure checks, what to have in place, a 30-second check, and the most common misses |
 

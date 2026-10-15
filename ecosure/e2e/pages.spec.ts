@@ -22,7 +22,7 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(page.locator('#navMain button')).toHaveCount(1);
   await expect(page.locator('#morefold')).not.toHaveAttribute('open', '');
   await page.locator('#morefold > summary').click();
-  await expect(page.locator('#navMore button')).toHaveCount(4);
+  await expect(page.locator('#navMore button')).toHaveCount(3);
   await expect(page.locator('.dhero > .dbig > *')).toHaveCount(4);
   await expect(page.locator('.dfocus tbody tr')).toHaveCount(5);
   const ident = page.locator('.dhero > .dbig > *').first();
@@ -92,7 +92,7 @@ test('dashboard links open Findings filtered to what was clicked, for the picked
   expect(await count()).toBe(done);
   await back();
 
-  const risk = await num('.dhero > .dbig > :nth-child(3)');
+  const risk = Number((await page.locator('.dhero > .dbig > :nth-child(3) .dsl1').textContent())!.match(/^(\d+)/)![1]);
   await page.locator('.dhero > .dbig > :nth-child(3)').click();
   await expect(page.locator('#f-crit')).toHaveValue('Critical');
   expect(await count()).toBe(risk);
@@ -117,8 +117,8 @@ test('a high-risk finding made safe on site shows as immediate risk remediated',
   await page.goto('/#c-park-terrace');
   await expect(page.locator('.capbox.mit')).toContainText('Immediate risk remediated');
   await page.goto('/');
-  await expect(page.locator('.dhero > .dbig > :nth-child(3)')).toContainText('High-risk issues identified');
-  await expect(page.locator('.dhero > .dbig > :nth-child(3) .mitg')).toContainText('immediate risk remediated');
+  await expect(page.locator('.dhero > .dbig > :nth-child(3)')).toContainText('identified this quarter');
+  await expect(page.locator('.dhero > .dbig > :nth-child(3) .mitg')).toContainText('waiting for full solution');
 });
 
 test('every page has a back button to the dashboard', async ({ page }) => {
@@ -128,4 +128,15 @@ test('every page has a back button to the dashboard', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
   }
   await expect(page.locator('.backbtn')).toHaveCount(0);
+});
+
+test('Findings opens with the issues ranked, and an issue filters the list', async ({ page }) => {
+  await page.goto('/#priorities');
+  await expect(page.getByRole('heading', { name: 'Findings and photos' })).toBeVisible();
+  const rows = page.locator('table.prio tbody tr');
+  await expect(rows).toHaveCount(5);
+  const name = (await rows.first().locator('[data-act^="std:"]').textContent())!.trim();
+  await rows.first().locator('[data-act^="std:"]').click();
+  await expect(page.locator('section.block h3').first()).toContainText(name);
+  await expect(page.locator('table.prio')).toHaveCount(0);
 });

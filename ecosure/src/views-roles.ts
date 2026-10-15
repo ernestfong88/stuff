@@ -1,13 +1,11 @@
-/** Communities of focus, priorities and the readiness playbook. */
+/** Communities of focus and the readiness playbook. */
 import { THEMES, allStandards, themeOf, type Standard } from './catalog';
-import { CRIT_COLOR } from './charts';
 import { AUDIT_LABEL, CAP_LABEL, priorities, type Audit, type CommunityView, type Model } from './model';
 import { PLAYBOOK } from './playbook';
-import { plainTitle } from './plain';
-import { fold, top } from './expand';
+import { fold } from './expand';
 import type { Crit } from './types';
 import { avg, countBy, esc, plural, slug } from './util';
-import { inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
+import { latestPerKitchen, scorePill } from './views';
 
 
 const critChip = (c: Crit) => `<span class="chip c-${c}">${c}</span>`;
@@ -46,22 +44,6 @@ export function themeHeat(m: Model, audits: Audit[], names: string[]): string {
   return `<div class="tablewrap"><table class="hm theme-hm"><thead><tr><th>Community</th>${THEMES.map((t) => `<th class="c" data-act="theme:${esc(t.t)}" style="cursor:pointer">${esc(t.t)}</th>`).join('')}<th class="num">Score</th></tr></thead><tbody>
     ${names.map((c) => `<tr><td class="lab"><button class="linkbtn" data-go="c-${slugOf(m, c)}">${esc(c)}</button></td>${THEMES.map((t) => cell(c, t.t)).join('')}<td class="num">${scorePill(avg(audits.filter((a) => a.community === c).map((a) => a.score)))}</td></tr>`).join('')}
     </tbody></table></div><div class="legend"><span>Points lost per theme in the latest audit of each kitchen.</span><span><i style="background:var(--hm1)"></i>Low</span><span><i style="background:var(--hm2)"></i>Medium</span><span><i style="background:var(--hm3)"></i>High</span></div>`;
-}
-
-/* ---------- priorities ---------- */
-export function prioritiesView(m: Model, v: ViewState): string {
-  const A = latestPerKitchen(inRound(m, v));
-  const P = priorities(A);
-  const max = Math.max(1, ...P.map((p) => p.points));
-  const t = top('prio', P, 5, 'standards');
-  return head('Priorities', 'What to fix first', `Ranked by points lost. "Score gain" is how much the average kitchen score would rise if the issue were fixed everywhere.`, shareBtn()) +
-    roundChips(m, v) +
-    `<div class="tablewrap"><table><thead><tr><th class="num">#</th><th>Issue</th><th class="num">Score gain</th><th style="min-width:140px">Points lost</th><th class="num">Kitchens</th><th></th></tr></thead><tbody>
-    ${t.shown.map((p, i) => `<tr><td class="num">${i + 1}</td><td><b>${esc(plainTitle(p.short))}</b> ${critChip(p.crit)}<span class="sub">${esc(p.short)}</span></td><td class="num"><b>+${p.impact.toFixed(1)}</b></td>
-      <td><span class="minibar"><span style="width:${(p.points / max) * 100}%;background:${CRIT_COLOR[p.crit]}"></span></span> <span class="note">${p.points}</span></td>
-      <td class="num">${p.kitchens}</td>
-      <td><button class="linkbtn" data-act="std:${esc(p.short)}">Findings</button> · <button class="linkbtn" data-go="playbook.${slug(p.short)}">Playbook</button></td></tr>`).join('')}
-    </tbody></table></div>${t.more}`;
 }
 
 /* ---------- playbook ---------- */

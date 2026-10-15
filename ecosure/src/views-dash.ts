@@ -163,17 +163,19 @@ function headline(A: Audit[], where: string): { tiles: string; line: string } {
   const codes = (fs: Finding[]) => [...new Set(fs.map((f) => f.audit.community))].length;
   const days = A.filter((a) => a.items.length && a.cap && (a.cap.submitted || a.cap.approved)).map((a) => Math.round((Date.parse(a.cap!.submitted || a.cap!.approved) - Date.parse(a.date)) / 864e5)).filter((d) => !Number.isNaN(d)).sort((x, y) => x - y);
   const med = days.length ? (days.length % 2 ? days[(days.length - 1) / 2] : Math.round((days[days.length / 2 - 1] + days[days.length / 2]) / 2)) : null;
-  const critSub = [`<span class="dsl1">${critDone} resolved</span>`, mit.length ? `<span class="mitg">${mit.length} immediate risk remediated, full solution in progress</span>` : '', raw.length ? `<span class="rawg">${raw.length} open at ${codes(raw)} ${codes(raw) === 1 ? 'community' : 'communities'}</span>` : ''].filter(Boolean).join('');
+  // Remediated = resolved on a plan, or made safe on site with the full solution still to come.
+  const critRem = critDone + mit.length;
+  const critRate = crit.length ? Math.round((critRem / crit.length) * 100) : 100;
+  const critSub = [`<span class="dsl1">${crit.length} identified this quarter</span>`, mit.length ? `<span class="mitg">${mit.length} waiting for full solution</span>` : '', raw.length ? `<span class="rawg">${raw.length} open at ${codes(raw)} ${codes(raw) === 1 ? 'community' : 'communities'}</span>` : ''].filter(Boolean).join('');
   const tiles = `<div class="dbig dfour">
     ${bigBox('Issues found', String(items.length), { go: 'findings', sub: `${n('Critical')} critical · ${n('Major')} major · ${n('Minor')} minor` })}
     ${bigBox('Resolved', rate + '%', { tone: 'good', go: 'findings', cap: 'closed', meter: rate, sub: `${done} of ${items.length}` })}
-    ${bigBox('High-risk issues identified', String(crit.length), { tone: raw.length ? 'bad' : mit.length ? 'warn' : 'good', go: 'findings', crit: 'Critical', sub: critSub })}
+    ${bigBox(raw.length ? 'High-risk issues remediated' : 'All high-risk issues remediated', raw.length ? `${critRem} of ${crit.length}` : `${critRate}%`, { tone: raw.length ? 'bad' : 'good', go: 'findings', crit: 'Critical', sub: critSub })}
     ${bigBox('Days to a plan on file', med == null ? '–' : String(med), { tone: med != null && med <= 10 ? 'good' : 'warn', sub: 'median · target 10 or fewer' })}
   </div>`;
-  const line = `EcoSure found <b>${items.length} issues</b> across ${A.length} kitchens${where ? ` ${esc(where)}` : ''}, <b>${crit.length} of them high-risk</b>. <b class="good">${rate}%</b> are resolved` +
-    (raw.length ? `; <b class="bad">${raw.length} high-risk ${raw.length === 1 ? 'remains' : 'remain'} open</b>` : '') +
-    (mit.length ? `; ${raw.length ? '' : 'the '}<b class="warn">${mit.length} high-risk ${mit.length === 1 ? 'issue has' : 'issues have'}</b> the immediate risk remediated, with the full solution in progress` : '') +
-    (!open.length ? ', with no high-risk issues open' : '') + '.';
+  const line = `EcoSure found <b>${items.length} issues</b> across ${A.length} kitchens${where ? ` ${esc(where)}` : ''}. <b class="good">${rate}%</b> are resolved` +
+    (raw.length ? `; <b class="bad">${raw.length} of the ${crit.length} high-risk issues remain open</b>` : `, and <b class="good">all ${crit.length} high-risk issues</b> have been remediated`) +
+    (mit.length ? `, with <b class="warn">${mit.length} waiting for the full solution</b>` : '') + '.';
   return { tiles, line };
 }
 

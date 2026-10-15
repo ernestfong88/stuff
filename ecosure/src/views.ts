@@ -13,7 +13,7 @@ import { bigBox, critMix, isActivity, pestLabel, pestStatus, shortOf, statusChip
 import { PLAYBOOK } from './playbook';
 import { plainTitle } from './plain';
 import type { Crit } from './types';
-import { avg, countBy, esc, fmtDate, pct, plural, todayIso } from './util';
+import { avg, countBy, esc, fmtDate, pct, plural, slug as slugOf, todayIso } from './util';
 
 export interface Filters {
   community: string;
@@ -200,11 +200,24 @@ export function findings(m: Model, v: ViewState): string {
   const list = filterFindings(m, v).sort((a, b) => ['Critical', 'Major', 'Minor', 'Unrated'].indexOf(a.criticality) - ['Critical', 'Major', 'Minor', 'Unrated'].indexOf(b.criticality) || Number(b.photos.length > 0) - Number(a.photos.length > 0) || b.audit.date.localeCompare(a.audit.date));
   const comms = [...new Set(m.audits.map((a) => a.community))].sort();
   const sel = (id: string, label: string, val: string, opts: [string, string][]) => `<label class="field"><span class="lbl">${label}</span><select id="${id}" data-filter="${id.replace('f-', '')}">${opts.map(([k, t]) => `<option value="${esc(k)}"${k === val ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>`;
-  const byStd = [...countBy(list, (i) => i.short)].sort((a, b) => b[1] - a[1]);
-  const critOf = (s: string) => list.find((i) => i.short === s)?.criticality ?? 'Minor';
+  // What to fix first: the issues in this selection ranked by points lost. Score gain is how much the
+  // average kitchen score would rise if the issue were fixed everywhere in the selection.
+  const scope = inRound(m, v).filter((a) => (f.community === 'all' || f.community.startsWith('band:') || a.community === f.community) && (!f.comms || f.comms.includes(a.community))).length || 1;
+  const rank = [...new Set(list.map((i) => i.short))].map((s) => {
+    const fs = list.filter((i) => i.short === s);
+    const crit = (['Critical', 'Major', 'Minor', 'Unrated'] as const).find((c) => fs.some((i) => i.criticality === c)) ?? 'Minor';
+    return { s, crit, n: fs.length, points: fs.reduce((x, i) => x + i.points, 0), kitchens: new Set(fs.map((i) => i.audit.key)).size };
+  }).sort((a, b) => b.points - a.points || b.kitchens - a.kitchens);
+  const maxPts = Math.max(1, ...rank.map((r) => r.points));
+  const tr = top('prio', rank, 5, 'issues');
+  const rankTable = `<div class="tablewrap"><table class="prio"><thead><tr><th class="num">#</th><th>Issue</th><th class="num" title="How much the average kitchen score would rise if fixed everywhere">Score gain</th><th style="min-width:130px">Points lost</th><th class="num">Kitchens</th><th></th></tr></thead><tbody>
+    ${tr.shown.map((r, i) => `<tr><td class="num">${i + 1}</td><td><button class="linkbtn strong" data-act="std:${esc(r.s)}">${esc(plainTitle(r.s))}</button> ${critChip(r.crit as Crit)}</td><td class="num"><b>+${(r.points / scope).toFixed(1)}</b></td>
+      <td><span class="minibar"><span style="width:${(r.points / maxPts) * 100}%;background:${CRIT_COLOR[r.crit as Crit]}"></span></span> <span class="note">${r.points}</span></td><td class="num">${r.kitchens}</td>
+      <td class="acts">${PLAYBOOK[r.s] ? `<button class="linkbtn" data-go="playbook.${slugOf(r.s)}">Playbook</button>` : ''}</td></tr>`).join('')}
+    </tbody></table></div>${tr.more}`;
   const active = !!f.comms || f.community !== 'all' || f.section !== 'all' || f.theme !== 'all' || f.crit !== 'all' || f.cap !== 'all' || f.std || f.q || f.repeat || f.photos;
   const moreActive = f.section !== 'all' || f.theme !== 'all' || f.cap !== 'all' || f.repeat || f.photos;
-  return head('Findings', 'Findings and photos', 'Pick a community or an issue to narrow the list. The most common issues for your selection are at the top.') +
+  return head('Findings', 'Findings and photos', 'What to fix first for your selection, then every finding with its photos and corrective action. Use the filters to narrow it.') +
     `<div class="panel"><div class="form">
       ${sel('f-community', 'Community', f.community.startsWith('band:') ? 'all' : f.community, [['all', 'All communities'], ...comms.map((c): [string, string] => [c, shortOf(m, c)]).sort((a, b) => a[1].localeCompare(b[1]))])}
       ${sel('f-crit', 'Criticality', f.crit, [['all', 'All'], ['Critical', 'Critical'], ['Major', 'Major'], ['Minor', 'Minor'], ['Unrated', 'Unrated']])}
@@ -217,8 +230,8 @@ export function findings(m: Model, v: ViewState): string {
     </div><div class="toolbar" style="margin:12px 0 0"><button class="fbtn" data-toggle="repeat" aria-pressed="${f.repeat}">Repeat findings only</button><button class="fbtn" data-toggle="photos" aria-pressed="${f.photos}">With photos</button></div>${roundChips(m, v)}`, moreActive)}
     <div class="toolbar" style="margin:10px 0 0">${f.comms ? `<button class="fbtn" aria-pressed="true" data-act="clear-comms" title="Communities picked on the dashboard">${esc(f.commsLabel || plural(f.comms.length, 'community', 'communities'))} ✕</button>` : ''}${f.std ? `<button class="fbtn" aria-pressed="true" data-act="clear-std">${esc(plainTitle(f.std))} ✕</button>` : ''}
       <span class="grow"></span>${active ? '<button class="btn quiet sm" data-act="clear-filters">Clear filters</button>' : ''}<button class="btn ghost sm" data-act="csv-findings">Download CSV</button></div></div>
-    <section class="block"><h3>${f.std ? esc(plainTitle(f.std)) : 'Top 5 issues'} <span class="sm">${plural(list.length, 'finding')} in ${plural(new Set(list.map((i) => i.audit.community)).size, 'community', 'communities')}</span></h3>
-      ${f.std ? '' : bars(byStd.slice(0, 5).map(([s, n]) => ({ label: plainTitle(s), value: n, act: 'std:' + s, segs: [{ v: n, color: CRIT_COLOR[critOf(s)], title: critOf(s) }] })))}</section>
+    <section class="block"><h3>${f.std ? esc(plainTitle(f.std)) : 'What to fix first'} <span class="sm">${plural(list.length, 'finding')} in ${plural(new Set(list.map((i) => i.audit.community)).size, 'community', 'communities')}</span></h3>
+      ${f.std ? '' : `<p class="note" style="margin:-4px 0 8px">Ranked by points lost. Select an issue to see its findings below.</p>${rankTable}`}</section>
     <section class="block"><div class="finds">${list.slice(0, f.limit).map((i) => findingCard(i, m, true, true, v.canWrite)).join('') || '<div class="empty">No findings match these filters.</div>'}</div>
     ${list.length > f.limit ? `<p class="more"><button class="btn quiet sm" data-act="more">Show ${Math.min(10, list.length - f.limit)} more of ${list.length - f.limit}</button></p>` : ''}</section>`;
 }

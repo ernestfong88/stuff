@@ -7,7 +7,7 @@ import { connect, photoUrl, recId, setSeedPhotos, type Backend } from './store';
 import type { Cap, Community, Rec, Settings } from './types';
 import { csv, esc, fmtDate, pct, slug, todayIso } from './util';
 import { community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
-import { playbookView, prioritiesView } from './views-roles';
+import { playbookView } from './views-roles';
 import { briefingText, talkingText } from './views-brief';
 import { shortOf } from './views-common';
 import { dashboard, regionFilter, selectionAct, setPestTab, setSelQuery, toggleCommunities } from './views-dash';
@@ -49,7 +49,7 @@ function rebuild(): void {
 // The dashboard comes first, then the community list (in the shell), then reference pages.
 const NAV: [string | null, [string, string][]][] = [
   [null, [['dashboard', 'Executive dashboard']]],
-  ['More detail', [['priorities', 'Priorities'], ['findings', 'Findings and photos'], ['trends', 'Trends'], ['playbook', 'Readiness playbook']]],
+  ['More detail', [['findings', 'Findings and photos'], ['trends', 'Trends'], ['playbook', 'Readiness playbook']]],
   ['Manage', [['import', 'Import files'], ['settings', 'Settings']]],
 ];
 const MAIN = NAV.flatMap(([, xs]) => xs);
@@ -61,6 +61,7 @@ function go(to: string): void {
 function readHash(): void {
   let h = decodeURIComponent(location.hash.slice(1)) || 'dashboard';
   if (h === 'overview' || h === 'home') h = 'dashboard'; // the briefing now lives on the dashboard
+  if (h === 'priorities') h = 'findings'; // priorities are the top of Findings now
   if (h.startsWith('playbook.')) { route = 'playbook'; routeArg = h.slice(9); return; }
   if (h.startsWith('c-')) {
     const [s, d] = h.slice(2).split('.');
@@ -101,7 +102,6 @@ function render(): void {
   const main = $('#main');
   let html = '';
   if (route === 'dashboard') html = dashboard(model, V);
-  else if (route === 'priorities') html = prioritiesView(model, V);
   else if (route === 'playbook') html = playbookView(model, routeArg, PB);
   else if (route === 'findings') html = findings(model, V);
   else if (route === 'trends') html = trends(model, V);
