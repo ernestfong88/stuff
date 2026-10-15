@@ -177,9 +177,9 @@ function headline(m: Model, A: Audit[], where: string): { tiles: string; line: s
   const ds = A.map((a) => a.date).sort(), d0 = ds[0] ?? '', d1 = ds[ds.length - 1] ?? '';
   const span = !d0 ? '' : d0 === d1 ? fmtDate(d0) : d0.slice(0, 4) === d1.slice(0, 4) ? `${fmtDate(d0, true)} – ${fmtDate(d1)}` : `${fmtDate(d0)} – ${fmtDate(d1)}`;
   const window = d0 && d1 ? Math.round((Date.parse(d1) - Date.parse(d0)) / 86400000) + 1 : 0;
-  const line = `<span class="dwsub">${A.length} kitchen audits${window > 1 ? ` in ${window} days` : ''}${span ? ` · ${span}` : ''}</span>` +
-    `<span class="dwmain">Teams resolved <b>${rate}%</b> of the <b>${items.length}</b> issues found${where ? ` ${esc(where)}` : ''}.<br>` +
-    (raw.length ? `<b class="bad">${raw.length} of ${crit.length} high-risk issues are still open.</b>` : `<b>${crit.length === 1 ? 'The 1 high-risk issue was' : `All ${crit.length} high-risk issues were`} identified and remediated.</b>`) + '</span>';
+  const line = `<span class="dwsub">${span}${where ? ` · ${esc(where)}` : ''}</span>` +
+    `<span class="dwmain"><b>${A.length} audits</b>${window > 1 ? ` in <b>${window} days</b>` : ''}.<br><b>${rate}%</b> of <b>${items.length}</b> issues found remediated.</span>` +
+    `<span class="dwrisk">${raw.length ? `<b class="bad">${raw.length} of ${crit.length} high-risk issues are still open.</b>` : `${crit.length === 1 ? 'The 1 high-risk issue was' : `All ${crit.length} high-risk issues were`} identified and remediated.`}</span>`;
   // The auditor's own note confirms each one was made safe on site.
   const mitNote = !OPEN.has('hr') ? '' : `<div class="dmit"><span class="dl">${critDone} of ${crit.length} resolved on a filed action plan${mit.length ? ` · ${mit.length} waiting for a full solution, immediate risk remediated on site` : ''}</span>${mit.length ? `<ul>${mit.map((f) => `<li><button class="linkbtn strong" data-go="c-${f.audit.slug}">${esc(shortOf(m, f.audit.community))}</button> <b>${esc(plainTitle(f.short))}.</b> <span class="aud">Auditor's note: “${esc(f.comment)}”</span></li>`).join('')}</ul>` : ''}${raw.length ? `<p class="rawg">${raw.length} still open with no plan: ${esc([...new Set(raw.map((f) => shortOf(m, f.audit.community)))].join(', '))}.</p>` : ''}<button class="btn ghost sm" data-go="findings" data-crit="Critical">See all ${crit.length} high-risk findings</button></div>`;
   return { tiles, line, mitNote };
@@ -226,7 +226,7 @@ export function dashboard(m: Model, v: ViewState): string {
     <div class="dgrid">${pestTracker(m, items)}</div>
 
     <div class="dgrid">
-      ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ high-risk issues or 3+ repeats. Points lost by area, darker is worse; select a community to open it.`, '', focusAll.length ? themeHeat(m, A, focusT.shown.map(({ c }) => c.c.name)) + focusT.more : '<div class="okbox">None in this view.</div>')}
+      ${panel('Communities of Focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ high-risk issues or 3+ repeats. Points lost by area, darker is worse; select a community to open it.`, '', focusAll.length ? themeHeat(m, A, focusT.shown.map(({ c }) => c.c.name)) + focusT.more : '<div class="okbox">None in this view.</div>')}
     </div>
 
   </div>`;

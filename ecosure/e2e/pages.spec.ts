@@ -47,7 +47,7 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.locator('.dpanel .theme-hm tbody tr').first().locator('.lab button').click();
   await expect(page.locator('.dhl')).toContainText('resolved');
   await page.goto('/');
-  await expect(page.locator('.dhl')).toContainText('resolved');
+  await expect(page.locator('.dhl')).toContainText('remediated');
 });
 
 test('the dashboard stays short and opens a community snapshot', async ({ page }) => {
@@ -55,7 +55,7 @@ test('the dashboard stays short and opens a community snapshot', async ({ page }
   await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
   await expect(page.locator('.xcard')).toHaveCount(0);
   await expect(page.locator('.dmix')).toHaveCount(0);
-  await expect(page.locator('.dhl')).toContainText('resolved');
+  await expect(page.locator('.dhl')).toContainText('remediated');
   await expect(page.locator('#navComm .captag').first()).toBeAttached();
   await page.locator('.dpanel .theme-hm tbody tr').first().locator('.lab button').click();
   await expect(page.locator('.dhl')).toContainText('issues');
@@ -126,7 +126,7 @@ test('the dashboard round picker lists upcoming rounds and shows an empty state 
   await page.goto('/');
   const sel = page.locator('select[data-dround]');
   await expect(sel.locator('option')).toContainText(['All rounds', 'Q3 2026', 'Q4 2026 (upcoming)', 'Q1 2027 (upcoming)', 'Q2 2027 (upcoming)', 'Q3 2027 (upcoming)', 'Q4 2027 (upcoming)']);
-  await expect(page.locator('.dwin .dwsub')).toContainText(/kitchen audits in \d+ days/);
+  await expect(page.locator('.dwin .dwmain')).toContainText(/audits in \d+ days/);
   await expect(page.locator('.crumb')).toHaveCount(0);
   await sel.selectOption('Q1 2027');
   await expect(page.locator('.dfuture')).toContainText('no EcoSure audits yet');

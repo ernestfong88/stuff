@@ -857,3 +857,9 @@ details.chalrow .chev { margin-top: 10px; }
 .dwin .dhl, .dwin .dhl > span { width: 100%; text-align: center; }
 .dwin .dhl { max-width: 60ch; }
 @media (max-width: 760px) { .dash > .dhead { grid-template-columns: 1fr; justify-items: center; } .dash > .dhead > span { display: none; } .dash > .dhead > .pageacts { justify-self: center; } }
+.dwin .dwmain { font-size: 32px; line-height: 1.25; }
+.dwin .dwrisk { font-family: var(--body); font-size: 17px; font-weight: 600; }
+@media (max-width: 560px) { .dwin .dwmain { font-size: 24px; } .dwin .dwrisk { font-size: 15px; } }
+/* The three dashboard sections share one heading size. */
+.dash .chal > header h3, .dash .dpanel > header h3 { font-family: var(--display); font-size: 26px; line-height: 1.2; margin: 0; }
+@media (max-width: 560px) { .dash .chal > header h3, .dash .dpanel > header h3 { font-size: 22px; } }

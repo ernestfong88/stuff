@@ -424,12 +424,12 @@ function communityText(sl: string): string {
 /* ---------- shell ---------- */
 function shell(): void {
   document.body.insertAdjacentHTML('afterbegin', `<div class="app navclosed" id="app">
-  <button class="navopen" id="navOpen" aria-controls="side" aria-expanded="false"><span aria-hidden="true">☰</span> Menu</button>
+  <button class="navopen" id="navOpen" aria-controls="side" aria-expanded="false"><span aria-hidden="true">☰</span> Drill down</button>
   <aside class="side" id="side">
     <h1>EcoSure Audit Review</h1>
     <p class="sub">Kisco Senior Living culinary food safety</p>
     <p class="mode" id="mode"></p><br>
-    <button class="menu-toggle" id="menuBtn" aria-expanded="false" aria-controls="side">Menu</button>
+    <button class="menu-toggle" id="menuBtn" aria-expanded="false" aria-controls="side">Drill down</button>
     <button class="navclose" id="navClose" aria-controls="side">Hide menu <span aria-hidden="true">«</span></button>
     <div class="navwrap">
       <nav class="nav" id="navMain" aria-label="Dashboard"></nav>
