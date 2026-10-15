@@ -126,7 +126,7 @@ test('the dashboard round picker lists upcoming rounds and shows an empty state 
   await page.goto('/');
   const sel = page.locator('select[data-dround]');
   await expect(sel.locator('option')).toContainText(['All rounds', 'Q3 2026', 'Q4 2026 (upcoming)', 'Q1 2027 (upcoming)', 'Q2 2027 (upcoming)', 'Q3 2027 (upcoming)', 'Q4 2027 (upcoming)']);
-  await expect(page.locator('.dwin .dhl')).toContainText('kitchen audits');
+  await expect(page.locator('.dwin .dwsub')).toContainText(/kitchen audits in \d+ days/);
   await expect(page.locator('.crumb')).toHaveCount(0);
   await sel.selectOption('Q1 2027');
   await expect(page.locator('.dfuture')).toContainText('no EcoSure audits yet');
