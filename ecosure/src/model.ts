@@ -16,6 +16,9 @@ export const DEFAULT_SETTINGS: Settings = {
     { name: 'Q3 2026', start: '2026-07-01', end: '2026-10-09' },
     { name: 'Q4 2026', start: '2026-10-10', end: '2026-12-31' },
     { name: 'Q1 2027', start: '2027-01-01', end: '2027-03-31' },
+    { name: 'Q2 2027', start: '2027-04-01', end: '2027-06-30' },
+    { name: 'Q3 2027', start: '2027-07-01', end: '2027-09-30' },
+    { name: 'Q4 2027', start: '2027-10-01', end: '2027-12-31' },
   ],
   // Both corrected on site at the audit (sanitizer changed; rice discarded); action plans still to file.
   mitigated: ['balfour-cherrywood|Main Kitchen|2026-09-17|3-comp sink sanitizer concentration', 'park-terrace|Main Kitchen|2026-10-09|Hot holding at 135°F or above'],

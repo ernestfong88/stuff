@@ -23,19 +23,23 @@ export function bars(rows: BarRow[], max = Math.max(1, ...rows.map((r) => r.valu
 }
 
 /** Score history for one kitchen or community: dots joined by a line, bands at 70 and 85. */
-export function scoreLine(points: { x: string; y: number | null; label: string }[], w = 520, h = 170): string {
-  const pts = points.filter((p) => p.y != null) as { x: string; y: number; label: string }[];
+export function scoreLine(points: { x: string; y: number | null; label: string }[], w = 520, h = 170, keepEmpty = false): string {
+  // keepEmpty: every point keeps its slot on the axis (future rounds show as empty), and the line joins the filled ones.
+  const slots = keepEmpty ? points : points.filter((p) => p.y != null);
+  const pts = slots.map((p, i) => ({ ...p, i })).filter((p) => p.y != null) as { x: string; y: number; label: string; i: number }[];
   if (pts.length === 0) return '<div class="note">No scored audits yet.</div>';
-  const pad = { l: 30, r: 14, t: 12, b: 26 };
+  const pad = { l: 30, r: 26, t: 12, b: 26 };
   const lo = Math.min(40, ...pts.map((p) => p.y)) - 5, hi = 100;
-  const X = (i: number) => pad.l + (pts.length === 1 ? (w - pad.l - pad.r) / 2 : (i / (pts.length - 1)) * (w - pad.l - pad.r));
+  const X = (i: number) => pad.l + (slots.length === 1 ? (w - pad.l - pad.r) / 2 : (i / (slots.length - 1)) * (w - pad.l - pad.r));
   const Y = (v: number) => pad.t + ((hi - v) / (hi - lo)) * (h - pad.t - pad.b);
   const ticks = [50, 70, 85, 100].filter((t) => t >= lo);
-  const path = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.y).toFixed(1)}`).join('');
+  const path = pts.map((p, n) => `${n ? 'L' : 'M'}${X(p.i).toFixed(1)},${Y(p.y).toFixed(1)}`).join('');
   return `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img" aria-label="Score history" style="max-width:${w}px">
     ${ticks.map((t) => `<line class="gridline" x1="${pad.l}" x2="${w - pad.r}" y1="${Y(t)}" y2="${Y(t)}" ${t === 70 || t === 85 ? 'stroke-dasharray="3 3"' : ''}/><text x="${pad.l - 6}" y="${Y(t) + 4}" text-anchor="end">${t}</text>`).join('')}
     <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2"/>
-    ${pts.map((p, i) => `<g><title>${esc(p.label)}: ${p.y}</title><circle cx="${X(i)}" cy="${Y(p.y)}" r="5" fill="${p.y >= 85 ? 'var(--good)' : p.y >= 70 ? 'var(--maj)' : 'var(--crit)'}" stroke="var(--surface)" stroke-width="2"/></g>
+    ${slots.map((p, i) => p.y == null
+      ? `<g><title>${esc(p.label)}</title><circle cx="${X(i)}" cy="${h - pad.b - 4}" r="3" fill="none" stroke="var(--line)" stroke-width="1.5"/></g><text x="${X(i)}" y="${h - 8}" text-anchor="middle" opacity=".55">${esc(p.x)}</text>`
+      : `<g><title>${esc(p.label)}: ${p.y}</title><circle cx="${X(i)}" cy="${Y(p.y)}" r="5" fill="${p.y >= 85 ? 'var(--good)' : p.y >= 70 ? 'var(--maj)' : 'var(--crit)'}" stroke="var(--surface)" stroke-width="2"/></g>
       <text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(p.x)}</text>`).join('')}
   </svg>`;
 }

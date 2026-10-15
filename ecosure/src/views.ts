@@ -1,6 +1,6 @@
 /** Page renderers. Each returns HTML for <main>; main.ts wires the events. */
 import { THEMES, SECTIONS, themeOf } from './catalog';
-import { CRIT_COLOR, bars, critLegend, scoreLine } from './charts';
+import { CRIT_COLOR, scoreLine } from './charts';
 import {
   CAP_LABEL, CAP_TONE, scoreBand,
   type Audit, type CommunityView, type Finding, type Model, capMissing, capMissingText, mitigationKey,
@@ -13,7 +13,7 @@ import { bigBox, critMix, isActivity, pestLabel, pestStatus, shortOf, statusChip
 import { PLAYBOOK } from './playbook';
 import { plainTitle } from './plain';
 import type { Crit } from './types';
-import { avg, countBy, esc, fmtDate, pct, plural, slug as slugOf, todayIso } from './util';
+import { avg, countBy, esc, fmtDate, pct, plural, todayIso } from './util';
 
 export interface Filters {
   community: string;
@@ -45,18 +45,15 @@ export const scorePill = (s: number | null) => `<span class="score s-${scoreBand
 const chip = (tone: string, text: string, title = '') => `<span class="chip t-${tone}"${title ? ` title="${esc(title)}"` : ''}>${esc(text)}</span>`;
 export const capChip = (a: Audit, today = todayIso()) => capMissing(a) ? `<span class="chip t-bad capmiss">${esc(capMissingText(a, today))}</span>` : chip(CAP_TONE[a.capState], CAP_LABEL[a.capState], a.cap ? `EcoSure status: ${a.cap.status}` : '');
 const critChip = (c: Crit) => `<span class="chip c-${c}">${c}</span>`;
-function delta(cur: number | null, prev: number | null): string {
-  if (cur == null || prev == null) return '<span class="delta flat">no prior</span>';
-  const d = Math.round(cur - prev);
-  return `<span class="delta ${d > 0 ? 'up' : d < 0 ? 'down' : 'flat'}">${d > 0 ? '+' : ''}${d}</span>`;
-}
 const head = (crumb: string, title: string, lede: string) => `<p class="crumb">${esc(crumb)}</p><h2 class="page">${esc(title)}</h2><p class="lede">${lede}</p>`;
 const kitchenLabel = (a: Audit, m: Model) => { const n = shortOf(m, a.community); return (m.bySlug.get(a.slug)?.c.kitchens.length ?? 1) > 1 || a.kitchen !== 'Main Kitchen' ? `${n}, ${a.kitchen}` : n; };
 const shortName = shortOf;
 
-export function roundChips(m: Model, v: ViewState): string {
+/** Round filter. future: also list the configured rounds with no audits yet, so a page can show the plan ahead. */
+export function roundChips(m: Model, v: ViewState, future = false): string {
   const used = new Set(m.audits.map((a) => a.round));
-  const rounds = [...m.settings.rounds.map((r) => r.name).filter((n) => used.has(n)), ...[...used].filter((n) => !m.settings.rounds.some((r) => r.name === n)).sort()];
+  const rounds = [...m.settings.rounds.map((r) => r.name).filter((n) => future || used.has(n)), ...[...used].filter((n) => !m.settings.rounds.some((r) => r.name === n)).sort()];
+  if (future) return `<div class="toolbar"><span class="lbl">Round</span>${['all', ...rounds].map((r) => `<button class="fbtn${r !== 'all' && !used.has(r) ? ' future' : ''}" data-round="${esc(r)}" aria-pressed="${v.round === r}"${r !== 'all' && !used.has(r) ? ' title="No audits yet"' : ''}>${r === 'all' ? 'All rounds' : esc(r)}</button>`).join('')}</div>`;
   if (rounds.length < 2 && v.round === 'all') return `<div class="toolbar"><span class="lbl">Round</span><button class="fbtn" aria-pressed="true">${esc(rounds[0] ?? 'All')}</button></div>`;
   return `<div class="toolbar"><span class="lbl">Round</span>${['all', ...rounds].map((r) => `<button class="fbtn" data-round="${esc(r)}" aria-pressed="${v.round === r}">${r === 'all' ? 'All rounds' : esc(r)}</button>`).join('')}</div>`;
 }
@@ -169,7 +166,7 @@ export function findingCard(i: Finding, m: Model, showKitchen: boolean, showComm
   const where = showCommunity ? `<button class="linkbtn" data-go="c-${a.slug}">${esc(kitchenLabel(a, m))}</button> · ${fmtDate(a.date)}` : showKitchen ? esc(a.kitchen) : '';
   const ci = i.capItem;
   const cap = ci ? `<div class="capbox"><div class="ct"><b style="color:${a.capState === 'closed' ? 'var(--good)' : 'var(--maj)'}">CAP ${esc(a.cap?.status ?? '')}</b>${ci.owner ? `<span>Owner: ${esc(ci.owner)}</span>` : ''}${ci.due ? `<span>Due ${fmtDate(ci.due)}</span>` : ''}</div>${ci.action ? `<p>${esc(ci.action)}</p>` : ''}${ci.update ? `<p class="note">Update: ${esc(ci.update)}</p>` : ''}${!ci.action && !ci.update ? '<p class="note">No action written.</p>' : ''}</div>`
-    : i.mitigated ? `<div class="capbox mit"><b>Immediate risk remediated</b> · full solution in progress. ${a.cap ? 'This finding is not on the CAP yet.' : 'No action plan filed yet.'}</div>`
+    : i.mitigated ? `<div class="capbox mit"><b>Immediate risk remediated</b> · full solution in progress. ${a.cap ? 'This finding is not on the CAP yet.' : 'No action plan filed yet.'}${i.comment ? `<p class="aud">Confirmed in the auditor's note: “${esc(i.comment)}”</p>` : ''}</div>`
     : a.items.length ? `<div class="capbox none">${a.cap ? 'This finding is not on the CAP.' : 'No CAP on file yet.'}</div>` : '';
   const mitBtn = canWrite && !ci && i.criticality === 'Critical' ? `<button class="btn ghost sm" data-act="mitigate:${esc(mitigationKey(i))}">${i.mitigated ? 'Clear: immediate risk remediated' : 'Mark immediate risk remediated'}</button>` : '';
   return `<article class="find"><div class="top"><span class="std">${esc(plainTitle(i.short))}</span>${critChip(i.criticality)}${i.repeat ? '<span class="repeat" title="Also cited at this kitchen\'s previous audit">REPEAT</span>' : ''}${where ? `<span class="where">${where}</span>` : ''}<span class="pts">${i.cid ? esc(i.cid) + ' · ' : ''}${i.points ? '-' + i.points + ' pts' : 'unrated'}</span></div>
@@ -210,10 +207,9 @@ export function findings(m: Model, v: ViewState): string {
   }).sort((a, b) => b.points - a.points || b.kitchens - a.kitchens);
   const maxPts = Math.max(1, ...rank.map((r) => r.points));
   const tr = top('prio', rank, 5, 'issues');
-  const rankTable = `<div class="tablewrap"><table class="prio"><thead><tr><th class="num">#</th><th>Issue</th><th class="num" title="How much the average kitchen score would rise if fixed everywhere">Score gain</th><th style="min-width:130px">Points lost</th><th class="num">Kitchens</th><th></th></tr></thead><tbody>
+  const rankTable = `<div class="tablewrap"><table class="prio"><thead><tr><th class="num">#</th><th>Issue</th><th class="num" title="How much the average kitchen score would rise if fixed everywhere">Score gain</th><th style="min-width:130px">Points lost</th><th class="num">Kitchens</th></tr></thead><tbody>
     ${tr.shown.map((r, i) => `<tr><td class="num">${i + 1}</td><td><button class="linkbtn strong" data-act="std:${esc(r.s)}">${esc(plainTitle(r.s))}</button> ${critChip(r.crit as Crit)}</td><td class="num"><b>+${(r.points / scope).toFixed(1)}</b></td>
-      <td><span class="minibar"><span style="width:${(r.points / maxPts) * 100}%;background:${CRIT_COLOR[r.crit as Crit]}"></span></span> <span class="note">${r.points}</span></td><td class="num">${r.kitchens}</td>
-      <td class="acts">${PLAYBOOK[r.s] ? `<button class="linkbtn" data-go="playbook.${slugOf(r.s)}">Playbook</button>` : ''}</td></tr>`).join('')}
+      <td><span class="minibar"><span style="width:${(r.points / maxPts) * 100}%;background:${CRIT_COLOR[r.crit as Crit]}"></span></span> <span class="note">${r.points}</span></td><td class="num">${r.kitchens}</td></tr>`).join('')}
     </tbody></table></div>${tr.more}`;
   const active = !!f.comms || f.community !== 'all' || f.section !== 'all' || f.theme !== 'all' || f.crit !== 'all' || f.cap !== 'all' || f.std || f.q || f.repeat || f.photos;
   const moreActive = f.section !== 'all' || f.theme !== 'all' || f.cap !== 'all' || f.repeat || f.photos;
@@ -237,55 +233,65 @@ export function findings(m: Model, v: ViewState): string {
 }
 
 /* ---------- trends ---------- */
+/* Trends filters: region and community, on top of the round chips. Kept here so they survive re-renders. */
+export const TREND = { region: 'all', community: 'all' };
+
 export function trends(m: Model, v: ViewState): string {
-  const rounds = [...new Set(m.audits.map((a) => a.round))].sort((a, b) => {
-    const ra = m.settings.rounds.findIndex((r) => r.name === a), rb = m.settings.rounds.findIndex((r) => r.name === b);
-    return (ra < 0 ? 99 : ra) - (rb < 0 ? 99 : rb) || a.localeCompare(b);
-  });
-  const roundRows = rounds.map((r) => {
-    const A = m.audits.filter((a) => a.round === r);
-    const s = avg(A.map((a) => a.score));
-    return { r, s, n: A.length, f: A.reduce((x, a) => x + a.items.length, 0) / Math.max(1, A.length), crit: A.reduce((x, a) => x + a.crit, 0) };
-  });
-  const A = inRound(m, v);
-  const items = A.flatMap((a) => a.items);
-  const comms = [...new Set(A.map((a) => a.community))].sort();
-  const stds = [...countBy(items, (i) => i.short)].sort((a, b) => b[1] - a[1]).slice(0, 25).map(([s]) => s);
-  const cell = (c: string, s: string) => {
-    const it = items.filter((i) => i.audit.community === c && i.short === s);
+  const regionOf = (n: string) => m.settings.roster.find((c) => c.name === n)?.region || 'No region set';
+  const regions = [...new Set(m.settings.roster.filter((c) => c.active).map((c) => c.region || 'No region set'))].sort();
+  const inScope = (n: string) => (TREND.region === 'all' || regionOf(n) === TREND.region) && (TREND.community === 'all' || n === TREND.community);
+  const A = inRound(m, v).filter((a) => inScope(a.community));
+  const LA = latestPerKitchen(A);
+  const items = LA.flatMap((a) => a.items);
+  const scored = LA.filter((a) => a.score != null);
+  const s = avg(scored.map((a) => a.score));
+  const band = (lo: number, hi: number) => scored.filter((a) => a.score! >= lo && a.score! < hi).length;
+
+  // Average score by round: one point per round, so the line becomes the trend as rounds are added.
+  const rounds = [...new Set(m.audits.map((a) => a.round))];
+  const planned = m.settings.rounds.map((r) => r.name);
+  const byRound = [...planned, ...rounds.filter((r) => !planned.includes(r))].map((r) => { const RA = latestPerKitchen(m.audits.filter((a) => a.round === r && inScope(a.community))); return { x: r, y: avg(RA.map((a) => a.score)), n: RA.length }; });
+
+  // Breakdown: by region when looking at everything, by community inside a region.
+  const groups = TREND.region === 'all' && TREND.community === 'all'
+    ? regions.map((rg) => ({ label: rg, key: '', v: avg(LA.filter((a) => regionOf(a.community) === rg).map((a) => a.score)) }))
+    : [...new Set(LA.map((a) => a.community))].map((c) => ({ label: shortName(m, c), key: m.communities.find((x) => x.c.name === c)?.slug ?? '', v: avg(LA.filter((a) => a.community === c).map((a) => a.score)) }));
+  const rows = groups.filter((g) => g.v != null).sort((x, y) => x.v! - y.v!);
+  const color = (v: number) => (v >= 85 ? 'var(--good)' : v >= 70 ? 'var(--maj)' : 'var(--crit)');
+
+  const comms = [...new Set(LA.map((a) => a.community))].sort();
+  const stds = [...countBy(items, (i) => i.short)].sort((x, y) => y[1] - x[1]).slice(0, 25).map(([k]) => k);
+  const cell = (c: string, k: string) => {
+    const it = items.filter((i) => i.audit.community === c && i.short === k);
     if (!it.length) return '<td style="background:var(--hm0)"></td>';
     const w = it.reduce((x, i) => x + i.points, 0);
     const bg = w >= 5 ? 'var(--hm3)' : w >= 3 ? 'var(--hm2)' : 'var(--hm1)';
-    return `<td style="background:${bg};color:${w >= 3 ? '#fff' : 'var(--ink)'}" data-go="c-${m.communities.find((x) => x.c.name === c)?.slug}" title="${esc(c)}: ${esc(s)}, ${it.map((i) => i.criticality).join(', ')}">${it.length > 1 ? it.length : ''}</td>`;
+    return `<td style="background:${bg};color:${w >= 3 ? '#fff' : 'var(--ink)'}" data-go="c-${m.communities.find((x) => x.c.name === c)?.slug}" title="${esc(shortName(m, c))}: ${esc(plainTitle(k))}, ${it.map((i) => i.criticality).join(', ')}">${it.length > 1 ? it.length : ''}</td>`;
   };
-  const sec = [...new Set([...SECTIONS, ...items.map((i) => i.section)])].map((s) => {
-    const it = items.filter((i) => i.section === s);
-    return { s, total: it.reduce((x, i) => x + i.points, 0), segs: (['Critical', 'Major', 'Minor'] as const).map((c) => ({ v: it.filter((i) => i.criticality === c).reduce((x, i) => x + i.points, 0), color: CRIT_COLOR[c], title: `${c}: ${it.filter((i) => i.criticality === c).length} findings` })) };
-  }).filter((x) => x.total).sort((a, b) => b.total - a.total);
-  const themes = THEMES.map((t) => ({ t: t.t, n: items.filter((i) => themeOf(i.short) === t.t).length, k: new Set(items.filter((i) => themeOf(i.short) === t.t).map((i) => i.audit.community)).size })).sort((a, b) => b.n - a.n);
-  const repeats = [...countBy(m.findings.filter((i) => i.repeat), (i) => i.short)].sort((a, b) => b[1] - a[1]);
-  const movers = m.communities.filter((c) => c.score != null && c.prevScore != null).map((c) => ({ c, d: c.score! - c.prevScore! })).sort((a, b) => a.d - b.d);
-  const months = [...new Set(m.audits.map((a) => a.date.slice(0, 7)))].sort();
+  const byScore = [...comms].sort((x, y) => (avg(LA.filter((a) => a.community === x).map((a) => a.score)) ?? 101) - (avg(LA.filter((a) => a.community === y).map((a) => a.score)) ?? 101));
+  const heat = top('heat', byScore, 10, 'communities');
+  const opts = (sel: string, all: string, xs: [string, string][]) => [['all', all] as [string, string], ...xs].map(([k, t]) => `<option value="${esc(k)}"${k === sel ? ' selected' : ''}>${esc(t)}</option>`).join('');
+  const regionComms = m.settings.roster.filter((c) => c.active && (TREND.region === 'all' || (c.region || 'No region set') === TREND.region)).map((c): [string, string] => [c.name, c.short || c.name]).sort((x, y) => x[1].localeCompare(y[1]));
 
-  const LA = latestPerKitchen(A);
-  const byScore = [...new Set(LA.map((a) => a.community))].sort((x, y) => (avg(LA.filter((a) => a.community === x).map((a) => a.score)) ?? 101) - (avg(LA.filter((a) => a.community === y).map((a) => a.score)) ?? 101));
-  const heat = top('heat', byScore, 5, 'communities');
-  const moves = [...movers].sort((a, b) => Math.abs(b.d) - Math.abs(a.d)).slice(0, 5).sort((a, b) => b.d - a.d);
-  return head('Trends', 'Trends', 'How scores move over time and where points are lost. More charts are folded below.') +
-    roundChips(m, v) +
-    `<section class="grid two">
-      <div class="panel"><h3>Average score by month</h3>${scoreLine(months.map((mo) => ({ x: fmtDate(mo + '-01', true).split(' ')[0], y: avg(m.audits.filter((a) => a.date.startsWith(mo)).map((a) => a.score)) == null ? null : Math.round(avg(m.audits.filter((a) => a.date.startsWith(mo)).map((a) => a.score))!), label: `${mo}, ${m.audits.filter((a) => a.date.startsWith(mo)).length} audits` })))}<p class="axisnote">Dashed lines mark 70 and 85.</p></div>
-      <div class="panel"><h3>Where points are lost <span class="sm">top 5 areas</span></h3>${bars(themes.filter((t) => t.n).slice(0, 5).map((t) => ({ label: t.t, value: t.n, act: 'theme:' + t.t, title: `${t.n} findings in ${t.k} communities` })))}<p class="axisnote">Number of findings in each area a visitor walks. Select one to see them.</p></div>
+  return head('Trends', 'Average score', `${rounds.length < 2 ? 'This round is the baseline. ' : ''}As each new round of EcoSure audits is imported, the average score by round below becomes the trend over time.`) +
+    `<div class="panel trendf"><div class="form">
+      <label class="field"><span class="lbl">Region</span><select data-trend="region">${opts(TREND.region, 'All regions', regions.map((r): [string, string] => [r, r]))}</select></label>
+      <label class="field"><span class="lbl">Community</span><select data-trend="community">${opts(TREND.community, 'All communities', regionComms)}</select></label>
+    </div>${roundChips(m, v, true)}</div>
+    <section class="grid two">
+      <div class="panel"><h3>Average score <span class="sm">${plural(scored.length, 'kitchen')}</span></h3>
+        <div class="tavg"><b style="color:${s == null ? 'inherit' : color(s)}">${pct(s)}</b><span>out of 100</span></div>
+        <div class="tbands"><span class="s-good">${band(85, 101)} at 85 or better</span><span class="s-warn">${band(70, 85)} at 70 to 84</span><span class="s-bad">${band(0, 70)} below 70</span></div>
+        <h3 style="margin-top:14px">Average score by round</h3>${scoreLine(byRound.map((r) => ({ x: r.x, y: r.y == null ? null : Math.round(r.y), label: r.n ? `${r.x}, ${r.n} kitchens` : `${r.x}: no audits yet` })), 560, 180, true)}
+        <p class="axisnote">${byRound.filter((r) => r.n).length < 2 ? 'One round so far. Each quarter fills in as its reports are imported.' : 'Dashed lines mark 70 and 85.'}</p></div>
+      <div class="panel"><h3>Average score by ${TREND.region === 'all' && TREND.community === 'all' ? 'region' : 'community'} <span class="sm">lowest first</span></h3>
+        <div class="bars">${rows.map((g) => `<${g.key ? `button class="bar" data-go="c-${g.key}"` : `button class="bar" data-trend-region="${esc(g.label)}"`}><span class="name">${esc(g.label)}</span><span class="track"><span class="fill" style="width:${g.v}%;background:${color(g.v!)}"></span></span><span class="val">${pct(g.v)}</span></button>`).join('') || '<div class="empty">No scores in this selection.</div>'}</div></div>
     </section>
+    <section class="block"><h3>Communities by area <span class="sm">lowest scores first</span></h3>${comms.length ? themeHeat(m, LA, heat.shown) + heat.more : '<div class="empty">No audits in this selection.</div>'}</section>
     <section class="block folds">
-      ${fold('t-heat', 'Communities by area <span class="sm">lowest scores first</span>', themeHeat(m, LA, heat.shown) + heat.more)}
-      ${fold('t-round', 'Average score by round', bars(roundRows.map((r) => ({ label: `${r.r} (${r.n} audits)`, value: r.s ?? 0, valueText: pct(r.s), act: 'round:' + r.r, segs: [{ v: r.s ?? 0, color: 'var(--bar)', title: '' }] })), 100) + (roundRows.length < 2 ? '<p class="axisnote">Round over round comparisons fill in once the next round\'s reports are imported.</p>' : ''))}
-      ${fold('t-moves', 'Biggest score changes', moves.length ? `<div class="tablewrap"><table><tbody>${moves.map((x) => `<tr class="rowlink" data-go="c-${x.c.slug}"><td>${esc(x.c.c.short || x.c.c.name)}</td><td class="num">${pct(x.c.prevScore)} to ${pct(x.c.score)}</td><td class="num">${delta(x.c.score, x.c.prevScore)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="note">Changes show up once communities have a second audit on file.</p>')}
-      ${fold('t-repeat', 'Repeat findings', repeats.length ? bars(repeats.slice(0, 5).map(([s, n]) => ({ label: s, value: n, act: 'repeat:' + s }))) : '<p class="note">No repeats yet. Repeats show up once a kitchen has two audits on file.</p>')}
-      ${fold('t-section', 'Points lost by EcoSure section', bars(sec.slice(0, 5).map((s) => ({ label: s.s, value: s.total, act: 'section:' + s.s, segs: s.segs }))) + critLegend())}
       ${fold('t-stds', 'Standards by community heat map', comms.length ? `<div class="tablewrap"><table class="hm"><thead><tr><th>Standard</th>${comms.map((c) => `<th class="rot" data-go="c-${m.communities.find((x) => x.c.name === c)?.slug}">${esc(shortName(m, c))}</th>`).join('')}<th class="num">Total</th></tr></thead><tbody>
-      ${stds.map((s) => `<tr><td class="lab"><button class="linkbtn" data-act="std:${esc(s)}">${esc(s)}</button></td>${comms.map((c) => cell(c, s)).join('')}<td class="num">${items.filter((i) => i.short === s).length}</td></tr>`).join('')}</tbody></table></div>
-      <div class="legend"><span><i style="background:var(--hm1)"></i>Minor (1 pt)</span><span><i style="background:var(--hm2)"></i>Major (3 pts)</span><span><i style="background:var(--hm3)"></i>Critical (5 pts) or more</span></div>` : '<div class="empty">No audits in this round yet.</div>')}
+      ${stds.map((k) => `<tr><td class="lab"><button class="linkbtn" data-act="std:${esc(k)}">${esc(plainTitle(k))}</button></td>${comms.map((c) => cell(c, k)).join('')}<td class="num">${items.filter((i) => i.short === k).length}</td></tr>`).join('')}</tbody></table></div>
+      <div class="legend"><span><i style="background:var(--hm1)"></i>Minor (1 pt)</span><span><i style="background:var(--hm2)"></i>Major (3 pts)</span><span><i style="background:var(--hm3)"></i>Critical (5 pts) or more</span></div>` : '')}
     </section>`;
 }
 

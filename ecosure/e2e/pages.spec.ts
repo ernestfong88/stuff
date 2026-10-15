@@ -21,8 +21,9 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(pest.locator('[data-act="pest:prevention"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#navMain button')).toHaveCount(1);
   await expect(page.locator('#morefold')).not.toHaveAttribute('open', '');
+  await page.locator('#navOpen').click();
   await page.locator('#morefold > summary').click();
-  await expect(page.locator('#navMore button')).toHaveCount(3);
+  await expect(page.locator('#navMore button')).toHaveCount(2);
   await expect(page.locator('.dhero > .dbig > *')).toHaveCount(4);
   await expect(page.locator('.dfocus tbody tr')).toHaveCount(5);
   const ident = page.locator('.dhero > .dbig > *').first();
@@ -64,10 +65,6 @@ test('the dashboard stays short and opens a community snapshot', async ({ page }
 });
 
 
-test('playbook deep link highlights the standard', async ({ page }) => {
-  await page.goto('/#playbook.cold-holding-at-41-f-or-below');
-  await expect(page.locator('#p-cold-holding-at-41-f-or-below')).toHaveClass(/hl/);
-});
 
 test('dashboard links open Findings filtered to what was clicked, for the picked communities', async ({ page }) => {
   await page.goto('/');
@@ -77,7 +74,7 @@ test('dashboard links open Findings filtered to what was clicked, for the picked
   await page.locator('[data-act="sel:done"]').click();
   const num = async (sel: string) => Number((await page.locator(sel).first().locator('b').first().textContent())!.trim());
   const count = async () => Number((await page.locator('section.block h3 .sm').first().textContent())!.match(/^(\d+)/)![1]);
-  const back = async () => { await page.locator('#navMain [data-go="dashboard"]').click(); await expect(page.locator('.dhero')).toBeVisible(); };
+  const back = async () => { await page.locator('.backbtn').click(); await expect(page.locator('.dhero')).toBeVisible(); };
   const chip = page.locator('[data-act="clear-comms"]');
 
   const found = await num('.dhero > .dbig > :nth-child(1)');
@@ -118,11 +115,11 @@ test('a high-risk finding made safe on site shows as immediate risk remediated',
   await expect(page.locator('.capbox.mit')).toContainText('Immediate risk remediated');
   await page.goto('/');
   await expect(page.locator('.dhero > .dbig > :nth-child(3)')).toContainText('identified this quarter');
-  await expect(page.locator('.dhero > .dbig > :nth-child(3) .mitg')).toContainText('waiting for full solution');
+  await expect(page.locator('.dhero > .dbig > :nth-child(3) .mitg')).toContainText('waiting for a full solution');
 });
 
 test('every page has a back button to the dashboard', async ({ page }) => {
-  for (const r of ['findings', 'priorities', 'trends', 'playbook', 'import', 'settings', 'c-park-terrace']) {
+  for (const r of ['findings', 'priorities', 'trends', 'import', 'settings', 'c-park-terrace']) {
     await page.goto('/#' + r);
     await page.locator('.backbtn').click();
     await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
@@ -139,4 +136,22 @@ test('Findings opens with the issues ranked, and an issue filters the list', asy
   await rows.first().locator('[data-act^="std:"]').click();
   await expect(page.locator('section.block h3').first()).toContainText(name);
   await expect(page.locator('table.prio')).toHaveCount(0);
+});
+
+test('the menu starts hidden on larger screens and opens on demand', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/');
+  await expect(page.locator('#side')).toBeHidden();
+  await page.locator('#navOpen').click();
+  await expect(page.locator('#side')).toBeVisible();
+  await page.locator('#navClose').click();
+  await expect(page.locator('#side')).toBeHidden();
+});
+
+test('Trends shows average score, filters and future quarters', async ({ page }) => {
+  await page.goto('/#trends');
+  await expect(page.locator('h2.page')).toHaveText('Average score');
+  await expect(page.locator('.fbtn.future', { hasText: 'Q4 2027' })).toBeVisible();
+  await page.locator('select[data-trend="region"]').selectOption('Mountain');
+  await expect(page.locator('.panel h3', { hasText: 'Average score by community' })).toBeVisible();
 });

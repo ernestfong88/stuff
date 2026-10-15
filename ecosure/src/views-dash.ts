@@ -2,10 +2,12 @@
  * Enterprise dashboard: the program's impact at a glance for the communities the reader picks.
  * Every number and panel links to the page with the detail behind it.
  */
-import { type Audit, type Model } from './model';
+import { type Audit, type CommunityView, type Model } from './model';
 import { esc, fmtDate } from './util';
 import { inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
 import { communitiesOfFocus } from './views-roles';
+import { plainTitle } from './plain';
+import { THEMES, themeOf } from './catalog';
 import { snapshot, type Challenge } from './views-brief';
 import { OPEN, top } from './expand';
 import { photoUrl } from './store';
@@ -150,7 +152,7 @@ function challenges(m: Model, top: Challenge[], total: number): string {
 }
 
 /** The four numbers at the top: issues found, resolved, open high-risk (critical), and days from audit to a plan on file (target 10). */
-function headline(A: Audit[], where: string): { tiles: string; line: string } {
+function headline(m: Model, A: Audit[], where: string): { tiles: string; line: string; mitNote: string } {
   const items = A.flatMap((a) => a.items);
   const done = items.filter(isRemediated).length;
   const rate = items.length ? Math.round((done / items.length) * 100) : 0;
@@ -165,18 +167,34 @@ function headline(A: Audit[], where: string): { tiles: string; line: string } {
   const med = days.length ? (days.length % 2 ? days[(days.length - 1) / 2] : Math.round((days[days.length / 2 - 1] + days[days.length / 2]) / 2)) : null;
   // Remediated = resolved on a plan, or made safe on site with the full solution still to come.
   const critRem = critDone + mit.length;
-  const critRate = crit.length ? Math.round((critRem / crit.length) * 100) : 100;
-  const critSub = [`<span class="dsl1">${crit.length} identified this quarter</span>`, mit.length ? `<span class="mitg">${mit.length} waiting for full solution</span>` : '', raw.length ? `<span class="rawg">${raw.length} open at ${codes(raw)} ${codes(raw) === 1 ? 'community' : 'communities'}</span>` : ''].filter(Boolean).join('');
+  const critSub = [`<span class="dsl1">${crit.length} identified this quarter</span>`, mit.length ? `<span class="mitg">${mit.length} waiting for a full solution</span>` : '', raw.length ? `<span class="rawg">${raw.length} open at ${codes(raw)} ${codes(raw) === 1 ? 'community' : 'communities'}</span>` : ''].filter(Boolean).join('');
   const tiles = `<div class="dbig dfour">
     ${bigBox('Issues found', String(items.length), { go: 'findings', sub: `${n('Critical')} critical · ${n('Major')} major · ${n('Minor')} minor` })}
     ${bigBox('Resolved', rate + '%', { tone: 'good', go: 'findings', cap: 'closed', meter: rate, sub: `${done} of ${items.length}` })}
-    ${bigBox(raw.length ? 'High-risk issues remediated' : 'All high-risk issues remediated', raw.length ? `${critRem} of ${crit.length}` : `${critRate}%`, { tone: raw.length ? 'bad' : 'good', go: 'findings', crit: 'Critical', sub: critSub })}
+    ${raw.length
+      ? bigBox('High-risk issues remediated', `${critRem} of ${crit.length}`, { tone: 'bad', go: 'findings', crit: 'Critical', sub: critSub })
+      : bigBox('High-risk issues identified and remediated', String(crit.length), { tone: 'good', go: 'findings', crit: 'Critical', sub: mit.length ? `<span class="mitg">${mit.length} waiting for a full solution</span>` : 'all fully resolved' })}
     ${bigBox('Days to a plan on file', med == null ? '–' : String(med), { tone: med != null && med <= 10 ? 'good' : 'warn', sub: 'median · target 10 or fewer' })}
   </div>`;
   const line = `EcoSure found <b>${items.length} issues</b> across ${A.length} kitchens${where ? ` ${esc(where)}` : ''}. <b class="good">${rate}%</b> are resolved` +
-    (raw.length ? `; <b class="bad">${raw.length} of the ${crit.length} high-risk issues remain open</b>` : `, and <b class="good">all ${crit.length} high-risk issues</b> have been remediated`) +
-    (mit.length ? `, with <b class="warn">${mit.length} waiting for the full solution</b>` : '') + '.';
-  return { tiles, line };
+    (raw.length ? `; <b class="bad">${raw.length} of the ${crit.length} high-risk issues remain open</b>` + (mit.length ? `, and ${mit.length} are waiting for a full solution` : '') : `; <b class="good">${crit.length} high-risk issues identified and remediated</b>` + (mit.length ? `, <b class="warn">${mit.length} waiting for a full solution</b>` : '')) + '.';
+  // The auditor's own note confirms each one was made safe on site.
+  const mitNote = mit.length ? `<div class="dmit"><span class="dl">Waiting for a full solution · immediate risk remediated on site</span><ul>${mit.map((f) => `<li><button class="linkbtn strong" data-go="c-${f.audit.slug}">${esc(shortOf(m, f.audit.community))}</button> <b>${esc(plainTitle(f.short))}.</b> <span class="aud">Auditor's note: “${esc(f.comment)}”</span></li>`).join('')}</ul></div>` : '';
+  return { tiles, line, mitNote };
+}
+
+/** One line on what drove a community's score: the area where it lost most points and the two biggest single hits. */
+function focusSnapshot(c: CommunityView): string {
+  const items = c.latest.flatMap((a) => a.items);
+  if (!items.length) return '';
+  const lost = (fs: Finding[]) => fs.reduce((x, f) => x + f.points, 0);
+  const total = lost(items);
+  const byTheme = THEMES.map((t) => ({ t: t.t, p: lost(items.filter((f) => themeOf(f.short) === t.t)) })).sort((a, b) => b.p - a.p)[0];
+  const byStd = [...new Set(items.map((f) => f.short))].map((k) => ({ k, p: lost(items.filter((f) => f.short === k)) })).sort((a, b) => b.p - a.p).slice(0, 2);
+  const crit = items.filter((f) => f.criticality === 'Critical').length;
+  const rep = items.filter((f) => f.repeat).length;
+  const kitchens = c.latest.length > 1 ? ` across ${c.latest.length} kitchens` : '';
+  return `Lost ${total} points${kitchens}, ${Math.round((byTheme.p / total) * 100)}% of them in ${byTheme.t.toLowerCase()}. Biggest hits: ${byStd.map((x) => `${plainTitle(x.k).toLowerCase()} (${x.p})`).join(' and ')}. ${crit} high-risk ${crit === 1 ? 'issue' : 'issues'}${rep ? `, ${rep} repeated from the last audit` : ''}.`;
 }
 
 export function dashboard(m: Model, v: ViewState): string {
@@ -185,12 +203,12 @@ export function dashboard(m: Model, v: ViewState): string {
   const A = all.filter((a) => inReg(a.community));
   const items = A.flatMap((a) => a.items);
   const sn = snapshot(m, v, inReg);
-  const hl = headline(A, where);
+  const hl = headline(m, A, where);
   const latestDate = m.audits.reduce((x, a) => (a.date > x ? a.date : x), '');
 
   // Communities of focus: the qualifying reasons from the latest quarterly audit, without status detail.
   const focusAll = communitiesOfFocus(m).filter(({ c }) => inReg(c.c.name)).sort((a, b) => (a.c.score ?? 101) - (b.c.score ?? 101));
-  const focus = focusAll.slice(0, 5).map(({ c, why }) => ({ c, why: why.filter((w) => /critical|repeat/.test(w)) }));
+  const focus = focusAll.slice(0, 5);
 
   const panel = (title: string, sub: string, go: string, body: string) => `<section class="dpanel span12"><header><div><h3>${title}</h3>${sub ? `<p>${sub}</p>` : ''}</div>${go ? `<button class="linkbtn" data-go="${go}">Details</button>` : ''}</header>${body}</section>`;
 
@@ -206,6 +224,7 @@ export function dashboard(m: Model, v: ViewState): string {
     <section class="dhero" aria-label="Quarter snapshot">
       <p class="dhl">${hl.line}</p>
       ${hl.tiles}
+      ${hl.mitNote}
     </section>
 
     ${challenges(m, sn.top, sn.kitchens)}
@@ -213,7 +232,7 @@ export function dashboard(m: Model, v: ViewState): string {
     <div class="dgrid">${pestTracker(m, items)}</div>
 
     <div class="dgrid">
-      ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ critical or 3+ repeats`, '', focus.length ? `<div class="tablewrap"><table class="dfocus"><tbody>${focus.map(({ c, why }) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.short || c.c.name)}</b><span class="sub">${esc([c.c.region ?? '', ...why].filter(Boolean).join(' · '))}</span></td><td class="num">${scorePill(c.score)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="okbox">None in this view.</div>')}
+      ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ high-risk issues or 3+ repeats. Each line says what drove the score.`, '', focus.length ? `<div class="tablewrap"><table class="dfocus"><tbody>${focus.map(({ c }) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.short || c.c.name)}</b> <span class="sub inl">${esc([c.c.name, c.c.region ?? ''].filter(Boolean).join(' · '))}</span><span class="snap">${esc(focusSnapshot(c))}</span></td><td class="num">${scorePill(c.score)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="okbox">None in this view.</div>')}
     </div>
 
   </div>`;

@@ -6,8 +6,7 @@ import { fromLegacy, type LegacyBundle } from './parse/legacy';
 import { connect, photoUrl, recId, setSeedPhotos, type Backend } from './store';
 import type { Cap, Community, Rec, Settings } from './types';
 import { csv, esc, fmtDate, pct, slug, todayIso } from './util';
-import { community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
-import { playbookView } from './views-roles';
+import { TREND, community, emptyFilters, filterFindings, findings, importView, settingsView, trends, type ViewState } from './views';
 import { briefingText, talkingText } from './views-brief';
 import { shortOf } from './views-common';
 import { dashboard, regionFilter, selectionAct, setPestTab, setSelQuery, toggleCommunities } from './views-dash';
@@ -34,7 +33,6 @@ const thumbs = new Map<string, string>();
 const V: ViewState = { round: 'all', f: emptyFilters(), canWrite: false, mode: 'starting', capEdit: null };
 let route = 'dashboard';
 
-const PB = { theme: 'all', q: '', cited: false };
 const SHARE_BASE: string = (import.meta.env.VITE_SHARE_URL as string | undefined) ?? '';
 let routeArg: string | null = null;
 
@@ -49,7 +47,7 @@ function rebuild(): void {
 // The dashboard comes first, then the community list (in the shell), then reference pages.
 const NAV: [string | null, [string, string][]][] = [
   [null, [['dashboard', 'Executive dashboard']]],
-  ['More detail', [['findings', 'Findings and photos'], ['trends', 'Trends'], ['playbook', 'Readiness playbook']]],
+  ['More detail', [['findings', 'Findings and photos'], ['trends', 'Trends']]],
   ['Manage', [['import', 'Import files'], ['settings', 'Settings']]],
 ];
 const MAIN = NAV.flatMap(([, xs]) => xs);
@@ -62,7 +60,7 @@ function readHash(): void {
   let h = decodeURIComponent(location.hash.slice(1)) || 'dashboard';
   if (h === 'overview' || h === 'home') h = 'dashboard'; // the briefing now lives on the dashboard
   if (h === 'priorities') h = 'findings'; // priorities are the top of Findings now
-  if (h.startsWith('playbook.')) { route = 'playbook'; routeArg = h.slice(9); return; }
+  if (h === 'playbook' || h.startsWith('playbook.')) h = 'findings'; // the playbook page is retired
   if (h.startsWith('c-')) {
     const [s, d] = h.slice(2).split('.');
     if (route !== 'c-' + s) { V.f.crit = 'all'; V.f.kitchen = 'all'; }
@@ -102,7 +100,6 @@ function render(): void {
   const main = $('#main');
   let html = '';
   if (route === 'dashboard') html = dashboard(model, V);
-  else if (route === 'playbook') html = playbookView(model, routeArg, PB);
   else if (route === 'findings') html = findings(model, V);
   else if (route === 'trends') html = trends(model, V);
   else if (route === 'import') html = importView(model, V, queue, stored, thumbs, mergeRecords(seed, stored));
@@ -112,9 +109,7 @@ function render(): void {
   if (route !== 'dashboard') html = `<button class="backbtn" data-go="dashboard"><span aria-hidden="true">←</span> Back to dashboard</button>` + html;
   main.innerHTML = html;
   bindPage();
-  if (route === 'playbook' && routeArg && !playbookScrolled) { playbookScrolled = true; document.getElementById('p-' + routeArg)?.scrollIntoView({ block: 'start' }); }
 }
-let playbookScrolled = false;
 
 /** Re-render while keeping focus and caret in a text box the user is typing in. */
 function rerender(): void {
@@ -166,8 +161,11 @@ function bindPage(): void {
     drop.addEventListener('dragleave', () => drop.classList.remove('over'));
     drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer?.files) void addFiles([...e.dataTransfer.files]); });
   }
-  const pbq = document.getElementById('pb-q') as HTMLInputElement | null;
-  pbq?.addEventListener('input', () => { clearTimeout(qTimer); qTimer = window.setTimeout(() => { PB.q = pbq.value; rerender(); }, 200); });
+  // Trends filters: region, then community within it.
+  document.querySelectorAll<HTMLSelectElement>('select[data-trend]').forEach((el) => el.addEventListener('change', () => {
+    if (el.dataset.trend === 'region') { TREND.region = el.value; TREND.community = 'all'; } else TREND.community = el.value;
+    rerender();
+  }));
   const sf = document.getElementById('settings') as HTMLFormElement | null;
   sf?.addEventListener('submit', (e) => { e.preventDefault(); void saveSettings(readSettingsForm()); });
   document.querySelectorAll<HTMLFormElement>('form[data-capform]').forEach((f) => f.addEventListener('submit', (e) => { e.preventDefault(); void saveCapForm(f); }));
@@ -327,8 +325,8 @@ document.addEventListener('click', (e) => {
   if (kt) { V.f.kitchen = kt.dataset.kitchen!; rerender(); return; }
   const tg = t.closest<HTMLElement>('[data-toggle]');
   if (tg) { const k = tg.dataset.toggle as 'repeat' | 'photos'; V.f[k] = !V.f[k]; rerender(); return; }
-  const pt = t.closest<HTMLElement>('[data-pbtheme]');
-  if (pt) { PB.theme = pt.dataset.pbtheme!; rerender(); return; }
+  const tr = t.closest<HTMLElement>('[data-trend-region]');
+  if (tr) { TREND.region = tr.dataset.trendRegion!; TREND.community = 'all'; rerender(); return; }
   const act = t.closest<HTMLElement>('[data-act]');
   if (act) { void doAct(act.dataset.act!); return; }
   const g = t.closest<HTMLElement>('[data-go]');
@@ -375,7 +373,6 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'pest') { setPestTab(arg); rerender(); }
   else if (k === 'expand') { if (OPEN.has(arg)) OPEN.delete(arg); else OPEN.add(arg); rerender(); }
   else if (k === 'std-photos') toFindings({ std: arg, photos: false });
-  else if (k === 'pb-cited') { PB.cited = !PB.cited; rerender(); }
   else if (k === 'clear-band') { V.f.community = 'all'; rerender(); }
   else if (k === 'clear-filters') { V.f = emptyFilters(); rerender(); }
   else if (k === 'more') { V.f.limit += 10; rerender(); }
@@ -425,12 +422,14 @@ function communityText(sl: string): string {
 
 /* ---------- shell ---------- */
 function shell(): void {
-  document.body.insertAdjacentHTML('afterbegin', `<div class="app">
+  document.body.insertAdjacentHTML('afterbegin', `<div class="app navclosed" id="app">
+  <button class="navopen" id="navOpen" aria-controls="side" aria-expanded="false"><span aria-hidden="true">☰</span> Menu</button>
   <aside class="side" id="side">
     <h1>EcoSure Audit Review</h1>
     <p class="sub">Kisco Senior Living culinary food safety</p>
     <p class="mode" id="mode"></p><br>
     <button class="menu-toggle" id="menuBtn" aria-expanded="false" aria-controls="side">Menu</button>
+    <button class="navclose" id="navClose" aria-controls="side">Hide menu <span aria-hidden="true">«</span></button>
     <div class="navwrap">
       <nav class="nav" id="navMain" aria-label="Dashboard"></nav>
       <details class="navfold" id="commfold"><summary>All communities</summary>
@@ -455,6 +454,10 @@ function shell(): void {
   <button class="ctrl next" id="lbNext" aria-label="Next photo">&#8250;</button>
 </div>`);
   $('#q').addEventListener('input', navHtml);
+  // On larger screens the menu starts hidden so the dashboard has full focus.
+  const navOpen = (open: boolean) => { $('#app').classList.toggle('navclosed', !open); $('#navOpen').setAttribute('aria-expanded', String(open)); };
+  $('#navOpen').addEventListener('click', () => navOpen(true));
+  $('#navClose').addEventListener('click', () => navOpen(false));
   $('#menuBtn').addEventListener('click', () => { const s = $('#side'); s.classList.toggle('open'); $('#menuBtn').setAttribute('aria-expanded', String(s.classList.contains('open'))); });
   $('#lbClose').addEventListener('click', closeLB);
   $('#lbPrev').addEventListener('click', () => { LBi = (LBi - 1 + LB.length) % LB.length; showLB(); });
@@ -472,7 +475,7 @@ function shell(): void {
     if (!d.dataset?.fold) return;
     if (d.open) OPEN.add('fold:' + d.dataset.fold); else OPEN.delete('fold:' + d.dataset.fold);
   }, true);
-  window.addEventListener('hashchange', () => { playbookScrolled = false; OPEN.clear(); render(); $('#main').focus({ preventScroll: true }); });
+  window.addEventListener('hashchange', () => { OPEN.clear(); render(); $('#main').focus({ preventScroll: true }); });
 }
 
 async function start(): Promise<void> {

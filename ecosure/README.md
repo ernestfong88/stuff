@@ -7,6 +7,8 @@ A single-page site for reviewing Kisco Senior Living's EcoSure food safety audit
 The sidebar has:
 1. **Executive dashboard**
 2. **All communities**, a list to open any community
+
+On larger screens the menu starts hidden so the dashboard has full focus; **☰ Menu** at the top left opens it.
 3. **More detail**, a folded section of reference pages
 4. **Manage**, a folded section only Editors see
 
@@ -40,7 +42,7 @@ The page then shows, in order:
    - **Remediated:** a plan is filed; the expanded row lists what to verify held
 
    Expand a row for every photo, what was identified, what was remediated, what to verify with the team, and a link to those findings.
-4. **Communities of focus:** the lowest five from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats). Each opens the community page.
+4. **Communities of focus:** the lowest five from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats), each with a one-line snapshot of what drove the score: the area where it lost the most points and its two biggest single hits. Each opens the community page.
 
 **Every number and link opens the matching findings, already filtered:**
 - Violations identified opens all of them.
@@ -77,17 +79,16 @@ Copy as email sends the same snapshot.
 | Page | Use it to |
 | --- | --- |
 | Findings and photos | Start with **What to fix first**: the issues in your selection ranked by points lost, with the score gain from fixing each one everywhere. Below it, filter every finding by community, section, theme, criticality, remediation, repeats, photos or text, then download a CSV |
-| Trends | See the portfolio by theme grid, scores by round and month, points lost by section, a standards heat map, repeat findings and the biggest score changes |
-| Readiness playbook | Review every cited standard: what EcoSure checks, what to have in place, a 30-second check, and the most common misses |
+| Trends | Average score for any region or community, an average score by round chart with every quarter through Q4 2027 (each fills in as its reports are imported), and the two heat maps: communities by area and standards by community |
 
-Plain-language titles and "why it matters" lines live in `src/plain.ts`; the playbook text lives in `src/playbook.ts`. Edit either file to match Kisco's own wording.
+Plain-language titles and "why it matters" lines live in `src/plain.ts`; the "what to have in place" text lives in `src/playbook.ts`. Edit either file to match Kisco's own wording.
 
 ### Sharing with the wider team
 
 - Share the page from claude.ai's Share menu.
 - Give **Viewer** access to people who only read it.
 - Give **Editor** access to anyone who imports files or changes settings. Only Editors can write to the shared data, and the Import and Settings pages are hidden from everyone else.
-- Links to a community or a playbook entry (for example `#c-balfour-riverfront`) open straight to that page.
+- Links to a community (for example `#c-balfour-riverfront`) open straight to that page.
 
 ## Adding new files
 
@@ -152,7 +153,7 @@ To publish an update, rebuild and republish `dist/artifact.html` to the same art
 | `src/views-common.ts` | Pieces the dashboard and community page share (remediation status, pest findings, criticality bar) |
 | `src/cautions.ts` | The questions our SMEs focus on with teams, for each standard |
 | `src/views-brief.ts` | The quarter snapshot, top challenges, top 5 issues, the community snapshot and the email text |
-| `src/views-roles.ts` | Communities of focus, priorities and the playbook |
+| `src/views-roles.ts` | Communities of focus and the communities-by-area heat map |
 | `src/plain.ts` | Plain-language title and why it matters for each standard |
 | `src/playbook.ts` | What to have in place and a quick check for each standard |
 | `src/views*.ts`, `src/charts.ts` | Other pages and charts |
