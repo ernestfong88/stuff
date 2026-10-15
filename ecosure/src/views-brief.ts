@@ -115,7 +115,7 @@ function example(fs: Finding[]): { text: string; who: string } | null {
   return { text: t.length > 220 ? t.slice(0, 217).replace(/\s+\S*$/, '') + '...' : t, who: pick.audit.community };
 }
 
-export interface Challenge { short: string; title: string; crit: string; kitchens: number; n: number; share: number; region: { name: string; k: number } | null; mostly: string[]; focus: string; have: string[]; themes: { label: string; k: number }[]; example: { text: string; who: string } | null; why: string; cautions: string[] }
+export interface Challenge { short: string; title: string; crit: string; kitchens: number; n: number; comms: number; commsTotal: number; share: number; region: { name: string; k: number } | null; mostly: { label: string; k: number }[]; focus: string; have: string[]; themes: { label: string; k: number }[]; example: { text: string; who: string } | null; why: string; cautions: string[] }
 export interface Snapshot { kitchens: number; found: number; done: number; rate: number; top: Challenge[] }
 function snapshotOf(b: Brief, m: Model): Snapshot {
   const regionOf = (name: string) => m.settings.roster.find((c) => c.name === name)?.region || '';
@@ -126,9 +126,10 @@ function snapshotOf(b: Brief, m: Model): Snapshot {
     top: b.top.slice(0, 3).map((p) => {
       return {
         short: p.short, title: plainTitle(p.short), crit: p.crit, kitchens: p.kitchens, n: p.findings.length,
-        share: b.A.length ? Math.round((p.kitchens / b.A.length) * 100) : 0,
+        comms: new Set(p.findings.map((f) => f.audit.community)).size, commsTotal: new Set(b.A.map((a) => a.community)).size,
+        share: (() => { const t = new Set(b.A.map((a) => a.community)).size; return t ? Math.round((new Set(p.findings.map((f) => f.audit.community)).size / t) * 100) : 0; })(),
         region: (() => { const c = new Map<string, number>(); for (const f of p.findings) { const r = regionOf(f.audit.community); if (r) c.set(r, (c.get(r) ?? 0) + 1); } const top = [...c].sort((x, y) => y[1] - x[1])[0]; return top && c.size > 1 ? { name: top[0], k: top[1] } : null; })(),
-        mostly: (PATTERNS[p.short] ?? []).map(([label, re]) => ({ label, k: new Set(p.findings.filter((f) => re.test((f.comment + ' ' + f.findings.join(' ')).toLowerCase())).map((f) => f.audit.key)).size })).filter((x) => x.k >= 2).sort((x, y) => y.k - x.k).slice(0, 2).map((x) => `${x.label} (${x.k})`),
+        mostly: (PATTERNS[p.short] ?? []).map(([label, re]) => ({ label, k: new Set(p.findings.filter((f) => re.test((f.comment + ' ' + f.findings.join(' ')).toLowerCase())).map((f) => f.audit.key)).size })).filter((x) => x.k >= 2).sort((x, y) => y.k - x.k).slice(0, 2),
         focus: FOCUS[p.short] ?? CAUTIONS[p.short]?.[0] ?? PLAYBOOK[p.short]?.check ?? '', have: PLAYBOOK[p.short]?.have ?? [],
         themes: teamThemes(p.findings), example: example(p.findings),
         why: PLAIN[p.short]?.why ?? '', cautions: CAUTIONS[p.short] ?? (PLAYBOOK[p.short] ? [PLAYBOOK[p.short].check] : []),

@@ -2,7 +2,7 @@
 :root {
   --bg: #F4F7F6; --surface: #FFFFFF; --sunk: #E9F0EE; --ink: #1C2B2D; --muted: #5A6A6C; --line: #D5DFDD;
   --brand: #1F3A3D; --brand-ink: #EAF3F1; --brand-muted: #A9C6C1; --accent: #23867A; --accent-ink: #FFFFFF;
-  --crit: #B73A31; --crit-bg: #F7DAD7; --maj: #A8611A; --maj-bg: #FBE7CF; --min: #66777A; --min-bg: #E8EDED;
+  --crit: #B73A31; --crit-bg: #F7DAD7; --maj: #C2611A; --maj-bg: #FBE3CF; --min: #9A7A00; --min-bg: #FBF1C4;
   --good: #1F7A57; --good-bg: #D8EFE4; --info: #2F5F9E; --info-bg: #DDE8F7;
   --hm0: #FFFFFF; --hm1: #F7CBA9; --hm2: #E6865F; --hm3: #C23F35;
   --bar: #23867A; --bar-2: #9CC9C1;
@@ -16,7 +16,7 @@
     color-scheme: dark;
     --bg: #111A1B; --surface: #182425; --sunk: #1F2E2F; --ink: #E3ECEA; --muted: #9AADAB; --line: #2C3D3E;
     --brand: #0B1314; --brand-ink: #E3ECEA; --brand-muted: #8FB1AB; --accent: #4DB8A9; --accent-ink: #0E1C1C;
-    --crit: #EE7A6F; --crit-bg: #4A2522; --maj: #EFA75A; --maj-bg: #473219; --min: #A6B5B6; --min-bg: #2A3637;
+    --crit: #EE7A6F; --crit-bg: #4A2522; --maj: #F2994A; --maj-bg: #4A2C17; --min: #E3C341; --min-bg: #3D3514;
     --good: #5CC79B; --good-bg: #1D3A2F; --info: #8DB7F0; --info-bg: #1E2E45;
     --hm0: #182425; --hm1: #5A3A2A; --hm2: #9A4A33; --hm3: #D8554A;
     --bar: #4DB8A9; --bar-2: #2F6A63;
@@ -26,7 +26,7 @@
   color-scheme: dark;
   --bg: #111A1B; --surface: #182425; --sunk: #1F2E2F; --ink: #E3ECEA; --muted: #9AADAB; --line: #2C3D3E;
   --brand: #0B1314; --brand-ink: #E3ECEA; --brand-muted: #8FB1AB; --accent: #4DB8A9; --accent-ink: #0E1C1C;
-  --crit: #EE7A6F; --crit-bg: #4A2522; --maj: #EFA75A; --maj-bg: #473219; --min: #A6B5B6; --min-bg: #2A3637;
+  --crit: #EE7A6F; --crit-bg: #4A2522; --maj: #F2994A; --maj-bg: #4A2C17; --min: #E3C341; --min-bg: #3D3514;
   --good: #5CC79B; --good-bg: #1D3A2F; --info: #8DB7F0; --info-bg: #1E2E45;
   --hm0: #182425; --hm1: #5A3A2A; --hm2: #9A4A33; --hm3: #D8554A;
   --bar: #4DB8A9; --bar-2: #2F6A63;
@@ -827,3 +827,19 @@ details.chalrow .chev { margin-top: 10px; }
   .app.navclosed main { padding-top: 62px; }
 }
 @media (max-width: 860px) { .navclose { display: none; } }
+.pinprog { color: var(--maj); }
+/* Issues found by severity; the high-risk tile expands to the detail. */
+.sv { font-weight: 700; } .sv.c { color: var(--crit); } .sv.j { color: var(--maj); } .sv.n { color: var(--min); }
+.dbig > button.hrtile[aria-expanded="true"] { outline: 2px solid var(--accent); }
+.hrtile .more { flex-basis: 100%; color: var(--accent); font-weight: 600; }
+.dround select { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.dfuture { padding: 20px; border: 1px dashed var(--line); border-radius: var(--radius); background: var(--sunk); display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.dfuture p { margin: 0; color: var(--muted); }
+.chal .tpct { font-weight: 700; }
+.dhl { max-width: none; font-size: 19px; }
+.dhl .dspan { color: var(--muted); font-size: .85em; }
+.chdid { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 2px; max-width: 420px; }
+.chdid li { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.chdid li b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chalbody .chsec > .dl { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.chalbody .chsec.caution .dl { color: var(--maj); }

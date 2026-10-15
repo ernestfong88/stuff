@@ -161,6 +161,7 @@ function bindPage(): void {
     drop.addEventListener('dragleave', () => drop.classList.remove('over'));
     drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer?.files) void addFiles([...e.dataTransfer.files]); });
   }
+  document.querySelector<HTMLSelectElement>('select[data-dround]')?.addEventListener('change', (e) => { V.round = (e.target as HTMLSelectElement).value; V.f.limit = 5; rerender(); });
   // Trends filters: region, then community within it.
   document.querySelectorAll<HTMLSelectElement>('select[data-trend]').forEach((el) => el.addEventListener('change', () => {
     if (el.dataset.trend === 'region') { TREND.region = el.value; TREND.community = 'all'; } else TREND.community = el.value;

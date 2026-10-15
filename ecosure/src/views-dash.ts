@@ -2,18 +2,17 @@
  * Enterprise dashboard: the program's impact at a glance for the communities the reader picks.
  * Every number and panel links to the page with the detail behind it.
  */
-import { type Audit, type CommunityView, type Model } from './model';
+import { type Audit, type Model } from './model';
 import { esc, fmtDate } from './util';
-import { inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
-import { communitiesOfFocus } from './views-roles';
+import { inRound, latestPerKitchen, scorePill, type ViewState } from './views';
+import { communitiesOfFocus, themeHeat } from './views-roles';
 import { plainTitle } from './plain';
-import { THEMES, themeOf } from './catalog';
 import { snapshot, type Challenge } from './views-brief';
 import { OPEN, top } from './expand';
 import { photoUrl } from './store';
 import type { Finding } from './model';
 
-import { bigBox, isActivity, isPest, isRemediated, pestLabel, pestStatus, shortOf, status } from './views-common';
+import { bigBox, isActivity, isPest, isRemediated, pestLabel, pestStatus, shortOf } from './views-common';
 import { CAUTIONS } from './cautions';
 
 /* The communities the reader picked (null = all). A VP picks their set once; it is remembered in this browser. */
@@ -110,12 +109,12 @@ function pestTracker(m: Model, fs: Finding[]): string {
       <div class="xbody">
         ${photos.length ? `<div class="thumbs">${photos.slice(0, 6).map(({ f, n }) => `<button data-photo="${esc(f.key)}" data-n="${n}" aria-label="Open pest photo from ${esc(short(r.name))}"><img loading="lazy" src="${esc(photoUrl(f.photos[n]))}" alt=""></button>`).join('')}</div>` : ''}
         <p><b>Remediated:</b> ${fixed ? esc(fixed) : 'No corrective action on file yet.'}</p>
-        ${verify(r.list) ? `<div class="pverify"><b>${status(r.list)[0] === 'Remediated' ? 'Verify it held' : 'Verify'}</b><ul>${verify(r.list).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
+        ${verify(r.list) ? `<div class="pverify"><b>Verify</b><ul>${verify(r.list).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
         <div class="toolbar" style="margin:0"><button class="btn ghost sm" data-go="findings" data-section="Insects/Rodents/Animals" data-community="${esc(r.name)}">See these findings</button><button class="linkbtn" data-go="c-${r.slug}">Open ${esc(short(r.name))}</button></div>
       </div></details>`;
   };
-  return `<section class="dpanel span12 dpest${act.length ? ' alert' : ''}"><header><div><h3>Pest tracker</h3><p>Pest activity is a critical finding and needs a pest control visit right away.</p></div><button class="linkbtn" data-go="findings" data-section="Insects/Rodents/Animals">All pest findings</button></header>
-    <div class="ptabs" role="tablist"><button class="ptab red" role="tab" data-act="pest:activity" aria-pressed="${PEST_TAB === 'activity'}"><b>${act.length}</b><span>Pest activity <em class="actnow">Act now</em><small>${act.length === 1 ? 'community' : 'communities'}</small></span></button><button class="ptab yellow" role="tab" data-act="pest:prevention" aria-pressed="${PEST_TAB === 'prevention'}"><b>${prev.length}</b><span>Prevention gaps<small>${prev.length === 1 ? 'community' : 'communities'} · fix to keep pests out</small></span></button></div>
+  return `<section class="dpanel span12 dpest${act.length ? ' alert' : ''}"><header><div><h3>Pest Tracker</h3></div><button class="linkbtn" data-go="findings" data-section="Insects/Rodents/Animals">All pest findings</button></header>
+    <div class="ptabs" role="tablist"><button class="ptab red" role="tab" data-act="pest:activity" aria-pressed="${PEST_TAB === 'activity'}"><b>${act.length}</b><span>Pest activity<small>${act.length === 1 ? 'community' : 'communities'}</small></span></button><button class="ptab yellow" role="tab" data-act="pest:prevention" aria-pressed="${PEST_TAB === 'prevention'}"><b>${prev.length}</b><span>Prevention gaps<small>${prev.length === 1 ? 'community' : 'communities'} · fix to keep pests out</small></span></button></div>
     ${cur.length ? `<div class="xlist">${t.shown.map(row).join('')}</div>${t.more}` : `<div class="okbox">${PEST_TAB === 'activity' ? 'No pest activity found in the selected communities.' : 'No pest prevention gaps in the selected communities.'}</div>`}
   </section>`;
 }
@@ -125,20 +124,21 @@ function challenges(m: Model, top: Challenge[], total: number): string {
   if (!top.length) return '';
   const sec = (label: string, body: string) => (body ? `<div class="chsec"><span class="dl">${label}</span>${body}</div>` : '');
   const list = (xs: string[]) => (xs.length ? `<ul>${xs.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '');
-  return `<section class="chal" aria-label="Top 3 challenges"><header><h3>Top 3 challenges</h3><p>Ranked by impact on the score. Open one for the detail.</p></header>
+  return `<section class="chal" aria-label="Top three challenges"><header><h3>Top three challenges</h3></header>
     <div class="challist">${top.map((t, i) => {
       const key = 'chal-' + i;
       return `<details class="chalrow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>
         <span class="rank">${i + 1}</span>
         <div class="cbody">
           <div class="ct"><b>${esc(t.title)}</b><span class="chip c-${t.crit}">${t.crit}</span></div>
-          <p><span class="cl">Trend</span><span>${t.kitchens} of ${total} kitchens (${t.share}%)${t.region ? `, most in ${esc(t.region.name)} (${t.region.k})` : ''}${t.mostly.length ? `; mainly ${esc(t.mostly.join(' and '))}` : ''}.</span></p>
+          <p><span class="cl">Trend</span><span><b class="tpct">${t.share}% of communities</b>${t.mostly.length ? `, mainly ${esc(t.mostly.map((x) => x.label).join(' and '))}` : ''}</span></p>
           <p><span class="cl cd">Next quarter CD focus</span><span>${esc(t.focus)}</span></p>
         </div>
         <span class="cn"><b>${t.n}</b>${t.n === 1 ? 'issue' : 'issues'}</span>
         <span class="chev" aria-hidden="true"></span></summary>
       <div class="chalbody">
         <div>
+          ${sec('How widespread', `<ul class="chdid"><li><span>Communities</span><b>${t.comms} of ${t.commsTotal}</b></li><li><span>Kitchens</span><b>${t.kitchens} of ${total}</b></li>${t.mostly.map((x) => `<li><span>${esc(x.label.charAt(0).toUpperCase() + x.label.slice(1))}</span><b>${x.k} ${x.k === 1 ? 'kitchen' : 'kitchens'}</b></li>`).join('')}${t.region ? `<li><span>Most in ${esc(t.region.name)}</span><b>${t.region.k} ${t.region.k === 1 ? 'issue' : 'issues'}</b></li>` : ''}</ul>`)}
           ${sec('Why it matters', t.why ? `<p>${esc(t.why)}</p>` : '')}
           ${sec('What teams did', t.themes.length ? `<ul class="chdid">${t.themes.map((x) => `<li><span>${esc(x.label.charAt(0).toUpperCase() + x.label.slice(1))}</span><b>${x.k} ${x.k === 1 ? 'kitchen' : 'kitchens'}</b></li>`).join('')}</ul>${t.example ? `<blockquote>“${esc(t.example.text)}”<cite>${esc(shortOf(m, t.example.who))}</cite></blockquote>` : ''}` : '')}
         </div>
@@ -167,34 +167,27 @@ function headline(m: Model, A: Audit[], where: string): { tiles: string; line: s
   const med = days.length ? (days.length % 2 ? days[(days.length - 1) / 2] : Math.round((days[days.length / 2 - 1] + days[days.length / 2]) / 2)) : null;
   // Remediated = resolved on a plan, or made safe on site with the full solution still to come.
   const critRem = critDone + mit.length;
-  const critSub = [`<span class="dsl1">${crit.length} identified this quarter</span>`, mit.length ? `<span class="mitg">${mit.length} waiting for a full solution</span>` : '', raw.length ? `<span class="rawg">${raw.length} open at ${codes(raw)} ${codes(raw) === 1 ? 'community' : 'communities'}</span>` : ''].filter(Boolean).join('');
   const tiles = `<div class="dbig dfour">
-    ${bigBox('Issues found', String(items.length), { go: 'findings', sub: `${n('Critical')} critical · ${n('Major')} major · ${n('Minor')} minor` })}
+    ${bigBox('Issues found', String(items.length), { go: 'findings', sub: `<span class="sv c">${n('Critical')} critical</span> <span class="sv j">${n('Major')} major</span> <span class="sv n">${n('Minor')} minor</span>` })}
     ${bigBox('Resolved', rate + '%', { tone: 'good', go: 'findings', cap: 'closed', meter: rate, sub: `${done} of ${items.length}` })}
-    ${raw.length
-      ? bigBox('High-risk issues remediated', `${critRem} of ${crit.length}`, { tone: 'bad', go: 'findings', crit: 'Critical', sub: critSub })
-      : bigBox('High-risk issues identified and remediated', String(crit.length), { tone: 'good', go: 'findings', crit: 'Critical', sub: mit.length ? `<span class="mitg">${mit.length} waiting for a full solution</span>` : 'all fully resolved' })}
+    <button class="${raw.length ? 'bad' : 'good'} hrtile" data-act="expand:hr" aria-expanded="${OPEN.has('hr')}"><span class="dl">High-risk issues identified and remediated</span><b>${critRem}/${crit.length}</b><span class="ds">${mit.length ? `<span class="mitg">${mit.length} waiting for a full solution</span>` : 'all fully resolved'}${raw.length ? `<span class="rawg">${raw.length} still open at ${codes(raw)} ${codes(raw) === 1 ? 'community' : 'communities'}</span>` : ''}<span class="more">${OPEN.has('hr') ? 'Hide detail ▴' : 'Show detail ▾'}</span></span></button>
     ${bigBox('Days to a plan on file', med == null ? '–' : String(med), { tone: med != null && med <= 10 ? 'good' : 'warn', sub: 'median · target 10 or fewer' })}
   </div>`;
-  const line = `EcoSure found <b>${items.length} issues</b> across ${A.length} kitchens${where ? ` ${esc(where)}` : ''}. <b class="good">${rate}%</b> are resolved` +
-    (raw.length ? `; <b class="bad">${raw.length} of the ${crit.length} high-risk issues remain open</b>` + (mit.length ? `, and ${mit.length} are waiting for a full solution` : '') : `; <b class="good">${crit.length} high-risk issues identified and remediated</b>` + (mit.length ? `, <b class="warn">${mit.length} waiting for a full solution</b>` : '')) + '.';
+  // One line: what was found, over which audit window, and the result.
+  const ds = A.map((a) => a.date).sort(), d0 = ds[0] ?? '', d1 = ds[ds.length - 1] ?? '';
+  const span = !d0 ? '' : d0 === d1 ? fmtDate(d0) : d0.slice(0, 4) === d1.slice(0, 4) ? `${fmtDate(d0, true)} – ${fmtDate(d1)}` : `${fmtDate(d0)} – ${fmtDate(d1)}`;
+  const line = `<b>${items.length} issues</b> across ${A.length} kitchen audits${where ? ` ${esc(where)}` : ''}${span ? ` <span class="dspan">(${span})</span>` : ''} · <b class="good">${rate}% resolved</b> · ` +
+    (raw.length ? `<b class="bad">${raw.length} of ${crit.length} high-risk issues still open</b>` : `<b class="good">${crit.length} high-risk issues identified and remediated</b>`);
   // The auditor's own note confirms each one was made safe on site.
-  const mitNote = mit.length ? `<div class="dmit"><span class="dl">Waiting for a full solution · immediate risk remediated on site</span><ul>${mit.map((f) => `<li><button class="linkbtn strong" data-go="c-${f.audit.slug}">${esc(shortOf(m, f.audit.community))}</button> <b>${esc(plainTitle(f.short))}.</b> <span class="aud">Auditor's note: “${esc(f.comment)}”</span></li>`).join('')}</ul></div>` : '';
+  const mitNote = !OPEN.has('hr') ? '' : `<div class="dmit"><span class="dl">${critDone} of ${crit.length} resolved on a filed action plan${mit.length ? ` · ${mit.length} waiting for a full solution, immediate risk remediated on site` : ''}</span>${mit.length ? `<ul>${mit.map((f) => `<li><button class="linkbtn strong" data-go="c-${f.audit.slug}">${esc(shortOf(m, f.audit.community))}</button> <b>${esc(plainTitle(f.short))}.</b> <span class="aud">Auditor's note: “${esc(f.comment)}”</span></li>`).join('')}</ul>` : ''}${raw.length ? `<p class="rawg">${raw.length} still open with no plan: ${esc([...new Set(raw.map((f) => shortOf(m, f.audit.community)))].join(', '))}.</p>` : ''}<button class="btn ghost sm" data-go="findings" data-crit="Critical">See all ${crit.length} high-risk findings</button></div>`;
   return { tiles, line, mitNote };
 }
 
-/** One line on what drove a community's score: the area where it lost most points and the two biggest single hits. */
-function focusSnapshot(c: CommunityView): string {
-  const items = c.latest.flatMap((a) => a.items);
-  if (!items.length) return '';
-  const lost = (fs: Finding[]) => fs.reduce((x, f) => x + f.points, 0);
-  const total = lost(items);
-  const byTheme = THEMES.map((t) => ({ t: t.t, p: lost(items.filter((f) => themeOf(f.short) === t.t)) })).sort((a, b) => b.p - a.p)[0];
-  const byStd = [...new Set(items.map((f) => f.short))].map((k) => ({ k, p: lost(items.filter((f) => f.short === k)) })).sort((a, b) => b.p - a.p).slice(0, 2);
-  const crit = items.filter((f) => f.criticality === 'Critical').length;
-  const rep = items.filter((f) => f.repeat).length;
-  const kitchens = c.latest.length > 1 ? ` across ${c.latest.length} kitchens` : '';
-  return `Lost ${total} points${kitchens}, ${Math.round((byTheme.p / total) * 100)}% of them in ${byTheme.t.toLowerCase()}. Biggest hits: ${byStd.map((x) => `${plainTitle(x.k).toLowerCase()} (${x.p})`).join(' and ')}. ${crit} high-risk ${crit === 1 ? 'issue' : 'issues'}${rep ? `, ${rep} repeated from the last audit` : ''}.`;
+/** Round picker: every planned round, with the ones not yet audited marked. */
+function roundSelect(m: Model, v: ViewState): string {
+  const used = new Set(m.audits.map((a) => a.round));
+  const names = [...m.settings.rounds.map((r) => r.name), ...[...used].filter((n) => !m.settings.rounds.some((r) => r.name === n)).sort()];
+  return `<label class="dround"><span class="lbl">Round</span><select data-dround aria-label="Audit round"><option value="all"${v.round === 'all' ? ' selected' : ''}>All rounds</option>${names.map((n) => `<option value="${esc(n)}"${v.round === n ? ' selected' : ''}>${esc(n)}${used.has(n) ? '' : ' (upcoming)'}</option>`).join('')}</select></label>`;
 }
 
 export function dashboard(m: Model, v: ViewState): string {
@@ -208,20 +201,21 @@ export function dashboard(m: Model, v: ViewState): string {
 
   // Communities of focus: the qualifying reasons from the latest quarterly audit, without status detail.
   const focusAll = communitiesOfFocus(m).filter(({ c }) => inReg(c.c.name)).sort((a, b) => (a.c.score ?? 101) - (b.c.score ?? 101));
-  const focus = focusAll.slice(0, 5);
+  const focusT = top('dash-focus', focusAll, 5, 'communities');
 
   const panel = (title: string, sub: string, go: string, body: string) => `<section class="dpanel span12"><header><div><h3>${title}</h3>${sub ? `<p>${sub}</p>` : ''}</div>${go ? `<button class="linkbtn" data-go="${go}">Details</button>` : ''}</header>${body}</section>`;
 
-  return `<div class="dash">
+  const html = `<div class="dash">
     <div class="dhead">
       <div><p class="crumb">Kisco Senior Living · Culinary food safety</p><h2 class="page">EcoSure Food Safety Dashboard</h2>
         <p class="note">Latest EcoSure audit of each kitchen · data through ${fmtDate(latestDate)}</p></div>
       <div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-summary">Copy as email</button></div>
     </div>
-    <div class="dfilters">${picker(m, selLabel)}<span class="grow"></span>${roundChips(m, v).replace('<div class="toolbar">', '<span class="dround">').replace(/<\/div>$/, '</span>')}</div>
+    <div class="dfilters">${picker(m, selLabel)}<span class="grow"></span>${roundSelect(m, v)}</div>
     ${chosen(m).length ? '' : '<div class="okbox">No communities selected. Open the Communities list above and pick at least one.</div>'}
+    ${all.length ? '' : `<div class="dfuture"><b>${esc(v.round)}: no EcoSure audits yet</b><p>${(() => { const r = m.settings.rounds.find((x) => x.name === v.round); return r ? `This round runs ${fmtDate(r.start)} to ${fmtDate(r.end)}. ` : ''; })()}Results will appear here as audits come in. Pick another round to see past results.</p><button class="btn sm" data-round="all">Show all rounds</button></div></div>`}
 
-    <section class="dhero" aria-label="Quarter snapshot">
+    ${all.length ? '' : '<!--end-->'}<section class="dhero" aria-label="Quarter snapshot">
       <p class="dhl">${hl.line}</p>
       ${hl.tiles}
       ${hl.mitNote}
@@ -232,8 +226,10 @@ export function dashboard(m: Model, v: ViewState): string {
     <div class="dgrid">${pestTracker(m, items)}</div>
 
     <div class="dgrid">
-      ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ high-risk issues or 3+ repeats. Each line says what drove the score.`, '', focus.length ? `<div class="tablewrap"><table class="dfocus"><tbody>${focus.map(({ c }) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.short || c.c.name)}</b> <span class="sub inl">${esc([c.c.name, c.c.region ?? ''].filter(Boolean).join(' · '))}</span><span class="snap">${esc(focusSnapshot(c))}</span></td><td class="num">${scorePill(c.score)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="okbox">None in this view.</div>')}
+      ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ high-risk issues or 3+ repeats. Points lost by area, darker is worse; select a community to open it.`, '', focusAll.length ? themeHeat(m, A, focusT.shown.map(({ c }) => c.c.name)) + focusT.more : '<div class="okbox">None in this view.</div>')}
     </div>
 
   </div>`;
+  // A round with no audits yet: stop after the notice.
+  return all.length ? html : html.slice(0, html.indexOf('<!--end-->'));
 }

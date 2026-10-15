@@ -44,8 +44,8 @@ export function bigBox(label: string, value: string, o: { tone?: string; sub?: s
 /** The community's short name (Settings, "Short name"), used everywhere a community is listed. */
 export const shortOf = (m: Model, name: string) => m.settings.roster.find((c) => c.name === name)?.short || name;
 
-/** Pest status in plain words: act now (no plan), or remediated (a plan is filed; verify it held). */
+/** Pest status in plain words: no plan yet, or remediation in progress (a plan is filed; the CD verifies it held). */
 export function pestStatus(fs: Finding[]): [string, string] {
   const [st] = status(fs);
-  return st === 'Remediated' ? ['Remediated', 'good'] : ['Act now', 'bad'];
+  return st === 'Remediated' ? ['Remediation in progress', 'warn'] : ['No plan yet', 'bad'];
 }

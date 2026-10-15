@@ -21,28 +21,29 @@ Built for a COO or VP of operations to scan in a minute.
 - **Communities picker:** a dropdown of every community, grouped by region. Tick a whole region or single communities, or search. Everything on the page, and Copy as email, follows the selection. Each viewer's choice is remembered in their browser, so a VP picks their communities once.
 
 The page then shows, in order:
-1. **Quarter snapshot:** one sentence and four numbers.
-   - **Issues found,** split by criticality
+1. **Round picker:** every planned round from Q3 2026 to Q4 2027, or all rounds. A round with no audits yet says so and shows its dates.
+2. **Quarter snapshot:** one line (issues, kitchen audits and the audit window, percent resolved, high-risk issues remediated) and four numbers.
+   - **Issues found,** split by criticality: critical in red, major in orange, minor in yellow
    - **Resolved,** as a percentage
-   - **High-risk (critical) issues remediated,** with how many were identified this quarter, how many are waiting for the full solution (yellow) and any still open (red)
+   - **High-risk issues identified and remediated,** as remediated over identified (for example 60/60). Click it for the ones waiting for a full solution, with the auditor's note confirming the immediate risk was remediated on site.
    - **Median days from audit to an action plan on file,** against a target of 10
 
    Each number opens the matching findings.
-2. **Top 3 challenges,** ranked by impact on the score. Each shows the issue count and two lines:
-   - **Trend:** how many kitchens it hit, where it is concentrated, and what it mainly was, matched from the auditors' notes (`PATTERNS` in `src/cautions.ts`)
+3. **Top three challenges,** ranked by impact on the score. Each shows the issue count and two lines:
+   - **Trend:** the percentage of communities it hit and what it mainly was, matched from the auditors' notes (`PATTERNS` in `src/cautions.ts`)
    - **Next quarter CD focus:** what each community's Culinary Director will do, one line per standard (`FOCUS` in `src/cautions.ts`)
 
-   Open a challenge for why it matters, what teams did, what the CD should check (`CAUTIONS`) and what to have in place, with a link to the findings.
-3. **Pest tracker,** with two tabs:
-   - **Pest activity,** in red: a critical finding that needs action now
+   Open a challenge for how widespread it is (communities, kitchens, patterns, region), why it matters, what teams did, what the CD should check (`CAUTIONS`) and what to have in place, with a link to the findings.
+4. **Pest Tracker,** with two tabs:
+   - **Pest activity,** in red
    - **Prevention gaps,** in yellow
 
    Each row shows the community's short name, a photo, the observation in bold, and a status:
-   - **Act now:** no corrective action plan filed
-   - **Remediated:** a plan is filed; the expanded row lists what to verify held
+   - **No plan yet:** no corrective action plan filed
+   - **Remediation in progress:** a plan is filed; the expanded row lists what to verify held
 
    Expand a row for every photo, what was identified, what was remediated, what to verify with the team, and a link to those findings.
-4. **Communities of focus:** the lowest five from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats), each with a one-line snapshot of what drove the score: the area where it lost the most points and its two biggest single hits. Each opens the community page.
+5. **Communities of focus:** the lowest five from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats), as a heat map of points lost by area. Each opens the community page.
 
 **Every number and link opens the matching findings, already filtered:**
 - Violations identified opens all of them.

@@ -11,7 +11,8 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(chal.first()).toContainText('Next quarter CD focus');
   await chal.first().locator('summary').click();
   await expect(chal.first()).toContainText('What the CD should check');
-  await expect(chal.first().locator('.chdid li').first()).toContainText('kitchen');
+  await expect(chal.first().locator('.chdid li').first()).toContainText('Communities');
+  await expect(chal.first().locator('.tpct')).toContainText('% of communities');
   const pest = page.locator('.dpest');
   await expect(pest.locator('[data-act="pest:activity"]')).toHaveAttribute('aria-pressed', 'true');
   await pest.locator('.prow summary').first().click();
@@ -25,7 +26,7 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.locator('#morefold > summary').click();
   await expect(page.locator('#navMore button')).toHaveCount(2);
   await expect(page.locator('.dhero > .dbig > *')).toHaveCount(4);
-  await expect(page.locator('.dfocus tbody tr')).toHaveCount(5);
+  await expect(page.locator('.dpanel .theme-hm tbody tr')).toHaveCount(5);
   const ident = page.locator('.dhero > .dbig > *').first();
   const before = await ident.textContent();
   await expect(page.locator('.dpest')).toContainText('Pest activity');
@@ -43,7 +44,7 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.locator('[data-act="sel:all"]').click();
   await expect(page.locator('.dsel > summary b')).toContainText('All communities');
   await page.locator('[data-act="sel:done"]').click();
-  await page.locator('.dfocus tbody tr').first().click();
+  await page.locator('.dpanel .theme-hm tbody tr').first().locator('.lab button').click();
   await expect(page.locator('.dhl')).toContainText('resolved');
   await page.goto('/');
   await expect(page.locator('.dhl')).toContainText('resolved');
@@ -56,7 +57,7 @@ test('the dashboard stays short and opens a community snapshot', async ({ page }
   await expect(page.locator('.dmix')).toHaveCount(0);
   await expect(page.locator('.dhl')).toContainText('resolved');
   await expect(page.locator('#navComm .captag').first()).toBeAttached();
-  await page.locator('.dfocus tbody tr').first().click();
+  await page.locator('.dpanel .theme-hm tbody tr').first().locator('.lab button').click();
   await expect(page.locator('.dhl')).toContainText('issues');
   await expect(page.locator('.dtop3 li')).toHaveCount(3);
   await page.locator('.dmixlab [data-crit="Critical"]').click();
@@ -89,8 +90,10 @@ test('dashboard links open Findings filtered to what was clicked, for the picked
   expect(await count()).toBe(done);
   await back();
 
-  const risk = Number((await page.locator('.dhero > .dbig > :nth-child(3) .dsl1').textContent())!.match(/^(\d+)/)![1]);
+  const risk = Number((await page.locator('.dhero > .dbig > :nth-child(3) b').textContent())!.split('/')[1]);
   await page.locator('.dhero > .dbig > :nth-child(3)').click();
+  await expect(page.locator('.dmit')).toBeVisible();
+  await page.locator('.dmit [data-go="findings"]').click();
   await expect(page.locator('#f-crit')).toHaveValue('Critical');
   expect(await count()).toBe(risk);
   await back();
@@ -114,8 +117,21 @@ test('a high-risk finding made safe on site shows as immediate risk remediated',
   await page.goto('/#c-park-terrace');
   await expect(page.locator('.capbox.mit')).toContainText('Immediate risk remediated');
   await page.goto('/');
-  await expect(page.locator('.dhero > .dbig > :nth-child(3)')).toContainText('identified this quarter');
+  await expect(page.locator('.dhero > .dbig > :nth-child(3)')).toContainText('identified and remediated');
   await expect(page.locator('.dhero > .dbig > :nth-child(3) .mitg')).toContainText('waiting for a full solution');
+  await expect(page.locator('.dhl')).not.toContainText('waiting');
+});
+
+test('the dashboard round picker lists upcoming rounds and shows an empty state for them', async ({ page }) => {
+  await page.goto('/');
+  const sel = page.locator('select[data-dround]');
+  await expect(sel.locator('option')).toContainText(['All rounds', 'Q3 2026', 'Q4 2026 (upcoming)', 'Q1 2027 (upcoming)', 'Q2 2027 (upcoming)', 'Q3 2027 (upcoming)', 'Q4 2027 (upcoming)']);
+  await expect(page.locator('.dhl')).toContainText('kitchen audits');
+  await sel.selectOption('Q1 2027');
+  await expect(page.locator('.dfuture')).toContainText('no EcoSure audits yet');
+  await expect(page.locator('.dhero')).toHaveCount(0);
+  await page.locator('.dfuture [data-round="all"]').click();
+  await expect(page.locator('.dhero')).toHaveCount(1);
 });
 
 test('every page has a back button to the dashboard', async ({ page }) => {
