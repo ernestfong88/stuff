@@ -6,10 +6,9 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(page.locator('.dhl')).toContainText('issues');
   const chal = page.locator('.chalrow');
   await expect(chal).toHaveCount(3);
-  await expect(chal.first().locator('summary')).toContainText('issues');
-  await chal.first().locator('summary').click();
-  await expect(chal.first().locator('.chdid li').first()).toContainText('kitchen');
-  await expect(chal.first().locator('.caution')).toContainText('Our SMEs will focus on');
+  await expect(chal.first()).toContainText('issues');
+  await expect(chal.first()).toContainText('Trend');
+  await expect(chal.first()).toContainText('Next quarter SME focus');
   const pest = page.locator('.dpest');
   await expect(pest.locator('[data-act="pest:activity"]')).toHaveAttribute('aria-pressed', 'true');
   await pest.locator('.prow summary').first().click();
@@ -99,7 +98,6 @@ test('dashboard links open Findings filtered to what was clicked, for the picked
 
   const chal = page.locator('.chalrow').first();
   const n = Number(await chal.locator('.cn b').textContent());
-  await chal.locator('summary').click();
   await chal.locator('[data-act^="std-photos:"]').click();
   await expect(chip).toBeVisible();
   expect(await count()).toBe(n);

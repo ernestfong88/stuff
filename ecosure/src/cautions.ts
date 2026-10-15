@@ -103,3 +103,39 @@ export const CAUTIONS: Record<string, string[]> = {
     'Is the sanitizer tested at every set-up, and was anything washed in weak sanitizer re-washed?',
   ],
 };
+
+/**
+ * The one thing our SMEs will focus on with teams next quarter, per standard.
+ * Standards without an entry fall back to their first caution above.
+ */
+export const FOCUS: Record<string, string> = {
+  'Stored food-contact equipment clean (ice machines, pans)': 'Monthly ice machine deep clean with a sign-off log at every community; SMEs check behind the drop plate and under beverage nozzles on each visit.',
+  'Cold holding at 41°F or below': 'Twice-daily cooler temperature logs reviewed by the chef; SMEs probe reach-ins and cold wells on each visit and confirm units are serviced.',
+  'Food-contact surfaces in good repair': 'A replacement par for cutting boards, spatulas and fry baskets; SMEs pull worn smallwares from service on each visit.',
+  'Temperature monitoring system/logs': 'Logs filled in at the time, with corrective actions written down; SMEs spot-check readings against a calibrated probe.',
+  'Wiping cloths/sanitizer buckets': 'Test strips at every station and buckets changed every 4 hours; SMEs test a bucket on each visit.',
+  'No expired RTE product': 'A 7-day date-marking routine every shift understands, including weekends; SMEs pull a cooler sample on each visit.',
+  'Chemicals labeled': 'Every working bottle labeled at refill; SMEs check spray bottles at each station.',
+  'Food covered/wrapped in storage': 'Opened product wrapped, labeled and dated; SMEs check the walk-in on each visit.',
+  'Chemicals stored properly': 'Chemicals stored below and away from food and clean equipment; SMEs check storage areas on each visit.',
+  'Non-food contact surfaces clean/in repair': 'A realistic deep-clean schedule with sign-offs; SMEs flag build-up that points to a repair need.',
+  'Hot holding at 135°F or above': 'Hot-holding units preheated and probed every 2 hours; SMEs confirm food below 135°F is discarded, not reheated.',
+  'Refrigeration gaskets clean/in repair': 'Gaskets on the weekly cleaning list and torn ones replaced; SMEs confirm work orders are closed.',
+  'Food storage hierarchy': 'Raw below ready-to-eat in every cooler, including after deliveries; SMEs check the walk-in on each visit.',
+  'Cross contamination prevented': 'Separate boards, utensils and gloves for raw and ready-to-eat food; SMEs observe prep during visits.',
+  'In-use utensils stored properly': 'Scoops and utensils stored handle-up and out of the food; SMEs check bins and wells on each visit.',
+  'Hand sinks accessible, handwash only': 'Hand sinks clear and stocked through service; SMEs check them on each visit.',
+  'Proper cooling before cold holding': 'A cooling log for every batch and the right tools (ice baths, shallow pans); SMEs match cooled items to the log.',
+  'Floors, walls, ceilings clean/in repair': 'Repairs that could let pests in closed out; SMEs follow up on open work orders.',
+  'No critical pest activity': 'Licensed pest control visits with service reports on file and entry points sealed; SMEs confirm within 48 hours of any sighting.',
+};
+
+/** What an issue mostly is, matched against the auditor's notes, for the "trend" line. */
+export const PATTERNS: Record<string, [string, RegExp][]> = {
+  'Stored food-contact equipment clean (ice machines, pans)': [['ice machine interiors', /ice (machine|maker|bin)|drop plate/], ['beverage nozzles', /nozzle|diffuser|bar gun|dispenser/], ['utensils put away dirty', /\bknife|knives|tongs?\b|slicer|dicer|mandolin|spoon|ladle|spinner/]],
+  'Cold holding at 41°F or below': [['cold wells and prep tables', /cold well|holding table|drawer|cold holding unit|prep table|fill line/], ['reach-in coolers', /reach.?in|upright|fridge/], ['salads', /salad|coleslaw/], ['eggs and dairy', /\beggs?\b|milk|half and half|cheese/]],
+  'Food-contact surfaces in good repair': [['chipped spatulas and utensils', /spatula|utensil|strainer/], ['grooved cutting boards', /cutting board/], ['cracked containers and lids', /container|\blid\b|lexan|\bpans?\b|bucket/], ['frayed fry baskets', /fry basket|fryer basket/]],
+  'Refrigeration gaskets clean/in repair': [['torn gaskets', /torn|ripped|tear|damaged/], ['dirty gaskets', /dirty|debris|mold|build.?up|soiled/]],
+  'Temperature monitoring system/logs': [['missing entries', /missing|blank|not (recorded|completed)|incomplete/], ['no thermometer or calibration', /thermometer|calibrat/]],
+  'Wiping cloths/sanitizer buckets': [['weak or untested sanitizer', /ppm|concentration|test strip|sanitizer/], ['cloths left out of buckets', /cloth|towel|rag/]],
+};

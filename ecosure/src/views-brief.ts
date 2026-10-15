@@ -11,7 +11,7 @@ import { inRound, latestPerKitchen, type ViewState } from './views';
 import { communitiesOfFocus } from './views-roles';
 import { top } from './expand';
 import { isActivity, isPest, isRemediated, pestStatus, remediated, status } from './views-common';
-import { CAUTIONS } from './cautions';
+import { CAUTIONS, FOCUS, PATTERNS } from './cautions';
 
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const rank = (c: string) => ['Critical', 'Major', 'Minor', 'Unrated'].indexOf(c);
@@ -115,9 +115,10 @@ function example(fs: Finding[]): { text: string; who: string } | null {
   return { text: t.length > 220 ? t.slice(0, 217).replace(/\s+\S*$/, '') + '...' : t, who: pick.audit.community };
 }
 
-export interface Challenge { short: string; title: string; crit: string; kitchens: number; n: number; themes: { label: string; k: number }[]; example: { text: string; who: string } | null; why: string; cautions: string[] }
+export interface Challenge { short: string; title: string; crit: string; kitchens: number; n: number; share: number; region: { name: string; k: number } | null; mostly: string[]; focus: string; themes: { label: string; k: number }[]; example: { text: string; who: string } | null; why: string; cautions: string[] }
 export interface Snapshot { kitchens: number; found: number; done: number; rate: number; top: Challenge[] }
-function snapshotOf(b: Brief): Snapshot {
+function snapshotOf(b: Brief, m: Model): Snapshot {
+  const regionOf = (name: string) => m.settings.roster.find((c) => c.name === name)?.region || '';
   const items = b.A.flatMap((a) => a.items);
   const done = remediated(items);
   return {
@@ -125,20 +126,24 @@ function snapshotOf(b: Brief): Snapshot {
     top: b.top.slice(0, 3).map((p) => {
       return {
         short: p.short, title: plainTitle(p.short), crit: p.crit, kitchens: p.kitchens, n: p.findings.length,
+        share: b.A.length ? Math.round((p.kitchens / b.A.length) * 100) : 0,
+        region: (() => { const c = new Map<string, number>(); for (const f of p.findings) { const r = regionOf(f.audit.community); if (r) c.set(r, (c.get(r) ?? 0) + 1); } const top = [...c].sort((x, y) => y[1] - x[1])[0]; return top && c.size > 1 ? { name: top[0], k: top[1] } : null; })(),
+        mostly: (PATTERNS[p.short] ?? []).map(([label, re]) => ({ label, k: new Set(p.findings.filter((f) => re.test((f.comment + ' ' + f.findings.join(' ')).toLowerCase())).map((f) => f.audit.key)).size })).filter((x) => x.k >= 2).sort((x, y) => y.k - x.k).slice(0, 2).map((x) => `${x.label} (${x.k})`),
+        focus: FOCUS[p.short] ?? CAUTIONS[p.short]?.[0] ?? PLAYBOOK[p.short]?.check ?? '',
         themes: teamThemes(p.findings), example: example(p.findings),
         why: PLAIN[p.short]?.why ?? '', cautions: CAUTIONS[p.short] ?? (PLAYBOOK[p.short] ? [PLAYBOOK[p.short].check] : []),
       };
     }),
   };
 }
-export const snapshot = (m: Model, v: ViewState, inReg: (name: string) => boolean): Snapshot => snapshotOf(compute(m, v, inReg));
+export const snapshot = (m: Model, v: ViewState, inReg: (name: string) => boolean): Snapshot => snapshotOf(compute(m, v, inReg), m);
 
 
 
 /** The whole summary as a plain-text email, for executives who read it without the page. */
 export function briefingText(m: Model, v: ViewState, link = '', inReg: (name: string) => boolean = () => true, region = ''): string {
   const b = compute(m, v, inReg);
-  const sn = snapshotOf(b);
+  const sn = snapshotOf(b, m);
   return [`Subject: EcoSure food safety snapshot, ${b.A[0]?.round ?? ''} round${region ? `, ${region}` : ''}`, '',
     `This quarter EcoSure found ${sn.found} food safety violations across ${sn.kitchens} kitchens${region ? ` in ${region}` : ''}. Our teams have remediated ${sn.done} of them: a ${sn.rate}% remediation rate.`, '',
     'TOP 3 CHALLENGES',

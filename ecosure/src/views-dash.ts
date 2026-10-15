@@ -118,25 +118,19 @@ function pestTracker(m: Model, fs: Finding[]): string {
   </section>`;
 }
 
-/** The top 3 challenges: the violation count up front; open one for what teams did and what our SMEs will focus on. */
-function challenges(m: Model, top: Challenge[]): string {
+/** The top 3 challenges, one line each for the trend and next quarter's SME focus. */
+function challenges(top: Challenge[], total: number): string {
   if (!top.length) return '';
-  return `<section class="chal" aria-label="Top 3 challenges"><header><h3>Top 3 challenges</h3><p>Ranked by impact on the score. Open one for what teams did and what our SMEs will focus on.</p></header>
-    <div class="challist">${top.map((t, i) => {
-      const key = 'chal-' + i;
-      return `<details class="chalrow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>
-        <span class="rank">${i + 1}</span>
-        <span class="ct"><b>${esc(t.title)}</b><span class="chip c-${t.crit}">${t.crit}</span></span>
-        <span class="cn"><b>${t.n}</b> ${t.n === 1 ? 'issue' : 'issues'}<small>in ${t.kitchens} ${t.kitchens === 1 ? 'kitchen' : 'kitchens'}</small></span>
-        <span class="chev" aria-hidden="true"></span></summary>
-      <div class="chalbody">
-        <div class="chsec">${t.why ? `<span class="dl">Why it matters</span><p class="chwhy">${esc(t.why)}</p>` : ''}
-          <span class="dl">What teams did</span>${t.themes.length ? `<ul class="chdid">${t.themes.map((x) => `<li><span>${esc(x.label.charAt(0).toUpperCase() + x.label.slice(1))}</span><b>${x.k} ${x.k === 1 ? 'kitchen' : 'kitchens'}</b></li>`).join('')}</ul>` : '<p class="xs">Corrective plans in progress.</p>'}
-          ${t.example ? `<blockquote>“${esc(t.example.text)}”<cite>${esc(shortOf(m, t.example.who))}</cite></blockquote>` : ''}</div>
-        ${t.cautions.length ? `<div class="chsec caution"><span class="dl">Our SMEs will focus on these with teams</span><ul>${t.cautions.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
-        <button class="linkbtn" data-act="std-photos:${esc(t.short)}">See all ${t.n} findings</button>
-      </div></details>`;
-    }).join('')}</div></section>`;
+  return `<section class="chal" aria-label="Top 3 challenges"><header><h3>Top 3 challenges</h3><p>Ranked by impact on the score.</p></header>
+    <ol class="challist">${top.map((t, i) => `<li class="chalrow">
+      <span class="rank">${i + 1}</span>
+      <div class="cbody">
+        <div class="ct"><b>${esc(t.title)}</b><span class="chip c-${t.crit}">${t.crit}</span></div>
+        <p><span class="cl">Trend</span>${t.kitchens} of ${total} kitchens (${t.share}%)${t.region ? `, most in ${esc(t.region.name)} (${t.region.k})` : ''}${t.mostly.length ? `; mainly ${esc(t.mostly.join(' and '))}` : ''}.</p>
+        <p><span class="cl sme">Next quarter SME focus</span>${esc(t.focus)}</p>
+      </div>
+      <button class="cn" data-act="std-photos:${esc(t.short)}" title="See these findings"><b>${t.n}</b>${t.n === 1 ? 'issue' : 'issues'}</button>
+    </li>`).join('')}</ol></section>`;
 }
 
 /** The four numbers at the top: issues found, resolved, open high-risk (critical), and days from audit to a plan on file (target 10). */
@@ -187,7 +181,7 @@ export function dashboard(m: Model, v: ViewState): string {
       ${hl.tiles}
     </section>
 
-    ${challenges(m, sn.top)}
+    ${challenges(sn.top, sn.kitchens)}
 
     <div class="dgrid">${pestTracker(m, items)}</div>
 

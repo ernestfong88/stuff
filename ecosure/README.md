@@ -26,12 +26,11 @@ The page then shows, in order:
    - **Median days from audit to an action plan on file,** against a target of 10
 
    Each number opens the matching findings.
-2. **Top 3 challenges,** ranked by impact on the score. Each row shows the number of violations and kitchens. Open one to see:
-   - why it matters
-   - what teams did, as themes with kitchen counts plus one real action from a corrective action plan
-   - the questions **our SMEs will focus on with teams**
+2. **Top 3 challenges,** ranked by impact on the score. Each shows the issue count and two lines:
+   - **Trend:** how many kitchens it hit, where it is concentrated, and what it mainly was, matched from the auditors' notes (`PATTERNS` in `src/cautions.ts`)
+   - **Next quarter SME focus:** one line per standard (`FOCUS` in `src/cautions.ts`)
 
-   The themes are keyword matches in `src/views-brief.ts` (`ACTION_THEMES`). The SME questions live in `src/cautions.ts`.
+   The issue count opens those findings.
 3. **Pest tracker,** with two tabs:
    - **Pest activity,** in red: a critical finding that needs action now
    - **Prevention gaps,** in yellow
