@@ -109,9 +109,9 @@ export default function ServerSurface() {
         <PudBoard
           local
           onOpen={(id) => openCheck(id)}
-          onNew={(type) => {
-            const id = openQueueOrder(type, venue, mealAt(now()));
-            patchOrder(id, { server: me });
+          onNew={(kind) => {
+            const id = openQueueOrder(kind === 'delivery' ? 'delivery' : 'pickup', venue, mealAt(now()));
+            patchOrder(id, { server: me, ...(kind === 'associate' ? { assoc: true } : {}) });
             openCheck(id);
           }}
         />

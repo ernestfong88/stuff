@@ -114,15 +114,18 @@ export function LineRow({
       )}
       {!line.sent && (
         <div className={s.unsent}>
-          <button
-            className={cx(s.iconBtn, line.hold && s.holdOn)}
-            title={line.hold ? 'Release it so it goes with the next send' : 'Hold it back from the next send'}
-            aria-label={line.hold ? 'Release' : 'Hold'}
-            aria-pressed={!!line.hold}
-            onClick={() => dining.toggleHold(o.id, diner.id, line.id)}
-          >
-            {line.hold ? <Play size={13} aria-hidden /> : <Pause size={13} aria-hidden />}
-          </button>
+          {/* Pick up and delivery are never coursed or held back: the whole order goes together. */}
+          {(!o.queueType || line.hold) && (
+            <button
+              className={cx(s.iconBtn, line.hold && s.holdOn)}
+              title={line.hold ? 'Release it so it goes with the next send' : 'Hold it back from the next send'}
+              aria-label={line.hold ? 'Release' : 'Hold'}
+              aria-pressed={!!line.hold}
+              onClick={() => dining.toggleHold(o.id, diner.id, line.id)}
+            >
+              {line.hold ? <Play size={13} aria-hidden /> : <Pause size={13} aria-hidden />}
+            </button>
+          )}
           <button
             className={cx(s.iconBtn, s.remove)}
             aria-label={`Remove ${it?.name ?? 'item'}`}

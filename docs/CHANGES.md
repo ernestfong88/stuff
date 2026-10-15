@@ -220,6 +220,12 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### Pick up and delivery are never coursed
+- Pick up and delivery orders always fire as a whole: under any coursing setting the full order fires at once, or waits as a whole for its pickup time. Only table orders are coursed.
+- Expo shows "Fire all?" on them, the activity log says "Fired all", and the order screen no longer offers Hold on their lines.
+- The PU & Delivery board has an **Associate meal** button next to New pick up and New delivery. It asks which associate and shows only the associate menu.
+- Table card buttons on My Tables can't stick out of the card, even at large text sizes.
+
 ### Recipe Approval shows the whole recipe
 - Opening a recipe sent for approval now shows all of it: who sent it and why, yield, portion and times, ingredients, method, plating, allergens and nutrition. On a wide screen the list stays on the left and the next waiting recipe opens after each decision.
 - When a recipe changes one that was approved before, the changed parts are marked and a list shows what came out and what went in.
