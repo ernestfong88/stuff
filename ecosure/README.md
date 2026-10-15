@@ -20,6 +20,7 @@ Built for a COO or VP of operations to scan in a minute.
 
 The page then shows, in order:
 1. **Quarter snapshot:** one line on violations found and the remediation rate. Below it are three numbers (violations identified, remediated, remediation rate) and one bar splitting violations by criticality.
+   - **Risk and speed:** open high-risk (critical) issues, the median days from audit to an approved action plan, and the share approved within 10 days.
 2. **Top 3 challenges,** ranked by impact on the score. Each row shows the number of violations and kitchens. Open one to see:
    - why it matters
    - what teams did, as themes with kitchen counts plus one real action from a corrective action plan

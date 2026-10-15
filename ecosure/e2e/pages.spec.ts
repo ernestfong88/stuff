@@ -21,10 +21,10 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(page.locator('#morefold')).not.toHaveAttribute('open', '');
   await page.locator('#morefold > summary').click();
   await expect(page.locator('#navMore button')).toHaveCount(4);
-  await expect(page.locator('.dbig > *')).toHaveCount(3);
+  await expect(page.locator('.dhero > .dbig > *')).toHaveCount(3);
   await expect(page.locator('.dmixlab button')).toHaveCount(3);
   await expect(page.locator('.dfocus tbody tr')).toHaveCount(5);
-  const ident = page.locator('.dbig > *').first();
+  const ident = page.locator('.dhero > .dbig > *').first();
   const before = await ident.textContent();
   await expect(page.locator('.dpest')).toContainText('Pest activity');
   await page.locator('.dsel > summary').click();
@@ -82,16 +82,23 @@ test('dashboard links open Findings filtered to what was clicked, for the picked
   const back = async () => { await page.locator('#navMain [data-go="dashboard"]').click(); await expect(page.locator('.dhero')).toBeVisible(); };
   const chip = page.locator('[data-act="clear-comms"]');
 
-  const found = await num('.dbig > :nth-child(1)');
-  await page.locator('.dbig > :nth-child(1)').click();
+  const found = await num('.dhero > .dbig > :nth-child(1)');
+  await page.locator('.dhero > .dbig > :nth-child(1)').click();
   await expect(chip).toContainText('Mountain region');
   expect(await count()).toBe(found);
   await back();
 
-  const done = await num('.dbig > :nth-child(2)');
-  await page.locator('.dbig > :nth-child(2)').click();
+  const done = await num('.dhero > .dbig > :nth-child(2)');
+  await page.locator('.dhero > .dbig > :nth-child(2)').click();
   await expect(page.locator('#f-cap')).toHaveValue('closed');
   expect(await count()).toBe(done);
+  await back();
+
+  const risk = await num('.drisk > :nth-child(1)');
+  await page.locator('.drisk > :nth-child(1)').click();
+  await expect(page.locator('#f-crit')).toHaveValue('Critical');
+  await expect(page.locator('#f-cap')).toHaveValue('open');
+  expect(await count()).toBe(risk);
   await back();
 
   const crit = Number(await page.locator('.dmixlab [data-crit="Critical"] b').textContent());

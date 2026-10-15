@@ -2,7 +2,7 @@
  * Enterprise dashboard: the program's impact at a glance for the communities the reader picks.
  * Every number and panel links to the page with the detail behind it.
  */
-import { type Model } from './model';
+import { type Audit, type Model } from './model';
 import { esc, fmtDate } from './util';
 import { inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
 import { communitiesOfFocus } from './views-roles';
@@ -139,6 +139,22 @@ function challenges(m: Model, top: Challenge[]): string {
     }).join('')}</div></section>`;
 }
 
+/** Risk and speed: open high-risk (critical) issues, and how fast action plans get approved. Target: 10 days. */
+function riskRow(A: Audit[]): string {
+  const items = A.flatMap((a) => a.items);
+  const open = items.filter((f) => f.criticality === 'Critical' && !isRemediated(f));
+  const comms = new Set(open.map((f) => f.audit.community)).size;
+  const days = A.filter((a) => a.items.length && a.capState === 'closed' && a.cap).map((a) => Math.round((Date.parse(a.cap!.approved || a.cap!.completed || a.cap!.submitted) - Date.parse(a.date)) / 864e5)).filter((d) => !Number.isNaN(d)).sort((x, y) => x - y);
+  const med = days.length ? (days.length % 2 ? days[(days.length - 1) / 2] : Math.round((days[days.length / 2 - 1] + days[days.length / 2]) / 2)) : null;
+  const in10 = days.filter((d) => d <= 10).length;
+  const r10 = days.length ? Math.round((in10 / days.length) * 100) : 0;
+  return `<div class="dmix"><span class="dl">Risk and speed</span><div class="dbig drisk">
+    ${bigBox('Open high-risk issues', String(open.length), { tone: open.length ? 'bad' : 'good', go: 'findings', crit: 'Critical', cap: 'open', sub: open.length ? `at ${comms} ${comms === 1 ? 'community' : 'communities'} · target 0` : 'target 0' })}
+    ${bigBox('Median days to an approved plan', med == null ? '–' : String(med), { tone: med != null && med <= 10 ? 'good' : 'warn', sub: 'target 10 or fewer' })}
+    ${bigBox('Plans approved within 10 days', r10 + '%', { tone: r10 >= 90 ? 'good' : 'warn', meter: r10, sub: `${in10} of ${days.length} approved plans` })}
+  </div></div>`;
+}
+
 export function dashboard(m: Model, v: ViewState): string {
   const { inReg, region: selLabel, where } = regionFilter(m);
   const all = latestPerKitchen(inRound(m, v));
@@ -170,6 +186,7 @@ export function dashboard(m: Model, v: ViewState): string {
         ${bigBox('Remediation rate', sn.rate + '%', { tone: 'good', meter: sn.rate })}
       </div>
       ${critMix(items)}
+      ${riskRow(A)}
     </section>
 
     ${challenges(m, sn.top)}
