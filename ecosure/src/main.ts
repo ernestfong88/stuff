@@ -108,6 +108,8 @@ function render(): void {
   else if (route === 'import') html = importView(model, V, queue, stored, thumbs, mergeRecords(seed, stored));
   else if (route === 'settings') html = settingsView(model, V);
   else html = community(model, V, route.slice(2), routeArg);
+  // Every page other than the dashboard gets a way straight back to it.
+  if (route !== 'dashboard') html = `<button class="backbtn" data-go="dashboard"><span aria-hidden="true">←</span> Back to dashboard</button>` + html;
   main.innerHTML = html;
   bindPage();
   if (route === 'playbook' && routeArg && !playbookScrolled) { playbookScrolled = true; document.getElementById('p-' + routeArg)?.scrollIntoView({ block: 'start' }); }

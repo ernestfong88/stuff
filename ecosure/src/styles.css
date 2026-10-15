@@ -807,3 +807,6 @@ details.chalrow .chev { margin-top: 10px; }
 .capbox.mit { background: var(--maj-bg); border-left: 3px solid var(--maj); }
 .find > .btn { margin-top: 8px; }
 .dbig .ds .dsl1, .dbig .ds .mitg, .dbig .ds .rawg { display: block; }
+.backbtn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent); padding: 5px 10px 5px 6px; margin: 0 0 10px -6px; border-radius: 8px; }
+.backbtn:hover { background: var(--sunk); }
+.backbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

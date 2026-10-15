@@ -120,3 +120,12 @@ test('a high-risk finding made safe on site shows as immediate risk remediated',
   await expect(page.locator('.dhero > .dbig > :nth-child(3)')).toContainText('High-risk issues identified');
   await expect(page.locator('.dhero > .dbig > :nth-child(3) .mitg')).toContainText('immediate risk remediated');
 });
+
+test('every page has a back button to the dashboard', async ({ page }) => {
+  for (const r of ['findings', 'priorities', 'trends', 'playbook', 'import', 'settings', 'c-park-terrace']) {
+    await page.goto('/#' + r);
+    await page.locator('.backbtn').click();
+    await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
+  }
+  await expect(page.locator('.backbtn')).toHaveCount(0);
+});

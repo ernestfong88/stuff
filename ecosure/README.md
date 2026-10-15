@@ -10,7 +10,7 @@ The sidebar has:
 3. **More detail**, a folded section of reference pages
 4. **Manage**, a folded section only Editors see
 
-Communities are listed by their Kisco abbreviation (AIP, CAR, RIV and so on, the "Short name" in Settings) everywhere. The full name shows on hover and next to the abbreviation on the community page. Every list starts with its top 5. Readers can expand it or open folded sections for more.
+Every page other than the dashboard has a **Back to dashboard** button at the top. Communities are listed by their Kisco abbreviation (AIP, CAR, RIV and so on, the "Short name" in Settings) everywhere. The full name shows on hover and next to the abbreviation on the community page. Every list starts with its top 5. Readers can expand it or open folded sections for more.
 
 ### Executive dashboard
 
