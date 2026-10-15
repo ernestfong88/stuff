@@ -789,3 +789,21 @@ li.chalrow .cn:focus-visible { outline: 2px solid var(--accent); outline-offset:
 .cbody p { display: grid; grid-template-columns: 176px minmax(0, 1fr); gap: 8px; }
 .cbody .cl { min-width: 0; margin: 2px 0 0; }
 @media (max-width: 760px) { .cbody p { display: block; } }
+details.chalrow > summary { align-items: start; }
+details.chalrow > summary .rank { margin-top: 2px; }
+details.chalrow .cn { text-align: right; font-size: 13px; color: var(--muted); }
+details.chalrow .cn b { display: block; font-family: var(--display); font-size: 30px; color: var(--ink, inherit); line-height: 1; margin: 0; }
+details.chalrow .chev { margin-top: 10px; }
+.cbody .cl.cd { color: var(--maj); }
+.chalbody > .btn { grid-column: 1 / -1; justify-self: start; }
+.chalbody .chsec + .chsec { margin-top: 10px; }
+.chalbody .chsec p { margin: 0; font-size: 14px; }
+.chalbody .caution ul { margin: 0; padding-left: 18px; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.chalbody .caution .dl { color: var(--maj); }
+@media (max-width: 760px) { details.chalrow > summary { grid-template-columns: 28px minmax(0, 1fr) 14px; } details.chalrow .cn { grid-column: 2; grid-row: 2; text-align: left; } details.chalrow .chev { grid-column: 3; grid-row: 1; } }
+.mitg { color: var(--maj); font-weight: 600; }
+.rawg { color: var(--crit); font-weight: 600; }
+.dhl .warn { color: var(--maj); }
+.capbox.mit { background: var(--maj-bg); border-left: 3px solid var(--maj); }
+.find > .btn { margin-top: 8px; }
+.dbig .ds .dsl1, .dbig .ds .mitg, .dbig .ds .rawg { display: block; }

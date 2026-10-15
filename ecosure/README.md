@@ -22,15 +22,15 @@ The page then shows, in order:
 1. **Quarter snapshot:** one sentence and four numbers.
    - **Issues found,** split by criticality
    - **Resolved,** as a percentage
-   - **Open high-risk (critical) issues,** against a target of 0
+   - **High-risk (critical) issues identified,** with how many are resolved, how many have the immediate risk remediated while the full solution is in progress (yellow), and how many are still open (red)
    - **Median days from audit to an action plan on file,** against a target of 10
 
    Each number opens the matching findings.
 2. **Top 3 challenges,** ranked by impact on the score. Each shows the issue count and two lines:
    - **Trend:** how many kitchens it hit, where it is concentrated, and what it mainly was, matched from the auditors' notes (`PATTERNS` in `src/cautions.ts`)
-   - **Next quarter SME focus:** one line per standard (`FOCUS` in `src/cautions.ts`)
+   - **Next quarter CD focus:** what each community's Culinary Director will do, one line per standard (`FOCUS` in `src/cautions.ts`)
 
-   The issue count opens those findings.
+   Open a challenge for why it matters, what teams did, what the CD should check (`CAUTIONS`) and what to have in place, with a link to the findings.
 3. **Pest tracker,** with two tabs:
    - **Pest activity,** in red: a critical finding that needs action now
    - **Prevention gaps,** in yellow
@@ -107,6 +107,7 @@ A CAP attaches to the report with the same kitchen and audit date (EcoSure's "An
 ## Rules the site applies
 
 - **Score bands:** 85 and up is good, 70 to 84 is a warning, below 70 is a community of focus. Critical findings cost 5 points, Major 3, Minor 1.
+- **Immediate risk remediated:** an Editor can mark an open high-risk finding as made safe on site (for example, food discarded or sanitizer changed) while the action plan is still to come. It shows in yellow as "Immediate risk remediated · full solution in progress" and is stored in Settings (`mitigated`). The button is on the finding card.
 - **Resolved (remediated):** a finding is resolved once it is on a corrective action plan filed in EcoSure, whatever the plan's approval status.
 - **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP needed** tag in the sidebar community list (a yellow dot means a plan is filed but not yet approved; a key sits under the search box), and as a banner on the community page.
 - **CAP status:**

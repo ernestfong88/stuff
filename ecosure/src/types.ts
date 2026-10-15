@@ -116,5 +116,6 @@ export interface Settings {
   capDueDays: number; // days after the audit a CAP should be submitted
   cycleDays: number; // a community is overdue for an audit after this many days
   selfAuditDays?: number; // a self-audit is expected this often
+  mitigated?: string[]; // findings ("<audit key>|<standard>") whose immediate risk was remediated while the full solution is in progress
   updatedAt: string;
 }

@@ -95,7 +95,7 @@ function pestTracker(m: Model, fs: Finding[]): string {
   const cur = PEST_TAB === 'activity' ? act : prev;
   const t = top('dash-pest-' + PEST_TAB, cur, 5, 'communities');
   const join = (xs: string[]) => [...new Set(xs.filter(Boolean))].join(' ');
-  // What to confirm with the team: the SME questions for the standards cited.
+  // What to confirm with the team: the follow-up questions for the standards cited.
   const verify = (list: Finding[]) => [...new Set(list.flatMap((f) => CAUTIONS[f.short] ?? []))].slice(0, 3);
   const row = (r: (typeof cur)[number]) => {
     const found = join(r.list.map((f) => f.comment)) || join(r.list.map((f) => pestLabel(f)));
@@ -118,38 +118,63 @@ function pestTracker(m: Model, fs: Finding[]): string {
   </section>`;
 }
 
-/** The top 3 challenges, one line each for the trend and next quarter's SME focus. */
-function challenges(top: Challenge[], total: number): string {
+/** The top 3 challenges: the trend and next quarter's Culinary Director (CD) focus, with the detail one click away. */
+function challenges(m: Model, top: Challenge[], total: number): string {
   if (!top.length) return '';
-  return `<section class="chal" aria-label="Top 3 challenges"><header><h3>Top 3 challenges</h3><p>Ranked by impact on the score.</p></header>
-    <ol class="challist">${top.map((t, i) => `<li class="chalrow">
-      <span class="rank">${i + 1}</span>
-      <div class="cbody">
-        <div class="ct"><b>${esc(t.title)}</b><span class="chip c-${t.crit}">${t.crit}</span></div>
-        <p><span class="cl">Trend</span>${t.kitchens} of ${total} kitchens (${t.share}%)${t.region ? `, most in ${esc(t.region.name)} (${t.region.k})` : ''}${t.mostly.length ? `; mainly ${esc(t.mostly.join(' and '))}` : ''}.</p>
-        <p><span class="cl sme">Next quarter SME focus</span>${esc(t.focus)}</p>
-      </div>
-      <button class="cn" data-act="std-photos:${esc(t.short)}" title="See these findings"><b>${t.n}</b>${t.n === 1 ? 'issue' : 'issues'}</button>
-    </li>`).join('')}</ol></section>`;
+  const sec = (label: string, body: string) => (body ? `<div class="chsec"><span class="dl">${label}</span>${body}</div>` : '');
+  const list = (xs: string[]) => (xs.length ? `<ul>${xs.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '');
+  return `<section class="chal" aria-label="Top 3 challenges"><header><h3>Top 3 challenges</h3><p>Ranked by impact on the score. Open one for the detail.</p></header>
+    <div class="challist">${top.map((t, i) => {
+      const key = 'chal-' + i;
+      return `<details class="chalrow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>
+        <span class="rank">${i + 1}</span>
+        <div class="cbody">
+          <div class="ct"><b>${esc(t.title)}</b><span class="chip c-${t.crit}">${t.crit}</span></div>
+          <p><span class="cl">Trend</span><span>${t.kitchens} of ${total} kitchens (${t.share}%)${t.region ? `, most in ${esc(t.region.name)} (${t.region.k})` : ''}${t.mostly.length ? `; mainly ${esc(t.mostly.join(' and '))}` : ''}.</span></p>
+          <p><span class="cl cd">Next quarter CD focus</span><span>${esc(t.focus)}</span></p>
+        </div>
+        <span class="cn"><b>${t.n}</b>${t.n === 1 ? 'issue' : 'issues'}</span>
+        <span class="chev" aria-hidden="true"></span></summary>
+      <div class="chalbody">
+        <div>
+          ${sec('Why it matters', t.why ? `<p>${esc(t.why)}</p>` : '')}
+          ${sec('What teams did', t.themes.length ? `<ul class="chdid">${t.themes.map((x) => `<li><span>${esc(x.label.charAt(0).toUpperCase() + x.label.slice(1))}</span><b>${x.k} ${x.k === 1 ? 'kitchen' : 'kitchens'}</b></li>`).join('')}</ul>${t.example ? `<blockquote>“${esc(t.example.text)}”<cite>${esc(shortOf(m, t.example.who))}</cite></blockquote>` : ''}` : '')}
+        </div>
+        <div class="chsec caution">
+          ${sec('What the CD should check', list(t.cautions))}
+          ${sec('What to have in place', list(t.have))}
+        </div>
+        <button class="btn ghost sm" data-act="std-photos:${esc(t.short)}">See all ${t.n} findings</button>
+      </div></details>`;
+    }).join('')}</div></section>`;
 }
 
 /** The four numbers at the top: issues found, resolved, open high-risk (critical), and days from audit to a plan on file (target 10). */
-function headline(A: Audit[]): { tiles: string; open: number; comms: number } {
+function headline(A: Audit[], where: string): { tiles: string; line: string } {
   const items = A.flatMap((a) => a.items);
   const done = items.filter(isRemediated).length;
   const rate = items.length ? Math.round((done / items.length) * 100) : 0;
   const n = (x: string) => items.filter((f) => f.criticality === x).length;
-  const open = items.filter((f) => f.criticality === 'Critical' && !isRemediated(f));
-  const comms = new Set(open.map((f) => f.audit.community)).size;
+  // High-risk = EcoSure's critical findings. Open ones are either untouched (red) or made safe on site with the full fix in progress (yellow).
+  const crit = items.filter((f) => f.criticality === 'Critical');
+  const critDone = crit.filter(isRemediated).length;
+  const open = crit.filter((f) => !isRemediated(f));
+  const mit = open.filter((f) => f.mitigated), raw = open.filter((f) => !f.mitigated);
+  const codes = (fs: Finding[]) => [...new Set(fs.map((f) => f.audit.community))].length;
   const days = A.filter((a) => a.items.length && a.cap && (a.cap.submitted || a.cap.approved)).map((a) => Math.round((Date.parse(a.cap!.submitted || a.cap!.approved) - Date.parse(a.date)) / 864e5)).filter((d) => !Number.isNaN(d)).sort((x, y) => x - y);
   const med = days.length ? (days.length % 2 ? days[(days.length - 1) / 2] : Math.round((days[days.length / 2 - 1] + days[days.length / 2]) / 2)) : null;
+  const critSub = [`<span class="dsl1">${critDone} resolved</span>`, mit.length ? `<span class="mitg">${mit.length} immediate risk remediated, full solution in progress</span>` : '', raw.length ? `<span class="rawg">${raw.length} open at ${codes(raw)} ${codes(raw) === 1 ? 'community' : 'communities'}</span>` : ''].filter(Boolean).join('');
   const tiles = `<div class="dbig dfour">
     ${bigBox('Issues found', String(items.length), { go: 'findings', sub: `${n('Critical')} critical · ${n('Major')} major · ${n('Minor')} minor` })}
     ${bigBox('Resolved', rate + '%', { tone: 'good', go: 'findings', cap: 'closed', meter: rate, sub: `${done} of ${items.length}` })}
-    ${bigBox('Open high-risk issues', String(open.length), { tone: open.length ? 'bad' : 'good', go: 'findings', crit: 'Critical', cap: 'open', sub: open.length ? `at ${comms} ${comms === 1 ? 'community' : 'communities'} · target 0` : 'target 0' })}
+    ${bigBox('High-risk issues identified', String(crit.length), { tone: raw.length ? 'bad' : mit.length ? 'warn' : 'good', go: 'findings', crit: 'Critical', sub: critSub })}
     ${bigBox('Days to a plan on file', med == null ? '–' : String(med), { tone: med != null && med <= 10 ? 'good' : 'warn', sub: 'median · target 10 or fewer' })}
   </div>`;
-  return { tiles, open: open.length, comms };
+  const line = `EcoSure found <b>${items.length} issues</b> across ${A.length} kitchens${where ? ` ${esc(where)}` : ''}, <b>${crit.length} of them high-risk</b>. <b class="good">${rate}%</b> are resolved` +
+    (raw.length ? `; <b class="bad">${raw.length} high-risk ${raw.length === 1 ? 'remains' : 'remain'} open</b>` : '') +
+    (mit.length ? `; ${raw.length ? '' : 'the '}<b class="warn">${mit.length} high-risk ${mit.length === 1 ? 'issue has' : 'issues have'}</b> the immediate risk remediated, with the full solution in progress` : '') +
+    (!open.length ? ', with no high-risk issues open' : '') + '.';
+  return { tiles, line };
 }
 
 export function dashboard(m: Model, v: ViewState): string {
@@ -158,7 +183,7 @@ export function dashboard(m: Model, v: ViewState): string {
   const A = all.filter((a) => inReg(a.community));
   const items = A.flatMap((a) => a.items);
   const sn = snapshot(m, v, inReg);
-  const hl = headline(A);
+  const hl = headline(A, where);
   const latestDate = m.audits.reduce((x, a) => (a.date > x ? a.date : x), '');
 
   // Communities of focus: the qualifying reasons from the latest quarterly audit, without status detail.
@@ -177,11 +202,11 @@ export function dashboard(m: Model, v: ViewState): string {
     ${chosen(m).length ? '' : '<div class="okbox">No communities selected. Open the Communities list above and pick at least one.</div>'}
 
     <section class="dhero" aria-label="Quarter snapshot">
-      <p class="dhl">EcoSure found <b>${sn.found} issues</b> across ${sn.kitchens} kitchens${where ? ` ${esc(where)}` : ''}. <b class="good">${sn.rate}%</b> are resolved${hl.open ? `; <b class="bad">${hl.open} high-risk</b> ${hl.open === 1 ? 'remains' : 'remain'} open at ${hl.comms} ${hl.comms === 1 ? 'community' : 'communities'}` : ', and no high-risk issues are open'}.</p>
+      <p class="dhl">${hl.line}</p>
       ${hl.tiles}
     </section>
 
-    ${challenges(sn.top, sn.kitchens)}
+    ${challenges(m, sn.top, sn.kitchens)}
 
     <div class="dgrid">${pestTracker(m, items)}</div>
 

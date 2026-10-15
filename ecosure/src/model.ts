@@ -7,6 +7,9 @@ import ROSTER from './data/roster.json';
 import type { Cap, CapItem, Community, Crit, Item, Rec, Report, Round, SelfAudit, Settings } from './types';
 import { addDays, avg, daysBetween, norm, slug, todayIso } from './util';
 
+/** Stable id for a finding in Settings.mitigated: the audit plus the standard, so re-imports keep it. */
+export const mitigationKey = (f: { audit: { key: string }; short: string }) => `${f.audit.key}|${f.short}`;
+
 export const DEFAULT_SETTINGS: Settings = {
   roster: ROSTER as Community[],
   rounds: [
@@ -14,6 +17,8 @@ export const DEFAULT_SETTINGS: Settings = {
     { name: 'Q4 2026', start: '2026-10-10', end: '2026-12-31' },
     { name: 'Q1 2027', start: '2027-01-01', end: '2027-03-31' },
   ],
+  // Both corrected on site at the audit (sanitizer changed; rice discarded); action plans still to file.
+  mitigated: ['balfour-cherrywood|Main Kitchen|2026-09-17|3-comp sink sanitizer concentration', 'park-terrace|Main Kitchen|2026-10-09|Hot holding at 135°F or above'],
   capDueDays: 10,
   cycleDays: 100,
   selfAuditDays: 30,
@@ -50,6 +55,7 @@ export interface Finding extends Item {
   audit: Audit;
   capItem: CapItem | null;
   repeat: boolean; // same standard was cited at this kitchen's previous audit
+  mitigated: boolean; // immediate risk remediated, full solution in progress (set by an Editor)
 }
 
 export interface Audit {
@@ -201,7 +207,7 @@ export function buildModel(recs: Rec[], settings: Settings, today = todayIso()):
   const byKey = new Map<string, Audit>();
   for (const r of reports.sort((a, b) => a.importedAt.localeCompare(b.importedAt))) {
     const a = mk(r.community, r.kitchen, r.date, r);
-    a.items = r.items.map((i, n) => ({ ...i, key: `${a.key}|${n}`, audit: a, capItem: null, repeat: false }));
+    a.items = r.items.map((i, n) => ({ ...i, key: `${a.key}|${n}`, audit: a, capItem: null, repeat: false, mitigated: false }));
     byKey.set(a.key, a);
   }
 
@@ -220,7 +226,7 @@ export function buildModel(recs: Rec[], settings: Settings, today = todayIso()):
         const crit = critFor(ci.question, ci.cid);
         return { cid: ci.cid, section: sectionFor(ci.question, ci.cid), subsection: findStandard(ci.question, ci.cid)?.sub || ci.touch, question: ci.question,
           short: shortLabel(ci.question, ci.cid), criticality: crit, points: POINTS[crit], comment: ci.comment, findings: ci.subs, photos: ci.photos,
-          key: `${host.key}|${n}`, audit: host, capItem: null, repeat: false };
+          key: `${host.key}|${n}`, audit: host, capItem: null, repeat: false, mitigated: false };
       });
     }
     a.cap = cap;
@@ -248,6 +254,10 @@ export function buildModel(recs: Rec[], settings: Settings, today = todayIso()):
     audits.push(a);
   }
   audits.sort((x, y) => x.community.localeCompare(y.community) || x.kitchen.localeCompare(y.kitchen) || x.date.localeCompare(y.date));
+
+  // Immediate risk remediated while the full solution is in progress, as recorded by an Editor.
+  const mit = new Set(settings.mitigated ?? []);
+  for (const a of audits) for (const f of a.items) f.mitigated = mit.has(mitigationKey(f));
 
   // Repeat findings: cited again at the same kitchen's next audit.
   const byKitchen = new Map<string, Audit[]>();

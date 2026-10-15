@@ -3,7 +3,7 @@ import { THEMES, SECTIONS, themeOf } from './catalog';
 import { CRIT_COLOR, bars, critLegend, scoreLine } from './charts';
 import {
   CAP_LABEL, CAP_TONE, scoreBand,
-  type Audit, type CommunityView, type Finding, type Model, capMissing, capMissingText,
+  type Audit, type CommunityView, type Finding, type Model, capMissing, capMissingText, mitigationKey,
 } from './model';
 import { fileUrl, photoUrl } from './store';
 import { themeHeat } from './views-roles';
@@ -127,7 +127,7 @@ export function community(m: Model, v: ViewState, slugKey: string, auditKey: str
   }).join('')}</div>` : '';
   const findingsBody = items.length ? `<div class="toolbar"><span class="lbl">Show</span>${['all', 'Critical', 'Major', 'Minor'].map((k) => `<button class="fbtn" data-crit="${k}" aria-pressed="${fil.crit === k}">${k === 'all' ? 'All' : k}<span class="n">${k === 'all' ? items.length : items.filter((i) => i.criticality === k).length}</span></button>`).join('')}
       ${multiK ? `<span class="lbl" style="margin-left:8px">Kitchen</span>${['all', ...A.map((a) => a.kitchen)].map((k) => `<button class="fbtn" data-kitchen="${esc(k)}" aria-pressed="${fil.kitchen === k}">${k === 'all' ? 'All' : esc(k)}</button>`).join('')}` : ''}</div>
-      <div class="finds">${shown.map((i) => findingCard(i, m, multiK, false)).join('') || '<div class="empty">No findings match.</div>'}</div>` : '';
+      <div class="finds">${shown.map((i) => findingCard(i, m, multiK, false, v.canWrite)).join('') || '<div class="empty">No findings match.</div>'}</div>` : '';
   const capForms = v.canWrite ? A.filter((a) => a.items.length || a.cap).map((a) => capForm(a, v)).join('') : '';
   const unmatched = A.filter((a) => a.capUnmatched.length);
   const sources = A.flatMap((a) => [a.report && { what: `${a.kitchen} report`, file: a.report.file, ref: a.report.fileRef, src: a.report.source }, a.cap && { what: `${a.kitchen} CAP (${a.cap.status})`, file: a.cap.file, ref: a.cap.fileRef, src: a.cap.source }]).filter(Boolean) as { what: string; file: string; ref?: string; src: string }[];
@@ -164,18 +164,20 @@ function capForm(a: Audit, v: ViewState): string {
     <div class="toolbar" style="margin:10px 0 0"><button class="btn" type="submit">Save CAP status</button><button class="btn quiet" type="button" data-act="cap-edit:">Cancel</button></div></form>`;
 }
 
-export function findingCard(i: Finding, m: Model, showKitchen: boolean, showCommunity: boolean): string {
+export function findingCard(i: Finding, m: Model, showKitchen: boolean, showCommunity: boolean, canWrite = false): string {
   const a = i.audit;
   const where = showCommunity ? `<button class="linkbtn" data-go="c-${a.slug}">${esc(kitchenLabel(a, m))}</button> · ${fmtDate(a.date)}` : showKitchen ? esc(a.kitchen) : '';
   const ci = i.capItem;
   const cap = ci ? `<div class="capbox"><div class="ct"><b style="color:${a.capState === 'closed' ? 'var(--good)' : 'var(--maj)'}">CAP ${esc(a.cap?.status ?? '')}</b>${ci.owner ? `<span>Owner: ${esc(ci.owner)}</span>` : ''}${ci.due ? `<span>Due ${fmtDate(ci.due)}</span>` : ''}</div>${ci.action ? `<p>${esc(ci.action)}</p>` : ''}${ci.update ? `<p class="note">Update: ${esc(ci.update)}</p>` : ''}${!ci.action && !ci.update ? '<p class="note">No action written.</p>' : ''}</div>`
+    : i.mitigated ? `<div class="capbox mit"><b>Immediate risk remediated</b> · full solution in progress. ${a.cap ? 'This finding is not on the CAP yet.' : 'No action plan filed yet.'}</div>`
     : a.items.length ? `<div class="capbox none">${a.cap ? 'This finding is not on the CAP.' : 'No CAP on file yet.'}</div>` : '';
+  const mitBtn = canWrite && !ci && i.criticality === 'Critical' ? `<button class="btn ghost sm" data-act="mitigate:${esc(mitigationKey(i))}">${i.mitigated ? 'Clear: immediate risk remediated' : 'Mark immediate risk remediated'}</button>` : '';
   return `<article class="find"><div class="top"><span class="std">${esc(plainTitle(i.short))}</span>${critChip(i.criticality)}${i.repeat ? '<span class="repeat" title="Also cited at this kitchen\'s previous audit">REPEAT</span>' : ''}${where ? `<span class="where">${where}</span>` : ''}<span class="pts">${i.cid ? esc(i.cid) + ' · ' : ''}${i.points ? '-' + i.points + ' pts' : 'unrated'}</span></div>
     <p class="q">${esc(i.section)}${i.subsection ? ' / ' + esc(i.subsection) : ''}: ${esc(i.question)}</p>
     ${i.comment ? `<p class="cm">${esc(i.comment)}</p>` : ''}
     ${i.findings.length ? `<ul class="fl">${i.findings.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}
     ${i.photos.length ? `<div class="thumbs">${i.photos.map((p, n) => `<button data-photo="${esc(i.key)}" data-n="${n}" aria-label="Open photo ${n + 1} of ${esc(i.short)}"><img loading="lazy" src="${esc(photoUrl(p))}" alt="${esc(i.short)}"></button>`).join('')}</div>` : ''}
-    ${cap}</article>`;
+    ${cap}${mitBtn}</article>`;
 }
 
 /* ---------- findings explorer ---------- */
@@ -217,7 +219,7 @@ export function findings(m: Model, v: ViewState): string {
       <span class="grow"></span>${active ? '<button class="btn quiet sm" data-act="clear-filters">Clear filters</button>' : ''}<button class="btn ghost sm" data-act="csv-findings">Download CSV</button></div></div>
     <section class="block"><h3>${f.std ? esc(plainTitle(f.std)) : 'Top 5 issues'} <span class="sm">${plural(list.length, 'finding')} in ${plural(new Set(list.map((i) => i.audit.community)).size, 'community', 'communities')}</span></h3>
       ${f.std ? '' : bars(byStd.slice(0, 5).map(([s, n]) => ({ label: plainTitle(s), value: n, act: 'std:' + s, segs: [{ v: n, color: CRIT_COLOR[critOf(s)], title: critOf(s) }] })))}</section>
-    <section class="block"><div class="finds">${list.slice(0, f.limit).map((i) => findingCard(i, m, true, true)).join('') || '<div class="empty">No findings match these filters.</div>'}</div>
+    <section class="block"><div class="finds">${list.slice(0, f.limit).map((i) => findingCard(i, m, true, true, v.canWrite)).join('') || '<div class="empty">No findings match these filters.</div>'}</div>
     ${list.length > f.limit ? `<p class="more"><button class="btn quiet sm" data-act="more">Show ${Math.min(10, list.length - f.limit)} more of ${list.length - f.limit}</button></p>` : ''}</section>`;
 }
 

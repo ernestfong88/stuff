@@ -358,6 +358,12 @@ async function doAct(a: string): Promise<void> {
   else if (k === 'repeat') toFindings({ std: arg, repeat: true });
   else if (k === 'round') { V.round = arg; rerender(); }
   else if (k === 'clear-std') { V.f.std = ''; rerender(); }
+  else if (k === 'mitigate') {
+    // Editors record that a high-risk finding's immediate risk is remediated while the full solution is in progress.
+    const cur = new Set(settings.mitigated ?? []);
+    if (cur.has(arg)) cur.delete(arg); else cur.add(arg);
+    await saveSettings({ ...settings, mitigated: [...cur] });
+  }
   else if (k === 'clear-comms') { V.f.comms = null; V.f.commsLabel = ''; rerender(); }
   else if (k === 'share') copyText(shareUrl(), 'Link copied. Anyone you have shared the page with can open it.');
   else if (k === 'copy-summary') { const r = regionFilter(model); copyText(briefingText(model, V, SHARE_BASE || location.href.split('#')[0], r.inReg, r.region), 'Summary copied. Paste it into an email or Teams message.'); }

@@ -14,8 +14,10 @@ export const remediated = (fs: Finding[]) => fs.filter(isRemediated).length;
 /** One status for a finding, or for a group of findings (the least finished one wins). */
 export function status(fs: Finding[]): [string, string] {
   if (fs.every(isRemediated)) return ['Remediated', 'good'];
+  if (fs.every((f) => isRemediated(f) || f.mitigated)) return [MITIGATED, 'warn'];
   return ['No CAP yet', 'bad'];
 }
+export const MITIGATED = 'Immediate risk remediated · full solution in progress';
 export const statusChip = (fs: Finding[]) => { const [t, tone] = status(fs); return `<span class="chip t-${tone} plain">${t}</span>`; };
 
 /** EcoSure's Insects/Rodents/Animals section. 10.1.1 is pest activity seen at the visit, a critical finding. */

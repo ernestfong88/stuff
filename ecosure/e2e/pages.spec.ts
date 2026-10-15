@@ -8,7 +8,10 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(chal).toHaveCount(3);
   await expect(chal.first()).toContainText('issues');
   await expect(chal.first()).toContainText('Trend');
-  await expect(chal.first()).toContainText('Next quarter SME focus');
+  await expect(chal.first()).toContainText('Next quarter CD focus');
+  await chal.first().locator('summary').click();
+  await expect(chal.first()).toContainText('What the CD should check');
+  await expect(chal.first().locator('.chdid li').first()).toContainText('kitchen');
   const pest = page.locator('.dpest');
   await expect(pest.locator('[data-act="pest:activity"]')).toHaveAttribute('aria-pressed', 'true');
   await pest.locator('.prow summary').first().click();
@@ -92,12 +95,12 @@ test('dashboard links open Findings filtered to what was clicked, for the picked
   const risk = await num('.dhero > .dbig > :nth-child(3)');
   await page.locator('.dhero > .dbig > :nth-child(3)').click();
   await expect(page.locator('#f-crit')).toHaveValue('Critical');
-  await expect(page.locator('#f-cap')).toHaveValue('open');
   expect(await count()).toBe(risk);
   await back();
 
   const chal = page.locator('.chalrow').first();
   const n = Number(await chal.locator('.cn b').textContent());
+  await chal.locator('summary').click();
   await chal.locator('[data-act^="std-photos:"]').click();
   await expect(chip).toBeVisible();
   expect(await count()).toBe(n);
@@ -108,4 +111,12 @@ test('dashboard links open Findings filtered to what was clicked, for the picked
   await expect(chip).toBeVisible();
   await chip.click();
   await expect(chip).toHaveCount(0);
+});
+
+test('a high-risk finding made safe on site shows as immediate risk remediated', async ({ page }) => {
+  await page.goto('/#c-park-terrace');
+  await expect(page.locator('.capbox.mit')).toContainText('Immediate risk remediated');
+  await page.goto('/');
+  await expect(page.locator('.dhero > .dbig > :nth-child(3)')).toContainText('High-risk issues identified');
+  await expect(page.locator('.dhero > .dbig > :nth-child(3) .mitg')).toContainText('immediate risk remediated');
 });

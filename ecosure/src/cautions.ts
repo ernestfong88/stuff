@@ -105,29 +105,29 @@ export const CAUTIONS: Record<string, string[]> = {
 };
 
 /**
- * The one thing our SMEs will focus on with teams next quarter, per standard.
- * Standards without an entry fall back to their first caution above.
+ * What each community's Culinary Director (CD) will focus on next quarter, per standard.
+ * Written as the CD's own actions. Standards without an entry fall back to their first caution above.
  */
 export const FOCUS: Record<string, string> = {
-  'Stored food-contact equipment clean (ice machines, pans)': 'Monthly ice machine deep clean with a sign-off log at every community; SMEs check behind the drop plate and under beverage nozzles on each visit.',
-  'Cold holding at 41°F or below': 'Twice-daily cooler temperature logs reviewed by the chef; SMEs probe reach-ins and cold wells on each visit and confirm units are serviced.',
-  'Food-contact surfaces in good repair': 'A replacement par for cutting boards, spatulas and fry baskets; SMEs pull worn smallwares from service on each visit.',
-  'Temperature monitoring system/logs': 'Logs filled in at the time, with corrective actions written down; SMEs spot-check readings against a calibrated probe.',
-  'Wiping cloths/sanitizer buckets': 'Test strips at every station and buckets changed every 4 hours; SMEs test a bucket on each visit.',
-  'No expired RTE product': 'A 7-day date-marking routine every shift understands, including weekends; SMEs pull a cooler sample on each visit.',
-  'Chemicals labeled': 'Every working bottle labeled at refill; SMEs check spray bottles at each station.',
-  'Food covered/wrapped in storage': 'Opened product wrapped, labeled and dated; SMEs check the walk-in on each visit.',
-  'Chemicals stored properly': 'Chemicals stored below and away from food and clean equipment; SMEs check storage areas on each visit.',
-  'Non-food contact surfaces clean/in repair': 'A realistic deep-clean schedule with sign-offs; SMEs flag build-up that points to a repair need.',
-  'Hot holding at 135°F or above': 'Hot-holding units preheated and probed every 2 hours; SMEs confirm food below 135°F is discarded, not reheated.',
-  'Refrigeration gaskets clean/in repair': 'Gaskets on the weekly cleaning list and torn ones replaced; SMEs confirm work orders are closed.',
-  'Food storage hierarchy': 'Raw below ready-to-eat in every cooler, including after deliveries; SMEs check the walk-in on each visit.',
-  'Cross contamination prevented': 'Separate boards, utensils and gloves for raw and ready-to-eat food; SMEs observe prep during visits.',
-  'In-use utensils stored properly': 'Scoops and utensils stored handle-up and out of the food; SMEs check bins and wells on each visit.',
-  'Hand sinks accessible, handwash only': 'Hand sinks clear and stocked through service; SMEs check them on each visit.',
-  'Proper cooling before cold holding': 'A cooling log for every batch and the right tools (ice baths, shallow pans); SMEs match cooled items to the log.',
-  'Floors, walls, ceilings clean/in repair': 'Repairs that could let pests in closed out; SMEs follow up on open work orders.',
-  'No critical pest activity': 'Licensed pest control visits with service reports on file and entry points sealed; SMEs confirm within 48 hours of any sighting.',
+  'Stored food-contact equipment clean (ice machines, pans)': 'Run a monthly ice machine deep clean with a sign-off log, and check behind the drop plate and under beverage nozzles every week.',
+  'Cold holding at 41°F or below': 'Review cooler temperature logs twice a day, probe reach-ins and cold wells weekly, and get any unit running warm serviced.',
+  'Food-contact surfaces in good repair': 'Keep a replacement par for cutting boards, spatulas and fry baskets, and pull worn smallwares from service at a monthly check.',
+  'Temperature monitoring system/logs': 'Make sure logs are filled in at the time with corrective actions written down, and spot-check readings against a calibrated probe weekly.',
+  'Wiping cloths/sanitizer buckets': 'Put test strips at every station, change buckets every 4 hours, and test one bucket on every walk-through.',
+  'No expired RTE product': 'Run a 7-day date-marking routine every shift understands, including weekends, and pull a cooler sample weekly.',
+  'Chemicals labeled': 'Label every working bottle at refill and check spray bottles at each station weekly.',
+  'Food covered/wrapped in storage': 'Wrap, label and date opened product, and check the walk-in weekly.',
+  'Chemicals stored properly': 'Store chemicals below and away from food and clean equipment, and check storage areas weekly.',
+  'Non-food contact surfaces clean/in repair': 'Set a realistic deep-clean schedule with sign-offs, and turn build-up that points to a repair into a work order.',
+  'Hot holding at 135°F or above': 'Preheat hot-holding units, probe every 2 hours, and discard food below 135°F rather than reheat it.',
+  'Refrigeration gaskets clean/in repair': 'Put gaskets on the weekly cleaning list, replace torn ones, and close out the work orders.',
+  'Food storage hierarchy': 'Keep raw below ready-to-eat in every cooler, including after deliveries, and check the walk-in weekly.',
+  'Cross contamination prevented': 'Use separate boards, utensils and gloves for raw and ready-to-eat food, and watch prep during service.',
+  'In-use utensils stored properly': 'Store scoops and utensils handle-up and out of the food, and check bins and wells during service.',
+  'Hand sinks accessible, handwash only': 'Keep hand sinks clear and stocked through service, with someone named to restock each shift.',
+  'Proper cooling before cold holding': 'Keep a cooling log for every batch with ice baths and shallow pans on hand, and match cooled items to the log weekly.',
+  'Floors, walls, ceilings clean/in repair': 'Close out repairs that could let pests in, and follow up on open work orders weekly.',
+  'No critical pest activity': 'Have a licensed pest control visit within 48 hours of any sighting, keep the service report on file, and seal entry points.',
 };
 
 /** What an issue mostly is, matched against the auditor's notes, for the "trend" line. */
