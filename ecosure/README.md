@@ -19,8 +19,13 @@ Built for a COO or VP of operations to scan in a minute.
 - **Communities picker:** a dropdown of every community, grouped by region. Tick a whole region or single communities, or search. Everything on the page, and Copy as email, follows the selection. Each viewer's choice is remembered in their browser, so a VP picks their communities once.
 
 The page then shows, in order:
-1. **Quarter snapshot:** one line on violations found and the remediation rate. Below it are three numbers (violations identified, remediated, remediation rate) and one bar splitting violations by criticality.
-   - **Risk and speed:** open high-risk (critical) issues, the median days from audit to an approved action plan, and the share approved within 10 days.
+1. **Quarter snapshot:** one sentence and four numbers.
+   - **Issues found,** split by criticality
+   - **Resolved,** as a percentage
+   - **Open high-risk (critical) issues,** against a target of 0
+   - **Median days from audit to an approved action plan,** against a target of 10
+
+   Each number opens the matching findings.
 2. **Top 3 challenges,** ranked by impact on the score. Each row shows the number of violations and kitchens. Open one to see:
    - why it matters
    - what teams did, as themes with kitchen counts plus one real action from a corrective action plan
@@ -38,7 +43,6 @@ The page then shows, in order:
 
    Expand a row for every photo, what was identified, what was remediated, what to verify with the team, and a link to those findings.
 4. **Communities of focus:** the lowest five from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats). Each opens the community page.
-5. **Top 5 issues,** each with a photo. Expand one for why it matters, the fix and more photos.
 
 **Every number and link opens the matching findings, already filtered:**
 - Violations identified opens all of them.

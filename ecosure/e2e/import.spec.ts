@@ -32,7 +32,7 @@ test('imports a report and its CAP, then shows them on the community page', asyn
   await expect(page.locator('.find .thumbs img')).toHaveCount(3);
 
   // The CAP is still Pending, so nothing is remediated yet and the challenges show it in progress.
-  await expect(page.locator('.dhl')).toContainText('remediated 0%');
+  await expect(page.locator('.dhl')).toContainText('0% are resolved');
   await expect(page.locator('.dtop3 .chip', { hasText: 'In progress' }).first()).toBeVisible();
 });
 

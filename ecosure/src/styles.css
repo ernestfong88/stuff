@@ -769,3 +769,6 @@ ul.plain { margin: 0; padding-left: 18px; } ul.plain li { margin: 0 0 6px; }
 .navlegend .pill { font-size: 10px; padding: 0 5px; margin-right: -3px; }
 .navlegend .pill:last-of-type { margin-right: 3px; }
 .navlegend .pill { font-family: var(--mono); border-radius: 99px; font-variant-numeric: tabular-nums; }
+.dbig.dfour { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dhl .bad { color: var(--crit); }
+@media (max-width: 900px) { .dbig.dfour { grid-template-columns: 1fr 1fr; } }

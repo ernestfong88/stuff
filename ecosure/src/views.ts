@@ -103,11 +103,11 @@ export function community(m: Model, v: ViewState, slugKey: string, auditKey: str
   // The same snapshot as the dashboard, for this community's audit.
   const pestAct = sn.pests.filter(isActivity);
   const hero = `<section class="dhero" aria-label="Audit snapshot">
-    <p class="dhl">EcoSure found <b>${sn.found} violations</b> on ${fmtDate(selDate)}. The team has remediated <b class="good">${sn.rate}%</b> of them.</p>
+    <p class="dhl">EcoSure found <b>${sn.found} issues</b> on ${fmtDate(selDate)}. <b class="good">${sn.rate}%</b> are resolved.</p>
     <div class="dbig">
       ${bigBox('Score', score == null ? 'Pending' : pct(score), { tone: score == null ? '' : scoreBand(score), sub: multiK || A.length > 1 ? esc(A.map((a) => `${a.kitchen} ${a.score == null ? 'pending' : pct(a.score)}`).join(' · ')) : '' })}
-      ${bigBox('Violations identified', String(sn.found), { sub: plural(sn.top.length ? new Set(items.map((f) => f.short)).size : 0, 'issue') })}
-      ${bigBox('Remediation rate', sn.rate + '%', { tone: 'good', meter: sn.rate, sub: `${sn.done} of ${sn.found} remediated` })}
+      ${bigBox('Issues found', String(sn.found), { sub: plural(sn.top.length ? new Set(items.map((f) => f.short)).size : 0, 'issue') })}
+      ${bigBox('Resolved', sn.rate + '%', { tone: 'good', meter: sn.rate, sub: `${sn.done} of ${sn.found}` })}
     </div>
     ${items.length ? critMix(items, '') : ''}
     ${sn.top.length ? `<div class="dtop3"><span class="dl">Top 3 challenges and what the team did</span><ol>${sn.top.map((t) => `<li><b>${esc(t.title)}</b><span class="xs">${t.crit}${multiK ? ` · ${esc(t.kitchens.join(', '))}` : ''}</span>${statusChip(t.fs)}<span class="did">${t.action ? esc(t.action.length > 160 ? t.action.slice(0, 157) + '...' : t.action) : 'No corrective action written yet.'}</span>${PLAYBOOK[t.short] ? `<span class="xs have">What to have in place: ${esc(PLAYBOOK[t.short].have[0])}</span>` : ''}</li>`).join('')}</ol></div>` : ''}

@@ -6,12 +6,12 @@ import { type Audit, type Model } from './model';
 import { esc, fmtDate } from './util';
 import { inRound, latestPerKitchen, roundChips, scorePill, type ViewState } from './views';
 import { communitiesOfFocus } from './views-roles';
-import { fixCard, snapshot, type Challenge } from './views-brief';
+import { snapshot, type Challenge } from './views-brief';
 import { OPEN, top } from './expand';
 import { photoUrl } from './store';
 import type { Finding } from './model';
 
-import { bigBox, critMix, isActivity, isPest, isRemediated, pestLabel, pestStatus, shortOf, status } from './views-common';
+import { bigBox, isActivity, isPest, isRemediated, pestLabel, pestStatus, shortOf, status } from './views-common';
 import { CAUTIONS } from './cautions';
 
 /* The communities the reader picked (null = all). A VP picks their set once; it is remembered in this browser. */
@@ -127,7 +127,7 @@ function challenges(m: Model, top: Challenge[]): string {
       return `<details class="chalrow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>
         <span class="rank">${i + 1}</span>
         <span class="ct"><b>${esc(t.title)}</b><span class="chip c-${t.crit}">${t.crit}</span></span>
-        <span class="cn"><b>${t.n}</b> ${t.n === 1 ? 'violation' : 'violations'}<small>in ${t.kitchens} ${t.kitchens === 1 ? 'kitchen' : 'kitchens'}</small></span>
+        <span class="cn"><b>${t.n}</b> ${t.n === 1 ? 'issue' : 'issues'}<small>in ${t.kitchens} ${t.kitchens === 1 ? 'kitchen' : 'kitchens'}</small></span>
         <span class="chev" aria-hidden="true"></span></summary>
       <div class="chalbody">
         <div class="chsec">${t.why ? `<span class="dl">Why it matters</span><p class="chwhy">${esc(t.why)}</p>` : ''}
@@ -139,20 +139,23 @@ function challenges(m: Model, top: Challenge[]): string {
     }).join('')}</div></section>`;
 }
 
-/** Risk and speed: open high-risk (critical) issues, and how fast action plans get approved. Target: 10 days. */
-function riskRow(A: Audit[]): string {
+/** The four numbers at the top: issues found, resolved, open high-risk (critical), and days to an approved plan (target 10). */
+function headline(A: Audit[]): { tiles: string; open: number; comms: number } {
   const items = A.flatMap((a) => a.items);
+  const done = items.filter(isRemediated).length;
+  const rate = items.length ? Math.round((done / items.length) * 100) : 0;
+  const n = (x: string) => items.filter((f) => f.criticality === x).length;
   const open = items.filter((f) => f.criticality === 'Critical' && !isRemediated(f));
   const comms = new Set(open.map((f) => f.audit.community)).size;
   const days = A.filter((a) => a.items.length && a.capState === 'closed' && a.cap).map((a) => Math.round((Date.parse(a.cap!.approved || a.cap!.completed || a.cap!.submitted) - Date.parse(a.date)) / 864e5)).filter((d) => !Number.isNaN(d)).sort((x, y) => x - y);
   const med = days.length ? (days.length % 2 ? days[(days.length - 1) / 2] : Math.round((days[days.length / 2 - 1] + days[days.length / 2]) / 2)) : null;
-  const in10 = days.filter((d) => d <= 10).length;
-  const r10 = days.length ? Math.round((in10 / days.length) * 100) : 0;
-  return `<div class="dmix"><span class="dl">Risk and speed</span><div class="dbig drisk">
+  const tiles = `<div class="dbig dfour">
+    ${bigBox('Issues found', String(items.length), { go: 'findings', sub: `${n('Critical')} critical · ${n('Major')} major · ${n('Minor')} minor` })}
+    ${bigBox('Resolved', rate + '%', { tone: 'good', go: 'findings', cap: 'closed', meter: rate, sub: `${done} of ${items.length}` })}
     ${bigBox('Open high-risk issues', String(open.length), { tone: open.length ? 'bad' : 'good', go: 'findings', crit: 'Critical', cap: 'open', sub: open.length ? `at ${comms} ${comms === 1 ? 'community' : 'communities'} · target 0` : 'target 0' })}
-    ${bigBox('Median days to an approved plan', med == null ? '–' : String(med), { tone: med != null && med <= 10 ? 'good' : 'warn', sub: 'target 10 or fewer' })}
-    ${bigBox('Plans approved within 10 days', r10 + '%', { tone: r10 >= 90 ? 'good' : 'warn', meter: r10, sub: `${in10} of ${days.length} approved plans` })}
-  </div></div>`;
+    ${bigBox('Days to an approved plan', med == null ? '–' : String(med), { tone: med != null && med <= 10 ? 'good' : 'warn', sub: 'median · target 10 or fewer' })}
+  </div>`;
+  return { tiles, open: open.length, comms };
 }
 
 export function dashboard(m: Model, v: ViewState): string {
@@ -161,6 +164,7 @@ export function dashboard(m: Model, v: ViewState): string {
   const A = all.filter((a) => inReg(a.community));
   const items = A.flatMap((a) => a.items);
   const sn = snapshot(m, v, inReg);
+  const hl = headline(A);
   const latestDate = m.audits.reduce((x, a) => (a.date > x ? a.date : x), '');
 
   // Communities of focus: the qualifying reasons from the latest quarterly audit, without status detail.
@@ -179,14 +183,8 @@ export function dashboard(m: Model, v: ViewState): string {
     ${chosen(m).length ? '' : '<div class="okbox">No communities selected. Open the Communities list above and pick at least one.</div>'}
 
     <section class="dhero" aria-label="Quarter snapshot">
-      <p class="dhl">This quarter EcoSure found <b>${sn.found} violations</b> across ${sn.kitchens} kitchens${where ? ` ${esc(where)}` : ''}. Our teams have remediated <b class="good">${sn.rate}%</b> of them.</p>
-      <div class="dbig">
-        ${bigBox('Violations identified', String(sn.found), { go: 'findings' })}
-        ${bigBox('Remediated', String(sn.done), { tone: 'good', go: 'findings', cap: 'closed' })}
-        ${bigBox('Remediation rate', sn.rate + '%', { tone: 'good', meter: sn.rate })}
-      </div>
-      ${critMix(items)}
-      ${riskRow(A)}
+      <p class="dhl">EcoSure found <b>${sn.found} issues</b> across ${sn.kitchens} kitchens${where ? ` ${esc(where)}` : ''}. <b class="good">${sn.rate}%</b> are resolved${hl.open ? `; <b class="bad">${hl.open} high-risk</b> ${hl.open === 1 ? 'remains' : 'remain'} open at ${hl.comms} ${hl.comms === 1 ? 'community' : 'communities'}` : ', and no high-risk issues are open'}.</p>
+      ${hl.tiles}
     </section>
 
     ${challenges(m, sn.top)}
@@ -197,6 +195,5 @@ export function dashboard(m: Model, v: ViewState): string {
       ${panel('Communities of focus', `${focusAll.length > 5 ? `Lowest 5 of ${focusAll.length}` : 'From the latest quarterly audit'}: score below 70, 4+ critical or 3+ repeats`, '', focus.length ? `<div class="tablewrap"><table class="dfocus"><tbody>${focus.map(({ c, why }) => `<tr class="rowlink" data-go="c-${c.slug}"><td><b>${esc(c.c.short || c.c.name)}</b><span class="sub">${esc([c.c.region ?? '', ...why].filter(Boolean).join(' · '))}</span></td><td class="num">${scorePill(c.score)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="okbox">None in this view.</div>')}
     </div>
 
-    ${fixCard(m, v, inReg)}
   </div>`;
 }

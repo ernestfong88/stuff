@@ -3,10 +3,10 @@ import { expect, test } from '@playwright/test';
 test('opens on the dashboard and filters by region', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
-  await expect(page.locator('.dhl')).toContainText('violations');
+  await expect(page.locator('.dhl')).toContainText('issues');
   const chal = page.locator('.chalrow');
   await expect(chal).toHaveCount(3);
-  await expect(chal.first().locator('summary')).toContainText('violations');
+  await expect(chal.first().locator('summary')).toContainText('issues');
   await chal.first().locator('summary').click();
   await expect(chal.first().locator('.chdid li').first()).toContainText('kitchen');
   await expect(chal.first().locator('.caution')).toContainText('Our SMEs will focus on');
@@ -21,8 +21,7 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(page.locator('#morefold')).not.toHaveAttribute('open', '');
   await page.locator('#morefold > summary').click();
   await expect(page.locator('#navMore button')).toHaveCount(4);
-  await expect(page.locator('.dhero > .dbig > *')).toHaveCount(3);
-  await expect(page.locator('.dmixlab button')).toHaveCount(3);
+  await expect(page.locator('.dhero > .dbig > *')).toHaveCount(4);
   await expect(page.locator('.dfocus tbody tr')).toHaveCount(5);
   const ident = page.locator('.dhero > .dbig > *').first();
   const before = await ident.textContent();
@@ -42,23 +41,20 @@ test('opens on the dashboard and filters by region', async ({ page }) => {
   await expect(page.locator('.dsel > summary b')).toContainText('All communities');
   await page.locator('[data-act="sel:done"]').click();
   await page.locator('.dfocus tbody tr').first().click();
-  await expect(page.locator('.dhl')).toContainText('The team has remediated');
+  await expect(page.locator('.dhl')).toContainText('resolved');
   await page.goto('/');
-  await expect(page.locator('.dhl')).toContainText('remediated');
+  await expect(page.locator('.dhl')).toContainText('resolved');
 });
 
-test('the dashboard keeps the briefing: issues with photos, next steps, talking points', async ({ page }) => {
+test('the dashboard stays short and opens a community snapshot', async ({ page }) => {
   await page.goto('/#home');
   await expect(page.getByRole('heading', { name: 'EcoSure Food Safety Dashboard' })).toBeVisible();
-  const fix = page.locator('.xcard', { hasText: 'Top 5 issues' }).locator('.xrow');
-  await expect(fix).toHaveCount(5);
-  await expect(fix.first().locator('summary img')).toHaveAttribute('src', /^data:image/);
-  await fix.first().locator('summary').click();
-  await expect(fix.first()).toContainText('The fix');
-  await expect(page.locator('.steps')).toHaveCount(0);
+  await expect(page.locator('.xcard')).toHaveCount(0);
+  await expect(page.locator('.dmix')).toHaveCount(0);
+  await expect(page.locator('.dhl')).toContainText('resolved');
   await expect(page.locator('#navComm .captag').first()).toBeAttached();
   await page.locator('.dfocus tbody tr').first().click();
-  await expect(page.locator('.dhl')).toContainText('violations');
+  await expect(page.locator('.dhl')).toContainText('issues');
   await expect(page.locator('.dtop3 li')).toHaveCount(3);
   await page.locator('.dmixlab [data-crit="Critical"]').click();
   await expect(page.locator('[data-fold="findings"]')).toHaveAttribute('open', '');
@@ -88,24 +84,17 @@ test('dashboard links open Findings filtered to what was clicked, for the picked
   expect(await count()).toBe(found);
   await back();
 
-  const done = await num('.dhero > .dbig > :nth-child(2)');
+  const done = Number((await page.locator('.dhero > .dbig > :nth-child(2) .ds').textContent())!.match(/^(\d+)/)![1]);
   await page.locator('.dhero > .dbig > :nth-child(2)').click();
   await expect(page.locator('#f-cap')).toHaveValue('closed');
   expect(await count()).toBe(done);
   await back();
 
-  const risk = await num('.drisk > :nth-child(1)');
-  await page.locator('.drisk > :nth-child(1)').click();
+  const risk = await num('.dhero > .dbig > :nth-child(3)');
+  await page.locator('.dhero > .dbig > :nth-child(3)').click();
   await expect(page.locator('#f-crit')).toHaveValue('Critical');
   await expect(page.locator('#f-cap')).toHaveValue('open');
   expect(await count()).toBe(risk);
-  await back();
-
-  const crit = Number(await page.locator('.dmixlab [data-crit="Critical"] b').textContent());
-  await page.locator('.dmixlab [data-crit="Critical"]').click();
-  await expect(page.locator('#f-crit')).toHaveValue('Critical');
-  await expect(chip).toBeVisible();
-  expect(await count()).toBe(crit);
   await back();
 
   const chal = page.locator('.chalrow').first();

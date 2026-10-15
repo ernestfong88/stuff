@@ -9,18 +9,13 @@ import { photoUrl } from './store';
 import { avg, esc, fmtDate, pct, plural } from './util';
 import { inRound, latestPerKitchen, type ViewState } from './views';
 import { communitiesOfFocus } from './views-roles';
-import { OPEN, top } from './expand';
+import { top } from './expand';
 import { isActivity, isPest, isRemediated, pestStatus, remediated, status } from './views-common';
 import { CAUTIONS } from './cautions';
 
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const rank = (c: string) => ['Critical', 'Major', 'Minor', 'Unrated'].indexOf(c);
 
-/** One representative photo for a set of findings: critical first, then most recent. */
-function bestPhoto(fs: Finding[]): { f: Finding; n: number } | null {
-  const f = [...fs].filter((x) => x.photos.length).sort((a, b) => rank(a.criticality) - rank(b.criticality) || b.audit.date.localeCompare(a.audit.date))[0];
-  return f ? { f, n: 0 } : null;
-}
 const photoBtn = (f: Finding, n: number, cls = '') => `<button class="ph ${cls}" data-photo="${esc(f.key)}" data-n="${n}" aria-label="Open photo: ${esc(plainTitle(f.short))} at ${esc(f.audit.community)}"><img loading="lazy" src="${esc(photoUrl(f.photos[n]))}" alt=""></button>`;
 
 interface Brief {
@@ -138,19 +133,6 @@ function snapshotOf(b: Brief): Snapshot {
 }
 export const snapshot = (m: Model, v: ViewState, inReg: (name: string) => boolean): Snapshot => snapshotOf(compute(m, v, inReg));
 
-/** Top 5 issues with a photo each; expand one for why it matters and the fix. */
-export function fixCard(m: Model, v: ViewState, inReg: (name: string) => boolean): string {
-  const b = compute(m, v, inReg);
-  if (!b.top.length) return '';
-  const row = (key: string, sumHtml: string, body: string) => `<details class="xrow" data-fold="${key}"${OPEN.has('fold:' + key) ? ' open' : ''}><summary>${sumHtml}<span class="chev" aria-hidden="true"></span></summary><div class="xbody">${body}</div></details>`;
-  return `<section class="xcard wide"><header><div><h3>Top 5 issues</h3><p>Ranked by points lost. Select one for why it matters, the fix and photos.</p></div><button class="linkbtn" data-go="findings">All findings</button></header><div class="xlist">${b.top.map((p, i) => {
-    const ph = bestPhoto(p.findings);
-    return row('issue-' + i, `<span class="rank">${i + 1}</span>${ph ? `<img src="${esc(photoUrl(ph.f.photos[0]))}" alt="" loading="lazy">` : '<span class="noimg"></span>'}<span class="xt"><b>${esc(plainTitle(p.short))}</b><span class="meter" aria-hidden="true"><span style="width:${(p.kitchens / b.A.length) * 100}%"></span></span></span><span class="xn"><b>${p.kitchens}</b> of ${b.A.length} kitchens</span>`,
-      `<p>${esc(PLAIN[p.short]?.why ?? '')}</p>${PLAYBOOK[p.short] ? `<p><b>The fix:</b> ${esc(PLAYBOOK[p.short].have[0])}.</p>` : ''}
-      ${ph ? `<div class="thumbs">${p.findings.filter((f) => f.photos.length).slice(0, 5).map((f) => `<button data-photo="${esc(f.key)}" data-n="0" aria-label="Open photo from ${esc(f.audit.community)}"><img loading="lazy" src="${esc(photoUrl(f.photos[0]))}" alt=""></button>`).join('')}</div>` : ''}
-      <button class="linkbtn" data-act="std-photos:${esc(p.short)}">See all ${p.findings.length} findings</button>`);
-  }).join('')}</div></section>`;
-}
 
 
 /** The whole summary as a plain-text email, for executives who read it without the page. */
