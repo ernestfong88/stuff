@@ -90,7 +90,7 @@ function navHtml(): string {
   }).join('') || '<div class="note" style="color:#9DBAB5;padding:6px 10px">No match</div>';
   const m = $('#mode');
   m.className = 'mode ' + (V.mode === 'local' ? 'local' : '');
-  m.innerHTML = V.mode === 'shared' ? '<i></i>Shared with everyone on this page' : V.mode === 'local' ? '<i></i>Saved in this browser only' : '<i></i>Connecting';
+  m.innerHTML = V.mode === 'shared' ? '<i></i>Shared with everyone on this page' : V.mode === 'snapshot' ? '<i></i>Read-only copy' : V.mode === 'local' ? '<i></i>Saved in this browser only' : '<i></i>Connecting';
   return '';
 }
 

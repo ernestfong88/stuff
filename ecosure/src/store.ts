@@ -19,7 +19,7 @@ export function recId(r: Rec): string {
 }
 
 export interface Backend {
-  mode: 'shared' | 'local';
+  mode: 'shared' | 'local' | 'snapshot';
   canWrite: boolean;
   keepsFiles: boolean;
   start(onChange: (recs: Rec[], settings: Settings | null) => void): Promise<void>;
@@ -155,7 +155,20 @@ async function localBackend(): Promise<Backend> {
   };
 }
 
+/* ---------- snapshot (an exported copy: the live records baked into the file, read-only) ---------- */
+function snapshotBackend(snap: { records: Rec[] }): Backend {
+  const ro = async () => { throw new Error('This is a read-only copy. Make changes on the live dashboard.'); };
+  return {
+    mode: 'snapshot', canWrite: false, keepsFiles: false,
+    async start(onChange) { onChange(snap.records, null); },
+    put: ro, remove: ro, putSettings: ro, savePhoto: ro, saveFile: ro,
+    async download(filename, data, mime) { browserDownload(filename, data, mime); },
+  };
+}
+
 export async function connect(): Promise<Backend> {
+  const snap = (window as Any).__ECOSURE_SNAPSHOT__;
+  if (snap?.records) return snapshotBackend(snap);
   try {
     const s = await sharedBackend();
     if (s) return s;

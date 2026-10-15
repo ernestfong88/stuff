@@ -36,7 +36,7 @@ export interface ViewState {
   round: string; // 'all' or a round name
   f: Filters;
   canWrite: boolean;
-  mode: 'shared' | 'local' | 'starting';
+  mode: 'shared' | 'local' | 'snapshot' | 'starting';
   capEdit: string | null; // audit key with the CAP form open
 }
 
