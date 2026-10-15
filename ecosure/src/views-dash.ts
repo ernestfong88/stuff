@@ -176,7 +176,7 @@ function headline(m: Model, A: Audit[]): { tiles: string; line: string; mitNote:
   // One line: what was found, over which audit window, and the result.
   const ds = A.map((a) => a.date).sort(), d0 = ds[0] ?? '', d1 = ds[ds.length - 1] ?? '';
   const window = d0 && d1 ? Math.round((Date.parse(d1) - Date.parse(d0)) / 86400000) + 1 : 0;
-  const line = `${window > 1 ? `In ${window} days, ${A.length}` : `${A.length}`} audits found ${items.length} issues, and ${rate}% have been remediated.`;
+  const line = `${window > 1 ? `In ${window} days, ` : ''}EcoSure conducted ${A.length} audits and found ${items.length} issues. Our teams remediated ${rate}% of them, and every action plan is documented and logged here.`;
   // The auditor's own note confirms each one was made safe on site.
   const mitNote = !OPEN.has('hr') ? '' : `<div class="dmit"><span class="dl">${critDone} of ${crit.length} resolved on a filed action plan${mit.length ? ` · ${mit.length} waiting for a full solution, immediate risk remediated on site` : ''}</span>${mit.length ? `<ul>${mit.map((f) => `<li><button class="linkbtn strong" data-go="c-${f.audit.slug}">${esc(shortOf(m, f.audit.community))}</button> <b>${esc(plainTitle(f.short))}.</b> <span class="aud">Auditor's note: “${esc(f.comment)}”</span></li>`).join('')}</ul>` : ''}${raw.length ? `<p class="rawg">${raw.length} still open with no plan: ${esc([...new Set(raw.map((f) => shortOf(m, f.audit.community)))].join(', '))}.</p>` : ''}<button class="btn ghost sm" data-go="findings" data-crit="Critical">See all ${crit.length} high-risk findings</button></div>`;
   return { tiles, line, mitNote };
