@@ -208,7 +208,7 @@ export function dashboard(m: Model, v: ViewState): string {
 
   const html = `<div class="dash">
     <div class="dhead">
-      <div><h2 class="page">EcoSure Food Safety Dashboard</h2></div>
+      <span aria-hidden="true"></span><h2 class="page">EcoSure Food Safety Dashboard</h2>
       <div class="pageacts"><button class="btn ghost sm" data-act="share">Copy link</button><button class="btn sm" data-act="copy-summary">Copy as email</button></div>
     </div>
     <div class="dfilters">${picker(m, selLabel)}<span class="grow"></span>${roundSelect(m, v)}</div>
