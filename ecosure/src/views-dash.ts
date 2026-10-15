@@ -139,7 +139,7 @@ function challenges(m: Model, top: Challenge[]): string {
     }).join('')}</div></section>`;
 }
 
-/** The four numbers at the top: issues found, resolved, open high-risk (critical), and days to an approved plan (target 10). */
+/** The four numbers at the top: issues found, resolved, open high-risk (critical), and days from audit to a plan on file (target 10). */
 function headline(A: Audit[]): { tiles: string; open: number; comms: number } {
   const items = A.flatMap((a) => a.items);
   const done = items.filter(isRemediated).length;
@@ -147,13 +147,13 @@ function headline(A: Audit[]): { tiles: string; open: number; comms: number } {
   const n = (x: string) => items.filter((f) => f.criticality === x).length;
   const open = items.filter((f) => f.criticality === 'Critical' && !isRemediated(f));
   const comms = new Set(open.map((f) => f.audit.community)).size;
-  const days = A.filter((a) => a.items.length && a.capState === 'closed' && a.cap).map((a) => Math.round((Date.parse(a.cap!.approved || a.cap!.completed || a.cap!.submitted) - Date.parse(a.date)) / 864e5)).filter((d) => !Number.isNaN(d)).sort((x, y) => x - y);
+  const days = A.filter((a) => a.items.length && a.cap && (a.cap.submitted || a.cap.approved)).map((a) => Math.round((Date.parse(a.cap!.submitted || a.cap!.approved) - Date.parse(a.date)) / 864e5)).filter((d) => !Number.isNaN(d)).sort((x, y) => x - y);
   const med = days.length ? (days.length % 2 ? days[(days.length - 1) / 2] : Math.round((days[days.length / 2 - 1] + days[days.length / 2]) / 2)) : null;
   const tiles = `<div class="dbig dfour">
     ${bigBox('Issues found', String(items.length), { go: 'findings', sub: `${n('Critical')} critical · ${n('Major')} major · ${n('Minor')} minor` })}
     ${bigBox('Resolved', rate + '%', { tone: 'good', go: 'findings', cap: 'closed', meter: rate, sub: `${done} of ${items.length}` })}
     ${bigBox('Open high-risk issues', String(open.length), { tone: open.length ? 'bad' : 'good', go: 'findings', crit: 'Critical', cap: 'open', sub: open.length ? `at ${comms} ${comms === 1 ? 'community' : 'communities'} · target 0` : 'target 0' })}
-    ${bigBox('Days to an approved plan', med == null ? '–' : String(med), { tone: med != null && med <= 10 ? 'good' : 'warn', sub: 'median · target 10 or fewer' })}
+    ${bigBox('Days to a plan on file', med == null ? '–' : String(med), { tone: med != null && med <= 10 ? 'good' : 'warn', sub: 'median · target 10 or fewer' })}
   </div>`;
   return { tiles, open: open.length, comms };
 }

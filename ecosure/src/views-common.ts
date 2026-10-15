@@ -8,13 +8,12 @@ import type { Finding, Model } from './model';
 export const SEVS = ['Critical', 'Major', 'Minor'] as const;
 export const pctOf = (x: number, n: number) => (n ? Math.round((x / n) * 100) : 0);
 
-/** Remediated: the finding is on a CAP that EcoSure shows as Approved or Completed. */
-export const isRemediated = (f: Finding) => !!f.capItem && f.audit.capState === 'closed';
+/** Remediated: the finding is on a corrective action plan filed in EcoSure (any status). */
+export const isRemediated = (f: Finding) => !!f.capItem;
 export const remediated = (fs: Finding[]) => fs.filter(isRemediated).length;
 /** One status for a finding, or for a group of findings (the least finished one wins). */
 export function status(fs: Finding[]): [string, string] {
   if (fs.every(isRemediated)) return ['Remediated', 'good'];
-  if (fs.every((f) => f.capItem)) return ['In progress', 'warn'];
   return ['No CAP yet', 'bad'];
 }
 export const statusChip = (fs: Finding[]) => { const [t, tone] = status(fs); return `<span class="chip t-${tone} plain">${t}</span>`; };
@@ -43,8 +42,8 @@ export function bigBox(label: string, value: string, o: { tone?: string; sub?: s
 /** The community's short name (Settings, "Short name"), used everywhere a community is listed. */
 export const shortOf = (m: Model, name: string) => m.settings.roster.find((c) => c.name === name)?.short || name;
 
-/** Pest status in plain words: act now, in remediation (verify it), or remediated. */
+/** Pest status in plain words: act now (no plan), or remediated (a plan is filed; verify it held). */
 export function pestStatus(fs: Finding[]): [string, string] {
   const [st] = status(fs);
-  return st === 'Remediated' ? ['Remediated', 'good'] : st === 'In progress' ? ['In remediation · verify', 'warn'] : ['Act now', 'bad'];
+  return st === 'Remediated' ? ['Remediated', 'good'] : ['Act now', 'bad'];
 }

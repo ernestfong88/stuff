@@ -23,7 +23,7 @@ The page then shows, in order:
    - **Issues found,** split by criticality
    - **Resolved,** as a percentage
    - **Open high-risk (critical) issues,** against a target of 0
-   - **Median days from audit to an approved action plan,** against a target of 10
+   - **Median days from audit to an action plan on file,** against a target of 10
 
    Each number opens the matching findings.
 2. **Top 3 challenges,** ranked by impact on the score. Each row shows the number of violations and kitchens. Open one to see:
@@ -37,9 +37,8 @@ The page then shows, in order:
    - **Prevention gaps,** in yellow
 
    Each row shows the community's short name, a photo, the observation in bold, and a status:
-   - **Act now:** no corrective action yet
-   - **In remediation · verify:** a plan is in progress and needs confirming
-   - **Remediated**
+   - **Act now:** no corrective action plan filed
+   - **Remediated:** a plan is filed; the expanded row lists what to verify held
 
    Expand a row for every photo, what was identified, what was remediated, what to verify with the team, and a link to those findings.
 4. **Communities of focus:** the lowest five from the latest quarterly audit (score below 70, 4+ critical or 3+ repeats). Each opens the community page.
@@ -109,6 +108,7 @@ A CAP attaches to the report with the same kitchen and audit date (EcoSure's "An
 ## Rules the site applies
 
 - **Score bands:** 85 and up is good, 70 to 84 is a warning, below 70 is a community of focus. Critical findings cost 5 points, Major 3, Minor 1.
+- **Resolved (remediated):** a finding is resolved once it is on a corrective action plan filed in EcoSure, whatever the plan's approval status.
 - **CAP missing:** a kitchen with findings and no CAP on file. It shows as a red **CAP needed** tag in the sidebar community list (a yellow dot means a plan is filed but not yet approved; a key sits under the search box), and as a banner on the community page.
 - **CAP status:**
   - closed when EcoSure shows Approved or Completed

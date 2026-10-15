@@ -47,7 +47,7 @@ function compute(m: Model, v: ViewState, inReg: (name: string) => boolean = () =
     capKitchens: A.filter((a) => a.items.length).length, capClosed: A.filter((a) => a.capState === 'closed').length,
     late: nc.filter((a) => a.capState === 'late'), pastDue: nc.filter((a) => a.capState === 'overdue'),
     missing: A.filter(capMissing).sort((x, y) => x.capDue.localeCompare(y.capDue)),
-    crit: all.filter((f) => f.criticality === 'Critical').length, critClosed: all.filter((f) => f.criticality === 'Critical' && f.capItem && f.audit.capState === 'closed').length,
+    crit: all.filter((f) => f.criticality === 'Critical').length, critClosed: all.filter((f) => f.criticality === 'Critical' && f.capItem).length,
     actions: all.filter((f) => f.capItem).length, photos: all.reduce((x, f) => x + f.photos.length, 0),
     prev: prevName && prevName !== cur ? { name: prevName, s: avg(latestPerKitchen(m.audits.filter((a) => a.round === prevName && inReg(a.community))).map((a) => a.score)) } : null,
     regions: regionsOf(m, A),

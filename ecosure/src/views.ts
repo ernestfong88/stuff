@@ -188,7 +188,7 @@ export function filterFindings(m: Model, v: ViewState): Finding[] {
     (f.theme === 'all' || themeOf(i.short) === f.theme) &&
     (f.crit === 'all' || i.criticality === f.crit) &&
     (!f.std || i.short === f.std) &&
-    (f.cap === 'all' || (f.cap === 'has' && !!i.capItem) || (f.cap === 'none' && !i.capItem) || (f.cap === 'open' && i.audit.capState !== 'closed') || (f.cap === 'closed' && !!i.capItem && i.audit.capState === 'closed')) &&
+    (f.cap === 'all' || (f.cap === 'has' && !!i.capItem) || (f.cap === 'none' && !i.capItem) || (f.cap === 'open' && !i.capItem) || (f.cap === 'closed' && !!i.capItem)) &&
     (!f.repeat || i.repeat) && (!f.photos || i.photos.length > 0) &&
     (!q || [i.short, i.question, i.comment, ...i.findings, i.capItem?.action ?? '', i.audit.community].join(' ').toLowerCase().includes(q)));
 }

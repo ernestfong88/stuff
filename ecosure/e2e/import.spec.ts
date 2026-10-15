@@ -31,9 +31,10 @@ test('imports a report and its CAP, then shows them on the community page', asyn
   await expect(page.locator('.find', { hasText: 'Cold food held too warm' })).toContainText('Reach-in gasket replaced');
   await expect(page.locator('.find .thumbs img')).toHaveCount(3);
 
-  // The CAP is still Pending, so nothing is remediated yet and the challenges show it in progress.
-  await expect(page.locator('.dhl')).toContainText('0% are resolved');
-  await expect(page.locator('.dtop3 .chip', { hasText: 'In progress' }).first()).toBeVisible();
+  // A filed CAP resolves its items even while EcoSure shows it Pending: 2 of the 3 findings are on it.
+  await expect(page.locator('.dhl')).toContainText('67% are resolved');
+  await expect(page.locator('.dtop3 .chip', { hasText: 'Remediated' }).first()).toBeVisible();
+  await expect(page.locator('.dtop3 .chip', { hasText: 'No CAP yet' }).first()).toBeVisible();
 });
 
 test('rejects a PDF that is not from EcoSure', async ({ page }) => {
