@@ -1,4 +1,4 @@
-import { Sun } from 'lucide-react';
+import mark from '../../../assets/kisco-mark.svg';
 import { COMMUNITY_NAME } from '../../../data';
 import s from './KioskHeader.module.css';
 
@@ -7,9 +7,7 @@ export function KioskHeader({ step, of }: { step: number; of: number }) {
   return (
     <header className={s.header}>
       <div className={s.brand}>
-        <span className={s.logo} aria-hidden>
-          <Sun size="58%" strokeWidth={2} />
-        </span>
+        <img src={mark} alt="" className={s.logo} />
         <span className={s.names}>
           <span className={s.community}>{COMMUNITY_NAME}</span>
           <span className={s.dining}>Dining</span>

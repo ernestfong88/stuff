@@ -4,10 +4,15 @@ import { TEMP_MEALS, tempTotals } from '../../domain/tempLog';
 import { now, setClockOffset } from '../../lib/clock';
 import { addExtraTemp, addTempDish, mealLog, menuDishesAround, recordTemp, setDishHold, tempDishes, tempLogStore } from '../tempLog';
 
-/** Pin the demo clock to Thursday Oct 8 2026 at h:m. */
+/**
+ * Pin the demo clock to h:m today. The seed's menu start dates are set relative
+ * to the real date when the modules load, so a fixed calendar date would land on
+ * a different cycle day each time the tests run.
+ */
 function clockAt(h: number, m = 0) {
   setClockOffset(0);
-  setClockOffset(new Date(2026, 9, 8, h, m).getTime() - Date.now());
+  const d = new Date();
+  setClockOffset(new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m).getTime() - Date.now());
 }
 
 const todayIso = () => isoOf(new Date(now()));

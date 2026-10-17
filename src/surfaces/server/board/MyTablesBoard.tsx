@@ -8,6 +8,7 @@ import { useConfig } from '../../../store/config';
 import { useDiningOrders } from '../../../store/dining';
 import { cx, EmptyState, useNow } from '../../../ui';
 import { inVenue } from '../../../domain/venue';
+import watermark from '../../../assets/kisco-mark-silhouette.svg';
 import s from './MyTablesBoard.module.css';
 import { TableCard, type OpenCheckOptions } from './TableCard';
 import { LANES, stageSince, tableStage, type StageKey, type TableStage } from '../../../domain/tableStage';
@@ -89,11 +90,15 @@ export function MyTablesBoard({
 
   if (!rows.length) {
     return (
-      <div className={s.board}>
+      <div className={cx(s.board, s.emptyBoard)}>
         {banner}
-        <EmptyState icon={<ClipboardList size={28} />} title={`No open checks for ${serverName(server)}`}>
-          Start one from the floor.
-        </EmptyState>
+        {/* Faint Culinary App mark behind the message while the board is empty. */}
+        <img src={watermark} alt="" aria-hidden className={s.watermark} />
+        <div className={s.emptyMessage}>
+          <EmptyState icon={<ClipboardList size={28} />} title={`No open checks for ${serverName(server)}`}>
+            Start one from the floor.
+          </EmptyState>
+        </div>
       </div>
     );
   }

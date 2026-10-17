@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { seedOrders } from '../../data';
 import { DEFAULT_CONFIG, type DiningConfig } from '../config';
-import { COURSE_BACKUP_MIN, courseDue, courseWork, lastRun, checkedIn, runsLine } from '../courses';
+import { COURSE_BACKUP_MIN, courseDue, courseWork, firesAtSend, lastRun, checkedIn, runsLine } from '../courses';
 import { DEFAULT_CONTEXT, pacingTick, runCourse, sendOrder, undoRunCourse } from '../diningActions';
 import { clockLabel, pickupFireAt, pickupLeadMinutes } from '../pickup';
 import { runUndoSnapshot } from '../courses';
@@ -110,6 +110,59 @@ describe('sendOrder (pick up / delivery)', () => {
   });
 });
 
+describe('queue orders ignore coursing mode', () => {
+  const MODES = ['manual', 'expo', 'timer5', 'timer8', 'off'] as const;
+
+  /** A pick up with soup, an entrée with its side, dessert and a coffee: on a table that would be three courses. */
+  function queueCheck(extra: Partial<Parameters<typeof order>[1]> = {}) {
+    const entree = line('d_peach');
+    return order([diner([line('d_cbsoup'), entree, line('d_mashed', { autoSide: true, parentId: entree.id }), line('d_trifle'), line('d_coffee')])], {
+      tableId: undefined,
+      queueType: 'pickup',
+      readyAt: 'ASAP',
+      ...extra,
+    });
+  }
+
+  it.each(MODES)('%s: Send fires the whole order as one course, dessert too', (mode) => {
+    const o = queueCheck();
+    const sent = sendOrder(stateOf(o), o.id, { ...DEFAULT_CONTEXT, cfg: withMode(mode) }).orders[0];
+    expect(lines(sent).every((i) => i.sent && i.course === 1)).toBe(true);
+    expect(lines(sent).some((i) => i.kitchenState === 'scheduled')).toBe(false);
+    expect(sent.fireAtTs).toBeUndefined();
+  });
+
+  it.each(MODES)('%s: an order for later holds all of it until its fire time, then fires all of it', (mode) => {
+    const cfg = withMode(mode);
+    const o = queueCheck({ queueType: 'delivery', readyAt: clockLabel(T0 + 60 * MIN) });
+    const s = sendOrder(stateOf(o), o.id, { ...DEFAULT_CONTEXT, cfg, pickupLead: 20 });
+    expect(lines(s.orders[0]).every((i) => i.course === 1 && i.kitchenState === 'scheduled')).toBe(true);
+    advance(39 * MIN);
+    expect(pacingTick(s.orders, cfg)).toBe(s.orders);
+    advance(MIN);
+    expect(lines(pacingTick(s.orders, cfg)[0]).some((i) => i.kitchenState === 'scheduled')).toBe(false);
+  });
+
+  it('manual coursing never holds a queue order: anything held without a fire time fires on the next tick', () => {
+    const cfg = withMode('manual');
+    const o = queueCheck();
+    const held = {
+      ...o,
+      diners: o.diners.map((d) => ({ ...d, items: d.items.map((i) => ({ ...i, sent: true, course: 1, kitchenState: 'scheduled' as const })) })),
+    };
+    const fired = pacingTick([held], cfg)[0];
+    expect(lines(fired).some((i) => i.kitchenState === 'scheduled')).toBe(false);
+  });
+
+  it('courseDue and firesAtSend treat every course of a queue order as due', () => {
+    const o = queueCheck();
+    for (const mode of MODES) {
+      expect(firesAtSend(o, 3, withMode(mode))).toBe(true);
+      expect(courseDue(o, 3, [], false, 0, withMode(mode))).toBe(true);
+    }
+  });
+});
+
 describe('courseDue', () => {
   const prevRun = [line('d_cbsoup', { sent: true, kitchenState: 'cleared', firedAt: T0, clearedAt: T0 })];
 
@@ -156,6 +209,23 @@ describe('pacingTick (dine-in)', () => {
     const fired = pacingTick(s.orders, cfg)[0];
     const byId = Object.fromEntries(lines(fired).map((i) => [i.id, i]));
     expect(byId[entree.id]).toMatchObject({ kitchenState: 'cooking', firedAt: T0 + 5000 });
+    expect(byId[dessert.id].kitchenState).toBe('scheduled');
+  });
+
+  it('manual coursing (the default): running course 1 does not fire course 2; the 15 minute backup does', () => {
+    const { o, soup, entree, dessert } = dinnerCheck();
+    let s = sendOrder(stateOf(o), o.id);
+    const sent = Object.fromEntries(lines(s.orders[0]).map((i) => [i.id, i]));
+    expect(sent[soup.id].kitchenState).not.toBe('scheduled');
+    expect(sent[entree.id].kitchenState).toBe('scheduled');
+    s = runCourse(s, o.id, 1);
+    advance(5000);
+    expect(pacingTick(s.orders)).toBe(s.orders);
+    advance(COURSE_BACKUP_MIN * MIN - 10_000);
+    expect(pacingTick(s.orders)).toBe(s.orders);
+    advance(5000);
+    const byId = Object.fromEntries(lines(pacingTick(s.orders)[0]).map((i) => [i.id, i]));
+    expect(byId[entree.id].kitchenState).toBe('cooking');
     expect(byId[dessert.id].kitchenState).toBe('scheduled');
   });
 

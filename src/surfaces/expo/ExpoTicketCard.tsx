@@ -371,7 +371,7 @@ function Footer({ ticket: t, texts, actions }: { ticket: ExpoTicket; texts: Text
       return (
         <button className={cx(s.act, s.actFire)} onClick={() => actions.fire(o.id, a.course)}>
           <Flame size={17} strokeWidth={2.5} />
-          {queue ? 'Fire order?' : `Fire course ${a.course}?`}
+          {queue ? 'Fire all?' : `Fire course ${a.course}?`}
         </button>
       );
     case 'run':

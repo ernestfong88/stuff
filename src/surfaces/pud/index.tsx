@@ -11,12 +11,12 @@ import { useDiningActions, useDiningOrders } from '../../store/dining';
 import { toast } from '../../ui';
 import { OrderScreen } from '../server/order';
 import { PudBoard } from './PudBoard';
-import { isEmptyOrder } from './queue/queue';
+import { isEmptyOrder, type NewOrderKind } from './queue/queue';
 import { mealAt } from '../../domain/pickupService/meals';
 import { MyTablesButton } from './MyTablesButton';
 
 export default function PudSurface() {
-  const { openQueueOrder, closeOrder } = useDiningActions();
+  const { openQueueOrder, closeOrder, patchOrder } = useDiningActions();
   const orders = useDiningOrders();
   const [venue] = useVenue();
   const [openId, setOpenId] = useState<string | null>(null);
@@ -31,11 +31,19 @@ export default function PudSurface() {
     }
   };
 
+  // An associate meal is a pick up in the associate's name: the check asks which associate and offers only the associate menu.
+  const startNew = (kind: NewOrderKind) => {
+    const id = openQueueOrder(kind === 'delivery' ? 'delivery' : 'pickup', venue, mealAt(now()));
+    if (kind === 'associate') patchOrder(id, { assoc: true });
+    setOpenId(id);
+  };
+
+  // Finishing, sending or leaving an order comes back to this board.
   if (openId) return <OrderScreen orderId={openId} onClose={close} />;
 
   return (
     <TabletShell nav={<MyTablesButton />}>
-      <PudBoard onOpen={setOpenId} onNew={(type) => setOpenId(openQueueOrder(type, venue, mealAt(now())))} />
+      <PudBoard onOpen={setOpenId} onNew={startNew} />
     </TabletShell>
   );
 }

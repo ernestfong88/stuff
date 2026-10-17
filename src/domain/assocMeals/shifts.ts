@@ -29,7 +29,9 @@ export function upcomingShifts(todayIso: string): Shift[] {
     date: addDays(todayIso, toMonday + (weeksAhead - 1) * 7 + (weekday - 1)),
     meal: s.meal as ShiftMeal,
   }));
-  return [...near, ...later];
+  // A weekly shift can land on a day the next few days already cover (from a Saturday, next Monday is two days out).
+  const taken = new Set(near.map((s) => s.date));
+  return [...near, ...later.filter((s) => !taken.has(s.date))];
 }
 
 /** The meals a shift can plan; a "Both" shift picks lunch or dinner. */

@@ -117,13 +117,16 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  height: 40px;
+  min-height: 40px;
+  /* Buttons wrap to a new row first; one too wide for the card on its own (big text) shrinks and wraps its words instead of sticking out. */
+  max-width: 100%;
+  min-width: 0;
   padding: 0 14px;
   border-radius: 11px;
   font-size: 13px;
   font-weight: 800;
-  white-space: nowrap;
-  flex-shrink: 0;
+  line-height: 1.15;
+  text-align: center;
   transition:
     transform var(--fast) var(--ease),
     filter var(--fast);

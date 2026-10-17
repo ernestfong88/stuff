@@ -12,8 +12,11 @@
   margin: 0 2px;
   background: var(--hair-2);
 }
-.grow {
-  flex: 1;
+.adds {
+  display: flex;
+  flex: 1 0 auto;
+  justify-content: flex-end;
+  gap: 8px;
 }
 .completed,
 .add {
@@ -60,12 +63,14 @@
 .addDelivery {
   background: var(--coast);
 }
+.addAssoc {
+  background: var(--plum);
+}
 
-/* Upright: the two New buttons share their own row, so neither wraps alone. */
+/* Upright: the New buttons share their own row, so none wraps alone. */
 @container tablet (max-width: 900px) {
-  .grow {
+  .adds {
     flex-basis: 100%;
-    height: 0;
   }
   .add {
     flex: 1 1 0;

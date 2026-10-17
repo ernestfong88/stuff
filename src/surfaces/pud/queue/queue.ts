@@ -25,6 +25,9 @@ import { rangeOf } from '../../../domain/pickupService/windows';
 
 export type QueueFilter = 'all' | 'pickup' | 'delivery';
 
+/** What a New button starts: an associate meal is a pick up in the associate's name, on the associate menu. */
+export type NewOrderKind = 'pickup' | 'delivery' | 'associate';
+
 export interface QueueRow {
   order: Order;
   stage: PickupStage;

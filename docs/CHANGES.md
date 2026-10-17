@@ -220,6 +220,31 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### New Culinary App logo
+- The new Kisco Culinary App logo (the knife, fork and spoon "K") now appears on the sign-in screen, in the Back Office sidebar, in the kiosk header and as the browser tab and home-screen icon.
+- On the server tablet, My Tables shows a faint outline of the logo behind "No open checks" when you have no open checks.
+- Fix: on a Saturday the associate phone listed Monday twice; each day now shows once.
+
+### Pick up and delivery are never coursed
+- Pick up and delivery orders always fire as a whole: under any coursing setting the full order fires at once, or waits as a whole for its pickup time. Only table orders are coursed.
+- Expo shows "Fire all?" on them, the activity log says "Fired all", and the order screen no longer offers Hold on their lines.
+- The PU & Delivery board has an **Associate meal** button next to New pick up and New delivery. It asks which associate and shows only the associate menu.
+- Table card buttons on My Tables can't stick out of the card, even at large text sizes.
+
+### Recipe Approval shows the whole recipe
+- Opening a recipe sent for approval now shows all of it: who sent it and why, yield, portion and times, ingredients, method, plating, allergens and nutrition. On a wide screen the list stays on the left and the next waiting recipe opens after each decision.
+- When a recipe changes one that was approved before, the changed parts are marked and a list shows what came out and what went in.
+- New **Ask for changes** next to Approve and Deny. Asking for changes and denying both need a note, which the community sees on its recipe with a Send again button.
+
+### Production counts and Steps of Service
+- The Manager tablet's "Metrics" tab is now called **Steps of Service**, matching the policy name.
+- Production counts have **+25, +50 and +100** buttons that add to the count (tap 100 then 25 for 125), plus **Clear**. Typing a number still works. On a touch screen the buttons are 44px tall.
+- Week at a glance now picks the day and shows each day's confirmed count, so the narrow day boxes are gone and the columns have more room. Next week shows all seven days, Sunday to Saturday, and its button reads "Confirm all next week".
+- Two Temperature Log tests only passed on Oct 8; they now pin the clock to today, so they pass on any date.
+
+### Docs: the demo clock
+- The README and the handoff note now say the app runs on the device's real time by default. They said it was pinned to 5:45 PM, which is no longer the case.
+
 ### Handoff note for IT
 - New [docs/HANDOFF.md](HANDOFF.md) for the team taking over: how to run it, what's real and what's simulated, where a backend plugs in, how to build and host it, and what's left to build before it can go live. The README links to it.
 

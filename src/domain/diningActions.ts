@@ -432,7 +432,8 @@ export function setOrderPacing(s: DiningState, orderId: string, fireMode: FireMo
  * One pass of the course pacing timer (every 5 seconds, in one tab).
  *
  * A pick up / delivery with a fire time fires everything held once that
- * time comes. A dine-in check fires its lowest held course when
+ * time comes (one without a fire time fires it at once: it is never
+ * coursed, whatever the coursing mode). A dine-in check fires its lowest held course when
  * courseDue() says so, judged against the earlier courses' plates (sides
  * and drinks don't count). Returns the same array when nothing fired.
  */
@@ -452,6 +453,13 @@ export function pacingTick(orders: Order[], cfg: DiningConfig = DEFAULT_CONFIG):
         ),
         fireAtTs: undefined,
       };
+    }
+    // A pick up or delivery is never coursed: with no fire time to wait for, everything held fires.
+    if (o.queueType) {
+      changed = true;
+      return mapLines(o, (i, d) =>
+        i.sent && i.kitchenState === 'scheduled' ? { ...i, kitchenState: lineFiredState(i, d.items, o, cfg), firedAt: t } : i,
+      );
     }
     const course = Math.min(...held.map((i) => i.course || 2));
     const prev = sent.filter((i) => (i.course || 2) < course && !isSide(i.itemId) && !i.drink);

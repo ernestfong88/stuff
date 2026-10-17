@@ -336,7 +336,7 @@ export const BO_SECTIONS: BoSectionDef[] = [
       {
         id: 'recipeApproval',
         label: 'Recipe Approval',
-        blurb: 'Recipes the communities send to Home Office, to approve or deny',
+        blurb: 'Recipes the communities send to Home Office, to approve, ask for changes on, or deny',
         keywords: 'recipe approval approve deny review submit submitted send home office community queue pending waiting changes requested',
         component: lazy(() => import('./pages/recipeApproval')),
       },

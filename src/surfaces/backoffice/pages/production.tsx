@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Check, CheckCheck, Plus, Printer, X } from 'lucide-react';
 import { specialPeriodOf, type AssocMealKind } from '../../../domain/assocMeals/menu';
 import { MEALS } from '../../../domain/mealPeriods';
+import { COUNT_MAX, QUICK_ADD_STEPS, addToCount } from '../../../domain/quickCount';
 import { uid } from '../../../lib/id';
 import { useAssocOrders, useDiningHistory, useDiningOrders } from '../../../store/dining';
 import {
@@ -68,6 +69,7 @@ export default function Page(_props: BoPageProps) {
   const confirmedIn = (d: ProductionDay) => d.rows.filter((r) => productionCount(state, venueId, d.iso, r).ok).length;
   const weekTotal = days.reduce((n, d) => n + d.rows.length, 0);
   const weekDone = days.reduce((n, d) => n + confirmedIn(d), 0);
+  const hasGlance = days.some((d) => d.rows.some((r) => r.kind === 'special'));
   const preordered = (row: ProductionRow) =>
     assocOrders.filter(
       (a) =>
@@ -149,35 +151,36 @@ export default function Page(_props: BoPageProps) {
         </span>
         {weekDone < weekTotal && (
           <Button size="sm" variant="soft" icon={<CheckCheck size={15} />} onClick={() => void confirmWeek()}>
-            Confirm all this week
+            Confirm all {week === 0 ? 'this' : 'next'} week
           </Button>
         )}
       </div>
 
-      <div className={s.days} role="group" aria-label="Day">
-        {days.map((d) => {
-          const done = confirmedIn(d);
-          const all = d.rows.length > 0 && done === d.rows.length;
-          return (
-            <button key={d.offset} aria-pressed={d.offset === day.offset} className={cx(s.day, d.offset === day.offset && s.dayOn)} onClick={() => setOffset(d.offset)}>
-              <span className={s.dayName}>
-                {d.offset < 2 ? dayName(d) : d.date.toLocaleDateString('en-US', { weekday: 'short' })} · {shortDate(d)}
-              </span>
-              <span className={s.dayMeta}>
-                {d.cycleDay ? `Cycle day ${d.cycleDay} · ` : ''}
-                {all ? 'All confirmed' : `${done} of ${d.rows.length} confirmed`}
-              </span>
-              {all && (
-                <span className={s.ready}>
-                  <Check size={12} strokeWidth={3} aria-hidden /> Ready
+      {/* With specials on the cycle, Week at a glance is the day picker; a fixed menu gets the day boxes. */}
+      {!hasGlance && (
+        <div className={s.days} role="group" aria-label="Day">
+          {days.map((d) => {
+            const done = confirmedIn(d);
+            const all = d.rows.length > 0 && done === d.rows.length;
+            return (
+              <button key={d.offset} aria-pressed={d.offset === day.offset} className={cx(s.day, d.offset === day.offset && s.dayOn)} onClick={() => setOffset(d.offset)}>
+                <span className={s.dayName}>
+                  {d.offset < 2 ? dayName(d) : d.date.toLocaleDateString('en-US', { weekday: 'short' })} · {shortDate(d)}
                 </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+                {d.cycleDay > 0 && <span className={s.dayMeta}>Cycle day {d.cycleDay}</span>}
+                <span className={s.dayMeta}>{all ? 'All confirmed' : `${done} of ${d.rows.length} confirmed`}</span>
+                {all && (
+                  <span className={s.ready}>
+                    <Check size={12} strokeWidth={3} aria-hidden /> Ready
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-      <WeekGlance days={days} selected={day.offset} venueId={venueId} state={state} onPick={setOffset} />
+      {hasGlance && <WeekGlance days={days} selected={day.offset} venueId={venueId} state={state} confirmedIn={confirmedIn} onPick={setOffset} />}
 
       <h2 className={s.dayHeading}>
         {day.offset < 2 && `${dayName(day)} · `}
@@ -212,35 +215,67 @@ export default function Page(_props: BoPageProps) {
 }
 
 /**
- * The week on one screen: each meal's specials by day with how many to make,
- * so the director can see a run of fish or a heavy dessert day before
+ * The week on one screen, and the day picker: each day's head says how many
+ * of its counts are confirmed; under it, each meal's specials with how many to
+ * make, so the director can see a run of fish or a heavy dessert day before
  * confirming. Sides are counted, not listed. Tap a day to edit it.
  */
-function WeekGlance({ days, selected, venueId, state, onPick }: { days: ProductionDay[]; selected: number; venueId: string; state: ProductionState; onPick: (offset: number) => void }) {
+function WeekGlance({
+  days,
+  selected,
+  venueId,
+  state,
+  confirmedIn,
+  onPick,
+}: {
+  days: ProductionDay[];
+  selected: number;
+  venueId: string;
+  state: ProductionState;
+  confirmedIn: (d: ProductionDay) => number;
+  onPick: (offset: number) => void;
+}) {
   const meals = MEALS.filter((m) => days.some((d) => d.rows.some((r) => r.meal === m && r.kind === 'special')));
   if (!meals.length) return null;
   return (
-    <BoSection flush title="Week at a glance" sub="Specials on the cycle and how many to make. A tick means the count is confirmed. Tap a day to change it.">
+    <BoSection flush title="Week at a glance" sub="Specials on the cycle and how many to make. A tick means the count is confirmed. Tap a day to see and change its counts.">
       <div className={s.tableWrap}>
         <table className={s.glance}>
           <thead>
             <tr>
-              <th className={s.glanceMeal} aria-label="Meal" />
-              {days.map((d) => (
-                <th key={d.offset} className={d.offset === selected ? s.glanceOn : undefined}>
-                  <button className={s.glanceDay} onClick={() => onPick(d.offset)}>
-                    {d.date.toLocaleDateString('en-US', { weekday: 'short' })} {d.date.getDate()}
-                  </button>
-                </th>
-              ))}
+              {days.map((d) => {
+                const done = confirmedIn(d);
+                const all = d.rows.length > 0 && done === d.rows.length;
+                return (
+                  <th key={d.offset} className={d.offset === selected ? s.glanceOn : undefined}>
+                    <button className={s.glanceDay} aria-pressed={d.offset === selected} onClick={() => onPick(d.offset)}>
+                      <span className={s.glanceDayName}>
+                        {d.offset === 0 ? 'Today' : d.date.toLocaleDateString('en-US', { weekday: 'short' })} {shortDate(d)}
+                      </span>
+                      {d.cycleDay > 0 && <span className={s.glanceDayMeta}>Cycle day {d.cycleDay}</span>}
+                      <span className={cx(s.glanceDayMeta, all && s.glanceDayAll)}>
+                        {all ? (
+                          <>
+                            <Check size={11} strokeWidth={3} aria-hidden /> All confirmed
+                          </>
+                        ) : (
+                          `${done} of ${d.rows.length} confirmed`
+                        )}
+                      </span>
+                    </button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
-          <tbody>
-            {meals.map((meal) => (
-              <tr key={meal}>
-                <th scope="row" className={s.glanceMeal}>
+          {meals.map((meal) => (
+            <tbody key={meal}>
+              <tr>
+                <th scope="colgroup" colSpan={days.length} className={s.glanceMeal}>
                   {meal}
                 </th>
+              </tr>
+              <tr>
                 {days.map((d) => {
                   const specials = d.rows.filter((r) => r.meal === meal && r.kind === 'special');
                   const shown = specials.filter((r) => r.category !== 'Sides');
@@ -265,8 +300,8 @@ function WeekGlance({ days, selected, venueId, state, onPick }: { days: Producti
                   );
                 })}
               </tr>
-            ))}
-          </tbody>
+            </tbody>
+          ))}
         </table>
       </div>
     </BoSection>
@@ -308,12 +343,16 @@ function MealCounts({ meal, rows, day, dayLabel, venueId, state, preordered }: M
             </span>
           ) : (
             <>
-              <NumberBox
-                value={c.make}
-                min={0}
-                aria-label={`Make ${r.name}`}
-                onChange={(v) => updateProductionCounts(venueId, day.iso, [r], { make: v ?? 0 })}
-              />
+              <div className={s.makeEdit}>
+                <NumberBox
+                  value={c.make}
+                  min={0}
+                  max={COUNT_MAX}
+                  aria-label={`Make ${r.name}`}
+                  onChange={(v) => updateProductionCounts(venueId, day.iso, [r], { make: v ?? 0 })}
+                />
+                <QuickAdd name={r.name} value={c.make} onChange={(make) => updateProductionCounts(venueId, day.iso, [r], { make })} />
+              </div>
               <div className={cx(s.rec, c.make !== r.recommended && s.recChanged)}>
                 {r.unit ? `${r.unit} · ` : ''}suggested {r.recommended}
               </div>
@@ -413,6 +452,22 @@ function MealCounts({ meal, rows, day, dayLabel, venueId, state, preordered }: M
         </table>
       </div>
     </BoSection>
+  );
+}
+
+/** +25 / +50 / +100 add to the count as it stands; Clear sets it to 0 (an unset count). */
+function QuickAdd({ name, value, onChange }: { name: string; value: number; onChange: (v: number) => void }) {
+  return (
+    <span className={s.quick} role="group" aria-label={`Quick add to ${name}`}>
+      {QUICK_ADD_STEPS.map((n) => (
+        <button key={n} type="button" className={s.quickBtn} aria-label={`Add ${n} to ${name}`} onClick={() => onChange(addToCount(value, n))}>
+          +{n}
+        </button>
+      ))}
+      <button type="button" className={cx(s.quickBtn, s.quickClear)} aria-label={`Clear ${name}`} disabled={!value} onClick={() => onChange(0)}>
+        Clear
+      </button>
+    </span>
   );
 }
 

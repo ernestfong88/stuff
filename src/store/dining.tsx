@@ -530,10 +530,14 @@ export function DiningProvider({ children, engine: given }: { children: ReactNod
           printed: warnPrints,
         }),
       fireCourseNow: (orderId, course) =>
-        void logged('fireCourseNow', orderId, () => 'Fired C' + course, (s) => A.fireCourseNow(s, orderId, course, ctx()), {
-          course,
-          printed: warnPrints,
-        }),
+        void logged(
+          'fireCourseNow',
+          orderId,
+          // A pick up or delivery is never coursed: it fires all at once.
+          (o) => (o.queueType ? 'Fired all' : 'Fired C' + course),
+          (s) => A.fireCourseNow(s, orderId, course, ctx()),
+          { course, printed: warnPrints },
+        ),
       setOrderPacing: (orderId, mode, timerMin) =>
         void logged('setOrderPacing', orderId, () => pacingText(mode, timerMin), (s) => A.setOrderPacing(s, orderId, mode, timerMin)),
 

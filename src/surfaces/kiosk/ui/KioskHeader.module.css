@@ -15,13 +15,11 @@
   flex-shrink: 0;
 }
 .logo {
-  width: calc(var(--k) * 56);
-  height: calc(var(--k) * 56);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--kk-blue);
-  color: #fff;
+  /* The Culinary App mark, as tall as the community name block. */
+  width: calc(var(--k) * 36);
+  height: calc(var(--k) * 58);
+  object-fit: contain;
+  flex-shrink: 0;
 }
 .names {
   display: flex;

@@ -37,10 +37,10 @@ Demo sign-in PINs: Adriana `2468`, Ricardo `1357`, Maria `1122`.
 
 ### Demo clock
 
-The demo data is a dinner service in progress. The app runs on a clock pinned
-to 5:45 PM today that then ticks in real time, so the service always looks
-live. Add `?clock=18:30` to start at a different time, or `?clock=real` to
-use the device clock.
+The demo data is a service in progress. The app runs on the device's real
+time, and the demo checks are timed relative to it, so the service always looks
+live. Add `?clock=18:30` to pin the clock to another time today (it then ticks
+from there), or `?clock=real` to go back to the device clock.
 
 To reset the demo, open the screen menu (top right, on every screen) and tap
 Reset demo data at the top.

@@ -10,7 +10,7 @@ import type { Order } from '../../domain/types';
 import { CompletedList } from './components/CompletedList';
 import { OpenQueue } from './components/OpenQueue';
 import { QueueToolbar } from './components/QueueToolbar';
-import { completedToday, matchesFilter, openRows, type QueueFilter, type QueueRow } from './queue/queue';
+import { completedToday, matchesFilter, openRows, type NewOrderKind, type QueueFilter, type QueueRow } from './queue/queue';
 import { usePudActions, useTextContext } from './queue/usePudActions';
 import { tracksPickups, useServiceSettings } from '../../domain/pickupService/settings';
 import s from './PudBoard.module.css';
@@ -19,7 +19,7 @@ const FILTERS: readonly QueueFilter[] = ['all', 'pickup', 'delivery'];
 
 export interface PudBoardProps {
   onOpen: (orderId: string) => void;
-  onNew: (type: 'pickup' | 'delivery') => void;
+  onNew: (kind: NewOrderKind) => void;
   /** Keep the filter here instead of in the URL (when the board sits inside another screen). */
   local?: boolean;
 }

@@ -19,9 +19,18 @@ export const COURSE_BACKUP_MIN = 15;
 /** Dessert's course: it waits for a manual fire or the backup in every mode. */
 export const DESSERT_COURSE = 3;
 
-/** All at once: every course but dessert fires the moment it is sent. */
-export const firesAtSend = (o: Pick<Order, 'room' | 'meal'>, course: number, cfg: DiningConfig = DEFAULT_CONFIG): boolean =>
-  courseMode(o, cfg) === 'off' && course < DESSERT_COURSE;
+/**
+ * Pick up and delivery are never coursed: the whole order fires together
+ * (or waits, all of it, for its fire time), whatever the coursing mode.
+ */
+export const isQueueOrder = (o: Partial<Pick<Order, 'queueType'>> | null | undefined): boolean => !!o?.queueType;
+
+/** All at once: every course but dessert fires the moment it is sent. A pick up or delivery fires all of it. */
+export const firesAtSend = (
+  o: Pick<Order, 'room' | 'meal'> & Partial<Pick<Order, 'queueType'>>,
+  course: number,
+  cfg: DiningConfig = DEFAULT_CONFIG,
+): boolean => isQueueOrder(o) || (courseMode(o, cfg) === 'off' && course < DESSERT_COURSE);
 
 /** __kHash: small stable string hash, used to spread made-up seed times. */
 export function hash(str: string): number {
@@ -55,6 +64,8 @@ export function courseDue(
   sinceFired: number,
   cfg: DiningConfig = DEFAULT_CONFIG,
 ): boolean {
+  // A pick up or delivery has no courses to pace: anything held is due.
+  if (isQueueOrder(o)) return true;
   const mode = courseMode(o, cfg);
   const runAt = prev.length ? Math.max(...prev.map((i) => i.clearedAt || i.firedAt || 0)) : o.openedAt || 0;
   const backup = allRun && now() - runAt >= COURSE_BACKUP_MIN * 60_000;

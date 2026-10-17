@@ -3,10 +3,10 @@ import { ChevronDown, Search, X } from 'lucide-react';
 import { Toggle, cx, toast } from '../../../ui';
 import { canSee, navPageId, type BoSectionDef } from '../nav';
 import { isHomeOffice, useBoRole } from '../../../store/boRole';
+import mark from '../../../assets/kisco-mark.svg';
 import { orderedSections, phaseIsOn, phaseOf, sectionPhase, setPhaseOn, usePhaseOn, usePhasePlan, visiblePages, type Phase } from '../phases';
 import { AccountCard } from './AccountCard';
 import { CommunitySwitcher } from './CommunitySwitcher';
-import { KiscoMark } from './KiscoMark';
 import { shortcutLabel } from './shortcut';
 import s from './SideNav.module.css';
 
@@ -42,9 +42,7 @@ export function SideNav({ pageId, section, goto, onSearch, onClose }: Props) {
   return (
     <div className={s.side}>
       <div className={s.brand}>
-        <span className={s.mark}>
-          <KiscoMark height={22} />
-        </span>
+        <img src={mark} alt="" className={s.mark} />
         <span className={s.brandText}>
           <span className={s.brandName}>KiscoConnect</span>
           <span className={s.brandModule}>Culinary</span>

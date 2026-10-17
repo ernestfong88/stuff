@@ -6,7 +6,7 @@ export type ManagerTab = 'triage' | 'tables' | 'metrics' | 'shift' | 'associates
 export const MANAGER_TABS: ReadonlyArray<{ id: ManagerTab; label: string }> = [
   { id: 'triage', label: 'Triage' },
   { id: 'tables', label: 'Tables' },
-  { id: 'metrics', label: 'Metrics' },
+  { id: 'metrics', label: 'Steps of Service' },
   { id: 'shift', label: 'Closing report' },
   { id: 'associates', label: 'Associates' },
   { id: '86', label: '86 list' },

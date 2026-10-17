@@ -99,3 +99,12 @@ describe('shifts and meals', () => {
     expect(lastTexted(meal({ log: [{ by: 'M', at: 1, text: 'Moved to 5:30', texted: true }] }))).toBe('Moved to 5:30');
   });
 });
+
+describe('upcoming shifts', () => {
+  it('lists each day once, whatever day of the week it is', () => {
+    for (let d = 10; d <= 23; d++) {
+      const dates = upcomingShifts(`2026-10-${d}`).map((s) => s.date);
+      expect(new Set(dates).size).toBe(dates.length);
+    }
+  });
+});

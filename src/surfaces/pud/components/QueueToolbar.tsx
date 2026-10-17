@@ -1,6 +1,6 @@
-import { History, Plus } from 'lucide-react';
+import { BadgeCheck, History, Plus } from 'lucide-react';
 import { Tabs, cx } from '../../../ui';
-import type { QueueFilter } from '../queue/queue';
+import type { NewOrderKind, QueueFilter } from '../queue/queue';
 import s from './QueueToolbar.module.css';
 
 export interface QueueToolbarProps {
@@ -10,10 +10,10 @@ export interface QueueToolbarProps {
   completed: boolean;
   completedCount: number;
   onToggleCompleted: () => void;
-  onNew: (type: 'pickup' | 'delivery') => void;
+  onNew: (kind: NewOrderKind) => void;
 }
 
-/** All / Pick up / Delivery, Completed today, and the two New buttons. */
+/** All / Pick up / Delivery, Completed today, and the New buttons (pick up, delivery, associate meal). */
 export function QueueToolbar({ filter, onFilter, counts, completed, completedCount, onToggleCompleted, onNew }: QueueToolbarProps) {
   return (
     <div className={s.bar}>
@@ -34,15 +34,21 @@ export function QueueToolbar({ filter, onFilter, counts, completed, completedCou
         {completed ? 'Back to open orders' : 'Completed today'}
         {!completed && <span className={s.count}>{completedCount}</span>}
       </button>
-      <span className={s.grow} />
-      <button className={cx(s.add, s.addPickup)} onClick={() => onNew('pickup')}>
-        <Plus size={16} strokeWidth={2.5} aria-hidden />
-        New pick up
-      </button>
-      <button className={cx(s.add, s.addDelivery)} onClick={() => onNew('delivery')}>
-        <Plus size={16} strokeWidth={2.5} aria-hidden />
-        New delivery
-      </button>
+      {/* The New buttons stay together: short of room, they move to their own row as one. */}
+      <div className={s.adds}>
+        <button className={cx(s.add, s.addPickup)} onClick={() => onNew('pickup')}>
+          <Plus size={16} strokeWidth={2.5} aria-hidden />
+          New pick up
+        </button>
+        <button className={cx(s.add, s.addDelivery)} onClick={() => onNew('delivery')}>
+          <Plus size={16} strokeWidth={2.5} aria-hidden />
+          New delivery
+        </button>
+        <button className={cx(s.add, s.addAssoc)} onClick={() => onNew('associate')}>
+          <BadgeCheck size={16} strokeWidth={2.25} aria-hidden />
+          Associate meal
+        </button>
+      </div>
     </div>
   );
 }

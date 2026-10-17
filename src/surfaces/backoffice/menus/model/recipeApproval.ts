@@ -1,7 +1,8 @@
 /**
  * Recipe Approval, in plain steps: a community sends a recipe to Home
- * Office, which approves it or denies it with a reason. A recipe changed
- * after it was approved needs approving again. Pure: every change takes the
+ * Office, which approves it, asks for changes, or denies it; asking for
+ * changes and denying need a note to the team. A recipe changed after it was
+ * approved needs approving again. Pure: every change takes the
  * list of submissions and returns a new one.
  */
 import type { Recipe } from '../../../../store/menuEdits';
@@ -80,9 +81,12 @@ export function withdraw(subs: RecipeSubmission[], id: string): RecipeSubmission
   return subs.some((s) => s.id === id && s.status === 'waiting') ? subs.filter((s) => s.id !== id) : subs;
 }
 
+/** Asking for changes and denying need a note: the team reads it on the recipe. */
+export const needsNote = (status: Exclude<SubmissionStatus, 'waiting'>): boolean => status !== 'approved';
+
 /**
- * Approve or deny a waiting submission. Denying needs a reason (the team
- * reads it on the recipe); without one nothing changes.
+ * Approve, ask for changes, or deny a waiting submission. Without the note
+ * asking for changes or denying needs, nothing changes.
  */
 export function decide(
   subs: RecipeSubmission[],
@@ -90,7 +94,7 @@ export function decide(
   x: { status: Exclude<SubmissionStatus, 'waiting'>; by: string; at: number; comment?: string },
 ): RecipeSubmission[] {
   const comment = x.comment?.trim();
-  if (x.status === 'denied' && !comment) return subs;
+  if (needsNote(x.status) && !comment) return subs;
   return subs.map((s) =>
     s.id === id && s.status === 'waiting' ? { ...s, status: x.status, decidedBy: x.by, decidedAt: x.at, ...(comment ? { comment } : {}) } : s,
   );
@@ -125,7 +129,7 @@ export function previousApproved(subs: RecipeSubmission[], sub: RecipeSubmission
   return best;
 }
 
-export type RecipeApprovalStep = 'none' | 'waiting' | 'approved' | 'edited' | 'denied';
+export type RecipeApprovalStep = 'none' | 'waiting' | 'approved' | 'edited' | 'changes' | 'denied';
 
 export interface RecipeApprovalInfo {
   step: RecipeApprovalStep;
@@ -145,6 +149,7 @@ export function approvalStatus(subs: RecipeSubmission[], community: string, r: R
   if (!sub) return { step: 'none', label: 'Not sent for approval', tone: 'neutral', canSend: true };
   if (sub.status === 'waiting')
     return { step: 'waiting', label: 'Pending approval', tone: 'info', sub, editedSinceSent: !sameContent(sub.recipe, r), canSend: false };
+  if (sub.status === 'changes') return { step: 'changes', label: 'Changes requested', tone: 'warning', sub, canSend: true };
   if (sub.status === 'denied') return { step: 'denied', label: 'Denied', tone: 'danger', sub, canSend: true };
   return sameContent(sub.recipe, r)
     ? { step: 'approved', label: 'Approved', tone: 'success', sub, canSend: false }
@@ -154,7 +159,7 @@ export function approvalStatus(subs: RecipeSubmission[], community: string, r: R
 export type QueueTab = SubmissionStatus;
 
 export function queueCounts(subs: RecipeSubmission[]): Record<QueueTab, number> {
-  const n = { waiting: 0, approved: 0, denied: 0 };
+  const n = { waiting: 0, approved: 0, changes: 0, denied: 0 };
   for (const s of subs) n[s.status]++;
   return n;
 }
@@ -220,8 +225,7 @@ export function recipeChanges(before: RecipeSnapshot, after: RecipeSnapshot): Fi
   const a = snapshotOf(before);
   const b = snapshotOf(after);
   const out: FieldChange[] = [];
-  for (const k of SNAPSHOT_KEYS) {
-    if (JSON.stringify(a[k] ?? null) === JSON.stringify(b[k] ?? null)) continue;
+  for (const k of changedKeys(a, b)) {
     if (k === 'nutrition') {
       for (const [n, label, unit] of NUTRIENT_UNITS) {
         const x = (a.nutrition as Record<string, number | undefined> | undefined)?.[n];
@@ -243,6 +247,42 @@ export function recipeChanges(before: RecipeSnapshot, after: RecipeSnapshot): Fi
     out.push({ label: LABELS[k], before: a[k] == null ? '' : String(a[k]), after: b[k] == null ? '' : String(b[k]) });
   }
   return out;
+}
+
+/** The parts of the review page, each showing some of the reviewed fields. */
+export type ReviewPart = 'about' | 'numbers' | 'ingredients' | 'method' | 'plating' | 'nutrition' | 'notes';
+
+const PART_OF: Record<(typeof SNAPSHOT_KEYS)[number], ReviewPart> = {
+  name: 'about',
+  cat: 'about',
+  sub: 'about',
+  desc: 'about',
+  menuDescriptor: 'about',
+  servingDesc: 'numbers',
+  prepMin: 'numbers',
+  cookMin: 'numbers',
+  ingredients: 'ingredients',
+  method: 'method',
+  equipment: 'method',
+  garnish: 'plating',
+  plating: 'plating',
+  cookNotes: 'plating',
+  nutrition: 'nutrition',
+  allergens: 'nutrition',
+  dietFlags: 'nutrition',
+  variations: 'notes',
+};
+
+/** The reviewed fields that differ between two versions, in review order. */
+export function changedKeys(before: RecipeSnapshot, after: RecipeSnapshot): Array<(typeof SNAPSHOT_KEYS)[number]> {
+  const a = snapshotOf(before);
+  const b = snapshotOf(after);
+  return SNAPSHOT_KEYS.filter((k) => JSON.stringify(a[k] ?? null) !== JSON.stringify(b[k] ?? null));
+}
+
+/** The parts of the review page to mark "Changed": a re-submission compared with the version approved before. */
+export function changedParts(before: RecipeSnapshot | undefined, after: RecipeSnapshot): Set<ReviewPart> {
+  return new Set(before ? changedKeys(before, after).map((k) => PART_OF[k]) : []);
 }
 
 /** "today", "yesterday", "3 days ago", else "Sep 12": when it was sent or decided. */

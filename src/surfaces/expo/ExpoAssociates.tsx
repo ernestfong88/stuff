@@ -96,7 +96,7 @@ function AssocTicketCard({ ticket: t, index, now, onUpdate }: { ticket: AssocTic
       <footer className={s.foot}>
         {next.kind === 'fire' ? (
           <button className={cx(s.act, s.actFire)} onClick={() => onUpdate(m.id, { firedAt: clockNow() }, 'Fired at Expo')}>
-            <Flame size={17} strokeWidth={2.5} /> Fire order?
+            <Flame size={17} strokeWidth={2.5} /> Fire all?
           </button>
         ) : next.kind === 'ready' ? (
           <button className={cx(s.act, s.actNeutral)} onClick={() => onUpdate(m.id, { readyAt: clockNow() }, 'Marked ready at Expo')}>
