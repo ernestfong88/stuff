@@ -220,6 +220,11 @@ The final order is:
   - The duplicate quarter badge next to the quarter picker is gone.
 - **À la carte builder:** the filter is labelled *Show*, with a line explaining that the Breakfast, Lunch and Dinner buttons on each dish set when it is offered. Each section's button says what it adds, for example *Add desserts*. Locking works here too.
 
+### New Culinary App logo
+- The new Kisco Culinary App logo (the knife, fork and spoon "K") now appears on the sign-in screen, in the Back Office sidebar, in the kiosk header and as the browser tab and home-screen icon.
+- On the server tablet, My Tables shows a faint outline of the logo behind "No open checks" when you have no open checks.
+- Fix: on a Saturday the associate phone listed Monday twice; each day now shows once.
+
 ### Pick up and delivery are never coursed
 - Pick up and delivery orders always fire as a whole: under any coursing setting the full order fires at once, or waits as a whole for its pickup time. Only table orders are coursed.
 - Expo shows "Fire all?" on them, the activity log says "Fired all", and the order screen no longer offers Hold on their lines.

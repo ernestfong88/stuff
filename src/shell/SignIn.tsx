@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Delete } from 'lucide-react';
-import logo from '../assets/kisco-logo.png';
+import logo from '../assets/kisco-logo-full.png';
 import { COMMUNITY_NAME } from '../data';
 import { cx } from '../ui/cx';
 import { checkPin, signIn } from './session';
@@ -45,7 +45,7 @@ export function SignIn() {
   return (
     <div className={s.screen}>
       <div className={s.card}>
-        <img src={logo} alt="" className={s.logo} />
+        <img src={logo} alt="Kisco Culinary App" className={s.logo} width={600} height={603} />
         <div className={s.brand}>KiscoConnect Dining</div>
         <div className={s.community}>{COMMUNITY_NAME}</div>
         <div className={s.prompt}>Enter your 4-digit PIN</div>
